@@ -25,12 +25,10 @@ public:
     };
 
     Controller();
-    ~Controller();
 
-    // These return true on success, otherwise false.
     void pressButton(BUTTON b);
     void releaseButton(BUTTON b);
-    // Analog values are clamped to [0, 255].
+    // Analog values are clamped to [0, 1].
     void pressShoulder(BUTTON b, double amount);
     void tiltAnalog(BUTTON B, double x, double y);
 
