@@ -4,7 +4,6 @@
 #include "Edgeguard.h"
 #include "../Constants.h"
 #include "../Chains/Nothing.h"
-#include "../Chains/EdgeStall.h"
 #include "../Chains/JumpCanceledShine.h"
 #include "../Chains/GrabEdge.h"
 #include "../Chains/EdgeAction.h"
@@ -42,7 +41,7 @@ void Edgeguard::DetermineChain()
     {
         if(m_state->m_memory->player_two_action == EDGE_HANGING)
         {
-            CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
+            CreateChain2(EdgeAction, WAVEDASH_UP);
             m_chain->PressButtons();
             return;
         }
@@ -135,14 +134,14 @@ void Edgeguard::DetermineChain()
         //Is marth so low that he must grab the edge? If so, just roll up.
         if(m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + MARTH_DOUBLE_JUMP_HEIGHT)
         {
-            CreateChain3(EdgeAction, Controller::BUTTON_L, 2);
+            CreateChain3(EdgeAction, ROLL_UP, 2);
             m_chain->PressButtons();
             return;
         }
         //If not, he might land on the stage. So, just stand up and attack on the other end
         else
         {
-            CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
+            CreateChain2(EdgeAction, STAND_UP);
             m_chain->PressButtons();
             return;
         }

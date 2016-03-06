@@ -42,7 +42,7 @@ void ShowOff::DetermineChain()
     if(m_state->m_memory->player_two_action == EDGE_HANGING ||
         m_state->m_memory->player_two_action == EDGE_CATCHING)
     {
-        CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
+        CreateChain2(EdgeAction, WAVEDASH_UP);
         m_chain->PressButtons();
         return;
     }

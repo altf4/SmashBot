@@ -6,7 +6,6 @@
 #include "../Constants.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/EdgeAction.h"
-#include "../Chains/EdgeStall.h"
 #include "../Chains/FireFox.h"
 
 Recover::Recover()
@@ -32,23 +31,7 @@ void Recover::DetermineChain()
     if(m_state->m_memory->player_two_action == EDGE_HANGING ||
       m_state->m_memory->player_two_action == EDGE_CATCHING)
     {
-
-        bool isOnRight = m_state->m_memory->player_one_x > 0;
-        bool movingRight = m_state->m_memory->player_one_speed_ground_x_self > 0;
-        //TODO: made up number 60. Revsit this.
-        //Stand up if the enemy is far away, or if they're trying to steal the edge
-        if(std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) > 60 ||
-          (m_state->m_memory->player_one_action == LANDING_SPECIAL &&
-          isOnRight != m_state->m_memory->player_one_facing &&
-          movingRight == isOnRight &&
-          m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_one_x) < 10))
-        {
-            CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
-            m_chain->PressButtons();
-            return;
-        }
-
-        CreateChain(EdgeStall);
+        CreateChain2(EdgeAction, WAVEDASH_UP);
         m_chain->PressButtons();
         return;
     }

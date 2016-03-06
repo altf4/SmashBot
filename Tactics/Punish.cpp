@@ -44,7 +44,7 @@ void Punish::DetermineChain()
         m_state->m_memory->player_two_action == EDGE_HANGING &&
         std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
     {
-        CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
+        CreateChain2(EdgeAction, STAND_UP);
         m_chain->PressButtons();
         return;
     }

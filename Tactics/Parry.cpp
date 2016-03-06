@@ -20,7 +20,7 @@ void Parry::DetermineChain()
 {
     if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
-        CreateChain2(EdgeAction, Controller::BUTTON_MAIN);
+        CreateChain2(EdgeAction, STAND_UP);
         m_chain->PressButtons();
         return;
     }
