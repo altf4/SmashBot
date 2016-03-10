@@ -4,7 +4,7 @@
 #include <typeinfo>
 
 #include "../Chains/Chain.h"
-#include "../GameState.h"
+#include "../Util/GameState.h"
 
 //The tactic is a short term actionable objective
 class Tactic
@@ -16,6 +16,8 @@ public:
     //Determine what tactic to employ in order to further our strategy, based on game state
     virtual void DetermineChain() = 0;
     virtual bool IsInterruptible(){return m_chain->IsInterruptible();};
+    virtual std::string ToString() = 0;
+    std::string ToStringCascade(){return this->ToString() + "," + m_chain->ToString();};
 
 protected:
 

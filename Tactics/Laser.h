@@ -11,6 +11,8 @@ public:
     Laser();
     ~Laser();
     void DetermineChain();
+    std::string ToString(){return "Laser";};
+
 };
 
 #endif

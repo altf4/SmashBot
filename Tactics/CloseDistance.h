@@ -12,6 +12,7 @@ public:
     CloseDistance();
     ~CloseDistance();
     void DetermineChain();
+    std::string ToString(){return "CloseDistance";};
 
 };
 

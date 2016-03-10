@@ -14,6 +14,7 @@ public:
 
     //Determine what tactic to employ in order to further our strategy
     void DetermineTactic();
+    std::string ToString(){return "Sandbag";};
 
 private:
     //Frame that the player's attack started

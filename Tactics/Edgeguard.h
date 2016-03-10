@@ -13,6 +13,7 @@ public:
     ~Edgeguard();
 
     void DetermineChain();
+    std::string ToString(){return "EdgeGuard";};
 
 };
 

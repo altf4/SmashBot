@@ -2,7 +2,7 @@
 #define KILL_OPPONENT_H
 
 #include "Goal.h"
-#include "../GameState.h"
+#include "../Util/GameState.h"
 
 class KillOpponent : public Goal
 {
@@ -11,6 +11,8 @@ public:
     ~KillOpponent();
     //Determine what the best strategy is
     void Strategize();
+    std::string ToString(){return "KillOpponent";};
+
 };
 
 #endif

@@ -16,6 +16,7 @@ public:
 
     void PressButtons();
     bool IsInterruptible();
+    std::string ToString(){return "GrabEdge";};
 
 private:
     bool m_isLeftEdge;

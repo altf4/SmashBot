@@ -12,6 +12,7 @@ public:
     CreateDistance();
     ~CreateDistance();
     void DetermineChain();
+    std::string ToString(){return "CreateDistance";};
 
 };
 

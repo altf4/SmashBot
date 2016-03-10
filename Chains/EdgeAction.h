@@ -2,7 +2,7 @@
 #define EDGEACTION_H
 
 #include "Chain.h"
-#include "../Controller.h"
+#include "../Util/Controller.h"
 
 enum EDGEACTION
 {
@@ -24,6 +24,7 @@ public:
 
     void PressButtons();
     bool IsInterruptible();
+    std::string ToString(){return "EdgeAction";};
 
 private:
     EDGEACTION m_action;

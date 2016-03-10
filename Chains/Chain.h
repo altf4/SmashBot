@@ -2,8 +2,8 @@
 #define CHAIN_H
 
 #include <sys/types.h>
-#include "../Controller.h"
-#include "../GameState.h"
+#include "../Util/Controller.h"
+#include "../Util/GameState.h"
 
 //A chain is a series of button presses that creates a commonly reused set of actions. Examples include:
 //  SHFFL'ing arials, SHDL, waveshine, etc...
@@ -17,6 +17,8 @@ public:
     virtual void PressButtons() = 0;
 
     virtual bool IsInterruptible() = 0;
+    
+    virtual std::string ToString() = 0;
 
 protected:
 

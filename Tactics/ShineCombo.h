@@ -11,6 +11,7 @@ public:
     ShineCombo();
     ~ShineCombo();
     void DetermineChain();
+    std::string ToString(){return "ShineCombo";};
 
 };
 

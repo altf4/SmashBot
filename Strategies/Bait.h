@@ -13,6 +13,7 @@ public:
 
     //Determine what tactic to employ in order to further our strategy
     void DetermineTactic();
+    std::string ToString(){return "Bait";};
 
 private:
     //Frame that the player's attack started

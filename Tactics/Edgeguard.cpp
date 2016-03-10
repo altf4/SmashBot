@@ -2,14 +2,14 @@
 #include <math.h>
 
 #include "Edgeguard.h"
-#include "../Constants.h"
+#include "../Util/Constants.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/JumpCanceledShine.h"
 #include "../Chains/GrabEdge.h"
 #include "../Chains/EdgeAction.h"
 #include "../Chains/Walk.h"
 #include "../Chains/MarthKiller.h"
-#include "../Controller.h"
+#include "../Util/Controller.h"
 
 Edgeguard::Edgeguard()
 {

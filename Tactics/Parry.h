@@ -13,6 +13,7 @@ public:
     Parry();
     ~Parry();
     void DetermineChain();
+    std::string ToString(){return "Parry";};
 
 private:
     uint m_startFrame;

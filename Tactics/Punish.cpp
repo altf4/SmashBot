@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "Punish.h"
-#include "../Constants.h"
+#include "../Util/Constants.h"
 #include "../Chains/SmashAttack.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/Jab.h"

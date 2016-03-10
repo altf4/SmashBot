@@ -11,6 +11,7 @@ public:
     Punish();
     ~Punish();
     void DetermineChain();
+    std::string ToString(){return "Punish";};
 
 private:
     double m_roll_position;

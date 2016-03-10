@@ -12,6 +12,7 @@ public:
     Wait();
     ~Wait();
     void DetermineChain();
+    std::string ToString(){return "Wait";};
 
 };
 

@@ -1,9 +1,10 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 #include <typeinfo>
+#include <string>
 
 #include "../Tactics/Tactic.h"
-#include "../GameState.h"
+#include "../Util/GameState.h"
 
 //The strategy is a high level way of accomplishing the top level goal. You might call it a "playstyle"
 //  or "gameplan".
@@ -16,6 +17,10 @@ public:
     //Determine what tactic to employ in order to further our strategy
     // This decision is made on the basis of the game state
     virtual void DetermineTactic() = 0;
+
+    virtual std::string ToString() = 0;
+
+    std::string ToStringCascade(){return this->ToString() + "," + m_tactic->ToStringCascade();};
 
 protected:
 

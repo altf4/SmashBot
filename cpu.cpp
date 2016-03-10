@@ -8,12 +8,18 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <csignal>
+#include <string>
+#include <time.h>
 
 #include "Goals/KillOpponent.h"
 #include "Goals/NavigateMenu.h"
 
-#include "GameState.h"
-#include "MemoryWatcher.h"
+#include "Util/GameState.h"
+#include "Util/MemoryWatcher.h"
+#include "Util/Logger.h"
+
+bool isDebug = false;
 
 void FirstTimeSetup()
 {
@@ -91,134 +97,59 @@ void FirstTimeSetup()
     }
 }
 
-void PrintState(GameState* state)
+void signal_handler(int signal)
 {
-    std::cout << "p1 percent: " << state->m_memory->player_one_percent << std::endl;
-    std::cout << "p2 percent: " << state->m_memory->player_two_percent << std::endl;
-    std::cout << "p1 stock: " << state->m_memory->player_one_stock << std::endl;
-    std::cout << "p2 stock: " << state->m_memory->player_two_stock << std::endl;
-    std::cout << "p1 character: " << state->m_memory->player_one_character << std::endl;
-    std::cout << "p2 character: " << state->m_memory->player_two_character << std::endl;
-    if(state->m_memory->player_one_facing)
-    {
-        std::cout << "p1 facing: right" << std::endl;
-    }
-    else
-    {
-        std::cout << "p1 facing: left" << std::endl;
+    std::string logpath = "Logs";
+    struct stat buffer;
 
-    }
-    if(state->m_memory->player_two_facing)
+    if(isDebug)
     {
-        std::cout << "p2 facing: right" << std::endl;
-    }
-    else
-    {
-        std::cout << "p2 facing: left" << std::endl;
-    }
-    std::cout << "stage: " << std::hex << state->m_memory->stage << std::endl;
-    std::cout << "frame: " << std::dec << state->m_memory->frame << std::endl;
-    std::cout << "menu state: " << state->m_memory->menu_state << std::endl;
-    std::cout << "p2 pointer x: " << state->m_memory->player_two_pointer_x << std::endl;
-    std::cout << "p2 pointer y: " << state->m_memory->player_two_pointer_y << std::endl;
+        Logger *logger = Logger::Instance();
+        std::string logdump = logger->DumpLog();
 
-    std::cout << "p1 x: " << std::fixed << std::setprecision(10) << state->m_memory->player_one_x << std::endl;
-    std::cout << "p1 y: " << std::fixed << std::setprecision(10) << state->m_memory->player_one_y << std::endl;
+        if(stat(logpath.c_str(), &buffer) != 0)
+        {
+            if(mkdir(logpath.c_str(), 0775) != 0)
+            {
+                std::cout << "ERROR: Could not create the directory: \"" << logpath << "\". Maybe permissions?" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
 
-    std::cout << "p2 x: " << std::fixed << std::setprecision(10) << state->m_memory->player_two_x << std::endl;
-    std::cout << "p2 y: " << std::fixed << std::setprecision(10) << state->m_memory->player_two_y << std::endl;
+        //Name the file as a timestamp
+        static char name[20];
+        time_t now = time(0);
+        strftime(name, sizeof(name), "%Y%m%d_%H%M%S", localtime(&now));
+        std::string filename = std::string(name);
 
-    std::cout << "p1 action: " << std::hex << state->m_memory->player_one_action << std::endl;
-    std::cout << "p2 action: " << std::hex << state->m_memory->player_two_action << std::endl;
+        std::cout << "\nINFO: Log file written to: " << logpath + "/" + filename + ".csv" << std::endl;
 
-    std::cout << "p1 action count: " << std::dec << state->m_memory->player_one_action_counter << std::endl;
-    std::cout << "p2 action count: " << std::dec << state->m_memory->player_two_action_counter << std::endl;
-
-    std::cout << "p1 action frame: " << std::dec << state->m_memory->player_one_action_frame << std::endl;
-    std::cout << "p2 action frame: " << std::dec << state->m_memory->player_two_action_frame << std::endl;
-
-    if(state->m_memory->player_one_invulnerable)
-    {
-        std::cout << "p1 invulnerable" << std::endl;
-    }
-    else
-    {
-        std::cout << "p1 not invulnerable" << std::endl;
-    }
-    if(state->m_memory->player_two_invulnerable)
-    {
-        std::cout << "p2 invulnerable" << std::endl;
-    }
-    else
-    {
-        std::cout << "p2 not invulnerable" << std::endl;
+        std::ofstream dst(logpath + "/" + filename + ".csv", std::ios::out);
+        dst << logdump;
+        dst.close();
     }
 
-    if(state->m_memory->player_one_charging_smash)
-    {
-        std::cout << "p1 charging a smash" << std::endl;
-    }
-    else
-    {
-        std::cout << "p1 not charging a smash" << std::endl;
-    }
-
-    if(state->m_memory->player_two_charging_smash)
-    {
-        std::cout << "p2 charging a smash" << std::endl;
-    }
-    else
-    {
-        std::cout << "p2 not charging a smash" << std::endl;
-    }
-
-    std::cout << "p1 hitlag frames left: " << state->m_memory->player_one_hitlag_frames_left << std::endl;
-    std::cout << "p2 hitlag frames left: " << state->m_memory->player_two_hitlag_frames_left << std::endl;
-
-    std::cout << "p1 hitstun frames left: " << state->m_memory->player_one_hitstun_frames_left << std::endl;
-    std::cout << "p2 hitstun frames left: " << state->m_memory->player_two_hitstun_frames_left << std::endl;
-
-    std::cout << "p1 jumps left: " << state->m_memory->player_one_jumps_left << std::endl;
-    std::cout << "p2 jumps left: " << state->m_memory->player_two_jumps_left << std::endl;
-
-    if(state->m_memory->player_one_on_ground)
-    {
-        std::cout << "p1 on ground" << std::endl;
-    }
-    else
-    {
-        std::cout << "p1 in air" << std::endl;
-    }
-    if(state->m_memory->player_two_on_ground)
-    {
-        std::cout << "p2 on ground" << std::endl;
-    }
-    else
-    {
-        std::cout << "p2 in air" << std::endl;
-    }
-
-    std::cout << "p1 speed x air self: " << state->m_memory->player_one_speed_air_x_self << std::endl;
-    std::cout << "p2 speed x air self: " << state->m_memory->player_two_speed_air_x_self << std::endl;
-
-    std::cout << "p1 speed y self: " << state->m_memory->player_one_speed_y_self << std::endl;
-    std::cout << "p2 speed y self: " << state->m_memory->player_two_speed_y_self << std::endl;
-
-    std::cout << "p1 speed x attack: " << state->m_memory->player_one_speed_x_attack << std::endl;
-    std::cout << "p2 speed x attack: " << state->m_memory->player_two_speed_x_attack << std::endl;
-
-    std::cout << "p1 speed y attack: " << state->m_memory->player_one_speed_y_attack << std::endl;
-    std::cout << "p2 speed y attack: " << state->m_memory->player_two_speed_y_attack << std::endl;
-
-    std::cout << "p1 speed x ground self: " << state->m_memory->player_one_speed_ground_x_self << std::endl;
-    std::cout << "p2 speed x ground self: " << state->m_memory->player_two_speed_ground_x_self << std::endl;
+    exit(EXIT_SUCCESS);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    if(argc > 1)
+    {
+        std::string arg = std::string(argv[1]);
+        if(arg == "--debug")
+        {
+            isDebug = true;
+        }
+    }
+
     //Do some first-time setup
     FirstTimeSetup();
 
+    std::signal(SIGINT, signal_handler);
+
+    Logger *logger = Logger::Instance();
+    logger->SetDebug(isDebug);
     GameState *state = GameState::Instance();
 
     MemoryWatcher *watcher = new MemoryWatcher();
@@ -236,11 +167,8 @@ int main()
             continue;
         }
 
-        //PrintState(state);
-
         current_menu = (MENU)state->m_memory->menu_state;
 
-        //Spinloop until we get a new frame
         if(state->m_memory->frame != last_frame)
         {
             if(state->m_memory->frame > last_frame+1)
@@ -286,6 +214,9 @@ int main()
             last_frame = 1;
             current_menu = (MENU)state->m_memory->menu_state;
         }
+
+        logger->SetGoal(goal);
+        logger->LogFrame();
     }
 
     return EXIT_SUCCESS;

@@ -2,7 +2,7 @@
 #define SMASHATTACK_H
 
 #include "Chain.h"
-#include "../Controller.h"
+#include "../Util/Controller.h"
 
 //Perform a specified smash attack
 class SmashAttack : public Chain
@@ -20,6 +20,7 @@ public:
 
     void PressButtons();
     bool IsInterruptible();
+    std::string ToString(){return "SmashAttack";};
 
 private:
     DIRECTION m_direction;

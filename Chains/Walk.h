@@ -14,6 +14,7 @@ public:
     //Determine what buttons to press in order to execute our tactic
     void PressButtons();
     bool IsInterruptible();
+    std::string ToString(){return "Walk";};
 
 private:
     bool m_isRight;

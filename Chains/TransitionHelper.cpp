@@ -1,5 +1,5 @@
 #include "TransitionHelper.h"
-#include "../Controller.h"
+#include "../Util/Controller.h"
 
 void TransitionHelper::Transition(ACTION from, ACTION to)
 {

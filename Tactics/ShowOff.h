@@ -12,6 +12,7 @@ public:
     ShowOff();
     ~ShowOff();
     void DetermineChain();
+    std::string ToString(){return "ShowOff";};
 
 };
 

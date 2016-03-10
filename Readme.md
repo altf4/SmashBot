@@ -57,6 +57,11 @@ The level 11 CPU is an AI that plays Super Smash Bros: Melee inside the Dolphin 
 
     The CPU only runs on Linux. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. There are no plans to make a Windows port. If we're going to spend time porting, it's going to be to a Gamecube/Wii.
 
+7. **I found a bug. How can I help?**
+
+    Hey thanks, that's awesome! For starters, make sure you can reliably reproduce the bug. Then go ahead and make an Issue on GitHub at https://github.com/altf4/cpu-level-11/issues. If you want to be even MORE awesome, run the AI with the "--debug" flag and upload the CSV file it gives you along with the issue. That CSV contains a full breakdown of the AI's state at each frame, so we can easily pinpoint what went wrong and where.
+
+
 ##Rough Setup Steps:
 
 ###Works on: Ubuntu 15.04 (Maybe others, but that's all I've tested)

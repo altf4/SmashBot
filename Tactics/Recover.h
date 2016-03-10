@@ -11,6 +11,7 @@ public:
     Recover();
     ~Recover();
     void DetermineChain();
+    std::string ToString(){return "Recover";};
 
 };
 
