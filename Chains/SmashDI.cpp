@@ -33,7 +33,7 @@ void SmashDI::PressButtons()
             return;
         }
         else {
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1: 0, 1);
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1 : 0, 1);
             return;
         }
     }
