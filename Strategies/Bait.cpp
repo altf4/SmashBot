@@ -14,6 +14,7 @@
 #include "../Tactics/Recover.h"
 #include "../Tactics/Punish.h"
 #include "../Tactics/ShowOff.h"
+#include "../Tactics/DI.h"
 
 Bait::Bait()
 {
@@ -344,7 +345,15 @@ void Bait::DetermineTactic()
         m_tactic->DetermineChain();
         return;
     }
-
+    //Implement Smash DI
+    if(m_state->m_memory->player_two_hitlag_frames_left > 0 &&
+       (m_state->m_memory->player_two_action != SHIELD ||
+        m_state->m_memory->player_two_action != DOWN_B_STUN))
+    {
+        CreateTactic(DI);
+        m_tactic->DetermineChain();
+        return;
+    }
     //TODO: For now, just default to waiting if nothing else fits
     CreateTactic(Wait);
     m_tactic->DetermineChain();
