@@ -24,16 +24,9 @@ void SmashDI::PressButtons()
 {
     for(uint i = 0; i <= m_state->m_memory->player_two_hitlag_frames_left; i++)
     {
+        bool isEven = i % 2 == 0;
         //Alternate each frame between UP and LEFT/RIGHT so we can SDI every frame of hitlag
         //Go right if facing right, otherwise go left
-        if(i % 2 == 0)
-        {
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1 : 0, 0.5);
-            //return;
-        }
-        else {
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1 : 0, 1);
-            //return;
-        }
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN,m_facingRight ? 1 : 0,isEven ? 0.5 : 1);
     }
 }
