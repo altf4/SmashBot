@@ -22,7 +22,6 @@ bool SmashDI::IsInterruptible()
 
 void SmashDI::PressButtons()
 {
-    //hitlag_frames_left - 1 is done in order to establish DI correctly
     for(uint i = 0; i <= m_state->m_memory->player_two_hitlag_frames_left; i++)
     {
         //Alternate each frame between UP and LEFT/RIGHT so we can SDI every frame of hitlag
@@ -30,11 +29,11 @@ void SmashDI::PressButtons()
         if(i % 2 == 0)
         {
             m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1 : 0, 0.5);
-            return;
+            //return;
         }
         else {
             m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_facingRight ? 1 : 0, 1);
-            return;
+            //return;
         }
     }
 }

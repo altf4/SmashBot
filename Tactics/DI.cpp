@@ -22,6 +22,7 @@ void DI::DetermineChain()
     {
         CreateChain2(SmashDI, m_isFacingRightP1);
         m_chain->PressButtons();
+        return;
     }
     //End SDI, Begin optimal DI section
     if(m_hitlagFramesLeftP2 == 1)
