@@ -46,21 +46,21 @@ Controller::Controller()
             if(stat(backup_path.c_str(), &buffer) != 0)
             {
                 std::cout << "ERROR: $XDG_DATA_HOME was empty and so was $HOME/.dolphin-emu and $HOME/.local/share/dolphin-emu " \
-                    "Are you sure Dolphin is installed? Make sure it is, and then run the CPU again." << std::endl;
+                    "Are you sure Dolphin is installed? Make sure it is, and then run SmashBot again." << std::endl;
                 exit(-1);
             }
             pipe_path = backup_path;
-            pipe_path += "/Pipes/cpu-level-11";
+            pipe_path += "/Pipes/SmashBot";
         }
         else
         {
             pipe_path = env_XDG_DATA_HOME;
-            pipe_path += "/Pipes/cpu-level-11";
+            pipe_path += "/Pipes/SmashBot";
         }
     }
     else
     {
-        pipe_path = legacy_config_path + "/Pipes/cpu-level-11";
+        pipe_path = legacy_config_path + "/Pipes/SmashBot";
     }
 
     m_fifo = mkfifo(pipe_path.c_str(), S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);

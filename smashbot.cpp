@@ -41,7 +41,7 @@ void FirstTimeSetup()
             if(stat(backup_path.c_str(), &buffer) != 0)
             {
                 std::cout << "ERROR: $XDG_DATA_HOME was empty and so was $HOME/.dolphin-emu and $HOME/.local/share/dolphin-emu " \
-                    "Are you sure Dolphin is installed? Make sure it is, and then run the CPU again." << std::endl;
+                    "Are you sure Dolphin is installed? Make sure it is, and then run SmashBot again." << std::endl;
                 exit(-1);
             }
             else
@@ -76,7 +76,7 @@ void FirstTimeSetup()
             exit(-1);
         }
         std::cout << "WARNING: Had to create a MemoryWatcher directory in Dolphin just now. " \
-            "You may need to restart Dolphin and the CPU in order for this to work. (You should only see this warning once)" << std::endl;
+            "You may need to restart Dolphin and SmashBot in order for this to work. (You should only see this warning once)" << std::endl;
     }
 
     std::ifstream src("Locations.txt", std::ios::in);
@@ -93,7 +93,7 @@ void FirstTimeSetup()
             exit(-1);
         }
         std::cout << "WARNING: Had to create a Pipes directory in Dolphin just now. " \
-            "You may need to restart Dolphin and the CPU in order for this to work. (You should only see this warning once)" << std::endl;
+            "You may need to restart Dolphin and SmashBot in order for this to work. (You should only see this warning once)" << std::endl;
     }
 }
 
