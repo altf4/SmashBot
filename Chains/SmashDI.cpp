@@ -1,9 +1,9 @@
 #include "SmashDI.h"
 
-SmashDI::SmashDI(bool facingRight)
+SmashDI::SmashDI(bool goRight)
 {
-    m_startingFrame = m_state->m_memory->frame;
-    m_facingRight = facingRight;
+    m_goRight = goRight;
+    m_alternateDirection = true;
 }
 
 SmashDI::~SmashDI()
@@ -13,7 +13,13 @@ SmashDI::~SmashDI()
 bool SmashDI::IsInterruptible()
 {
     //once hitlag is over, the bot is free to do what it wishes
-    if(m_state->m_memory->player_two_hitlag_frames_left == 0) 
+    if(m_state->m_memory->player_two_hitlag_frames_left == 0)
+    {
+        return true;
+    }
+
+    //Safety return. In case we screw something up, don't permanently get stuck in this chain.
+    if(m_state->m_memory->frame - m_startingFrame > 60)
     {
         return true;
     }
@@ -22,11 +28,15 @@ bool SmashDI::IsInterruptible()
 
 void SmashDI::PressButtons()
 {
-    for(uint i = 0; i <= m_state->m_memory->player_two_hitlag_frames_left; i++)
+    //Alternate each frame between UP and LEFT/RIGHT so we can SDI every frame of hitlag
+    m_alternateDirection = !m_alternateDirection;
+
+    double tilt = 0.5;
+    if(m_goRight)
     {
-        bool isEven = i % 2 == 0;
-        //Alternate each frame between UP and LEFT/RIGHT so we can SDI every frame of hitlag
-        //Go right if facing right, otherwise go left
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN,m_facingRight ? 1 : 0,isEven ? 0.5 : 1);
+        tilt += 0.5;
     }
+
+    //Go right if facing right, otherwise go left
+    m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_alternateDirection ? tilt - 0.5 : tilt, m_alternateDirection ? 0.5 : 1);
 }

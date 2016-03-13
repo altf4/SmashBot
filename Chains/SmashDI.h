@@ -11,12 +11,12 @@ public:
     ~SmashDI();
     bool IsInterruptible();
     void PressButtons();
-    std::string ToString(){return "SmashDI";};   
+    std::string ToString(){return "SmashDI";};
 
 private:
-    bool m_facingRight;
+    bool m_goRight;
     uint m_startingFrame;
-    
+    bool m_alternateDirection;
 };
 
 #endif
