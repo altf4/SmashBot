@@ -9,6 +9,7 @@
 #include "../Tactics/Parry.h"
 #include "../Tactics/Recover.h"
 #include "../Tactics/ShowOff.h"
+#include "../Tactics/DI.h"
 
 Sandbag::Sandbag()
 {
@@ -215,6 +216,15 @@ void Sandbag::DetermineTactic()
     if(m_state->m_memory->player_one_action == SHIELD)
     {
         CreateTactic(Wait);
+        m_tactic->DetermineChain();
+        return;
+    }
+    //Implement Smash DI
+    if(m_state->m_memory->player_two_hitlag_frames_left > 0 &&
+       (m_state->m_memory->player_two_action != SHIELD ||
+        m_state->m_memory->player_two_action != DOWN_B_STUN))
+    {
+        CreateTactic(DI);
         m_tactic->DetermineChain();
         return;
     }
