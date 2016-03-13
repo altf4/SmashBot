@@ -17,11 +17,11 @@ void Walk::PressButtons()
         {
             if(m_isRight)
             {
-                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .7, .5);
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .683, .5);
             }
             else
             {
-                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .3, .5);
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .316, .5);
             }
             break;
         }
@@ -29,11 +29,11 @@ void Walk::PressButtons()
         {
             if(m_isRight)
             {
-                m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .738, .5);
             }
             else
             {
-                m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .261, .5);
             }
             break;
         }
