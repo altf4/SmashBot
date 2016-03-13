@@ -102,6 +102,9 @@ void signal_handler(int signal)
     std::string logpath = "Logs";
     struct stat buffer;
 
+    Controller *controller = Controller::Instance();
+    controller->emptyInput();
+
     if(isDebug)
     {
         Logger *logger = Logger::Instance();
