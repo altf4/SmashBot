@@ -28,7 +28,7 @@ void Wavedash::PressButtons()
     //Let go of jump the very next frame
     if(frame == 1)
     {
-        m_controller->releaseButton(Controller::BUTTON_Y);
+        m_controller->emptyInput();
         return;
     }
 
@@ -75,13 +75,22 @@ void Wavedash::PressButtons()
         return;
     }
 
-    //Two frames after knee bend, let go of the buttons and become interruptible
+    //Two frames after knee bend, let go of the buttons
     if(m_state->m_memory->frame == m_frameKneeBend+2)
     {
-        m_controller->releaseButton(Controller::BUTTON_L);
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_controller->emptyInput();
         return;
     }
+
+    //If somehow we got into the air, then air dodge again (this happens sometimes if the air dodge doesn't work. Not sure why.)
+    if(m_state->m_memory->player_two_action == JUMPING_FORWARD ||
+        m_state->m_memory->player_two_action == JUMPING_BACKWARD)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isright ? .8 : .2, .2);
+        return;
+    }
+
+    m_controller->emptyInput();
 }
 
 bool Wavedash::IsInterruptible()
