@@ -52,56 +52,93 @@ void Punish::DetermineChain()
         m_state->m_memory->player_one_action == EDGE_GETUP_SLOW)
     {
         //Figure out where they will stop rolling, only on the first frame
-        if(m_state->m_memory->player_one_action_frame == 1)
+        if(m_roll_position == 0)
         {
-            if(m_state->m_memory->player_one_action == ROLL_FORWARD)
+            //Scale the offset depending on how far into the roll they are
+            //TODO: This is not strictly linear. But let's assume it is and maybe it will work well enough
+            double scale = 1;
+            switch(m_state->m_memory->player_one_action)
             {
-                if(m_state->m_memory->player_one_facing)
+                case ROLL_FORWARD:
                 {
-                    m_roll_position = m_state->m_memory->player_one_x + MARTH_ROLL_DISTANCE;
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_ROLL_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_ROLL_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_ROLL_DISTANCE * scale;
+                    }
+                    break;
                 }
-                else
+                case ROLL_BACKWARD:
                 {
-                    m_roll_position = m_state->m_memory->player_one_x - MARTH_ROLL_DISTANCE;
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_ROLL_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_ROLL_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_ROLL_DISTANCE * scale;
+                    }
+                    break;
+                }
+                case EDGE_ROLL_SLOW:
+                {
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_EDGE_ROLL_SLOW_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_EDGE_ROLL_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_EDGE_ROLL_DISTANCE * scale;
+                    }
+                    break;
+                }
+                case EDGE_ROLL_QUICK:
+                {
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_EDGE_ROLL_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_EDGE_ROLL_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_EDGE_ROLL_DISTANCE * scale;
+                    }
+                    break;
+                }
+                case EDGE_GETUP_QUICK:
+                {
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_EDGE_GETUP_QUICK_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_GETUP_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_GETUP_DISTANCE * scale;
+                    }
+                    break;
+                }
+                case EDGE_GETUP_SLOW:
+                {
+                    scale = 1 - ((double)(m_state->m_memory->player_one_action_frame - 1) / (double)MARTH_EDGE_GETUP_SLOW_FRAMES);
+                    if(m_state->m_memory->player_one_facing)
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x + MARTH_GETUP_DISTANCE * scale;
+                    }
+                    else
+                    {
+                        m_roll_position = m_state->m_memory->player_one_x - MARTH_GETUP_DISTANCE * scale;
+                    }
+                    break;
                 }
             }
-            else if(m_state->m_memory->player_one_action == ROLL_BACKWARD)
-            {
-                if(m_state->m_memory->player_one_facing)
-                {
-                    m_roll_position = m_state->m_memory->player_one_x - MARTH_ROLL_DISTANCE;
-                }
-                else
-                {
-                    m_roll_position = m_state->m_memory->player_one_x + MARTH_ROLL_DISTANCE;
-                }
-            }
-            else if(m_state->m_memory->player_one_action == EDGE_ROLL_SLOW ||
-                m_state->m_memory->player_one_action == EDGE_ROLL_QUICK)
-            {
 
-                if(m_state->m_memory->player_one_facing)
-                {
-                    m_roll_position = m_state->m_memory->player_one_x + MARTH_EDGE_ROLL_DISTANCE;
-                }
-                else
-                {
-                    m_roll_position = m_state->m_memory->player_one_x - MARTH_EDGE_ROLL_DISTANCE;
-                }
-            }
-            else if(m_state->m_memory->player_one_action == EDGE_GETUP_QUICK ||
-                m_state->m_memory->player_one_action == EDGE_GETUP_SLOW)
-            {
-
-                if(m_state->m_memory->player_one_facing)
-                {
-                    m_roll_position = m_state->m_memory->player_one_x + MARTH_GETUP_DISTANCE;
-                }
-                else
-                {
-                    m_roll_position = m_state->m_memory->player_one_x - MARTH_GETUP_DISTANCE;
-                }
-            }
             if(m_roll_position > m_state->getStageEdgeGroundPosition())
             {
                 m_roll_position = m_state->getStageEdgeGroundPosition();
@@ -145,22 +182,28 @@ void Punish::DetermineChain()
         //Upsmash if we're in range and facing the right way
         //  Factor in sliding during the smash animation
         double distance;
+        int frameDelay = 8; //Frames until the first smash hitbox, plus one for leeway
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
         {
             double slidingAdjustment = 12.25 * (std::abs(m_state->m_memory->player_two_speed_ground_x_self));
             distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
+            frameDelay += 4;
         }
         else
         {
             distance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
         }
 
+        Logger::Instance()->Log(INFO, "Trying to punish a roll at position: " + std::to_string(m_roll_position) +
+            " with: " + std::to_string(frames_left) + " frames left");
+
         bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
-        if(distance < FOX_UPSMASH_RANGE_NEAR &&
+        if(frames_left >= frames_left &&
+            distance < FOX_UPSMASH_RANGE_NEAR &&
             to_the_left == m_state->m_memory->player_two_facing)
         {
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - 9));
+            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay));
             m_chain->PressButtons();
             return;
         }
@@ -214,17 +257,27 @@ void Punish::DetermineChain()
         (distance < FOX_UPSMASH_RANGE - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING))))
     {
+
+        int frameDelay = 9; //Frames until the first smash hitbox, plus one for strage startup latency and another for charge lag
+        if(m_state->m_memory->player_two_action == DASHING ||
+            m_state->m_memory->player_two_action == RUNNING)
+        {
+            frameDelay += 4;
+        }
+
         //Do we have time to upsmash? Do that.
-        if(frames_left > 7)
+        if(frames_left > frameDelay)
         {
             //Do two less frames of charging than we could, just to be safe
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - 9));
+            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay));
             m_chain->PressButtons();
             return;
         }
 
         //Do we have time to jab? Do that.
-        if(frames_left > 3)
+        if(frames_left > 3 &&
+            m_state->m_memory->player_two_action != DASHING &&
+            m_state->m_memory->player_two_action != RUNNING)
         {
             CreateChain(Jab);
             m_chain->PressButtons();
