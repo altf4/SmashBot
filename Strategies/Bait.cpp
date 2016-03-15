@@ -200,6 +200,15 @@ void Bait::DetermineTactic()
         }
     }
 
+    //If we're in shield release, but can't punish safely, then just get out of there
+    //NOTE: Do not put any punish tactics below here.
+    if(m_state->m_memory->player_two_action == SHIELD_RELEASE)
+    {
+        CreateTactic(CreateDistance);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     //If we're able to shine p1 right now, let's do that
     if(std::abs(distance) < FOX_SHINE_RADIUS)
     {
@@ -228,15 +237,6 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_y > -5)
     {
         CreateTactic(Recover);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //If we just shielded a downtilt and they're still in the attack, get out of there
-    if(m_state->m_memory->player_two_action == SHIELD_RELEASE &&
-        m_state->m_memory->player_one_action == DOWNTILT)
-    {
-        CreateTactic(CreateDistance);
         m_tactic->DetermineChain();
         return;
     }

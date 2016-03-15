@@ -111,6 +111,15 @@ void Sandbag::DetermineTactic()
         return;
     }
 
+    //If we're in shield release, but can't punish safely, then just get out of there
+    //NOTE: Do not put any punish tactics below here.
+    if(m_state->m_memory->player_two_action == SHIELD_RELEASE)
+    {
+        CreateTactic(CreateDistance);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     //Calculate distance between players
     double distance = pow(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x, 2);
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
@@ -123,15 +132,6 @@ void Sandbag::DetermineTactic()
         m_state->m_memory->player_one_y > -5)
     {
         CreateTactic(Recover);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //If we just shielded a downtilt and they're still in the attack, get out of there
-    if(m_state->m_memory->player_two_action == SHIELD_RELEASE &&
-        m_state->m_memory->player_one_action == DOWNTILT)
-    {
-        CreateTactic(CreateDistance);
         m_tactic->DetermineChain();
         return;
     }

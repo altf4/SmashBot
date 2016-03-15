@@ -4,6 +4,7 @@
 
 #include "Punish.h"
 #include "../Util/Constants.h"
+#include "../Util/Logger.h"
 #include "../Chains/SmashAttack.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/Jab.h"
@@ -196,12 +197,14 @@ void Punish::DetermineChain()
         //Before
         frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+        Logger::Instance()->Log(INFO, "Frames until first hitbox of the attack: " + std::to_string(frames_left));
     }
     else
     {
         //After
         frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+       Logger::Instance()->Log(INFO, "Frames left until end of the attack: " + std::to_string(frames_left));
     }
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
