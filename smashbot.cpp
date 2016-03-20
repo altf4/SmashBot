@@ -176,7 +176,8 @@ int main(int argc, char *argv[])
         {
             if(state->m_memory->frame > last_frame+1)
             {
-                std::cout << "WARNING: FRAME MISSED" << std::endl;
+                logger->Log(WARNING, "FRAME MISSED");
+                logger->Log(INFO, "FRAME MISSED");
             }
             last_frame = state->m_memory->frame;
 
