@@ -16,6 +16,7 @@ GameState *GameState::Instance()
 GameState::GameState()
 {
     m_memory = new GameMemory();
+    m_rollStartPosition = 0;
 }
 
 double GameState::getStageEdgePosition()
@@ -676,6 +677,27 @@ bool GameState::isReverseHit(ACTION action)
         case UAIR:
         case DAIR:
         case BAIR:
+        {
+            return true;
+        }
+        default:
+        {
+            return false;
+        }
+    }
+}
+
+bool GameState::isRollingState(ACTION action)
+{
+    switch(action)
+    {
+        case ROLL_FORWARD:
+        case ROLL_BACKWARD:
+        case SPOTDODGE:
+        case EDGE_ROLL_SLOW:
+        case EDGE_ROLL_QUICK:
+        case EDGE_GETUP_SLOW:
+        case EDGE_GETUP_QUICK:
         {
             return true;
         }

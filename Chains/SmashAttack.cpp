@@ -16,6 +16,38 @@ void SmashAttack::PressButtons()
 
     uint frame = m_state->m_memory->frame - m_startingFrame;
     //TODO The charge point changes for different smashes
+
+    //If we don't need to charge the smash attack, let's use the C-stick so there's no charging shenanigans
+    if((frame == 1 || frame == 0) && m_charge_frames == 0)
+    {
+        m_canInterrupt = false;
+        m_controller->releaseButton(Controller::BUTTON_Y);
+        switch(m_direction)
+        {
+            case LEFT:
+            {
+                m_controller->tiltAnalog(Controller::BUTTON_C, 0, .5);
+                break;
+            }
+            case RIGHT:
+            {
+                m_controller->tiltAnalog(Controller::BUTTON_C, 1, .5);
+                break;
+            }
+            case UP:
+            {
+                m_controller->tiltAnalog(Controller::BUTTON_C, .5, 1);
+                break;
+            }
+            case DOWN:
+            {
+                m_controller->tiltAnalog(Controller::BUTTON_C, .5, 0);
+                break;
+            }
+        }
+        return;
+    }
+
     if(frame == 1 || frame == 0 || m_state->m_memory->player_two_action == KNEE_BEND)
     {
         m_canInterrupt = false;
@@ -60,8 +92,7 @@ void SmashAttack::PressButtons()
     else
     {
         m_canInterrupt = true;
-        m_controller->releaseButton(Controller::BUTTON_A);
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_controller->emptyInput();
     }
 }
 

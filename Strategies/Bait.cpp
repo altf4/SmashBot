@@ -4,6 +4,7 @@
 
 #include "Bait.h"
 #include "../Util/Constants.h"
+#include "../Util/Logger.h"
 #include "../Tactics/CloseDistance.h"
 #include "../Tactics/CreateDistance.h"
 #include "../Tactics/Wait.h"
@@ -34,7 +35,7 @@ Bait::~Bait()
 
 void Bait::DetermineTactic()
 {
-    //std::cout << std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) << std::endl;
+    //Logger::Instance()->Log(INFO, "");
 
     //Determine how many frames of lag our opponent has during the LANDING_SPECIAL action
     // Unfortunately, the game reuses LANDING_SPECIAL for both landing from an UP-B and from a wavedash
@@ -154,12 +155,7 @@ void Bait::DetermineTactic()
     }
 
     //If our opponent is rolling, punish it on the other end
-    if(m_state->m_memory->player_one_action == ROLL_FORWARD ||
-        m_state->m_memory->player_one_action == ROLL_BACKWARD ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_SLOW ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_SLOW ||
+    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL)
     {
         CreateTactic(Punish);

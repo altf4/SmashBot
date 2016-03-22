@@ -223,8 +223,6 @@ public:
     //This is the x coordinate of the edge, as you would be teetering while standing on the stage
     double getStageEdgeGroundPosition();
 
-    bool isDamageState(ACTION);
-
     //Returns the frame of the first hitbox
     //    return value of 0 means not an attack, or not supported yet
     uint firstHitboxFrame(CHARACTER, ACTION);
@@ -245,6 +243,12 @@ public:
     //Is the current landing special state from UP-B (true) or wavedash (false)
     void setLandingState(bool);
 
+    //Are this any one of the damage states?
+    bool isDamageState(ACTION);
+
+    //Is this any of the rolling states?
+    bool isRollingState(ACTION);
+
     //Is the given action an attack?
     bool isAttacking(ACTION a);
     //Does the given attack have reverse hit frames? (Do we need to worry about parrying from attacks if the
@@ -252,6 +256,7 @@ public:
     bool isReverseHit(ACTION a);
 
     GameMemory *m_memory;
+    double m_rollStartPosition;
 
 private:
     GameState();
