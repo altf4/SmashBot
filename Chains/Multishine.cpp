@@ -1,8 +1,10 @@
 #include "Multishine.h"
+#include "../Util/Logger.h"
 
 Multishine::Multishine()
 {
     m_startingFrame = m_state->m_memory->frame;
+    Logger::Instance()->Log(INFO, "Start Multishine");
 }
 
 Multishine::~Multishine()
@@ -11,8 +13,15 @@ Multishine::~Multishine()
 
 bool Multishine::IsInterruptible()
 {
+    //Safety return
     uint frame = m_state->m_memory->frame - m_startingFrame;
-    if(frame >= 15)
+    if(frame >= 30)
+    {
+        return true;
+    }
+
+    if(m_state->m_memory->player_two_action == DOWN_B_STUN ||
+        m_state->m_memory->player_two_action == DOWN_B_AIR)
     {
         return true;
     }
@@ -21,46 +30,50 @@ bool Multishine::IsInterruptible()
 
 void Multishine::PressButtons()
 {
-    uint frame = m_state->m_memory->frame - m_startingFrame;
-    switch(frame)
+    //If standing, shine
+    if(m_state->m_memory->player_two_action == STANDING)
     {
-        case 0:
-        {
-            //Down-B
-            m_controller->pressButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
-            break;
-        }
-        case 3:
-        {
-            //Let go of Down-B
-            m_controller->releaseButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
-
-            //Jump
-            m_controller->pressButton(Controller::BUTTON_Y);
-
-            break;
-        }
-        case 4:
-        {
-            //Let go of Jump
-            m_controller->releaseButton(Controller::BUTTON_Y);
-            break;
-        }
-        case 6:
-        {
-            //Down-B again
-            m_controller->pressButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
-            break;
-        }
-        case 7:
-        {
-            //Let go of Down-B
-            m_controller->releaseButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
-            break;
-        }
+        m_controller->pressButton(Controller::BUTTON_B);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+        return;
     }
+
+    //Shine on the last frame of knee bend
+    if(m_state->m_memory->player_two_action == KNEE_BEND &&
+        m_state->m_memory->player_two_action_frame >= 2)
+    {
+        m_controller->pressButton(Controller::BUTTON_B);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+        return;
+    }
+
+    if(m_state->m_memory->player_two_action == KNEE_BEND)
+    {
+        m_controller->emptyInput();
+        return;
+    }
+
+    //Jump on the last frame of shine stun
+    if((m_state->m_memory->player_two_action == DOWN_B_STUN ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND_START) &&
+        m_state->m_memory->player_two_action_frame >= 3 &&
+        m_state->m_memory->player_two_on_ground)
+    {
+        m_controller->pressButton(Controller::BUTTON_Y);
+        return;
+    }
+
+    if(m_state->m_memory->player_two_action == DOWN_B_GROUND)
+    {
+        m_controller->pressButton(Controller::BUTTON_Y);
+        return;
+    }
+
+    if(m_state->m_memory->player_two_action == DOWN_B_STUN)
+    {
+        m_controller->emptyInput();
+        return;
+    }
+
+    m_controller->emptyInput();
 }

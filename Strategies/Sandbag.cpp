@@ -189,7 +189,9 @@ void Sandbag::DetermineTactic()
         //Have to be on the ground or on edge
         if(m_state->m_memory->player_two_on_ground ||
             m_state->m_memory->player_two_action == EDGE_HANGING ||
-            m_state->m_memory->player_two_action == EDGE_CATCHING)
+            m_state->m_memory->player_two_action == EDGE_CATCHING ||
+            m_state->m_memory->player_two_action == DOWN_B_STUN ||
+            m_state->m_memory->player_two_action == DOWN_B_AIR)
         {
             CreateTactic(ShowOff);
             m_tactic->DetermineChain();
