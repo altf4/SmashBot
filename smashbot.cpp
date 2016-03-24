@@ -219,6 +219,7 @@ int main(int argc, char *argv[])
             current_menu = (MENU)state->m_memory->menu_state;
         }
 
+        Controller::Instance()->flush();
         logger->SetGoal(goal);
         logger->LogFrame();
     }

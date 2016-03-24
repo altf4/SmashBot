@@ -36,9 +36,13 @@ public:
     //Press no buttons, move sticks back to neutral
     void emptyInput();
 
+    //Actually writes to the pipe
+    void flush();
+
 private:
     Controller();
 
+    std::string m_buffer;
     static Controller *m_instance;
     int m_fifo;
     //Hardcoded strings to send to dolphin

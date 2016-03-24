@@ -170,13 +170,8 @@ void Controller::pressButton(BUTTON b)
     }
 
     std::string command = "PRESS " + button_string + "\n";
-    //TODO: Maybe we should loop the writes until it finishes
-    uint num = write(m_fifo, command.c_str(), command.length());
-    if(num < command.length())
-    {
-        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
-    }
-    //std::cout << "DEBUG: Command = " + command << std::endl;
+
+    m_buffer += command;
 }
 
 void Controller::releaseButton(BUTTON b)
@@ -274,16 +269,9 @@ void Controller::releaseButton(BUTTON b)
             std::cout << "WARNING: Invalid button selected!" << std::endl;
         }
     }
-    //TODO: we can maybe same some cycles per frame by hardcoding each string
-    //  rather than assembling them here
     std::string command = "RELEASE " + button_string + "\n";
-    uint num = write(m_fifo, command.c_str(), command.length());
-    if(num < command.length())
-    {
-        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
-    }
-    //std::cout << "DEBUG: Command = " + command << std::endl;
 
+    m_buffer += command;
 }
 
 void Controller::pressShoulder(BUTTON b, double amount)
@@ -310,12 +298,8 @@ void Controller::pressShoulder(BUTTON b, double amount)
         }
     }
     std::string command = "SET " + button_string + " " + std::to_string(amount) + "\n";
-    uint num = write(m_fifo, command.c_str(), command.length());
-    if(num < command.length())
-    {
-        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
-    }
-    //std::cout << "DEBUG: Command = " + command << std::endl;
+
+    m_buffer += command;
 }
 
 void Controller::tiltAnalog(BUTTON b, double x, double y)
@@ -343,11 +327,8 @@ void Controller::tiltAnalog(BUTTON b, double x, double y)
     }
     std::string command = "SET " + button_string + " " + std::to_string(x) +
         " " + std::to_string(y) + "\n";
-    uint num = write(m_fifo, command.c_str(), command.length());
-    if(num < command.length())
-    {
-        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
-    }
+
+    m_buffer += command;
 }
 
 void Controller::tiltAnalog(BUTTON b, double x)
@@ -368,11 +349,8 @@ void Controller::tiltAnalog(BUTTON b, double x)
         }
     }
     std::string command = "SET " + button_string + " " + std::to_string(x) + "\n";
-    uint num = write(m_fifo, command.c_str(), command.length());
-    if(num < command.length())
-    {
-        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
-    }
+
+    m_buffer += command;
 }
 
 void Controller::emptyInput()
@@ -389,4 +367,15 @@ void Controller::emptyInput()
     releaseButton(Controller::BUTTON_L);
     releaseButton(Controller::BUTTON_R);
     releaseButton(Controller::BUTTON_START);
+}
+
+void Controller::flush()
+{
+    uint num = write(m_fifo, m_buffer.c_str(), m_buffer.length());
+    if(num < m_buffer.length())
+    {
+        std::cout << "WARNING: Not all data written to pipe!" << std::endl;
+    }
+
+    m_buffer = "";
 }
