@@ -5,6 +5,7 @@ Multishine::Multishine()
 {
     m_startingFrame = m_state->m_memory->frame;
     Logger::Instance()->Log(INFO, "Start Multishine");
+    m_canInterrupt = true;
 }
 
 Multishine::~Multishine()
@@ -20,21 +21,19 @@ bool Multishine::IsInterruptible()
         return true;
     }
 
-    if(m_state->m_memory->player_two_action == DOWN_B_STUN ||
-        m_state->m_memory->player_two_action == DOWN_B_AIR)
-    {
-        return true;
-    }
-    return false;
+    return m_canInterrupt;
 }
 
 void Multishine::PressButtons()
 {
+    m_canInterrupt = true;
+
     //If standing, shine
     if(m_state->m_memory->player_two_action == STANDING)
     {
         m_controller->pressButton(Controller::BUTTON_B);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+        m_canInterrupt = false;
         return;
     }
 
@@ -44,6 +43,7 @@ void Multishine::PressButtons()
     {
         m_controller->pressButton(Controller::BUTTON_B);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+        m_canInterrupt = false;
         return;
     }
 

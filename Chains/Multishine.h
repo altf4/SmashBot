@@ -16,6 +16,9 @@ public:
     bool IsInterruptible();
     std::string ToString(){return "Multishine";};
 
+private:
+    bool m_canInterrupt;
+
 };
 
 #endif
