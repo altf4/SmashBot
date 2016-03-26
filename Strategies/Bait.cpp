@@ -250,7 +250,8 @@ void Bait::DetermineTactic()
 
     //Escape out of our opponents combo / grab if they somehow get it
     if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
-        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
+        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->m_memory->player_two_action == TUMBLING)
     {
         CreateTactic(Escape);
         m_tactic->DetermineChain();

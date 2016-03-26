@@ -7,11 +7,14 @@ class Struggle : public Chain
 {
 
 public:
-    Struggle();
+    Struggle(bool);
     ~Struggle();
     bool IsInterruptible();
     void PressButtons();
     std::string ToString(){return "Struggle";};
+
+private:
+    bool m_isWiggle;
 };
 
 #endif

@@ -16,6 +16,13 @@ Escape::~Escape()
 
 void Escape::DetermineChain()
 {
+    if(m_state->m_memory->player_two_action == TUMBLING)
+    {
+        CreateChain2(Struggle, true);
+        m_chain->PressButtons();
+        return;
+    }
+
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_chain != NULL) && (!m_chain->IsInterruptible()))
     {
@@ -73,7 +80,7 @@ void Escape::DetermineChain()
     //Struggle out of grabs
     if(m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
     {
-        CreateChain(Struggle);
+        CreateChain2(Struggle, false);
         m_chain->PressButtons();
         return;
     }

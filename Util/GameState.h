@@ -84,6 +84,7 @@ enum ACTION
     JUMPING_ARIAL_BACKWARD = 0x1c,
     FALLING = 0x1D,    //The "wait" state of the air.
     DEAD_FALL = 0x23, //Falling after up-b
+    TUMBLING = 0x26,
     CROUCH_START = 0x27, //Going from stand to crouch
     CROUCHING = 0x28,
     CROUCH_END = 0x29, //Standing up from crouch

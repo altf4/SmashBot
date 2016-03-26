@@ -1,7 +1,8 @@
 #include "Struggle.h"
 
-Struggle::Struggle()
+Struggle::Struggle(bool wiggle)
 {
+    m_isWiggle = wiggle;
 }
 
 Struggle::~Struggle()
@@ -10,6 +11,18 @@ Struggle::~Struggle()
 
 bool Struggle::IsInterruptible()
 {
+    if(m_isWiggle)
+    {
+        if(m_state->m_memory->player_two_action == TUMBLING)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
     //Quit if we get out of the grab
     if(m_state->m_memory->player_two_action != GRABBED &&
         m_state->m_memory->player_two_action != GRAB_PULL &&
@@ -28,6 +41,19 @@ bool Struggle::IsInterruptible()
 
 void Struggle::PressButtons()
 {
+    if(m_isWiggle)
+    {
+        if(m_state->m_memory->frame % 2)
+        {
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
+        }
+        else
+        {
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
+        }
+        return;
+    }
+
     if(m_state->m_memory->player_two_action != GRABBED &&
         m_state->m_memory->player_two_action != GRAB_PULL &&
         m_state->m_memory->player_two_action != GRAB_PUMMELED)
