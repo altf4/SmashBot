@@ -294,7 +294,7 @@ void Controller::pressShoulder(BUTTON b, double amount)
         }
         default:
         {
-            std::cout << "WARNING: Invalid button selected!" << std::endl;
+            std::cout << "WARNING: Invalid shoulder selected!" << std::endl;
         }
     }
     std::string command = "SET " + button_string + " " + std::to_string(amount) + "\n";
@@ -322,33 +322,11 @@ void Controller::tiltAnalog(BUTTON b, double x, double y)
         }
         default:
         {
-            std::cout << "WARNING: Invalid button selected!" << std::endl;
+            std::cout << "WARNING: Invalid analog selected!" << std::endl;
         }
     }
     std::string command = "SET " + button_string + " " + std::to_string(x) +
         " " + std::to_string(y) + "\n";
-
-    m_buffer += command;
-}
-
-void Controller::tiltAnalog(BUTTON b, double x)
-{
-    Logger *logger = Logger::Instance();
-    std::string button_string;
-    switch (b)
-    {
-        case BUTTON_L:
-        {
-            button_string = STRING_L;
-            logger->Log(INFO, "Press analog shoulder: " + STRING_L + " to " + std::to_string(x));
-            break;
-        }
-        default:
-        {
-            std::cout << "WARNING: Invalid button selected!" << std::endl;
-        }
-    }
-    std::string command = "SET " + button_string + " " + std::to_string(x) + "\n";
 
     m_buffer += command;
 }
@@ -359,7 +337,8 @@ void Controller::emptyInput()
     logger->Log(INFO, "Blank controller input");
     tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
     tiltAnalog(Controller::BUTTON_C, .5, .5);
-    tiltAnalog(Controller::BUTTON_L, 0);
+    pressShoulder(Controller::BUTTON_L, 0);
+    pressShoulder(Controller::BUTTON_R, 0);
     releaseButton(Controller::BUTTON_X);
     releaseButton(Controller::BUTTON_Y);
     releaseButton(Controller::BUTTON_A);
@@ -367,6 +346,7 @@ void Controller::emptyInput()
     releaseButton(Controller::BUTTON_L);
     releaseButton(Controller::BUTTON_R);
     releaseButton(Controller::BUTTON_START);
+    releaseButton(Controller::BUTTON_Z);
 }
 
 void Controller::flush()

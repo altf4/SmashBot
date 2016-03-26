@@ -1,6 +1,7 @@
 #include "DI.h"
 #include "../Chains/SmashDI.h"
 #include "../Chains/Nothing.h"
+#include "../Chains/Struggle.h"
 
 DI::DI()
 {
@@ -21,8 +22,9 @@ void DI::DetermineChain()
         return;
     }
 
-    //Start SDI Section
-    if(m_state->m_memory->player_two_hitlag_frames_left > 1)
+    //SmashDI
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) &&
+        m_state->m_memory->player_two_hitlag_frames_left > 1)
     {
         //Always SDI away and up
         bool isOnRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
@@ -30,10 +32,19 @@ void DI::DetermineChain()
         m_chain->PressButtons();
         return;
     }
-    //End SDI, Begin optimal DI section
-    if(m_state->m_memory->player_two_hitlag_frames_left == 1)
+
+    //Regular DI
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action))
     {
         //TODO: implement Trajectory DI
+    }
+
+    //Struggle out of grabs
+    if(m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
+    {
+        CreateChain(Struggle);
+        m_chain->PressButtons();
+        return;
     }
 
     //Do nothing fallback

@@ -1,6 +1,5 @@
 #include <cmath>
 #include <math.h>
-#include <iostream>
 
 #include "Bait.h"
 #include "../Util/Constants.h"
@@ -249,6 +248,15 @@ void Bait::DetermineTactic()
         return;
     }
 
+    //Escape out of our opponents combo / grab if they somehow get it
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
+    {
+        CreateTactic(DI);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     //If we need to defend against an attack, that's next priority. Unless we've already shielded this attack
     if(!m_shieldedAttack && distance < MARTH_FSMASH_RANGE)
     {
@@ -340,15 +348,6 @@ void Bait::DetermineTactic()
     if(m_state->m_memory->player_one_action == SHIELD)
     {
         CreateTactic(Wait);
-        m_tactic->DetermineChain();
-        return;
-    }
-    //Implement Smash DI
-    if(m_state->m_memory->player_two_hitlag_frames_left > 0 &&
-       (m_state->m_memory->player_two_action != SHIELD ||
-        m_state->m_memory->player_two_action != DOWN_B_STUN))
-    {
-        CreateTactic(DI);
         m_tactic->DetermineChain();
         return;
     }

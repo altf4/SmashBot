@@ -48,7 +48,7 @@ void MarthKiller::PressButtons()
         m_rollFrame > 0)
     {
         m_controller->releaseButton(Controller::BUTTON_L);
-        m_controller->tiltAnalog(Controller::BUTTON_L, .4);
+        m_controller->pressShoulder(Controller::BUTTON_L, .4);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? .9 : .1, .5);
         return;
     }
@@ -58,7 +58,7 @@ void MarthKiller::PressButtons()
     if(m_rollFrame == 0)
     {
         m_controller->releaseButton(Controller::BUTTON_L);
-        m_controller->tiltAnalog(Controller::BUTTON_L, .4);
+        m_controller->pressShoulder(Controller::BUTTON_L, .4);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? .5 + m_shieldOffset : .5 - m_shieldOffset, .5);
         //Increment by .05 each frame, up to the max of .5
         m_shieldOffset += .02;
@@ -78,14 +78,14 @@ bool MarthKiller::IsInterruptible()
         m_state->m_memory->player_one_action == EDGE_CATCHING ||
         m_state->m_memory->player_one_on_ground)
     {
-        m_controller->tiltAnalog(Controller::BUTTON_L, 0);
+        m_controller->pressShoulder(Controller::BUTTON_L, 0);
         return true;
     }
 
     if(m_state->m_memory->player_one_action == DEAD_FALL &&
         m_state->m_memory->player_one_y < -23)
     {
-        m_controller->tiltAnalog(Controller::BUTTON_L, 0);
+        m_controller->pressShoulder(Controller::BUTTON_L, 0);
         return true;
     }
 
@@ -93,7 +93,7 @@ bool MarthKiller::IsInterruptible()
     uint frame = m_state->m_memory->frame - m_startingFrame;
     if(frame > 180)
     {
-        m_controller->tiltAnalog(Controller::BUTTON_L, 0);
+        m_controller->pressShoulder(Controller::BUTTON_L, 0);
         return true;
     }
     return false;

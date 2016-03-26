@@ -707,3 +707,22 @@ bool GameState::isRollingState(ACTION action)
         }
     }
 }
+
+bool GameState::isGrabbedState(ACTION action)
+{
+    switch(action)
+    {
+        case GRAB_PULL:
+        case GRABBED:
+        case SPOTDODGE:
+        case GRAB_PUMMELED:
+        case GRAB_ESCAPE:
+        {
+            return true;
+        }
+        default:
+        {
+            return false;
+        }
+    }
+}

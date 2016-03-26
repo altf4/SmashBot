@@ -137,6 +137,10 @@ enum ACTION
     SHIELD_REFLECT = 0xb6,
     GRAB = 0xd4,
     GRAB_RUNNING = 0xd6,
+    GRAB_PULL = 0xe2,   //Being pulled inwards from the grab
+    GRABBED = 0xe3,   //Grabbed
+    GRAB_PUMMELED = 0xe4,   //Being pummeled
+    GRAB_ESCAPE = 0xe5,
     ROLL_FORWARD = 0xe9,
     ROLL_BACKWARD = 0xea,
     SPOTDODGE = 0xEB,
@@ -245,6 +249,9 @@ public:
 
     //Are this any one of the damage states?
     bool isDamageState(ACTION);
+
+    //Is this a state that has been grabbed? IE: Pulling in, being grabbed, pummeling, or breaking out?
+    bool isGrabbedState(ACTION);
 
     //Is this any of the rolling states?
     bool isRollingState(ACTION);
