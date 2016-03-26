@@ -9,7 +9,7 @@
 #include "../Tactics/Parry.h"
 #include "../Tactics/Recover.h"
 #include "../Tactics/ShowOff.h"
-#include "../Tactics/DI.h"
+#include "../Tactics/Escape.h"
 
 Sandbag::Sandbag()
 {
@@ -148,6 +148,15 @@ void Sandbag::DetermineTactic()
         return;
     }
 
+    //Escape out of our opponents combo / grab if they somehow get it
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
+    {
+        CreateTactic(Escape);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     //If we need to defend against an attack, that's next priority. Unless we've already shielded this attack
     if(!m_shieldedAttack && distance < MARTH_FSMASH_RANGE)
     {
@@ -218,15 +227,6 @@ void Sandbag::DetermineTactic()
     if(m_state->m_memory->player_one_action == SHIELD)
     {
         CreateTactic(Wait);
-        m_tactic->DetermineChain();
-        return;
-    }
-    //Implement Smash DI
-    if(m_state->m_memory->player_two_hitlag_frames_left > 0 &&
-       (m_state->m_memory->player_two_action != SHIELD ||
-        m_state->m_memory->player_two_action != DOWN_B_STUN))
-    {
-        CreateTactic(DI);
         m_tactic->DetermineChain();
         return;
     }

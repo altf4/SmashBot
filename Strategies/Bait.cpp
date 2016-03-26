@@ -14,7 +14,7 @@
 #include "../Tactics/Recover.h"
 #include "../Tactics/Punish.h"
 #include "../Tactics/ShowOff.h"
-#include "../Tactics/DI.h"
+#include "../Tactics/Escape.h"
 
 Bait::Bait()
 {
@@ -252,7 +252,7 @@ void Bait::DetermineTactic()
     if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
         m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action))
     {
-        CreateTactic(DI);
+        CreateTactic(Escape);
         m_tactic->DetermineChain();
         return;
     }

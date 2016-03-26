@@ -1,19 +1,20 @@
-#include "DI.h"
+#include "Escape.h"
 #include "../Chains/SmashDI.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/Struggle.h"
+#include "../Chains/DI.h"
 
-DI::DI()
+Escape::Escape()
 {
     m_chain = NULL;
 }
 
-DI::~DI()
+Escape::~Escape()
 {
     delete m_chain;
 }
 
-void DI::DetermineChain()
+void Escape::DetermineChain()
 {
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_chain != NULL) && (!m_chain->IsInterruptible()))
@@ -36,7 +37,37 @@ void DI::DetermineChain()
     //Regular DI
     if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action))
     {
-        //TODO: implement Trajectory DI
+        double x=0, y=0;
+        //TODO: More DI scenarios
+        if(m_state->m_memory->player_two_action == THROWN_UP)
+        {
+            //Randomish choice between left and right
+            x = m_state->m_memory->frame ? 0 : 1;
+            y = .5;
+        }
+        else if(m_state->m_memory->player_two_action == THROWN_DOWN ||
+            m_state->m_memory->player_two_action == THROWN_BACK)
+        {
+            //DI away
+            x = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x ? 0 : 1;
+            y = .5;
+        }
+        else if(m_state->m_memory->player_two_action == THROWN_FORWARD)
+        {
+            //DI away
+            x = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x ? 1 : 0;
+            y = .5;
+        }
+        else
+        {
+            //If we don't know what else to do, DI up
+            x = .5;
+            y = 1;
+        }
+
+        CreateChain3(DI, x, y);
+        m_chain->PressButtons();
+        return;
     }
 
     //Struggle out of grabs

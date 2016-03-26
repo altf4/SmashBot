@@ -145,6 +145,10 @@ enum ACTION
     ROLL_BACKWARD = 0xea,
     SPOTDODGE = 0xEB,
     AIRDODGE = 0xEC,
+    THROWN_FORWARD = 0xEF,
+    THROWN_BACK = 0xF0,
+    THROWN_UP = 0xF1,
+    THROWN_DOWN = 0xF2,
     EDGE_TEETERING_START = 0xF5, //Starting of edge teetering
     EDGE_TEETERING = 0xF6,
     SLIDING_OFF_EDGE = 0xfb, //When you get hit and slide off an edge

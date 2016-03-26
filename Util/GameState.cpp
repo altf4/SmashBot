@@ -84,6 +84,14 @@ bool GameState::isDamageState(ACTION action)
     {
         return true;
     }
+    if(action == THROWN_FORWARD ||
+        action == THROWN_BACK ||
+        action == THROWN_UP ||
+        action == THROWN_DOWN)
+    {
+        return true;
+    }
+
     return false;
 }
 
