@@ -23,6 +23,7 @@ private:
     bool m_onRight;
     uint m_rollFrame;
     double m_shieldOffset;
+    bool m_canInterrupt;
 };
 
 #endif

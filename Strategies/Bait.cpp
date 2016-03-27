@@ -111,7 +111,8 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == ENTRY_END ||
         m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL ||
-        m_state->m_memory->player_two_action == SPOTDODGE)
+        m_state->m_memory->player_two_action == SPOTDODGE ||
+        m_state->isRollingState((ACTION)m_state->m_memory->player_two_action))
     {
         CreateTactic(Wait);
         m_tactic->DetermineChain();

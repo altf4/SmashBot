@@ -9,7 +9,10 @@
 #include "../Chains/EdgeAction.h"
 #include "../Chains/Walk.h"
 #include "../Chains/MarthKiller.h"
+#include "../Chains/CrouchCancelAttack.h"
+#include "../Chains/Waveshine.h"
 #include "../Util/Controller.h"
+#include "../Util/Logger.h"
 
 Edgeguard::Edgeguard()
 {
@@ -59,22 +62,30 @@ void Edgeguard::DetermineChain()
     distance = sqrt(distance);
 
     //If we're able to shine p1 right now, let's do that
-    if(std::abs(distance) < FOX_SHINE_RADIUS)
+    if(std::abs(distance) < FOX_SHINE_RADIUS &&
+        !m_state->m_memory->player_one_invulnerable)
     {
         //Are we in a state where we can shine?
-        if(m_state->m_memory->player_two_action == FALLING)
+        if(m_state->m_memory->player_two_action == FALLING ||
+            m_state->m_memory->player_two_action == EDGE_HANGING)
         {
-            //Is the opponent in a state where they can get hit by shine?
-            if(!m_state->m_memory->player_one_invulnerable)
-            {
-                CreateChain(JumpCanceledShine);
-                m_chain->PressButtons();
-                return;
-            }
+            CreateChain(JumpCanceledShine);
+            m_chain->PressButtons();
+            return;
         }
     }
 
-    //If the opponent is hanging on the edge, walk up the the edge
+    //Alternatively, we can shine when they are hanging on the edge
+    if(std::abs(m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x)) < 2 &&
+        m_state->m_memory->player_one_action == EDGE_HANGING &&
+        !m_state->m_memory->player_one_invulnerable)
+    {
+        CreateChain(Waveshine);
+        m_chain->PressButtons();
+        return;
+    }
+
+    //Walk up the the edge
     if((m_state->m_memory->player_one_action == SLIDING_OFF_EDGE ||
         m_state->m_memory->player_one_action == EDGE_CATCHING ||
         m_state->m_memory->player_one_action == EDGE_HANGING) &&
@@ -86,12 +97,35 @@ void Edgeguard::DetermineChain()
         return;
     }
 
+    double edge_distance_x = std::abs(std::abs(m_state->m_memory->player_one_x) - m_state->getStageEdgePosition());
+    double edge_distance_y = std::abs(m_state->m_memory->player_one_y - EDGE_HANGING_Y_POSITION);
+
     //If we're still on the stage, see if it's safe to grab the edge
     if(m_state->m_memory->player_two_on_ground)
     {
+        //Do a crouch canceled punish
+        if(std::abs(m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x)) < 10 &&
+            m_state->m_memory->player_two_percent < 40 &&
+            m_state->m_memory->player_two_speed_ground_x_self < .1 &&
+            std::abs(m_state->m_memory->player_one_x) - m_state->getStageEdgePosition() < MARTH_UP_B_X_DISTANCE + 5)
+        {
+            if(m_state->m_memory->player_one_y + MARTH_UP_B_HEIGHT + 10 > 0)
+            {
+                CreateChain2(CrouchCancelAttack, CrouchCancelAttack::CC_DOWNSMASH);
+                m_chain->PressButtons();
+                return;
+            }
+            else if(m_state->m_memory->player_one_y + MARTH_UP_B_HEIGHT + 30 > 0)
+            {
+                CreateChain2(CrouchCancelAttack, CrouchCancelAttack::CC_SHINE);
+                m_chain->PressButtons();
+                return;
+            }
+        }
+
         //If the enemy is in a stunned damage state, go ahead and try.
-        //TODO: This is not really that great of a heuristic. But let's go with it for now
-        if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
+        if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) &&
+            m_state->m_memory->player_one_hitstun_frames_left > 15)
         {
             CreateChain(GrabEdge);
             m_chain->PressButtons();
@@ -103,14 +137,10 @@ void Edgeguard::DetermineChain()
         distance += pow(m_state->m_memory->player_one_y, 2);
         distance = sqrt(distance);
 
-        double edge_distance_x = std::abs(std::abs(m_state->m_memory->player_one_x) - m_state->getStageEdgePosition());
-        double edge_distance_y = std::abs(m_state->m_memory->player_one_y - EDGE_HANGING_Y_POSITION);
-
         //If marth is out of attack range and UP-B range, then go ahead and do it
-        //TODO: Added some hardcoded wiggle room to be safe
         if(distance > MARTH_FSMASH_RANGE &&
-            (edge_distance_x > MARTH_UP_B_X_DISTANCE + 5 ||
-            edge_distance_y > MARTH_UP_B_HEIGHT + 5))
+            (std::abs(m_state->m_memory->player_one_x) - m_state->getStageEdgePosition() > MARTH_UP_B_X_DISTANCE + 5 ||
+            edge_distance_y > MARTH_UP_B_HEIGHT + 15))
         {
             CreateChain(GrabEdge);
             m_chain->PressButtons();
@@ -147,20 +177,20 @@ void Edgeguard::DetermineChain()
         }
     }
 
-    double jumpOnlyEventHorizon = MARTH_JUMP_ONLY_EVENT_HORIZON;
-    if(m_state->m_memory->player_one_jumps_left == 0 &&
-        m_state->m_memory->player_one_action != JUMPING_ARIAL_FORWARD &&
-        m_state->m_memory->player_one_action != JUMPING_ARIAL_BACKWARD)
-    {
-        jumpOnlyEventHorizon += MARTH_DOUBLE_JUMP_HEIGHT;
-    }
-
-    //Do the marth killer if we're on the stage and Marth must up-b to recover
+    //Do the marth killer if we're on the stage and Marth is going to be stuck recovering with an up-B
     if(m_state->m_memory->player_two_on_ground &&
-        m_state->m_memory->player_one_y < jumpOnlyEventHorizon &&
-        m_state->m_memory->player_one_y > lowerEventHorizon)
+        m_state->m_memory->player_one_jumps_left == 0 &&
+        edge_distance_x > 30)
     {
         CreateChain(MarthKiller);
+        m_chain->PressButtons();
+        return;
+    }
+
+    if(m_state->m_memory->player_two_on_ground &&
+        std::abs(m_state->m_memory->player_two_x) + .01 < m_state->getStageEdgePosition())
+    {
+        CreateChain2(Walk, m_state->m_memory->player_one_x > 0 ? true : false);
         m_chain->PressButtons();
         return;
     }

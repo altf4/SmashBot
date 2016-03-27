@@ -21,6 +21,13 @@ bool JumpCanceledShine::IsInterruptible()
 
 void JumpCanceledShine::PressButtons()
 {
+    if(m_state->m_memory->player_two_action == EDGE_HANGING)
+    {
+        bool onRight = m_state->m_memory->player_two_x > 0;
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 1 : 0, .5);
+        return;
+    }
+
     uint frame = m_state->m_memory->frame - m_startingFrame;
     switch(frame)
     {
