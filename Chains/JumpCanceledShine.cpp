@@ -25,6 +25,7 @@ void JumpCanceledShine::PressButtons()
     {
         bool onRight = m_state->m_memory->player_two_x > 0;
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 1 : 0, .5);
+        m_startingFrame++;
         return;
     }
 
