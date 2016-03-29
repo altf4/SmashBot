@@ -11,6 +11,11 @@ void Walk::PressButtons()
         return;
     }
 
+    //We know we won't need these. So clear it out just in case we need that button later
+    m_controller->releaseButton(Controller::BUTTON_Y);
+    m_controller->releaseButton(Controller::BUTTON_B);
+    m_controller->releaseButton(Controller::BUTTON_A);
+
     switch(m_state->m_memory->player_two_action)
     {
         case WALK_SLOW:
