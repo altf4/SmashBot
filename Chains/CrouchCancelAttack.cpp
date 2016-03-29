@@ -70,6 +70,15 @@ bool CrouchCancelAttack::IsInterruptible()
         return true;
     }
 
+    //Don't return if we're still in the downsmash animation or starting a shine
+    if(m_state->m_memory->player_two_action == DOWNSMASH ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND_START ||
+        m_state->m_memory->player_two_action == DOWN_B_STUN)
+    {
+        return false;
+    }
+
+
     return m_hasAttacked;
 }
 
