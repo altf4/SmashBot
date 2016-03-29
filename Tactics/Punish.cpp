@@ -7,7 +7,6 @@
 #include "../Util/Logger.h"
 #include "../Chains/SmashAttack.h"
 #include "../Chains/Nothing.h"
-#include "../Chains/Jab.h"
 #include "../Chains/Run.h"
 #include "../Chains/Walk.h"
 #include "../Chains/Wavedash.h"
@@ -242,7 +241,7 @@ void Punish::DetermineChain()
     }
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
-    //If we're in upsmash/jab range, then prepare for attack
+    //If we're in upsmash range, then prepare for attack
     if(m_state->m_memory->player_two_facing == player_two_is_to_the_left && //Facing the right way?
         (distance < FOX_UPSMASH_RANGE ||
         (distance < FOX_UPSMASH_RANGE - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
@@ -261,16 +260,6 @@ void Punish::DetermineChain()
         {
             //Do two less frames of charging than we could, just to be safe
             CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
-            m_chain->PressButtons();
-            return;
-        }
-
-        //Do we have time to jab? Do that.
-        if(frames_left > 3 &&
-            m_state->m_memory->player_two_action != DASHING &&
-            m_state->m_memory->player_two_action != RUNNING)
-        {
-            CreateChain(Jab);
             m_chain->PressButtons();
             return;
         }
