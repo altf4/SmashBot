@@ -99,6 +99,16 @@ void EdgeAction::PressButtons()
             //TODO
             break;
         }
+        case FASTFALL:
+        {
+            m_readyToInterrupt = true;
+            if(m_state->m_memory->player_two_action == EDGE_HANGING)
+            {
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+                return;
+            }
+            break;
+        }
     }
 
     //Reset the controller afterward

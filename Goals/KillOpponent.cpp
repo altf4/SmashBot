@@ -21,6 +21,12 @@ void KillOpponent::Strategize()
         m_state->m_rollStartPosition = m_state->m_memory->player_one_x;
     }
 
+    if(m_state->m_memory->player_one_action == EDGE_CATCHING &&
+        m_state->m_memory->player_one_action_frame == 1)
+    {
+        m_state->m_edgeInvincibilityStart = m_state->m_memory->frame;
+    }
+
     //If the opponent is invincible, don't attack them. Just dodge everything they do
     //UNLESS they are invincible due to rolling on the stage. Then go ahead and punish it, it will be safe by the time
     //  they are back up.

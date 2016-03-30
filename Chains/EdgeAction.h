@@ -11,6 +11,7 @@ enum EDGEACTION
     ATTACK_UP,
     WAVEDASH_UP,
     TOURNAMENT_WINNER,
+    FASTFALL,
 };
 
 //Perform an action to get up from the edge

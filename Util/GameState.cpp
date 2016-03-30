@@ -17,6 +17,7 @@ GameState::GameState()
 {
     m_memory = new GameMemory();
     m_rollStartPosition = 0;
+    m_edgeInvincibilityStart = 0;
 }
 
 double GameState::getStageEdgePosition()

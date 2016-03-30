@@ -36,6 +36,8 @@
 #define FOX_SHINE_RADIUS 11.80
 #define FOX_ROLL_BACK_DISTANCE 33.6
 #define FOX_ROLL_FRAMES 35
+#define FOX_FASTFALL_SPEED 3.4
+#define FOX_DOUBLE_JUMP_HEIGHT 40.15
 
 //This is a little conservative, actually
 #define FOX_UPSMASH_RANGE 17.5

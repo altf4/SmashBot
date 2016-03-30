@@ -124,74 +124,77 @@ void Bait::DetermineTactic()
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
     distance = sqrt(distance);
 
-    //If we're able to upsmash our opponent, let's do that
-    bool player_two_is_to_the_left = (m_state->m_memory->player_two_x - m_state->m_memory->player_one_x > 0);
-    if((m_state->m_memory->player_one_action == SPOTDODGE ||
-        m_state->m_memory->player_one_action == MARTH_COUNTER ||
-        m_state->m_memory->player_one_action == MARTH_COUNTER_FALLING ||
-        m_state->m_memory->player_one_action == LANDING_SPECIAL) &&
-        distance < FOX_UPSMASH_RANGE-2 &&
-        m_state->m_memory->player_two_facing != player_two_is_to_the_left)
+    if(m_state->m_memory->player_two_on_ground)
     {
-        CreateTactic(Punish);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //If our opponent is stuck in the windup for an attack, let's hit them with something harder than shine
-    if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
-        distance < FOX_UPSMASH_RANGE-2 &&
-        m_state->m_memory->player_two_facing != player_two_is_to_the_left)
-    {
-        //How many frames do we have until the attack lands? If it's at least 3, then we can start a Punish
-        int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-        if(frames_left > 3)
+        //If we're able to upsmash our opponent, let's do that
+        bool player_two_is_to_the_left = (m_state->m_memory->player_two_x - m_state->m_memory->player_one_x > 0);
+        if((m_state->m_memory->player_one_action == SPOTDODGE ||
+            m_state->m_memory->player_one_action == MARTH_COUNTER ||
+            m_state->m_memory->player_one_action == MARTH_COUNTER_FALLING ||
+            m_state->m_memory->player_one_action == LANDING_SPECIAL) &&
+            distance < FOX_UPSMASH_RANGE-2 &&
+            m_state->m_memory->player_two_facing != player_two_is_to_the_left)
         {
             CreateTactic(Punish);
             m_tactic->DetermineChain();
             return;
         }
-    }
 
-    //If our opponent is rolling, punish it on the other end
-    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
-        m_state->m_memory->player_two_action == LANDING_SPECIAL)
-    {
-        CreateTactic(Punish);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //If we're hanging on the egde, and they are falling above the stage, punish it
-    if(m_state->m_memory->player_one_action == DEAD_FALL &&
-        m_state->m_memory->player_two_action == EDGE_HANGING &&
-        std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
-    {
-        CreateTactic(Punish);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //How many frames do we have until the attack is over?
-    int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-        (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-
-    //If our oponnent is stuck in a laggy ending animation, punish it
-    if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
-        m_state->m_memory->player_one_action_frame >
-            m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action))
-    {
-        if(frames_left > 3)
+        //If our opponent is stuck in the windup for an attack, let's hit them with something harder than shine
+        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+            distance < FOX_UPSMASH_RANGE-2 &&
+            m_state->m_memory->player_two_facing != player_two_is_to_the_left)
         {
-            //Unless we need to wavedash in, then give us more time
-            if(m_state->m_memory->player_two_action != SHIELD_RELEASE ||
-                frames_left > 10)
+            //How many frames do we have until the attack lands? If it's at least 3, then we can start a Punish
+            int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+            if(frames_left > 3)
             {
                 CreateTactic(Punish);
                 m_tactic->DetermineChain();
                 return;
+            }
+        }
+
+        //If our opponent is rolling, punish it on the other end
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+            m_state->m_memory->player_two_action == LANDING_SPECIAL)
+        {
+            CreateTactic(Punish);
+            m_tactic->DetermineChain();
+            return;
+        }
+
+        //If we're hanging on the egde, and they are falling above the stage, punish it
+        if(m_state->m_memory->player_one_action == DEAD_FALL &&
+            m_state->m_memory->player_two_action == EDGE_HANGING &&
+            std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
+        {
+            CreateTactic(Punish);
+            m_tactic->DetermineChain();
+            return;
+        }
+
+        //How many frames do we have until the attack is over?
+        int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+
+        //If our oponnent is stuck in a laggy ending animation, punish it
+        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+            m_state->m_memory->player_one_action_frame >
+                m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action))
+        {
+            if(frames_left > 3)
+            {
+                //Unless we need to wavedash in, then give us more time
+                if(m_state->m_memory->player_two_action != SHIELD_RELEASE ||
+                    frames_left > 10)
+                {
+                    CreateTactic(Punish);
+                    m_tactic->DetermineChain();
+                    return;
+                }
             }
         }
     }
@@ -275,18 +278,26 @@ void Bait::DetermineTactic()
                 m_state->m_memory->player_two_action == EDGE_HANGING ||
                 m_state->m_memory->player_two_action == EDGE_CATCHING))
             {
-                if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-                {
-                    //If the p1 action changed, scrap the old Parry and make a new one.
-                    if(m_actionChanged || m_chargedSmashReleased)
-                    {
-                        delete m_tactic;
-                        m_tactic = NULL;
-                    }
+                //Don't bother parrying if we're going to be invincible for the attack
+                int invincibilityFramesLeft = 29 - (m_state->m_memory->frame - m_state->m_edgeInvincibilityStart);
+                int framesUntilAttack = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+                    (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
-                    CreateTactic(Parry);
-                    m_tactic->DetermineChain();
-                    return;
+                if(framesUntilAttack > invincibilityFramesLeft)
+                {
+                    if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
+                    {
+                        //If the p1 action changed, scrap the old Parry and make a new one.
+                        if(m_actionChanged || m_chargedSmashReleased)
+                        {
+                            delete m_tactic;
+                            m_tactic = NULL;
+                        }
+
+                        CreateTactic(Parry);
+                        m_tactic->DetermineChain();
+                        return;
+                    }
                 }
             }
         }

@@ -269,6 +269,7 @@ public:
 
     GameMemory *m_memory;
     double m_rollStartPosition;
+    double m_edgeInvincibilityStart;
 
 private:
     GameState();
