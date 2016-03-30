@@ -1,4 +1,7 @@
 #include <cmath>
+#include <typeinfo>
+#include <math.h>
+#include <algorithm>
 
 #include "Powershield.h"
 void Powershield::PressButtons()
@@ -263,6 +266,21 @@ void Powershield::PressButtons()
             break;
         }
         case UP_B:
+        {
+            //If we're above the enemy, shield when they get close
+            if(m_state->m_memory->player_two_y > m_state->m_memory->player_one_y)
+            {
+                if(distance < 17)
+                {
+                    //Shield now
+                    shield_on_frame = m_state->m_memory->player_one_action_frame;
+                }
+                //No sooner than frame 2, no later than frame 6
+                shield_on_frame = std::min((int)shield_on_frame, 6);
+                shield_on_frame = std::max((int)shield_on_frame, 2);
+            }
+            break;
+        }
         case UP_B_GROUND:
         {
             if(distance >= 27)
