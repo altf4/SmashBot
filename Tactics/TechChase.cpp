@@ -2,28 +2,30 @@
 #include <math.h>
 #include <cmath>
 
-#include "Punish.h"
+#include "TechChase.h"
 #include "../Util/Constants.h"
 #include "../Util/Logger.h"
-#include "../Chains/SmashAttack.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/Run.h"
 #include "../Chains/Walk.h"
 #include "../Chains/Wavedash.h"
 #include "../Chains/EdgeAction.h"
+#include "../Chains/GrabAndThrow.h"
+#include "../Chains/Jab.h"
 
-Punish::Punish()
+TechChase::TechChase()
 {
     m_roll_position = 0;
+    m_pivotPosition = 0;
     m_chain = NULL;
 }
 
-Punish::~Punish()
+TechChase::~TechChase()
 {
     delete m_chain;
 }
 
-void Punish::DetermineChain()
+void TechChase::DetermineChain()
 {
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_chain != NULL) && (!m_chain->IsInterruptible()))
@@ -32,23 +34,25 @@ void Punish::DetermineChain()
         return;
     }
 
-    //If we're hanging on the egde, and they are falling above the stage, stand up
-    if(m_state->m_memory->player_one_action == DEAD_FALL &&
-        m_state->m_memory->player_two_action == EDGE_HANGING &&
-        std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
+    bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
+
+    //Dash back, since we're about to start running
+    //UNLESS we're trying to tech chase a tech roll. Then we don't have enough time to dash back
+    if(m_state->m_memory->player_two_action == DASHING &&
+        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-2 &&
+        m_state->m_memory->player_one_action != FORWARD_TECH &&
+        m_state->m_memory->player_one_action != BACKWARD_TECH)
     {
-        CreateChain2(EdgeAction, STAND_UP);
+        //Make a new Run chain, since it's always interruptible
+        delete m_chain;
+        m_chain = NULL;
+        CreateChain2(Run, !m_state->m_memory->player_two_facing);
         m_chain->PressButtons();
         return;
     }
 
     //If they're rolling, go punish it where they will stop
-    if(m_state->m_memory->player_one_action == ROLL_FORWARD ||
-        m_state->m_memory->player_one_action == ROLL_BACKWARD ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_SLOW ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_SLOW)
+    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
     {
         //Figure out where they will stop rolling, only on the first frame
         if(m_roll_position == 0)
@@ -192,127 +196,94 @@ void Punish::DetermineChain()
             {
                 m_roll_position = (-1) * m_state->getStageEdgeGroundPosition();
             }
+
+            if(player_two_is_to_the_left)
+            {
+                m_pivotPosition = m_roll_position - FOX_GRAB_RANGE;
+            }
+            else
+            {
+                m_pivotPosition = m_roll_position + FOX_GRAB_RANGE;
+            }
         }
+
+        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
 
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
-        if(frames_left <= 7)
-        {
-            CreateChain(Nothing);
-            m_chain->PressButtons();
-            return;
-        }
-
-        //Upsmash if we're in range and facing the right way
-        //  Factor in sliding during the smash animation
+        int frameDelay = 7;
         double distance;
-        int frameDelay = 8; //Frames until the first smash hitbox, plus one for leeway
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
         {
-            double slidingAdjustment = 12.25 * (std::abs(m_state->m_memory->player_two_speed_ground_x_self));
+            double slidingAdjustment = frameDelay * (std::abs(m_state->m_memory->player_two_speed_ground_x_self));
             distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
-            frameDelay += 4;
         }
         else
         {
             distance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
         }
 
-        Logger::Instance()->Log(INFO, "Trying to punish a roll at position: " + std::to_string(m_roll_position) +
+        //If we're too late, at least get close
+        if(frames_left < frameDelay)
+        {
+            Logger::Instance()->Log(INFO, "Trying to tech chase but can't make it in time...");
+            CreateChain2(Run, to_the_left);
+            m_chain->PressButtons();
+            return;
+        }
+
+        Logger::Instance()->Log(INFO, "Trying to tech chase a roll at position: " + std::to_string(m_roll_position) +
             " with: " + std::to_string(frames_left) + " frames left");
 
-        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
-        if(frames_left - frameDelay >= 0 &&
-            distance < FOX_UPSMASH_RANGE_NEAR &&
-            to_the_left == m_state->m_memory->player_two_facing)
+        //How many frames of vulnerability are there at the tail end of the animation?
+        int vulnerable_frames = 7;
+        if(m_state->m_memory->player_one_action == MARTH_COUNTER)
         {
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
+            vulnerable_frames = 59;
+        }
+
+        if(frames_left - frameDelay >= 0 &&
+            frames_left - frameDelay <= vulnerable_frames &&
+            distance < FOX_GRAB_RANGE &&
+            to_the_left == m_state->m_memory->player_two_facing &&
+            m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work
+            m_state->m_memory->player_one_action != TECH_MISS_DOWN)
+        {
+            CreateChain2(GrabAndThrow, DOWN_THROW);
             m_chain->PressButtons();
             return;
         }
         else
         {
-            //If the target location is right behind us, just turn around, don't run
-            if(distance < FOX_UPSMASH_RANGE_NEAR &&
-                to_the_left != m_state->m_memory->player_two_facing)
+            //If they're right in front of us and we're not already running, then just hang out and wait
+            if(m_state->m_memory->player_two_action != DASHING &&
+                m_state->m_memory->player_two_action != RUNNING &&
+                m_state->m_memory->player_two_action != TURNING &&
+                distance < FOX_GRAB_RANGE &&
+                to_the_left == m_state->m_memory->player_two_facing)
             {
-                CreateChain2(Walk, to_the_left);
+                CreateChain(Nothing);
                 m_chain->PressButtons();
                 return;
             }
-            else
-            {
-                CreateChain2(Run, to_the_left);
-                m_chain->PressButtons();
-                return;
-            }
-        }
-    }
 
-    //Calculate distance between players
-    double distance = pow(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x, 2);
-    distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
-    distance = sqrt(distance);
-
-    //How many frames do we have until we need to do something?
-    int frames_left;
-    //Are we before the attack or after?
-    if(m_state->m_memory->player_one_action_frame < m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-        (ACTION)m_state->m_memory->player_one_action))
-    {
-        //Before
-        frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-        Logger::Instance()->Log(INFO, "Frames until first hitbox of the attack: " + std::to_string(frames_left));
-    }
-    else
-    {
-        //After
-        frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-           (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-       Logger::Instance()->Log(INFO, "Frames left until end of the attack: " + std::to_string(frames_left));
-    }
-
-    bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
-    //If we're in upsmash range, then prepare for attack
-    if(m_state->m_memory->player_two_facing == player_two_is_to_the_left && //Facing the right way?
-        (distance < FOX_UPSMASH_RANGE ||
-        (distance < FOX_UPSMASH_RANGE - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == RUNNING))))
-    {
-
-        int frameDelay = 9; //Frames until the first smash hitbox, plus one for strage startup latency and another for charge lag
-        if(m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == RUNNING)
-        {
-            frameDelay += 4;
-        }
-
-        //Do we have time to upsmash? Do that.
-        if(frames_left > frameDelay)
-        {
-            //Do two less frames of charging than we could, just to be safe
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
+            //Make a new Run chain, since it's always interruptible
+            delete m_chain;
+            m_chain = NULL;
+            bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
+            CreateChain2(Run, left_of_pivot_position);
             m_chain->PressButtons();
             return;
         }
     }
 
-    //Is it safe to wavedash in after shielding the attack?
-    //  Don't wavedash off the edge of the stage
-    if(frames_left > 15 &&
-        m_state->m_memory->player_two_action == SHIELD_RELEASE &&
-        (m_state->getStageEdgeGroundPosition() > std::abs(m_state->m_memory->player_two_x) + 10))
-    {
-        CreateChain2(Wavedash, player_two_is_to_the_left);
-        m_chain->PressButtons();
-        return;
-    }
-
     //Default to walking in towards the player
-    CreateChain2(Walk, player_two_is_to_the_left);
+    //Make a new Run chain, since it's always interruptible
+    delete m_chain;
+    m_chain = NULL;
+    CreateChain2(Run, player_two_is_to_the_left);
     m_chain->PressButtons();
     return;
 }

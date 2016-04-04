@@ -3,11 +3,10 @@
 #include "Run.h"
 void Run::PressButtons()
 {
-    //Don't run off the edge of the stage
-    if(m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x) < 30 &&
-        (m_isRight == (m_state->m_memory->player_two_x > 0)))
+    //If we're starting the turn around animation, keep pressing that way or else we'll get stuck in the slow turnaround
+    if(m_state->m_memory->player_two_action == TURNING &&
+        m_state->m_memory->player_two_action_frame == 1)
     {
-        m_controller->emptyInput();
         return;
     }
 
@@ -18,14 +17,7 @@ void Run::PressButtons()
             case WALK_SLOW:
             case DASHING:
             {
-                if(m_isRight)
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
-                }
-                else
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
-                }
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isRight ? 1 : 0, .5);
                 break;
             }
             case WALK_MIDDLE:
@@ -34,14 +26,8 @@ void Run::PressButtons()
                 //Turning around is fine. We'll dash. But we can't run forward. We need to wavedash
                 if(m_state->m_memory->player_two_facing != m_isRight)
                 {
-                    if(m_isRight)
-                    {
-                        m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
-                    }
-                    else
-                    {
-                        m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
-                    }
+                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isRight ? 1 : 0, .5);
+                    break;
                 }
                 else
                 {
@@ -62,27 +48,13 @@ void Run::PressButtons()
                 }
                 else
                 {
-                    if(m_isRight)
-                    {
-                        m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
-                    }
-                    else
-                    {
-                        m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
-                    }
+                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isRight ? 1 : 0, .5);
                 }
                 break;
             }
             default:
             {
-                if(m_isRight)
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, 1, .5);
-                }
-                else
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, 0, .5);
-                }
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isRight ? 1 : 0, .5);
                 break;
             }
         }
@@ -107,14 +79,7 @@ void Run::PressButtons()
             case 3:
             {
                 m_controller->pressButton(Controller::BUTTON_L);
-                if(m_isRight)
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, .8, .2);
-                }
-                else
-                {
-                    m_controller->tiltAnalog(Controller::BUTTON_MAIN, .2, .2);
-                }
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isRight ? .8 : .2, 0);
                 break;
             }
             case 4:

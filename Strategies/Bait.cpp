@@ -15,6 +15,7 @@
 #include "../Tactics/Punish.h"
 #include "../Tactics/ShowOff.h"
 #include "../Tactics/Escape.h"
+#include "../Tactics/TechChase.h"
 
 Bait::Bait()
 {
@@ -112,7 +113,11 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL ||
         m_state->m_memory->player_two_action == SPOTDODGE ||
-        m_state->isRollingState((ACTION)m_state->m_memory->player_two_action))
+        m_state->isRollingState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->m_memory->player_two_action == THROW_FORWARD ||
+        m_state->m_memory->player_two_action == THROW_BACK ||
+        m_state->m_memory->player_two_action == THROW_UP ||
+        m_state->m_memory->player_two_action == THROW_DOWN)
     {
         CreateTactic(Wait);
         m_tactic->DetermineChain();
@@ -126,24 +131,38 @@ void Bait::DetermineTactic()
 
     if(m_state->m_memory->player_two_on_ground)
     {
-        //If we're able to upsmash our opponent, let's do that
-        bool player_two_is_to_the_left = (m_state->m_memory->player_two_x - m_state->m_memory->player_one_x > 0);
+        //If we're able to punish our opponent, let's do that
         if((m_state->m_memory->player_one_action == SPOTDODGE ||
             m_state->m_memory->player_one_action == MARTH_COUNTER ||
             m_state->m_memory->player_one_action == MARTH_COUNTER_FALLING ||
             m_state->m_memory->player_one_action == LANDING_SPECIAL) &&
-            distance < FOX_UPSMASH_RANGE-2 &&
-            m_state->m_memory->player_two_facing != player_two_is_to_the_left)
+            distance < FOX_UPSMASH_RANGE-2)
         {
-            CreateTactic(Punish);
-            m_tactic->DetermineChain();
-            return;
+            if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
+            {
+                CreateTactic(Punish);
+                m_tactic->DetermineChain();
+                return;
+            }
+            else
+            {
+                if(m_actionChanged)
+                {
+                    delete m_tactic;
+                    m_tactic = NULL;
+                }
+                CreateTactic(TechChase);
+                m_tactic->DetermineChain();
+                return;
+            }
         }
 
+        bool player_two_is_to_the_left = (m_state->m_memory->player_two_x - m_state->m_memory->player_one_x > 0);
         //If our opponent is stuck in the windup for an attack, let's hit them with something harder than shine
         if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
             distance < FOX_UPSMASH_RANGE-2 &&
-            m_state->m_memory->player_two_facing != player_two_is_to_the_left)
+            m_state->m_memory->player_two_facing != player_two_is_to_the_left &&
+            std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
         {
             //How many frames do we have until the attack lands? If it's at least 3, then we can start a Punish
             int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
@@ -156,13 +175,40 @@ void Bait::DetermineTactic()
             }
         }
 
+        //If they're lying on the ground, techchase them
+        if(m_state->m_memory->player_one_action == LYING_GROUND_UP)
+        {
+            if(m_actionChanged)
+            {
+                delete m_tactic;
+                m_tactic = NULL;
+            }
+            CreateTactic(TechChase);
+            m_tactic->DetermineChain();
+            return;
+        }
+
         //If our opponent is rolling, punish it on the other end
         if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
             m_state->m_memory->player_two_action == LANDING_SPECIAL)
         {
-            CreateTactic(Punish);
-            m_tactic->DetermineChain();
-            return;
+            if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
+            {
+                CreateTactic(Punish);
+                m_tactic->DetermineChain();
+                return;
+            }
+            else
+            {
+                if(m_actionChanged)
+                {
+                    delete m_tactic;
+                    m_tactic = NULL;
+                }
+                CreateTactic(TechChase);
+                m_tactic->DetermineChain();
+                return;
+            }
         }
 
         //If we're hanging on the egde, and they are falling above the stage, punish it
@@ -181,6 +227,7 @@ void Bait::DetermineTactic()
 
         //If our oponnent is stuck in a laggy ending animation, punish it
         if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+            std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001 &&
             m_state->m_memory->player_one_action_frame >
                 m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
                 (ACTION)m_state->m_memory->player_one_action))
@@ -191,9 +238,23 @@ void Bait::DetermineTactic()
                 if(m_state->m_memory->player_two_action != SHIELD_RELEASE ||
                     frames_left > 10)
                 {
-                    CreateTactic(Punish);
-                    m_tactic->DetermineChain();
-                    return;
+                    if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
+                    {
+                        CreateTactic(Punish);
+                        m_tactic->DetermineChain();
+                        return;
+                    }
+                    else
+                    {
+                        if(m_actionChanged)
+                        {
+                            delete m_tactic;
+                            m_tactic = NULL;
+                        }
+                        CreateTactic(TechChase);
+                        m_tactic->DetermineChain();
+                        return;
+                    }
                 }
             }
         }

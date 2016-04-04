@@ -80,7 +80,7 @@ double GameState::getStageEdgeGroundPosition()
 
 bool GameState::isDamageState(ACTION action)
 {
-    //Luckily, all the damage states are contiguous
+    //Luckily, most of the damage states are contiguous
     if(action >= DAMAGE_HIGH_1 && action <= DAMAGE_FLY_ROLL)
     {
         return true;
@@ -88,7 +88,8 @@ bool GameState::isDamageState(ACTION action)
     if(action == THROWN_FORWARD ||
         action == THROWN_BACK ||
         action == THROWN_UP ||
-        action == THROWN_DOWN)
+        action == THROWN_DOWN ||
+        action == DAMAGE_GROUND)
     {
         return true;
     }
@@ -586,6 +587,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                         return 10;
                     }
                 }
+                case MARTH_COUNTER_FALLING:
                 case MARTH_COUNTER:
                 {
                     return 59;
@@ -593,6 +595,66 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 case SPOTDODGE:
                 {
                     return 27;
+                }
+                case ROLL_FORWARD:
+                case ROLL_BACKWARD:
+                {
+                    return 35;
+                }
+                case EDGE_ROLL_SLOW:
+                {
+                    return 98;
+                }
+                case EDGE_ROLL_QUICK:
+                {
+                    return 48;
+                }
+                case EDGE_GETUP_SLOW:
+                {
+                    return 58;
+                }
+                case EDGE_GETUP_QUICK:
+                {
+                    return 32;
+                }
+                case NEUTRAL_GETUP:
+                {
+                    return 30;
+                }
+                case NEUTRAL_TECH:
+                {
+                    return 26;
+                }
+                case FORWARD_TECH:
+                {
+                    return 40;
+                }
+                case BACKWARD_TECH:
+                {
+                    return 40;
+                }
+                case GETUP_ATTACK:
+                {
+                    return 23;
+                }
+                case TECH_MISS_UP:
+                {
+                    return 26;
+                }
+                case TECH_MISS_DOWN:
+                {
+                    return 26;
+                }
+                case GROUND_ROLL_BACKWARD:
+                case GROUND_ROLL_FORWARD:
+                case GROUND_ROLL_FORWARD_OTHER:
+                case GROUND_ROLL_BACKWARD_OTHER:
+                {
+                    return 35;
+                }
+                case GROUND_GETUP:
+                {
+                    return 30;
                 }
                 default:
                 {
@@ -707,6 +769,19 @@ bool GameState::isRollingState(ACTION action)
         case EDGE_ROLL_QUICK:
         case EDGE_GETUP_SLOW:
         case EDGE_GETUP_QUICK:
+        case NEUTRAL_GETUP:
+        case NEUTRAL_TECH:
+        case FORWARD_TECH:
+        case BACKWARD_TECH:
+        case MARTH_COUNTER_FALLING:
+        case MARTH_COUNTER:
+        case TECH_MISS_UP:
+        case TECH_MISS_DOWN:
+        case GROUND_ROLL_BACKWARD:
+        case GROUND_ROLL_FORWARD:
+        case GROUND_ROLL_FORWARD_OTHER:
+        case GROUND_ROLL_BACKWARD_OTHER:
+        case GROUND_GETUP:
         {
             return true;
         }

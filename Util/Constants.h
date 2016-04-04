@@ -9,12 +9,9 @@
 #define MARTH_ROLL_DISTANCE 40.2
 #define MARTH_EDGE_ROLL_DISTANCE 41.52
 #define MARTH_GETUP_DISTANCE 11.33
-
-#define MARTH_ROLL_FRAMES 35
-#define MARTH_EDGE_ROLL_FRAMES 48
-#define MARTH_EDGE_ROLL_SLOW_FRAMES 98
-#define MARTH_EDGE_GETUP_QUICK_FRAMES 32
-#define MARTH_EDGE_GETUP_SLOW_FRAMES 58
+#define MARTH_TECHROLL_DISTANCE 63.34
+#define MARTH_GROUND_BACK_ROLL_DISTANCE 30.87
+#define MARTH_GROUND_FORWARD_ROLL_DISTANCE 36.67
 
 #define MARTH_UP_B_HEIGHT 48
 #define MARTH_UP_B_X_DISTANCE 18
@@ -43,5 +40,9 @@
 #define FOX_UPSMASH_RANGE 17.5
 //The closest hitbox. The one that comes out on frame 7
 #define FOX_UPSMASH_RANGE_NEAR 12.5
+//Conservative actually. I've missed at 15.62 at the closest
+#define FOX_GRAB_RANGE 14
+//Until it turns to a run
+#define FOX_DASH_FRAMES 12
 
 #endif
