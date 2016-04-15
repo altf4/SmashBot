@@ -160,6 +160,7 @@ void Bait::DetermineTactic()
         bool player_two_is_to_the_left = (m_state->m_memory->player_two_x - m_state->m_memory->player_one_x > 0);
         //If our opponent is stuck in the windup for an attack, let's hit them with something harder than shine
         if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+            m_state->m_memory->player_one_action != GROUND_ATTACK_UP && //Can't punish before the attack on a getup attack
             distance < FOX_UPSMASH_RANGE-2 &&
             m_state->m_memory->player_two_facing != player_two_is_to_the_left &&
             std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
@@ -283,7 +284,9 @@ void Bait::DetermineTactic()
                 m_state->m_memory->player_one_action != MARTH_COUNTER &&
                 m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING &&
                 m_state->m_memory->player_one_action != EDGE_CATCHING &&
-                m_state->m_memory->player_one_action != SPOTDODGE)
+                m_state->m_memory->player_one_action != SPOTDODGE &&
+                m_state->m_memory->player_one_action != GROUND_ATTACK_UP //Can't punish before the attack on a getup attack
+                )
             {
                 CreateTactic(ShineCombo);
                 m_tactic->DetermineChain();

@@ -236,6 +236,10 @@ uint GameState::firstHitboxFrame(CHARACTER character, ACTION action)
                 {
                     return 25;
                 }
+                case GROUND_ATTACK_UP:
+                {
+                    return 20;
+                }
                 default:
                 {
                     return 0;
@@ -390,6 +394,10 @@ uint GameState::lastHitboxFrame(CHARACTER character, ACTION action)
                 case EDGE_ATTACK_QUICK:
                 {
                     return 28;
+                }
+                case GROUND_ATTACK_UP:
+                {
+                    return 31;
                 }
                 default:
                 {
@@ -656,6 +664,10 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 {
                     return 30;
                 }
+                case GROUND_ATTACK_UP:
+                {
+                    return 49;
+                }
                 default:
                 {
                     return 0;
@@ -726,6 +738,7 @@ bool GameState::isAttacking(ACTION action)
         case NEUTRAL_B_ATTACKING_AIR:
         case EDGE_ATTACK_QUICK:
         case EDGE_ATTACK_SLOW:
+        case GROUND_ATTACK_UP:
         {
             return true;
         }
@@ -748,6 +761,7 @@ bool GameState::isReverseHit(ACTION action)
         case UAIR:
         case DAIR:
         case BAIR:
+        case GROUND_ATTACK_UP:
         {
             return true;
         }

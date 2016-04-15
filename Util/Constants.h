@@ -44,5 +44,6 @@
 #define FOX_GRAB_RANGE 14
 //Until it turns to a run
 #define FOX_DASH_FRAMES 12
+#define FOX_DASH_SPEED 2.2
 
 #endif

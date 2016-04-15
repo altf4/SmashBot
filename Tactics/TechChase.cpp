@@ -279,6 +279,22 @@ void TechChase::DetermineChain()
         }
     }
 
+    //Dash to the pivot point
+    if(m_state->m_memory->player_one_action == LYING_GROUND_UP)
+    {
+        bool isLeft = m_state->m_memory->player_one_x < 0;
+        int pivot_offset = isLeft ? 20 : -20;
+        m_pivotPosition = m_state->m_memory->player_one_x + pivot_offset;
+
+        //Make a new Run chain, since it's always interruptible
+        delete m_chain;
+        m_chain = NULL;
+        bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
+        CreateChain2(Run, left_of_pivot_position);
+        m_chain->PressButtons();
+        return;
+    }
+
     //Default to walking in towards the player
     //Make a new Run chain, since it's always interruptible
     delete m_chain;
