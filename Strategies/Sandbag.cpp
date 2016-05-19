@@ -55,7 +55,8 @@ void Sandbag::DetermineTactic()
 
     //So, turns out that the game changes the player's action state (to 2 or 3) on us when they're charging
     //If this happens, just change it back. Maybe there's a more elegant solution
-    if(m_state->m_memory->player_one_action == 0x02 ||
+    if(m_state->m_memory->player_one_action == 0x00 ||
+        m_state->m_memory->player_one_action == 0x02 ||
         m_state->m_memory->player_one_action == 0x03)
     {
         m_state->m_memory->player_one_action = m_lastAction;
