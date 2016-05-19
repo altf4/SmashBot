@@ -48,8 +48,8 @@ void Escape::DetermineChain()
         //TODO: More DI scenarios
         if(m_state->m_memory->player_two_action == THROWN_UP)
         {
-            //Randomish choice between left and right
-            x = m_state->m_memory->frame ? 0 : 1;
+            //Random DI between left and right
+            x = rand() % 2 ? 0 : 1;
             y = .5;
         }
         else if(m_state->m_memory->player_two_action == THROWN_DOWN ||
