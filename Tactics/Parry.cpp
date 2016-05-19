@@ -8,6 +8,7 @@
 #include "../Chains/EdgeAction.h"
 #include "../Chains/Run.h"
 #include "../Chains/Nothing.h"
+#include "../Util/Logger.h"
 
 Parry::Parry()
 {
@@ -34,15 +35,22 @@ void Parry::DetermineChain()
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
     distance = sqrt(distance);
 
-    int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action)
+    int frames_left_start = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action)
         - m_state->m_memory->player_one_action_frame;
-    if(frames_left > 0 &&
+
+    int frames_left_end = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action)
+        - m_state->m_memory->player_one_action_frame;
+
+    if((frames_left_start > 0 ||
+        frames_left_end > 0) &&
         (m_state->m_memory->player_two_action == DASHING ||
         m_state->m_memory->player_two_action == STANDING ||
         m_state->m_memory->player_two_action == WALK_SLOW ||
         m_state->m_memory->player_two_action == TURNING))
     {
-        if(FOX_DASH_SPEED * frames_left > MARTH_FSMASH_RANGE - distance)
+        //Do we have time to run away from the attack?
+        if(frames_left_start <= 0 ||
+            FOX_DASH_SPEED * frames_left_start > MARTH_FSMASH_RANGE - distance)
         {
             //Keep doing what we were doing before if we're turning
             if(m_state->m_memory->player_two_action == TURNING)
@@ -67,9 +75,17 @@ void Parry::DetermineChain()
                 return;
             }
 
-            //Dash away!
-            bool to_the_left = m_state->m_memory->player_one_x > m_state->m_memory->player_two_x;
-            CreateChain2(Run, !to_the_left);
+            //Dash to the pivot point outside attack range
+            bool onRight = m_state->m_memory->player_one_x > 0;
+            double pivotPosition = m_state->m_memory->player_one_x + (onRight ? -MARTH_FSMASH_RANGE - 4 : MARTH_FSMASH_RANGE + 4);
+            Logger::Instance()->Log(INFO, "Trying to run away to pivot point: " + std::to_string(pivotPosition) +
+                " with: " + std::to_string(frames_left_start) + " frames left");
+
+            //Make a new Run chain, since it's always interruptible
+            delete m_chain;
+            m_chain = NULL;
+            bool left_of_pivot_position = m_state->m_memory->player_two_x < pivotPosition;
+            CreateChain2(Run, left_of_pivot_position);
             m_chain->PressButtons();
             return;
         }

@@ -2,6 +2,14 @@
 
 void GrabAndThrow::PressButtons()
 {
+    //If we're dashing, then jump cancel the grab
+    if(m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == RUNNING)
+     {
+         m_controller->pressButton(Controller::BUTTON_Y);
+         return;
+     }
+
     //Do the grab if we're in a state to do so and haven't yet
     if(m_state->m_memory->player_two_action != GRAB &&
         m_state->m_memory->player_two_action != GRAB_RUNNING &&
@@ -10,8 +18,11 @@ void GrabAndThrow::PressButtons()
         m_state->m_memory->player_two_action != THROW_UP &&
         m_state->m_memory->player_two_action != THROW_DOWN &&
         m_state->m_memory->player_two_action != GRAB_PULLING &&
-        m_state->m_memory->player_two_action != GRAB_WAIT)
+        m_state->m_memory->player_two_action != GRAB_WAIT &&
+        m_grabbedYet == false)
     {
+        m_grabbedYet = true;
+        m_controller->releaseButton(Controller::BUTTON_Y);
         m_controller->pressButton(Controller::BUTTON_Z);
         return;
     }
@@ -61,10 +72,8 @@ void GrabAndThrow::PressButtons()
         return;
     }
 
-    //If we miss the grab, let go for a frame
-    if((m_state->m_memory->player_two_action == GRAB ||
-        m_state->m_memory->player_two_action == GRAB_RUNNING) &&
-        m_state->m_memory->player_two_action_frame > 15)
+    //If we miss the grab, let go
+    if(m_state->m_memory->player_two_action_frame > 15)
     {
         m_controller->emptyInput();
         return;
@@ -99,6 +108,7 @@ bool GrabAndThrow::IsInterruptible()
 GrabAndThrow::GrabAndThrow(THROW_DIRECTION direction)
 {
     m_direction = direction;
+    m_grabbedYet = false;
 }
 
 GrabAndThrow::~GrabAndThrow()
