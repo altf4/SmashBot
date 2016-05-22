@@ -417,22 +417,8 @@ void Bait::DetermineTactic()
         return;
     }
 
-    //If we're not in shine range, get in close
-    if(std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) > FOX_SHINE_RADIUS)
-    {
-        CreateTactic(CloseDistance);
-        m_tactic->DetermineChain();
-        return;
-    }
-    //If we're in close and p2 is sheilding, just wait
-    if(m_state->m_memory->player_one_action == SHIELD)
-    {
-        CreateTactic(Wait);
-        m_tactic->DetermineChain();
-        return;
-    }
     //TODO: For now, just default to waiting if nothing else fits
-    CreateTactic(Wait);
+    CreateTactic(CloseDistance);
     m_tactic->DetermineChain();
     return;
 }

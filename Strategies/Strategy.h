@@ -30,18 +30,14 @@ protected:
         switch(a)
         {
             case STANDING:
-                return true;
             case WALK_SLOW:
-                return true;
             case WALK_MIDDLE:
-                return true;
             case WALK_FAST:
-                return true;
             case KNEE_BEND:
-                return true;
             case CROUCHING:
-                return true;
             case EDGE_TEETERING:
+            case DASHING:
+            case TURNING:
                 return true;
             default:
                 return false;

@@ -10,6 +10,14 @@ void Run::PressButtons()
         return;
     }
 
+    //We can't dash RIGHT after landing. So just chill for a bit
+    if((m_state->m_memory->player_two_action == LANDING && m_state->m_memory->player_two_action_frame < 2) ||
+        !m_state->m_memory->player_two_on_ground)
+    {
+        m_controller->emptyInput();
+        return;
+    }
+
     switch(m_state->m_memory->player_two_action)
     {
         case WALK_SLOW:

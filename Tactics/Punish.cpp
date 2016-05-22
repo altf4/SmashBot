@@ -311,8 +311,8 @@ void Punish::DetermineChain()
         return;
     }
 
-    //Default to walking in towards the player
-    CreateChain2(Walk, player_two_is_to_the_left);
+    //Default to running in towards the player
+    CreateChain2(Run, player_two_is_to_the_left);
     m_chain->PressButtons();
     return;
 }

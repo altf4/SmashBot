@@ -83,6 +83,14 @@ void GrabEdge::PressButtons()
 
 bool GrabEdge::IsInterruptible()
 {
+    bool facingOut = m_state->m_memory->player_two_facing == (m_state->m_memory->player_two_x > 0);
+
+    //If we're in this state, something horrible has happened. We won't grab the edge. Abort
+    if(facingOut && !m_state->m_memory->player_two_on_ground)
+    {
+        return true;
+    }
+
     if(!m_isInWavedash)
     {
         return true;
