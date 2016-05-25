@@ -274,11 +274,17 @@ void TechChase::DetermineChain()
             vulnerable_frames = 59;
         }
 
+        bool facingRight = m_state->m_memory->player_two_facing;
+        if(m_state->m_memory->player_two_action == TURNING)
+        {
+            facingRight = !facingRight;
+        }
+
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
             frames_left - frameDelay <= vulnerable_frames &&
             distance < FOX_GRAB_RANGE &&
-            to_the_left == m_state->m_memory->player_two_facing &&
+            to_the_left == facingRight &&
             m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work
             m_state->m_memory->player_one_action != TECH_MISS_DOWN)
         {

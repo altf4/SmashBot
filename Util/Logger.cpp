@@ -27,7 +27,7 @@ Logger *Logger::Instance()
 Logger::Logger()
 {
     //CSV header
-    m_debuglog = "Frame,Goal,Strategy,Tactic,Chain,Player 1 x,Player 1 y,Player 2 x,Player 2 y,Player 1 Action,Player 2 Action,Player 1 Action Frame,Player 2 Action Frame," \
+    m_debuglog = "Frame,Goal,Strategy,Tactic,Chain,Player 1 x,Player 1 y,Player 2 x,Player 2 y,Player 1 Facing, Player 2 Facing,Player 1 Action,Player 2 Action,Player 1 Action Frame,Player 2 Action Frame," \
         "Player 1 Jumps Left,Player 2 Jumps Left,Player 1 Stock,Player 2 Stock,Player 1 Percent,Player 2 Percent";
     //Just to make sure Notes stays at the end
     m_debuglog += ",Notes";
@@ -98,6 +98,10 @@ void Logger::LogFrame()
     m_debuglog += std::to_string(state->m_memory->player_two_x);
     m_debuglog += ",";
     m_debuglog += std::to_string(state->m_memory->player_two_y);
+    m_debuglog += ",";
+    m_debuglog += std::to_string(state->m_memory->player_one_facing);
+    m_debuglog += ",";
+    m_debuglog += std::to_string(state->m_memory->player_two_facing);
     m_debuglog += ",";
 
     //Action states

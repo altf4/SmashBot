@@ -6,6 +6,7 @@
 #include "../Util/Logger.h"
 #include "../Tactics/CloseDistance.h"
 #include "../Tactics/CreateDistance.h"
+#include "../Tactics/KeepDistance.h"
 #include "../Tactics/Wait.h"
 #include "../Tactics/Parry.h"
 #include "../Tactics/ShineCombo.h"
@@ -417,8 +418,7 @@ void Bait::DetermineTactic()
         return;
     }
 
-    //TODO: For now, just default to waiting if nothing else fits
-    CreateTactic(CloseDistance);
+    CreateTactic(KeepDistance);
     m_tactic->DetermineChain();
     return;
 }
