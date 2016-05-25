@@ -7,10 +7,11 @@
 #include "../Chains/JumpCanceledShine.h"
 #include "../Chains/GrabEdge.h"
 #include "../Chains/EdgeAction.h"
-#include "../Chains/Walk.h"
+#include "../Chains/DI.h"
 #include "../Chains/MarthKiller.h"
 #include "../Chains/Waveshine.h"
 #include "../Chains/EdgeStall.h"
+#include "../Chains/DashDance.h"
 #include "../Util/Controller.h"
 #include "../Util/Logger.h"
 
@@ -124,7 +125,9 @@ void Edgeguard::DetermineChain()
     if(std::abs(m_state->m_memory->player_two_x - m_state->m_memory->player_one_x) < 8 &&
         (invincibilityFramesLeft * FOX_FASTFALL_SPEED) < distance &&
         m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
-        m_state->m_memory->player_one_y > (-1)*(FOX_DOUBLE_JUMP_HEIGHT))
+        m_state->m_memory->player_one_y > (-1)*(FOX_DOUBLE_JUMP_HEIGHT) &&
+        m_state->m_memory->player_one_on_ground &&
+        m_state->m_memory->player_two_on_ground)
     {
         CreateChain2(EdgeAction, FASTFALL);
         m_chain->PressButtons();
@@ -141,14 +144,15 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    //Walk up the the edge
+    //Dash dance around the edge
     if((m_state->m_memory->player_one_action == SLIDING_OFF_EDGE ||
         m_state->m_memory->player_one_action == EDGE_CATCHING ||
         m_state->m_memory->player_one_action == EDGE_HANGING) &&
-        m_state->m_memory->player_two_on_ground &&
-        std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition())
+        m_state->m_memory->player_two_on_ground)
     {
-        CreateChain2(Walk, m_state->m_memory->player_one_x > 0 ? true : false);
+        bool onLeft = m_state->m_memory->player_one_x < 0;
+        double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();
+        CreateChain3(DashDance, pivotPoint, 0);
         m_chain->PressButtons();
         return;
     }
@@ -202,7 +206,9 @@ void Edgeguard::DetermineChain()
     if(m_state->m_memory->player_two_on_ground &&
         std::abs(m_state->m_memory->player_two_x) + .01 < m_state->getStageEdgePosition())
     {
-        CreateChain2(Walk, m_state->m_memory->player_one_x > 0 ? true : false);
+        bool onLeft = m_state->m_memory->player_one_x < 0;
+        double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();
+        CreateChain3(DashDance, pivotPoint, 0);
         m_chain->PressButtons();
         return;
     }
@@ -211,7 +217,7 @@ void Edgeguard::DetermineChain()
     if(m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
         m_state->m_memory->player_two_action == FALLING)
     {
-        CreateChain2(Walk, m_state->m_memory->player_one_x > m_state->m_memory->player_two_x ? true : false);
+        CreateChain3(DI, m_state->m_memory->player_one_x > m_state->m_memory->player_two_x ? true : false, .5);
         m_chain->PressButtons();
         return;
     }

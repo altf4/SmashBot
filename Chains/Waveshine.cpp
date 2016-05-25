@@ -17,6 +17,14 @@ void Waveshine::PressButtons()
         return;
     }
 
+    //Pivot shine! You can't shine from a dash animation. So make it a pivot
+    if(m_state->m_memory->player_two_action == DASHING)
+    {
+        bool facingRight = m_state->m_memory->player_two_facing;
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, facingRight ? 0 : 1, .5);
+        return;
+    }
+
     //Do nothing if we're in hitlag
     if(m_state->m_memory->player_two_hitlag_frames_left > 0)
     {
