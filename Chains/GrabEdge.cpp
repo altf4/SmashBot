@@ -11,18 +11,10 @@ void GrabEdge::PressButtons()
         return;
     }
 
-    //If we're far away from the edge, then walk at the edge
-    //XXX: We're not dashing for now, because that got complicated
+    //If we're far away from the edge, then dash at the edge
     if(!m_isInWavedash && (std::abs(m_state->m_memory->player_two_x) < 72.5656))
     {
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? .25 : .75, .5);
-        return;
-    }
-
-    //We need to be able to dash, so let's transition to crouching, where we can definitely dash
-    if(!m_isInWavedash && !TransitionHelper::canDash((ACTION)m_state->m_memory->player_two_action))
-    {
-        TransitionHelper::Transition((ACTION)m_state->m_memory->player_two_action, CROUCHING);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 0 : 1, .5);
         return;
     }
 
@@ -36,21 +28,16 @@ void GrabEdge::PressButtons()
         return;
     }
 
-    //Dash Backwards
-    if(m_state->m_memory->player_two_action == CROUCHING ||
-        m_state->m_memory->player_two_action == STANDING ||
-        m_state->m_memory->player_two_action == TURNING ||
-        m_state->m_memory->player_two_action == EDGE_TEETERING_START ||
-        m_state->m_memory->player_two_action == EDGE_TEETERING)
+    //Dash Backwards if we're facing towards the edge and are in a state where we can dash
+    if(m_isLeftEdge != m_state->m_memory->player_two_facing)
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 1 : 0, .5);
         return;
     }
 
-    //Once we're dashing, jump
+    //Once we're dashing away from the edge, jump
     if(m_state->m_memory->player_two_action == DASHING)
     {
-        //Jump TODO: backwards jump
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
         m_controller->pressButton(Controller::BUTTON_Y);
         return;
@@ -83,7 +70,7 @@ void GrabEdge::PressButtons()
 
 bool GrabEdge::IsInterruptible()
 {
-    bool facingOut = m_state->m_memory->player_two_facing == (m_state->m_memory->player_two_x > 0);
+    bool facingOut = m_state->m_memory->player_two_facing == m_isLeftEdge;
 
     //If we're in this state, something horrible has happened. We won't grab the edge. Abort
     if(facingOut && !m_state->m_memory->player_two_on_ground)

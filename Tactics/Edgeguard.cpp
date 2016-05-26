@@ -203,8 +203,8 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    if(m_state->m_memory->player_two_on_ground &&
-        std::abs(m_state->m_memory->player_two_x) + .01 < m_state->getStageEdgePosition())
+    //If we're still on the stage, then dash dance around the edge
+    if(m_state->m_memory->player_two_on_ground)
     {
         bool onLeft = m_state->m_memory->player_one_x < 0;
         double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();

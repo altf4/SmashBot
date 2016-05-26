@@ -5,6 +5,7 @@
 #include "../Util/Constants.h"
 #include "../Tactics/CloseDistance.h"
 #include "../Tactics/CreateDistance.h"
+#include "../Tactics/KeepDistance.h"
 #include "../Tactics/Wait.h"
 #include "../Tactics/Parry.h"
 #include "../Tactics/Recover.h"
@@ -232,8 +233,7 @@ void Sandbag::DetermineTactic()
         return;
     }
 
-    //TODO: For now, just default to waiting if nothing else fits
-    CreateTactic(Wait);
+    CreateTactic(KeepDistance);
     m_tactic->DetermineChain();
     return;
 }
