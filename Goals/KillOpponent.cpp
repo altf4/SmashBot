@@ -16,7 +16,7 @@ void KillOpponent::Strategize()
 {
     //If the opponent just started a roll, remember where they started from
     if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) &&
-        m_state->m_memory->player_one_action_frame == 1)
+        m_state->m_memory->player_one_action_frame <= 1)
     {
         m_state->m_rollStartPosition = m_state->m_memory->player_one_x;
     }
