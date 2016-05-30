@@ -112,7 +112,8 @@ bool GrabAndThrow::IsInterruptible()
     {
         return true;
     }
-    return false;}
+    return false;
+}
 
 GrabAndThrow::GrabAndThrow(THROW_DIRECTION direction)
 {
