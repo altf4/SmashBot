@@ -33,9 +33,18 @@ void GrabAndThrow::PressButtons()
         return;
     }
 
+    //Pummel our opponent for some free damage
+    if(!m_pummeledYet && m_state->m_memory->player_two_action == GRAB_WAIT)
+    {
+        m_controller->pressButton(Controller::BUTTON_A);
+        m_pummeledYet = true;
+        return;
+    }
+
     //Perform a throw
     if(m_state->m_memory->player_two_action == GRAB_WAIT)
     {
+        m_controller->releaseButton(Controller::BUTTON_A);
         switch(m_direction)
         {
             case UP_THROW:
@@ -109,6 +118,12 @@ GrabAndThrow::GrabAndThrow(THROW_DIRECTION direction)
 {
     m_direction = direction;
     m_grabbedYet = false;
+    m_pummeledYet = false;
+    if(m_state->m_memory->player_one_percent < 20)
+    {
+        m_pummeledYet = true;
+    }
+
 }
 
 GrabAndThrow::~GrabAndThrow()

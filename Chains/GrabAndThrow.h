@@ -27,6 +27,7 @@ public:
 private:
     THROW_DIRECTION m_direction;
     bool m_grabbedYet;
+    bool m_pummeledYet;
 };
 
 #endif
