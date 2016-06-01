@@ -18,7 +18,7 @@ void CloseDistance::DetermineChain()
 {
     //Dash back, since we're about to start running
     if(m_state->m_memory->player_two_action == DASHING &&
-        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-2)
+        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-1)
     {
         //Make a new Run chain, since it's always interruptible
         delete m_chain;

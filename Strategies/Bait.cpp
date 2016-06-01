@@ -422,7 +422,8 @@ void Bait::DetermineTactic()
     //If our opponent is doing something to put them in a vulnerable spot, approach
     if(m_state->m_memory->player_one_action == KNEE_BEND ||
         m_state->m_memory->player_one_action == JUMPING_FORWARD ||
-        m_state->m_memory->player_one_action == SHIELD)
+        m_state->m_memory->player_one_action == SHIELD ||
+        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
         CreateTactic(CloseDistance);
         m_tactic->DetermineChain();

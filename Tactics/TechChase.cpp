@@ -39,7 +39,7 @@ void TechChase::DetermineChain()
     //Dash back, since we're about to start running
     //UNLESS we're trying to tech chase a tech roll. Then we don't have enough time to dash back
     if(m_state->m_memory->player_two_action == DASHING &&
-        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-2 &&
+        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-1 &&
         m_state->m_memory->player_one_action != FORWARD_TECH &&
         m_state->m_memory->player_one_action != BACKWARD_TECH)
     {

@@ -14,7 +14,7 @@ void DashDance::PressButtons()
 
     //Dash back, since we're about to start running
     if(m_state->m_memory->player_two_action == DASHING &&
-        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-2)
+        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-1)
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, !m_state->m_memory->player_two_facing, .5);
         return;

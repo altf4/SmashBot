@@ -38,6 +38,7 @@ protected:
             case EDGE_TEETERING:
             case DASHING:
             case TURNING:
+            case RUNNING:
                 return true;
             default:
                 return false;

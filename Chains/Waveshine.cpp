@@ -1,5 +1,6 @@
 #include <cmath>
 
+#include "../Util/Constants.h"
 #include "Waveshine.h"
 
 void Waveshine::PressButtons()
@@ -17,8 +18,20 @@ void Waveshine::PressButtons()
         return;
     }
 
+    //If they're hurt and we're chasing them. Then don't try to pivot. Go into a running state then shine
+    if(m_frameShined == 0 &&
+        m_state->m_memory->player_two_action == DASHING &&
+        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) &&
+        m_state->m_memory->player_one_hitstun_frames_left > (FOX_DASH_FRAMES - m_state->m_memory->player_two_action_frame))
+    {
+        bool onRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
+        return;
+    }
+
     //Pivot shine! You can't shine from a dash animation. So make it a pivot
-    if(m_state->m_memory->player_two_action == DASHING)
+    if(m_frameShined == 0 &&
+        m_state->m_memory->player_two_action == DASHING)
     {
         bool facingRight = m_state->m_memory->player_two_facing;
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, facingRight ? 0 : 1, .5);
