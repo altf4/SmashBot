@@ -423,6 +423,8 @@ void Bait::DetermineTactic()
     if(m_state->m_memory->player_one_action == KNEE_BEND ||
         m_state->m_memory->player_one_action == JUMPING_FORWARD ||
         m_state->m_memory->player_one_action == SHIELD ||
+        m_state->m_memory->player_one_action == SHIELD_START ||
+        m_state->m_memory->player_one_action == SHIELD_REFLECT ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
         CreateTactic(CloseDistance);
