@@ -1,0 +1,30 @@
+//Mixins
+@mixin flexbox($direction, $wrap, $justify, $align){
+    display: flex;
+    flex-direction: $direction;
+    flex-wrap: $wrap;
+    justify-content: $justify;
+    align-items: $align;
+}
+//@include flexbox(direction, wrap, justify, align);
+
+@mixin rowMachine($numPerRow, $marginright, $marginbottom){
+    width: ((100% - (($numPerRow - 1) * $marginright)) / $numPerRow);
+
+    &:nth-of-type(n){
+        margin-bottom: $marginbottom;
+        margin-right: $marginright;
+    }
+    &:nth-of-type(#{$numPerRow}n){
+        margin-right: 0;
+    }
+}
+//@include rowMachine(numPerRow, marginright, marginbottom);
+
+@mixin paddinghack($containerwidth, $ratiowidth, $ratioheight){
+    position: relative;
+    width: $containerwidth;
+    height: 0;
+    padding: (($ratioheight / $ratiowidth) * $containerwidth) 0 0 0;
+}
+// @include paddinghack(width, ratiowidth, ratioheight);

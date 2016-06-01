@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Twister Front Matter Generator</title>
+        <link href='http://fonts.googleapis.com/css?family=Roboto:300,300italic,500,500italic' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:500' rel='stylesheet' type='text/css'>
+        <meta name="viewport" content="width=device-width">
+        <style>
+            html, body, div, span, applet, object, iframe,
+            h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+            a, abbr, acronym, address, big, cite, code,
+            del, dfn, em, img, ins, kbd, q, s, samp,
+            small, strike, strong, sub, sup, tt, var,
+            b, u, i, center,
+            dl, dt, dd, ol, ul, li,
+            fieldset, form, label, legend,
+            table, caption, tbody, tfoot, thead, tr, th, td,
+            article, aside, canvas, details, embed,
+            figure, figcaption, footer, header, hgroup,
+            menu, nav, output, ruby, section, summary,
+            time, mark, audio, video {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline;
+            }
+            /* HTML5 display-role reset for older browsers */
+            article, aside, details, figcaption, figure,
+            footer, header, hgroup, menu, nav, section {
+                display: block;
+            }
+            body {
+                line-height: 1;
+            }
+            ol, ul {
+                list-style: none;
+            }
+            blockquote, q {
+                quotes: none;
+            }
+            blockquote:before, blockquote:after,
+            q:before, q:after {
+                content: '';
+                content: none;
+            }
+            table {
+                border-collapse: collapse;
+                border-spacing: 0;
+            }
+            body {
+              background: #CFD1CF;
+              font-family: Roboto, Calibri, Arial, sans-serif;
+              font-weight: 300;
+              font-size: 15px;
+              line-height: 1.5;
+            }
+
+            .generator {
+              width: 80%;
+              background: #FDFDFD;
+              padding: 30px;
+              box-sizing: border-box;
+              margin: 50px auto;
+            }
+            .generator .line {
+              display: -webkit-box;
+              display: -webkit-flex;
+              display: -ms-flexbox;
+              display: flex;
+              -webkit-box-orient: horizontal;
+              -webkit-box-direction: normal;
+              -webkit-flex-direction: row;
+                  -ms-flex-direction: row;
+                      flex-direction: row;
+              -webkit-flex-wrap: wrap;
+                  -ms-flex-wrap: wrap;
+                      flex-wrap: wrap;
+              -webkit-box-pack: justify;
+              -webkit-justify-content: space-between;
+                  -ms-flex-pack: justify;
+                      justify-content: space-between;
+              -webkit-box-align: start;
+              -webkit-align-items: flex-start;
+                  -ms-flex-align: start;
+                      align-items: flex-start;
+              padding: 15px 0;
+            }
+
+            button {
+              margin-top: 10px;
+              margin-right: 10px;
+              padding: 7px 12px;
+              font-size: 1em;
+              color: white;
+              display: inline-block;
+              vertical-align: middle;
+              text-align: center;
+              cursor: pointer;
+              -webkit-transition: background 0.1s ease-in-out;
+                      transition: background 0.1s ease-in-out;
+              border-radius: 2px;
+              outline: 0 none;
+              background-color: #464769;
+              box-shadow: 0px 3px 0px 0px #292a3e;
+              border: 0;
+            }
+            button:hover, button:focus {
+              background-color: #35377a;
+            }
+            button:active, button:focus {
+              margin-bottom: -1px;
+              outline: 0 none;
+              box-shadow: 0px 1px 0px 0px #13131c;
+            }
+
+            h1, h3 {
+              color: #464769;
+              font-weight: 500;
+            }
+
+            h1 {
+              font-size: 2em;
+            }
+
+            h3 {
+              font-size: 1.2em;
+              width: 200px;
+            }
+
+            ul, input[type="text"], .dsc {
+              width: calc(95% - 200px);
+            }
+
+            ul + .dsc{
+                border-top: 1px solid #ccc;
+                padding-top: 3px;
+                margin-top: 3px;
+            }
+
+            .dsc{
+                font-size: .9em;
+                margin-left: calc(200px + 5%);
+            }
+
+            li {
+              width: 100%;
+              text-align: left;
+            }
+
+            input[type="text"] {
+              border: 0 solid transparent;
+              border-bottom: 2px solid #A1B6C9;
+              padding: 5px;
+            }
+            input[type="text"]:focus {
+              border-bottom: 1px solid #6D5360;
+            }
+
+            .warn {
+              font-weight: 500;
+              color: #AC4048;
+            }
+
+            pre {
+              background: #6D5360;
+              color: #CFD1CF;
+              padding: 10px;
+              box-sizing: border-box;
+              line-height: 2;
+              display: block;
+              width: 100%;
+              margin: 20px 0;
+            }
+
+            code{
+                font-family: Source Code Pro, Courier, monospace;
+            }
+
+            .hidden {
+              display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="generator">
+            <h1>Twister Front Matter Generator</h1>
+            <div class="line">
+                <h3>Title:</h3>
+                <input type="text" id="title" />
+                <span class="dsc">put your title here. the generator will generate the filename for you</span>
+            </div>
+
+            <div class="line type">
+                <h3>Type:</h3>
+                <ul>
+                    <li><input type="radio" name="type" value="standard" id="standard" checked> <label for="standard">Standard</label></li>
+                    <li><input type="radio" name="type" value="image" id="image"> <label for="image">image</label></li>
+                    <li><input type="radio" name="type" value="gallery" id="gallery"> <label for="gallery">gallery</label></li>
+                    <li><input type="radio" name="type" value="vimeo" id="vimeo"> <label for="vimeo">vimeo</label></li>
+                    <li><input type="radio" name="type" value="youtube" id="youtube"> <label for="youtube">youtube</label></li>
+                    <li><input type="radio" name="type" value="audio" id="audio"> <label for="audio">audio</label></li>
+                </ul>
+                <span class="dsc">Choose the post format, if you choose image, the featured image is required</span>
+            </div>
+
+            <div class="featuredimg">
+                <div class="line">
+                    <h3>featured image:</h3>
+                    <input type="text" id="featimg" />
+                    <span class="dsc">put link here, file must be within media folder (do not include that in the file path)</span>
+                </div>
+            </div>
+
+            <div class="gallery-id hidden">
+                <div class="line">
+                    <h3>Gallery ID:</h3>
+                    <input type="text" id="gallery-id" />
+                    <span class="dsc">gallery id set in _data/galleries.yml</span>
+                </div>
+            </div>
+
+            <div class="vimeo-embed hidden">
+                <div class="line">
+                    <h3>Vimeo Embedding Code:</h3>
+                    <input type="text" id="vimeo-embed" />
+                    <span class="dsc">embedding iframe</span>
+                </div>
+            </div>
+
+            <div class="yt-video-id hidden">
+                <div class="line">
+                    <h3>YouTube Video ID:</h3>
+                    <input type="text" id="yt-video-id" />
+                    <span class="dsc">YouTube Id, found in the URL after <i>/watch?v=</i></span>
+                </div>
+            </div>
+
+            <div class="audio-embed hidden">
+                <div class="line">
+                    <h3>Audio Embedding Code:</h3>
+                    <input type="text" id="audio-embed" />
+                    <span class="dsc">audio embedding iframe</span>
+                </div>
+            </div>
+
+            <div class="line">
+                <h3>homedisplay</h3>
+                <ul>
+                    <li>
+                        <input type="radio" name="homedisplay" value="featimg" id="featimg" checked> <label for="featimg">featimg</label>
+                    </li>
+                    <li>
+                        <input type="radio" name="homedisplay" value="iframe" id="iframe"> <label for="iframe">iframe</label>
+                    </li>
+                </ul>
+                <span class="dsc">decide what to show on index pages. iframe is only an option if type is <i>vimeo</i>, <i>youtube</i> or <i>audio</i></span>
+            </div>
+
+            <div class="line">
+                <h3>author:</h3>
+                <input type="text" id="author" />
+                <span class="dsc">authorid as set within _data/authors.yml</span>
+            </div>
+
+            <div class="line">
+                <h3>description:</h3>
+                <input type="text" id="desc" />
+                <span class="dsc">description to place within <code>meta</code>-tags</span>
+            </div>
+
+            <div class="line">
+                <h3>tags:</h3>
+                <input type="text" id="tags" />
+                <span class="dsc">Post tags. Separate with commas</span>
+            </div>
+
+            <div class="line">
+                <h3>category:</h3>
+                <input type="text" id="category" />
+                <span class="dsc">Post Category. Separate with commas, if you use more than one</span>
+            </div>
+
+            <button class="eval">Generate File Name and Front Matter</button>
+
+            <div class="warn"></div>
+
+            <pre class="hidden result"><code id="result"></code></pre>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.type input').click( function(){
+                var	type = $('input:radio[name=type]:checked').val();
+
+                if (type == "gallery") {
+                    $(".gallery-id").slideDown("fast");
+                } else {
+                    $(".gallery-id").slideUp("fast");
+                }
+                if (type == "vimeo") {
+                    $(".vimeo-embed").slideDown("fast");
+                } else {
+                    $(".vimeo-embed").slideUp("fast");
+                }
+                if (type == "youtube") {
+                    $(".yt-video-id").slideDown("fast");
+                    $(".featuredimg").slideUp("fast");
+                } else {
+                    $(".yt-video-id").slideUp("fast");
+                    $(".featuredimg").slideDown("fast");
+                }
+                if (type == "audio") {
+                    $(".audio-embed").slideDown("fast");
+                } else {
+                    $(".audio-embed").slideUp("fast");
+                }
+            });
+
+            $('button.eval').click( function(){
+                var d = new Date(),
+                    month = d.getMonth()+1,
+                    day = d.getDate(),
+                    date = d.getFullYear() + '-' + ((''+month).length<2 ? '0': '') + month + '-' + ((''+day).length<2 ? '0' : '') + day + '-',
+                    title = $('input#title').val(),
+                    type = $('input:radio[name=type]:checked').val(),
+                    homedisplay = $('input:radio[name=homedisplay]:checked').val(),
+                    featimg = $('input#featimg').val(),
+                    author = $('input#author').val(),
+                    desc = $('input#desc').val(),
+                    tags = $('input#tags').val(),
+                    category = $('input#category').val(),
+                    gallery = $('input#gallery-id').val(),
+                    vimeo = $('input#vimeo-embed').val(),
+                    youtube = $('input#yt-video-id').val(),
+                    audio = $('input#audio-embed').val();
+
+                $('#result').empty();
+                $('.warn').empty();
+
+                // filename:
+                $('#result').append(
+                    function(){
+                        if(title == ''){
+                            $('.warn').append('<p>Set a Title! <\p>');
+                        }
+                        else{
+                            $('#result').append('filename: ' + date + title.replace(/\s/g , "-") + '.md\n');
+                        }
+                    }
+                );
+
+                // front-matter ---
+                $('#result').append('---\n');
+
+                // type:
+                $('#result').append('layout: ' + type + '\n');
+
+                // gallery-id:
+                $('#result').append(
+                    function(){
+                        if (type == 'gallery' && gallery == ''){
+                            $('.warn').append('<p>set gallery id<\p>');
+                        }
+                        if (type == 'gallery' && gallery != ''){
+                            $('#result').append('gallery-id: ' + gallery + '\n');
+                        }
+                    }
+                );
+
+                // vimeo:
+                $('#result').append(
+                    function(){
+                        if (type == 'vimeo' && vimeo == ''){
+                            $('.warn').append('<p>set vimeo-embed<\p>');
+                        }
+                        if (type == 'vimeo' && vimeo != ''){
+                            $('#result').append('vimeo-embed: ' + vimeo + '\n');
+                        }
+                    }
+                );
+
+                // youtube:
+                $('#result').append(
+                    function(){
+                        if (type == 'youtube' && youtube == ''){
+                            $('.warn').append('<p>set YouTube Video ID<\p>');
+                        }
+                        if (type == 'youtube' && youtube != ''){
+                            $('#result').append('yt-video-id: ' + youtube + '\n');
+                        }
+                    }
+                );
+
+                // youtube:
+                $('#result').append(
+                    function(){
+                        if (type == 'audio' && audio == ''){
+                            $('.warn').append('<p>set Audio Embedding Code<\p>');
+                        }
+                        if (type == 'audio' && audio != ''){
+                            $('#result').append('audio-embed: ' + audio + '\n');
+                        }
+                    }
+                );
+
+                // featimg:
+                $('#result').append(
+                    function(){
+                        if(featimg != ''){
+                            $('#result').append('featimg: ' + featimg + '\n');
+                        }
+                    }
+                );
+
+                // title:
+                $('#result').append(
+                    function(){
+                        if(title != ''){
+                            $('#result').append('title: ' + title + '\n');
+                        }
+                    }
+                );
+
+                // homedisplay:
+                $('#result').append('homedisplay: ' + homedisplay + '\n');
+
+                // author:
+                $('#result').append(
+                    function(){
+                        if(author != ''){
+                            $('#result').append('author: ' + author + '\n');
+                        }
+                    }
+                );
+
+                // description:
+                $('#result').append(
+                    function(){
+                        if(desc != ''){
+                            $('#result').append('description: ' + desc + '\n');
+                        }
+                    }
+                );
+
+                // tags:
+                $('#result').append(
+                    function(){
+                        if(tags != ''){
+                            $('#result').append('tags: [' + tags + ']\n');
+                        }
+                    }
+                );
+
+                // category:
+                $('#result').append(
+                    function(){
+                        if(category != ''){
+                            $('#result').append('category: [' + category + ']\n');
+                        }
+                    }
+                );
+
+                // front matter ---
+                $('#result').append('---');
+
+                if( $('.warn').is(':empty') ) {
+                    $('.result').show();
+                }
+                else{
+                    $('.result').hide();
+                }
+            });
+        });
+    </script>
+</html>

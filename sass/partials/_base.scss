@@ -1,0 +1,103 @@
+// Shortcuts
+$noborder: 0px solid transparent;
+$line: 1px solid $sand;
+
+// Settings
+//---------------------------------------------
+// General
+$main_font-family: $roboto;
+$main_font-weight: $light;
+$body_bg-color: $white;
+$body_bg-img: url(SmashBot/img/swirl.jpg); // adjust if you use baseurl, place this before as it will not automatically be added
+$main_color: $black;
+$root_font_size: 20px;
+$general_line-height: 1.5;
+
+$sidebarcollapse: 1330px;
+
+$layoutswitch_a_color: $blue;
+$layoutswitch_a_hover_color: $green;
+// Headings
+$h_font-weight: $medium;
+$h_text_transform: none;
+
+// Links
+$a_color: $magenta;
+$a_hover_color: $blue;
+$a_line: $blue 1px solid;
+
+// Content
+$max-width: 1500px;
+$content-width: 90%;
+$box_bg: $white;
+$box_line: $line;
+
+// Logo Collapses
+$from_full_to_noslogan: 935px;
+$from_noslogan_to_icon: 640px;
+
+// header
+$head_bg: $box_bg;
+
+// search overlay
+$so_bg: rgba(white, .8);
+$so_color: black;
+
+// Menu
+$mainnav_collapse: 1068px;
+$mainnav_bg: $white;
+$mainnav_border: $line;
+$mainnav_text-transform: uppercase;
+$mainnav_a_color: $a_color;
+$mainnav_a_hover: $a_hover_color;
+$mainnav_a_hover_bg: $lightblue;
+$mainnav_responsive_text_align: center;
+$mainav_parent_plus_display: yes;
+
+// Post Pages
+$title_color: $blue;
+
+// author box
+$avatar_width: 150px;
+
+// widgets
+$widget_title_font-weight: $light;
+
+// lightbox
+$lightbox_container_background: $black;
+
+// Extendonly
+//---------------------------------------------
+
+%clearfix{
+    &:after{
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+%paddinghack{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+%visuallyhidden{
+    margin: -1px;
+    padding: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+}
+
+%center{
+    display: block;
+    position: relative;
+    margin: 0px auto;
+}

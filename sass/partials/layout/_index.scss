@@ -1,0 +1,31 @@
+// Style switcher on index pages
+.switch{
+    width: 100%;
+    font-size: .8em;
+    margin-bottom: 10px;
+
+    @media screen and (max-width: 530px){
+        display: none;
+    }
+
+    span{
+        color: $layoutswitch_a_color;
+
+        &:hover{
+            color: $layoutswitch_a_hover_color;
+            cursor: pointer;
+        }
+    }
+}
+
+.title{
+    width: 100%;
+}
+
+.index{
+    article{
+        span{
+            padding: 10px;
+        }
+    }
+}

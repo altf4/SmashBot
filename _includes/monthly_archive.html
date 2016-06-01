@@ -1,0 +1,14 @@
+<ul class="archive">
+  {% for post in site.posts %}
+    {% unless post.next %}
+        <h3>{{ post.date | date: '%B' }}</h3>
+    {% else %}
+        {% capture month %}{{ post.date | date: '%B' }}{% endcapture %}
+        {% capture nmonth %}{{ post.next.date | date: '%B' }}{% endcapture %}
+        {% if month != nmonth %}
+            <h3>{{ post.date | date: '%B' }}</h3>
+        {% endif %}
+    {% endunless %}
+    <li><span class="date">{{ post.date | date:"%d." }}</span> <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}">{{ post.title }}</a></li>
+  {% endfor %}
+</ul>

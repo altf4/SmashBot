@@ -1,0 +1,11 @@
+.sidebar{
+    width: calc(25% - 20px);
+
+    @media screen and (max-width: $sidebarcollapse){
+        width: 100%;
+
+        .index &{
+            display: none;
+        }
+    }
+}

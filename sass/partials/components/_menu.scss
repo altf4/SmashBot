@@ -1,0 +1,207 @@
+// Main Nav
+.main_menu{
+    background: $mainnav_bg;
+    position: relative;
+    top: 0px;
+    width: 100%;
+    left: 0px;
+    border-top: $mainnav_border;
+    border-bottom: $mainnav_border;
+    text-transform: $mainnav_text-transform;
+
+    .content{
+        @include flexbox(row, wrap, space-between, center);
+    }
+}
+
+#menu{
+    position: relative;
+    display: block;
+    background: $mainnav_bg;
+    box-sizing: border-box;
+    color: $mainnav_a_color;
+    font-size: 1em;
+    z-index: 105;
+
+    a{
+        color: $mainnav_a_color;
+
+        &:hover{
+            color: $mainnav_a_hover;
+        }
+    }
+
+    .toggle_link{
+        display: none;
+    }
+
+    > ul {
+        text-align: center;
+    }
+
+    li{
+        display: inline-block;
+        padding: 20px 7px;
+        transition: .3s all linear;
+
+        > a{
+            width: 100%;
+            display: block;
+        }
+
+        &:hover{
+            transition: .3s all linear;
+
+            > a{
+                color: $mainnav_a_hover;
+            }
+        }
+    }
+
+    // Drop Down
+    .parent{
+        margin-left: 0;
+        position: relative;
+
+        @if $mainav_parent_plus_display == yes{
+            > a{
+                &:before{
+                    content:"+ ";
+                }
+            }
+        }
+
+        > ul{
+            padding-top: 0px;
+            display: none;
+
+            @media screen and (min-width: $mainnav_collapse+1){
+                background: $mainnav_bg;
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                border-top: $mainnav_border;
+                border-left: $mainnav_border;
+                border-right: $mainnav_border;
+
+                &:before{
+                    content: "";
+                    width: 10px;
+                    height: 10px;
+                    background: $mainnav_bg;
+                    position: absolute;
+                    top: -6px;
+                    left: 50%;
+                    transform: translateX(-50%) rotate(45deg);
+                    border-left: $mainnav_border;
+                    border-top: $mainnav_border;
+                }
+            }
+
+            li{
+                display: block;
+                padding: 10px 0px;
+
+                @media screen and (min-width: $mainnav_collapse+1){
+                    padding: 10px 30px;
+                    border-bottom: $mainnav_border;
+                }
+            }
+        }
+
+        &:hover,
+        &:focus{
+            cursor: pointer;
+            @media screen and (min-width: $mainnav_collapse+1){
+                > ul{
+                    display: block;
+                }
+            }
+        }
+    }
+
+    // Responsive Version (Off-Canvas)
+    @media screen and (max-width: $mainnav_collapse){
+        padding: 35px 0px 0px;
+        width: 280px;
+        height: 80vh;
+        overflow-y: sroll;
+        overflow-x: hidden;
+        position: fixed;
+        top: 0px;
+        right: -320px;
+        transform: translate(0px, 0px);
+        transition: .3s all ease;
+        z-index: 108;
+        box-shadow: 0px 0px 5px 0px rgba(black, .5);
+
+        &.active{
+            transform: translate(-340px, 20px);
+            transition: .3s all ease;
+        }
+
+        .toggle_link{
+            display: block;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+
+            &:after{
+                content: "";
+            }
+        }
+
+        > ul{
+            text-align: $mainnav_responsive_text_align;
+            width: 100%;
+            position: relative;
+        }
+
+        li{
+            display: block;
+            padding: 10px 15px;
+            border-top: 1px solid lighten($mainnav_bg, 5%);
+
+            &:first-of-type{
+                border-top: $noborder;
+            }
+
+            &:hover{
+                transition: .3s all linear;
+                background: rgba($mainnav_a_hover_bg, .4);
+            }
+        }
+
+        // Sub Items
+        .parent{
+            margin-left: 0;
+
+            > ul{
+                padding-top: 15px;
+                display: none;
+
+                li{
+                    padding: 10px 0px;
+
+                    &:first-of-type{
+                        border-top: 1px solid lighten($mainnav_bg, 5%);
+                    }
+                }
+            }
+        }
+        .open{
+            > ul{
+                display: block;
+            }
+        }
+    }
+}
+
+// Toggle
+.toggle_link{
+    @media screen and (min-width: $mainnav_collapse){
+        display: none;
+    }
+}

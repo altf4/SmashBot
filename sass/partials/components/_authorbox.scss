@@ -1,0 +1,48 @@
+$authorbox_collapse: 510px;
+
+.authorbox{
+    @include flexbox(row, wrap, flex-start, flex-start);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    background: $box_bg;
+    border: $box_line;
+    margin-bottom: 20px;
+
+    .avatar {
+        padding-right: 20px;
+        max-width: $avatar_width;
+
+        img{
+            border-radius: 50em;
+        }
+
+        @media screen and (max-width: $authorbox_collapse){
+            @extend %center;
+            padding-right: 0;
+        }
+    }
+
+    .info{
+        $avatar: $avatar_width + 20px; // 20px being the right padding of the avatar container
+
+        @include flexbox(row, wrap, flex-start,flex-start);
+        width: 100%;
+
+        @media screen and (min-width: $authorbox_collapse + 1){
+            width: calc(100% - #{$avatar} );
+            height: 100%;
+        }
+
+        .author_name,
+        .bio,
+        .social{
+            width: 100%;
+        }
+
+        .social{
+            align-self: flex-end;
+            letter-spacing: 6px;
+        }
+    }
+}

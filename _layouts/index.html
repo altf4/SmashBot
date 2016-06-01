@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include head.html %}
+    </head>
+
+    <body class="index">
+        {% include svg.html %}
+       <header class="head">
+           {% include header.html %}
+           {% include nav.html %}
+        </header>
+        {% include search.html %}
+        <section class="margin">
+            <div class="content">
+                <p class="switch">switch layout: <span id="grid">Grid</span> &bull; <span id="classic">Classic</span></p>
+                {% if page.title %}<h1 class="title">{{ page.title }}</h1>{% endif %}
+                <div class="articles">
+                    {{ content }}
+                </div>
+                {% include sidebar.html %}
+            </div>
+        </section>
+        {% include footer.html %}
+        <script src="{{ site.baseurl | replace: '//', '/' }}/js/build/global.min.js"></script>
+    </body>
+</html>

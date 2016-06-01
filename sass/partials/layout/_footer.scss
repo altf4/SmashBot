@@ -1,0 +1,21 @@
+footer{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    border-top: $box_line;
+    background: $box_bg;
+    font-size: .8em;
+    align-self: flex-end;
+
+    .content{
+        @include flexbox(row, wrap, space-between, center);
+    }
+
+    .backtotop{
+        @extend a;
+
+        &:hover{
+            cursor: pointer;
+        }
+    }
+}

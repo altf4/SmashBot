@@ -1,0 +1,17 @@
+.pagination{
+    width: 100%;
+    margin: 20px 0;
+    box-sizing: border-box;
+    text-align: center;
+
+    a,
+    span{
+        padding: 5px 10px;
+        border: $box_line;
+        background: $box_bg;
+    }
+
+    .disabled{
+        opacity: .5;
+    }
+}

@@ -1,0 +1,92 @@
+@import "../components/iconnav";
+@import "../components/logo";
+@import "../components/search";
+@import "../components/menu";
+
+.head{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    background: $head_bg;
+    z-index: 20;
+
+    @media screen and (min-width: $from_full_to_noslogan){
+        .ts_no_slogan,
+        .ts_icon{
+            display: none;
+        }
+    }
+
+    @media screen and (max-width: $from_full_to_noslogan - 1) and (min-width: $from_noslogan_to_icon + 1){
+        .ts_full,
+        .ts_icon{
+            display: none;
+        }
+    }
+
+    @media screen and (max-width: $from_noslogan_to_icon){
+        .ts_full,
+        .ts_no_slogan{
+            display: none;
+        }
+    }
+
+    .row{
+        position: relative;
+        width: 100%;
+        top: 0;
+        left: 0;
+        transition: .3s all ease-in-out;
+        padding: 110px 10px; // adjust to change header height
+        box-sizing: border-box;
+        overflow: hidden;
+
+        @media screen and (max-width: $from_noslogan_to_icon){
+            padding: 120px 10px;
+        }
+
+        .logo {
+            @include paddinghack(100%, 127.27984, 28.97019); // use your logo dimensions here
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            transition: .3s all ease-in-out;
+            height: 100px;
+            display: block;
+            max-width: 750px;
+            width: 50%;
+
+            svg{
+                @extend %paddinghack;
+            }
+        }
+
+        .title{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 0em;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: .3s all ease-in-out;
+        }
+    }
+
+    // header style on scroll
+    .shrink{
+        padding: 0px 10px;
+        box-sizing: border-box;
+
+        .logo{
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        .title{
+            font-size: 1em;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+}

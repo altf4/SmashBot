@@ -1,0 +1,51 @@
+<article>
+    {% if post.homedisplay == "iframe" %}
+        {% if post.type == "vimeo" %}
+            {% if post.vimeo-embed %}
+                <div class="video_container">
+                    {{ post.vimeo-embed }}
+                </div>
+            {% endif %}
+        {% elsif post.type == "youtube" %}
+            {% if post.yt-video-id %}
+                <div class="video_container">
+                    <iframe src="https://www.youtube.com/embed/{{ post.yt-video-id }}?feature=player_detailpage" frameborder="0" allowfullscreen></iframe>
+                </div>
+            {% endif %}
+        {% elsif post.type == "audio" %}
+            {% if post.audio-embed %}
+                {{ post.audio-embed }}
+            {% endif %}
+        {% else %}
+            {% if post.featimg %}
+                <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}" class="noline">
+                    <img src="{{ site.media_folder | prepend: site.baseurl | replace: '//', '/'}}/{{ post.featimg }}" alt="{{ post.featimg }}">
+                </a>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        {% if post.type == "youtube" %}
+            {% if post.yt-video-id %}
+                <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}" class="noline">
+                    <img src="http://img.youtube.com/vi/{{ post.yt-video-id }}/0.jpg" alt="{{ post.title }} thumbnail">
+                </a>
+            {% endif %}
+        {% else %}
+            {% if post.featimg %}
+                <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}" class="noline">
+                    <img src="{{ site.media_folder | prepend: site.baseurl | replace: '//', '/'}}/{{ post.featimg }}" alt="{{ post.featimg }}">
+                </a>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    {% if post.category %}
+        <span class="category">
+            {{ post.category }}
+        </span>
+    {% endif %}
+    <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}">
+        <h1>{{ post.title }}</h1>
+    </a>
+    <p class="post_content">{{ post.content | strip_html | truncatewords: 15 }}</p>
+    <span class="date"><i class="fa fa-calendar"></i> {{ post.date | date: '%B %d, %Y' }}</span>
+</article>

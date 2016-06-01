@@ -1,0 +1,48 @@
+// Logo SVG styling
+
+.icon{
+    fill:$blue;
+    fill-rule:nonzero;
+    stroke:$lightblue;
+    stroke-width:0.05;
+    stroke-miterlimit:4;
+    stroke-opacity:0.94117647;
+    stroke-dasharray:none;
+    transition: .3s all ease;
+}
+
+.twister{
+    font-size:19px;
+    font-weight: $light;
+    line-height:125%;
+    fill:$coal;
+    font-family: $roboto;
+    text-transform: uppercase;
+    transition: .3s all ease;
+}
+
+.slogan{
+    font-size:7px;
+    font-weight:200;
+    line-height:125%;
+    fill:$magenta;
+    font-family: $roboto;
+    transition: .3s all ease;
+}
+
+a:hover{
+    svg{
+        .icon{
+            fill:$magenta;
+            stroke:$coal;
+        }
+
+        .twister{
+            fill:$blue;
+        }
+
+        .slogan{
+            fill:$lightblue;
+        }
+    }
+}

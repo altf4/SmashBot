@@ -1,0 +1,56 @@
+@import "modules/all";
+@import "partials/base";
+
+$imgchange: 775px;
+
+.articles{
+    width: 75%;
+
+    @media screen and (max-width: $sidebarcollapse){
+        width: 100%;
+    }
+
+    article{
+        position: relative;
+        @extend %clearfix;
+
+        img,
+        > iframe {
+            width: 30%;
+
+            @media screen and (max-width: $imgchange){
+                width: 100%;
+            }
+        }
+
+        .video_container{
+            @media screen and (min-width: $imgchange + 1){
+                @include paddinghack(30%, 16, 9);
+            }
+        }
+
+        @media screen and (min-width: $imgchange + 1){
+            &:nth-of-type(even){
+                img,
+                > iframe,
+                .video_container {
+                    float: left;
+                    margin-right: 15px;
+                }
+
+                .date{
+                    left: calc(30% + 5px);
+                }
+            }
+
+            &:nth-of-type(odd){
+                img,
+                > iframe,
+                .video_container{
+                    float: right;
+                    margin-left: 15px;
+                }
+            }
+        }
+    }
+}

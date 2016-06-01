@@ -1,0 +1,24 @@
+.widget{
+    background: $box_bg;
+    box-sizing: border-box;
+    padding: 10px;
+    border: $box_line;
+    margin-bottom: 20px;
+
+    &:last-of-type{
+        margin-bottom: 0px;
+    }
+
+    .title{
+        font-weight: $widget_title_font-weight;
+    }
+
+    ul{
+        list-style: armenian;
+        padding: 0 25px;
+
+        li{
+            padding-left: 0px;
+        }
+    }
+}

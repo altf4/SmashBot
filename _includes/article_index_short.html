@@ -1,0 +1,5 @@
+<div class="short">
+    <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/'}}" class="noline">
+        <span class="shortdate">{{ post.date | date: '%b %d' }}</span> <span class="short_title">{{ post.title }}</span>
+    </a>
+</div>

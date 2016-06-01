@@ -1,0 +1,35 @@
+@import "modules/all";
+@import "partials/base";
+
+$fourtothree: 1460px;
+$threetotwo: 775px;
+$twotoone: 530px;
+
+.articles{
+    @include flexbox(row, wrap, flex-start, stretch);
+    width: 75%;
+
+    @media screen and (max-width: $sidebarcollapse){
+        width: 100%;
+    }
+
+    @media screen and (max-width: $twotoone){
+        justify-content: center;
+    }
+
+    article{
+        @include rowMachine(4, 1%, 25px);
+
+        @media screen and (max-width: $fourtothree){
+            @include rowMachine(3, 1%, 25px);
+        }
+
+        @media screen and (max-width: $threetotwo){
+            @include rowMachine(2, 3%, 25px);
+        }
+
+        @media screen and (max-width: $twotoone){
+            @include rowMachine(1, 0, 25px);
+        }
+    }
+}

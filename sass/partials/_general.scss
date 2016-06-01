@@ -1,0 +1,148 @@
+html{
+    font: {
+        family: $main_font-family;
+        size: $root_font_size;
+        weight: $main_font-weight;
+    }
+    color: $main_color;
+}
+body{
+    @extend html;
+    line-height: $general_line-height;
+    background:{
+        color: $body_bg-color;
+        image: $body_bg-img;
+        attachment: fixed;
+        position: center;
+        repeat: repeat;
+    }
+    transition: .3s all ease-in-out;
+    @include flexbox(row, wrap, center, flex-start);
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-weight: $h_font-weight;
+    text-transform: $h_text_transform;
+    line-height: 1;
+    padding: 10px 0px;
+}
+
+h1{
+    font-size: 2.1em;
+}
+
+h2{
+    font-size: 1.6em;
+}
+
+h3{
+    font-size: 1.2em;
+}
+
+h4{
+    font-size: 1em;
+}
+
+h5{
+    font-size: .83em;
+}
+
+h6{
+    font-size: .75em;
+}
+
+a{
+    transition: .3s all;
+    color: $a_color;
+    text-decoration: none;
+    border-bottom: $a_line;
+
+    &:hover{
+        transiton: .3s all;
+        color: $a_hover_color;
+        border-bottom: transparent 1px solid;
+    }
+
+    &.noline,
+    nav &{
+        border-bottom: $noborder;
+    }
+}
+
+img{
+    max-width: 100%;
+}
+
+iframe{
+    width: 100%;
+    height: auto;
+}
+
+// responsive video (Format 16:9)
+.video_container{
+    @include paddinghack(100%, 16, 9);
+
+    iframe{
+        @extend %paddinghack;
+    }
+}
+
+// content container
+.content{
+    width: $content_width;
+    max-width: $max_width;
+    @extend %center;
+}
+
+.margin{
+    padding-top: 50px;
+    width: 100%;
+    .content{
+        @include flexbox(row, wrap, space-between, stretch);
+
+        @media screen and (max-width: $sidebarcollapse){
+            @include flexbox(column, wrap, flex-start, center);
+        }
+    }
+}
+
+// 404 error msg
+.error{
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: $box_bg;
+    border: $box_line;
+}
+
+.archive{
+    article & {
+        list-style: none;
+        padding: 0;
+    }
+
+    .date{
+        opacity: .5;
+        font-size: .8em;
+    }
+
+    h3{
+        padding: 10px;
+    }
+}
+
+blockquote{
+    margin-left: 5%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-left: $line;
+}
+
+code{
+    font-family: 'Source Code Pro', 'Courier New', monospace;
+}
+
+.featimg{
+    width: 100%;
+}

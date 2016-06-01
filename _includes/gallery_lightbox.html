@@ -1,0 +1,11 @@
+<div class="masonry">
+    {% for gallery in site.data.galleries %}
+        {% if gallery.id == page.gallery-id %}
+            {% for image in gallery.images %}
+                <a href="{{ gallery.imagefolder | prepend: site.baseurl | replace: '//', '/' }}/{{ image.filename }}" data-imagelightbox="f" class="noline">
+                    <img src="{{ gallery.imagefolder | prepend: site.baseurl | replace: '//', '/' }}/{{ image.filename }}" alt="{{ image.alttext }}">
+                </a>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+</div>

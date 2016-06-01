@@ -1,0 +1,10 @@
+<div class="gallery">
+    {% for gallery in site.data.galleries %}
+        {% if gallery.id == page.gallery-id %}
+            {% for image in gallery.images %}
+            <b>{{ image.alttext }}</b>
+            <img src="{{ gallery.imagefolder | prepend: site.baseurl | replace: '//', '/' }}/{{ image.filename }}" alt="{{ image.alttext }}">
+{% endfor %}
+{% endif %}
+{% endfor %}
+</div>
