@@ -1,6 +1,2 @@
-cpu
-smashbot
-*.o
-*.d
-*~
-Logs/*
+_site
+.sass-cache
