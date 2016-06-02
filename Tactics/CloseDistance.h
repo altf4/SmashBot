@@ -9,11 +9,15 @@ class CloseDistance : public Tactic
 
 public:
 
-    CloseDistance();
+    CloseDistance(bool);
     ~CloseDistance();
     void DetermineChain();
     std::string ToString(){return "CloseDistance";};
+    bool IsInterruptible();
 
+private:
+    bool m_canInterrupt;
+    uint m_frameStarted;
 };
 
 #endif

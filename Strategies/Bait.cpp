@@ -427,7 +427,29 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == SHIELD_REFLECT ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
-        CreateTactic(CloseDistance);
+        CreateTactic2(CloseDistance, true);
+        m_tactic->DetermineChain();
+        return;
+    }
+
+    bool onRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+
+    //If our opponent is dashing toward us, approach
+    if(m_state->m_memory->player_one_action == DASHING &&
+        m_state->m_memory->player_one_facing == onRight)
+    {
+        CreateTactic2(CloseDistance, true);
+        m_tactic->DetermineChain();
+        return;
+    }
+
+    //Before keeping our distance any longer, consider randomly approaching once per dash dance
+    if(m_state->m_memory->player_two_action == DASHING &&
+        m_state->m_memory->player_two_action_frame == 1 &&
+        m_state->m_memory->player_two_facing != onRight &&
+        rand() % 8 == 0)
+    {
+        CreateTactic2(CloseDistance, false);
         m_tactic->DetermineChain();
         return;
     }

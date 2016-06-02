@@ -4,14 +4,25 @@
 #include "../Chains/Run.h"
 #include "../Util/Constants.h"
 
-CloseDistance::CloseDistance()
+CloseDistance::CloseDistance(bool canInterrupt)
 {
+    m_canInterrupt = canInterrupt;
     m_chain = NULL;
+    m_frameStarted = m_state->m_memory->frame;
 }
 
 CloseDistance::~CloseDistance()
 {
     delete m_chain;
+}
+
+bool CloseDistance::IsInterruptible()
+{
+    if(!m_canInterrupt)
+    {
+        return false;
+    }
+    return m_chain->IsInterruptible();
 }
 
 void CloseDistance::DetermineChain()
@@ -35,6 +46,18 @@ void CloseDistance::DetermineChain()
     double distance = pow(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x, 2);
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
     distance = sqrt(distance);
+
+    //We have finished approaching and can now be interrupted again
+    if(distance < FOX_SHINE_RADIUS ||
+        m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
+    {
+        m_canInterrupt = true;
+    }
+    if(m_state->m_memory->frame - m_frameStarted > 60)
+    {
+        //Safety escape to make sure we don't get stuck approaching somehow
+        m_canInterrupt = true;
+    }
 
     //Do we have to stay away from their attack? Don't run right into an attack. Dash dance outside it until it's over
     if(distance < MARTH_FSMASH_RANGE * 1.1)

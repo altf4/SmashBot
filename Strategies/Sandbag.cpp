@@ -218,10 +218,26 @@ void Sandbag::DetermineTactic()
         return;
     }
 
-    //If we're in close and p2 is sheilding, just wait
-    if(m_state->m_memory->player_one_action == SHIELD)
+    //If our opponent is doing something to put them in a vulnerable spot, approach
+    if(m_state->m_memory->player_one_action == KNEE_BEND ||
+        m_state->m_memory->player_one_action == JUMPING_FORWARD ||
+        m_state->m_memory->player_one_action == SHIELD ||
+        m_state->m_memory->player_one_action == SHIELD_START ||
+        m_state->m_memory->player_one_action == SHIELD_REFLECT ||
+        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
-        CreateTactic(CloseDistance);
+        CreateTactic2(CloseDistance, true);
+        m_tactic->DetermineChain();
+        return;
+    }
+
+    bool onRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+
+    //If our opponent is dashing toward us, approach
+    if(m_state->m_memory->player_one_action == DASHING &&
+        m_state->m_memory->player_one_facing == onRight)
+    {
+        CreateTactic2(CloseDistance, true);
         m_tactic->DetermineChain();
         return;
     }
