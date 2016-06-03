@@ -37,7 +37,7 @@ void DashDance::PressButtons()
     }
 
     //Don't run off the stage
-    if(std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() - (2 * FOX_DASH_SPEED))
+    if(std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() - (3 * FOX_DASH_SPEED))
     {
         bool onLeft = m_state->m_memory->player_two_x < 0;
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, onLeft ? 1 : 0, .5);
