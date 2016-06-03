@@ -32,18 +32,7 @@ void KeepDistance::DetermineChain()
         pivotPoint -= 1.1 * MARTH_FSMASH_RANGE;
     }
 
-    //random number between 0 and 5
-    double radius = rand() % 3;
-
-    //Make a new radius every turn, so as to mix up the dash dance
-    if(m_state->m_memory->player_two_action == TURNING)
-    {
-        delete m_chain;
-        m_chain = NULL;
-        radius = (rand() % 5);
-    }
-
-    CreateChain3(DashDance, pivotPoint, radius);
+    CreateChain3(DashDance, pivotPoint, 0);
     m_chain->PressButtons();
     return;
 }

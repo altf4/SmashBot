@@ -51,7 +51,8 @@ void Edgeguard::DetermineChain()
         }
         if(m_state->m_memory->player_two_on_ground)
         {
-            CreateChain(Nothing);
+            //Start moving to center stage
+            CreateChain3(DashDance, 0, 0);
             m_chain->PressButtons();
             return;
         }

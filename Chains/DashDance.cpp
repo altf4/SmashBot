@@ -5,6 +5,14 @@
 
 void DashDance::PressButtons()
 {
+    //Try not to moonwalk
+    if(m_state->m_memory->player_two_action == DASHING &&
+        m_state->m_memory->player_two_action_frame == 2)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        return;
+    }
+
     //If we're starting the turn around animation, keep pressing that way or else we'll get stuck in the slow turnaround
     if(m_state->m_memory->player_two_action == TURNING &&
         m_state->m_memory->player_two_action_frame == 1)
