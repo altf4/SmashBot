@@ -42,13 +42,10 @@ void Punish::DetermineChain()
         return;
     }
 
+    bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
+
     //If they're rolling, go punish it where they will stop
-    if(m_state->m_memory->player_one_action == ROLL_FORWARD ||
-        m_state->m_memory->player_one_action == ROLL_BACKWARD ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_SLOW ||
-        m_state->m_memory->player_one_action == EDGE_ROLL_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_QUICK ||
-        m_state->m_memory->player_one_action == EDGE_GETUP_SLOW)
+    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
     {
         //Figure out where they will stop rolling, only on the first frame
         if(m_roll_position == 0)
@@ -197,9 +194,10 @@ void Punish::DetermineChain()
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
+        //If we can't get there in time, just run in
         if(frames_left <= 7)
         {
-            CreateChain(Nothing);
+            CreateChain2(Run, player_two_is_to_the_left);
             m_chain->PressButtons();
             return;
         }
@@ -214,15 +212,9 @@ void Punish::DetermineChain()
         {
             //We have to jump cancel the grab. So that takes an extra frame
             frameDelay++;
-            
-            double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frameDelay);
-            distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
-            frameDelay += 4;
         }
-        else
-        {
-            distance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
-        }
+        double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frames_left - 1);
+        distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
 
         Logger::Instance()->Log(INFO, "Trying to punish a roll at position: " + std::to_string(m_roll_position) +
             " with: " + std::to_string(frames_left) + " frames left");
@@ -279,7 +271,6 @@ void Punish::DetermineChain()
        Logger::Instance()->Log(INFO, "Frames left until end of the attack: " + std::to_string(frames_left));
     }
 
-    bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
     //If we're in upsmash range, then prepare for attack
     if(m_state->m_memory->player_two_facing == player_two_is_to_the_left && //Facing the right way?
         (distance < FOX_UPSMASH_RANGE ||

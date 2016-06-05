@@ -39,7 +39,7 @@
 //This is a little conservative, actually
 #define FOX_UPSMASH_RANGE 17.5
 //The closest hitbox. The one that comes out on frame 7
-#define FOX_UPSMASH_RANGE_NEAR 12.5
+#define FOX_UPSMASH_RANGE_NEAR 14.5
 //Conservative actually. I've missed at 15.62 at the closest
 #define FOX_GRAB_RANGE 14
 //Until it turns to a run
