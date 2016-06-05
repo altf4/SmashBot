@@ -832,7 +832,7 @@ double GameState::calculateSlideDistance(double initSpeed, int frames)
     double slideDistance = 0;
     for(int i = 1; i <= frames; i++)
     {
-        slideDistance += std::max(initSpeed - (frames * FOX_FD_SLIDE_COEFICIENT), 0.0);
+        slideDistance += std::max(initSpeed - (frames * FOX_SLIDE_COEFICIENT), 0.0);
     }
     return slideDistance;
 }

@@ -46,7 +46,8 @@
 #define FOX_DASH_FRAMES 12
 #define FOX_DASH_SPEED 2.2
 
-//How fast fox decelerates at, on FD. IE: His speed will reduce by exactly this much per frame, if sliding
-#define FOX_FD_SLIDE_COEFICIENT 0.08
+//How fast a character decelerates. IE: Their speed will reduce by exactly this much per frame, if sliding
+#define FOX_SLIDE_COEFICIENT 0.08
+#define MARTH_SLIDE_COEFICIENT 0.06
 
 #endif
