@@ -71,6 +71,7 @@ bool MemoryWatcher::ReadMemory()
 
     struct sockaddr remaddr;
     socklen_t addr_len;
+    memset(&addr_len, '\0', sizeof(addr_len));
     recvfrom(m_file, buf, sizeof(buf), 0, &remaddr, &addr_len);
     std::stringstream ss(buf);
     std::string region, value;

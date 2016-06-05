@@ -4,6 +4,7 @@ SmashDI::SmashDI(bool goRight)
 {
     m_goRight = goRight;
     m_alternateDirection = true;
+    m_startingFrame = m_state->m_memory->frame;
 }
 
 SmashDI::~SmashDI()

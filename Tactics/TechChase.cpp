@@ -12,6 +12,7 @@
 #include "../Chains/EdgeAction.h"
 #include "../Chains/GrabAndThrow.h"
 #include "../Chains/Jab.h"
+#include "../Chains/DashDance.h"
 
 TechChase::TechChase()
 {
@@ -60,11 +61,7 @@ void TechChase::DetermineChain()
         int pivot_offset = isLeft ? 20 : -20;
         m_pivotPosition = m_state->m_memory->player_one_x + pivot_offset;
 
-        //Make a new Run chain, since it's always interruptible
-        delete m_chain;
-        m_chain = NULL;
-        bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
-        CreateChain2(Run, left_of_pivot_position);
+        CreateChain3(DashDance, m_pivotPosition, 0);
         m_chain->PressButtons();
         return;
     }
@@ -242,7 +239,7 @@ void TechChase::DetermineChain()
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
-        int frameDelay = 7;
+        int frameDelay = 8;
         double distance;
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
@@ -269,6 +266,14 @@ void TechChase::DetermineChain()
 
         //How many frames of vulnerability are there at the tail end of the animation?
         int vulnerable_frames = 7;
+        if(m_state->m_memory->player_one_action == EDGE_GETUP_QUICK)
+        {
+            vulnerable_frames = 2;
+        }
+        if(m_state->m_memory->player_one_action == EDGE_GETUP_SLOW)
+        {
+            vulnerable_frames = 3;
+        }
         if(m_state->m_memory->player_one_action == MARTH_COUNTER)
         {
             vulnerable_frames = 59;
@@ -306,21 +311,14 @@ void TechChase::DetermineChain()
                 return;
             }
 
-            //Make a new Run chain, since it's always interruptible
-            delete m_chain;
-            m_chain = NULL;
-            bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
-            CreateChain2(Run, left_of_pivot_position);
+            CreateChain3(DashDance, m_pivotPosition, 0);
             m_chain->PressButtons();
             return;
         }
     }
 
-    //Default to walking in towards the player
-    //Make a new Run chain, since it's always interruptible
-    delete m_chain;
-    m_chain = NULL;
-    CreateChain2(Run, player_two_is_to_the_left);
+    //Default to dashing at the opponent
+    CreateChain3(DashDance, m_state->m_memory->player_one_x, 0);
     m_chain->PressButtons();
     return;
 }
