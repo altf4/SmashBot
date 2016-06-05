@@ -239,12 +239,15 @@ void TechChase::DetermineChain()
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
-        int frameDelay = 8;
+        int frameDelay = 7;
         double distance;
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
         {
-            double slidingAdjustment = frameDelay * (std::abs(m_state->m_memory->player_two_speed_ground_x_self));
+            //We have to jump cancel the grab. So that takes an extra frame
+            frameDelay++;
+
+            double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frameDelay);
             distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
         }
         else
@@ -311,7 +314,12 @@ void TechChase::DetermineChain()
                 return;
             }
 
-            CreateChain3(DashDance, m_pivotPosition, 0);
+
+            //Make a new Run chain, since it's always interruptible
+            delete m_chain;
+            m_chain = NULL;
+            bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
+            CreateChain2(Run, left_of_pivot_position);
             m_chain->PressButtons();
             return;
         }

@@ -207,11 +207,15 @@ void Punish::DetermineChain()
         //Upsmash if we're in range and facing the right way
         //  Factor in sliding during the smash animation
         double distance;
-        int frameDelay = 8; //Frames until the first smash hitbox, plus one for leeway
+        int frameDelay = 7;
+
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
         {
-            double slidingAdjustment = 12.25 * (std::abs(m_state->m_memory->player_two_speed_ground_x_self));
+            //We have to jump cancel the grab. So that takes an extra frame
+            frameDelay++;
+            
+            double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frameDelay);
             distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
             frameDelay += 4;
         }

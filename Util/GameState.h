@@ -289,6 +289,10 @@ public:
     //  enemy is facing the other way?)
     bool isReverseHit(ACTION a);
 
+    //How far will you slide?
+    //TODO: This only works for Fox on FD for now.
+    double calculateSlideDistance(double initSpeed, int frames);
+
     GameMemory *m_memory;
     double m_rollStartPosition;
     double m_edgeInvincibilityStart;
