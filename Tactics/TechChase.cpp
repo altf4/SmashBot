@@ -37,25 +37,11 @@ void TechChase::DetermineChain()
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
 
-    //Dash back, since we're about to start running
-    //UNLESS we're trying to tech chase a tech roll. Then we don't have enough time to dash back
-    if(m_state->m_memory->player_two_action == DASHING &&
-        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-1 &&
-        m_state->m_memory->player_one_action != FORWARD_TECH &&
-        m_state->m_memory->player_one_action != BACKWARD_TECH)
-    {
-        //Make a new Run chain, since it's always interruptible
-        delete m_chain;
-        m_chain = NULL;
-        CreateChain2(Run, !m_state->m_memory->player_two_facing);
-        m_chain->PressButtons();
-        return;
-    }
-
     //If our opponent is just lying there, go dash around the pivot point and wait
     if(m_state->m_memory->player_one_action == LYING_GROUND_UP ||
-      m_state->m_memory->player_one_action == TECH_MISS_UP ||
-      m_state->m_memory->player_one_action == TECH_MISS_DOWN)
+        m_state->m_memory->player_one_action == LYING_GROUND_DOWN ||
+        m_state->m_memory->player_one_action == TECH_MISS_UP ||
+        m_state->m_memory->player_one_action == TECH_MISS_DOWN)
     {
         bool isLeft = m_state->m_memory->player_one_x < 0;
         int pivot_offset = isLeft ? 20 : -20;
@@ -69,144 +55,40 @@ void TechChase::DetermineChain()
     uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
+    int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
+
     //If they're vulnerable, go punish it
     if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
-            m_state->m_memory->player_one_action_frame > lastHitboxFrame))
+        m_state->m_memory->player_one_action_frame > lastHitboxFrame))
     {
         //Figure out where they will stop rolling, only on the first frame
         if(m_roll_position == 0)
         {
-            switch(m_state->m_memory->player_one_action)
+            double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action);
+
+            bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
+
+            if(m_state->m_memory->player_one_facing == directon)
             {
-                case ROLL_FORWARD:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case ROLL_BACKWARD:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_ROLL_SLOW:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_EDGE_ROLL_DISTANCE ;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_ROLL_QUICK:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_GETUP_QUICK:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GETUP_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GETUP_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_GETUP_SLOW:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GETUP_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GETUP_DISTANCE;
-                    }
-                    break;
-                }
-                case FORWARD_TECH:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_TECHROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_TECHROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case BACKWARD_TECH:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_TECHROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_TECHROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case GROUND_ROLL_FORWARD:
-                case GROUND_ROLL_FORWARD_OTHER:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GROUND_FORWARD_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GROUND_FORWARD_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case GROUND_ROLL_BACKWARD:
-                case GROUND_ROLL_BACKWARD_OTHER:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GROUND_BACK_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GROUND_BACK_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                default:
-                {
-                    m_roll_position = m_state->m_rollStartPosition;
-                    break;
-                }
+                m_roll_position = m_state->m_rollStartPosition + rollDistance;
             }
+            else
+            {
+                m_roll_position = m_state->m_rollStartPosition - rollDistance;
+            }
+
+            //TODO: Needs to account for how much enemy will slide from the START of the roll. Not here.
+            //Calculate how much the enemy will slide
+            double enemySpeed = m_state->m_memory->player_one_speed_x_attack;
+
+            double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, frames_left);
+            m_roll_position += slidingAdjustmentEnemy;
+
+            Logger::Instance()->Log(INFO, "enemySpeed: " + std::to_string(enemySpeed));
+            Logger::Instance()->Log(INFO, "slidingAdjustmentEnemy: " + std::to_string(slidingAdjustmentEnemy));
 
             //Roll position can't be off the stage
             if(m_roll_position > m_state->getStageEdgeGroundPosition())
@@ -234,11 +116,6 @@ void TechChase::DetermineChain()
             }
         }
 
-        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
-
-        int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
-
         int frameDelay = 7;
         double distance;
         if(m_state->m_memory->player_two_action == DASHING ||
@@ -246,18 +123,20 @@ void TechChase::DetermineChain()
         {
             //We have to jump cancel the grab. So that takes an extra frame
             frameDelay++;
+        }
 
-            double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frameDelay);
-            distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
-        }
-        else
-        {
-            distance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
-        }
+        double slidingAdjustment = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
+            m_state->m_memory->player_two_speed_ground_x_self, frameDelay);
+
+        distance = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
+
+        Logger::Instance()->Log(INFO, "slidingAdjustment: " + std::to_string(slidingAdjustment));
+        Logger::Instance()->Log(INFO, "distance: " + std::to_string(distance));
 
         //If we're too late, at least get close
         if(frames_left < frameDelay)
         {
+            bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
             Logger::Instance()->Log(INFO, "Trying to tech chase but can't make it in time...");
             CreateChain2(Run, to_the_left);
             m_chain->PressButtons();
@@ -288,11 +167,17 @@ void TechChase::DetermineChain()
             facingRight = !facingRight;
         }
 
+        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
+        //Given sliding, are we going to be behind the enemy?
+        bool behindEnemy = (m_roll_position < (m_state->m_memory->player_two_x + slidingAdjustment)) == m_state->m_memory->player_two_facing;
+        Logger::Instance()->Log(INFO, "behindEnemy: " + std::to_string(behindEnemy));
+
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
             frames_left - frameDelay <= vulnerable_frames &&
             distance < FOX_GRAB_RANGE &&
             to_the_left == facingRight &&
+            !behindEnemy &&
             m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work
             m_state->m_memory->player_one_action != TECH_MISS_DOWN)
         {
@@ -313,7 +198,6 @@ void TechChase::DetermineChain()
                 m_chain->PressButtons();
                 return;
             }
-
 
             //Make a new Run chain, since it's always interruptible
             delete m_chain;

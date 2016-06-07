@@ -101,6 +101,15 @@ void Bait::DetermineTactic()
         m_attackFrame = 0;
     }
 
+    Logger::Instance()->Log(INFO, "player_one_on_ground: " + std::to_string(m_state->m_memory->player_one_on_ground));
+    Logger::Instance()->Log(INFO, "player_one_speed_x_attack: " + std::to_string(m_state->m_memory->player_one_speed_x_attack));
+    Logger::Instance()->Log(INFO, "player_one_speed_ground_x_self: " + std::to_string(m_state->m_memory->player_one_speed_ground_x_self));
+    Logger::Instance()->Log(INFO, "player_one_speed_air_x_self: " + std::to_string(m_state->m_memory->player_one_speed_air_x_self));
+    double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+        m_state->m_memory->player_one_speed_x_attack, 30);
+    Logger::Instance()->Log(INFO, "slidingAdjustmentEnemy: " + std::to_string(slidingAdjustmentEnemy));
+
+
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_tactic != NULL) && (!m_tactic->IsInterruptible()))
     {
@@ -121,9 +130,15 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == THROW_UP ||
         m_state->m_memory->player_two_action == THROW_DOWN)
     {
-        CreateTactic(Wait);
-        m_tactic->DetermineChain();
-        return;
+        //If we're in the last frame of the action, then we're free to do whatever
+        uint totalActionFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_two_character,
+            (ACTION)m_state->m_memory->player_two_action);
+        if(m_state->m_memory->player_two_action_frame != totalActionFrames)
+        {
+            CreateTactic(Wait);
+            m_tactic->DetermineChain();
+            return;
+        }
     }
 
     //Calculate distance between players
@@ -170,7 +185,7 @@ void Bait::DetermineTactic()
             //How many frames do we have until the attack lands? If it's at least 3, then we can start a Punish
             int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
                 (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-            if(frames_left > 3)
+            if(frames_left > 7)
             {
                 CreateTactic(Punish);
                 m_tactic->DetermineChain();
@@ -179,7 +194,8 @@ void Bait::DetermineTactic()
         }
 
         //If they're lying on the ground, techchase them
-        if(m_state->m_memory->player_one_action == LYING_GROUND_UP)
+        if(m_state->m_memory->player_one_action == LYING_GROUND_UP ||
+            m_state->m_memory->player_one_action == LYING_GROUND_DOWN)
         {
             if(m_actionChanged)
             {
@@ -189,29 +205,6 @@ void Bait::DetermineTactic()
             CreateTactic(TechChase);
             m_tactic->DetermineChain();
             return;
-        }
-
-        //If our opponent is rolling, punish it on the other end
-        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
-            m_state->m_memory->player_two_action == LANDING_SPECIAL)
-        {
-            if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
-            {
-                CreateTactic(Punish);
-                m_tactic->DetermineChain();
-                return;
-            }
-            else
-            {
-                if(m_actionChanged)
-                {
-                    delete m_tactic;
-                    m_tactic = NULL;
-                }
-                CreateTactic(TechChase);
-                m_tactic->DetermineChain();
-                return;
-            }
         }
 
         //If we're hanging on the egde, and they are falling above the stage, punish it
@@ -228,36 +221,40 @@ void Bait::DetermineTactic()
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
 
+        uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+            (ACTION)m_state->m_memory->player_one_action);
+
+        Logger::Instance()->Log(INFO, "lastHitboxFrame: " + std::to_string(lastHitboxFrame));
+        Logger::Instance()->Log(INFO, "frames_left: " + std::to_string(frames_left));
+
         //If our oponnent is stuck in a laggy ending animation, punish it
-        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
-            std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001 &&
-            m_state->m_memory->player_one_action_frame >
-                m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-                (ACTION)m_state->m_memory->player_one_action))
+        //Rolling or ending an attack
+        if((m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
+            m_state->isRollingState((ACTION)m_state->m_memory->player_one_action)) &&
+            m_state->m_memory->player_one_on_ground &&
+            (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0))
         {
-            if(frames_left > 3)
+            //Can we get an attack in time?
+            if(frames_left > 7 ||
+                (m_state->m_memory->player_two_action == SHIELD_RELEASE && frames_left > 10))
             {
-                //Unless we need to wavedash in, then give us more time
-                if(m_state->m_memory->player_two_action != SHIELD_RELEASE ||
-                    frames_left > 10)
+                //TODO: Can we close the distance in time?
+                if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
                 {
-                    if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
+                    CreateTactic(Punish);
+                    m_tactic->DetermineChain();
+                    return;
+                }
+                else
+                {
+                    if(m_actionChanged)
                     {
-                        CreateTactic(Punish);
-                        m_tactic->DetermineChain();
-                        return;
+                        delete m_tactic;
+                        m_tactic = NULL;
                     }
-                    else
-                    {
-                        if(m_actionChanged)
-                        {
-                            delete m_tactic;
-                            m_tactic = NULL;
-                        }
-                        CreateTactic(TechChase);
-                        m_tactic->DetermineChain();
-                        return;
-                    }
+                    CreateTactic(TechChase);
+                    m_tactic->DetermineChain();
+                    return;
                 }
             }
         }
@@ -287,7 +284,9 @@ void Bait::DetermineTactic()
                 m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING &&
                 m_state->m_memory->player_one_action != EDGE_CATCHING &&
                 m_state->m_memory->player_one_action != SPOTDODGE &&
-                m_state->m_memory->player_one_action != GROUND_ATTACK_UP //Can't punish before the attack on a getup attack
+                m_state->m_memory->player_one_action != GROUND_ATTACK_UP && //Can't punish before the attack on a getup attack
+                m_state->m_memory->player_one_action != TECH_MISS_UP && //We CAN shine these. But we choose not to.
+                m_state->m_memory->player_one_action != TECH_MISS_DOWN  //Since there's a better option
                 )
             {
                 CreateTactic(ShineCombo);

@@ -655,10 +655,10 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 {
                     return 26;
                 }
-                case GROUND_ROLL_BACKWARD:
-                case GROUND_ROLL_FORWARD:
-                case GROUND_ROLL_FORWARD_OTHER:
-                case GROUND_ROLL_BACKWARD_OTHER:
+                case GROUND_ROLL_BACKWARD_UP:
+                case GROUND_ROLL_FORWARD_UP:
+                case GROUND_ROLL_FORWARD_DOWN:
+                case GROUND_ROLL_BACKWARD_DOWN:
                 {
                     return 35;
                 }
@@ -677,6 +677,31 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
             }
             break;
+        }
+        case FOX:
+        {
+            switch(action)
+            {
+                case THROW_DOWN:
+                {
+                    return 43;
+                }
+                case LANDING_SPECIAL:
+                {
+                    if(m_landingFromUpB)
+                    {
+                        return 30;
+                    }
+                    else
+                    {
+                        return 10;
+                    }
+                }
+                default:
+                {
+                    return 0;
+                }
+            }
         }
         default:
         {
@@ -793,10 +818,10 @@ bool GameState::isRollingState(ACTION action)
         case MARTH_COUNTER:
         case TECH_MISS_UP:
         case TECH_MISS_DOWN:
-        case GROUND_ROLL_BACKWARD:
-        case GROUND_ROLL_FORWARD:
-        case GROUND_ROLL_FORWARD_OTHER:
-        case GROUND_ROLL_BACKWARD_OTHER:
+        case GROUND_ROLL_BACKWARD_UP:
+        case GROUND_ROLL_FORWARD_UP:
+        case GROUND_ROLL_FORWARD_DOWN:
+        case GROUND_ROLL_BACKWARD_DOWN:
         case GROUND_GETUP:
         {
             return true;
@@ -827,12 +852,141 @@ bool GameState::isGrabbedState(ACTION action)
     }
 }
 
-double GameState::calculateSlideDistance(double initSpeed, int frames)
+double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, int frames)
 {
+    double slideCoeficient;
+
+    switch (character)
+    {
+        case FOX:
+        {
+            slideCoeficient = FOX_SLIDE_COEFICIENT;
+            break;
+        }
+        case MARTH:
+        {
+            slideCoeficient = MARTH_SLIDE_COEFICIENT;
+            break;
+        }
+        default:
+        {
+            //Probably good enough until all characters are supported
+            slideCoeficient = 0.05;
+        }
+    }
+
+    //This detedmines magnitude of slide
     double slideDistance = 0;
     for(int i = 1; i <= frames; i++)
     {
-        slideDistance += std::max(initSpeed - (frames * FOX_SLIDE_COEFICIENT), 0.0);
+        slideDistance += std::max(std::abs(initSpeed) - (i * slideCoeficient), 0.0);
+    }
+
+    //Determine direction
+    if(initSpeed < 0)
+    {
+        return (-1) * slideDistance;
     }
     return slideDistance;
+}
+
+double GameState::getRollDistance(CHARACTER character, ACTION action)
+{
+    switch (character)
+    {
+        case MARTH:
+        {
+            switch(action)
+            {
+                case ROLL_FORWARD:
+                case ROLL_BACKWARD:
+                {
+                    return 38.95;
+                }
+                case EDGE_ROLL_SLOW:
+                case EDGE_ROLL_QUICK:
+                {
+                    return 41.44;
+                }
+                case EDGE_GETUP_SLOW:
+                case EDGE_GETUP_QUICK:
+                {
+                    return 11.33;
+                }
+                case FORWARD_TECH:
+                case BACKWARD_TECH:
+                {
+                    return 46.711546;//new
+                }
+                case GROUND_ROLL_FORWARD_UP:
+                {
+                    return 36.67;
+                }
+                case GROUND_ROLL_BACKWARD_UP:
+                {
+                    return 30.87;
+                }
+                case GROUND_ROLL_FORWARD_DOWN:
+                {
+                    return 28.35;
+                }
+                case GROUND_ROLL_BACKWARD_DOWN:
+                {
+                    return 34.66;
+                }
+                default:
+                {
+                    return 0;
+                }
+            }
+        }
+        case FOX:
+        {
+            switch(action)
+            {
+                case ROLL_FORWARD:
+                case ROLL_BACKWARD:
+                {
+                    return 33.6;
+                }
+                default:
+                {
+                    return 0;
+                }
+            }
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+bool GameState::getRollDirection(ACTION action)
+{
+    switch(action)
+    {
+        case ROLL_FORWARD:
+        case EDGE_ROLL_SLOW:
+        case EDGE_ROLL_QUICK:
+        case EDGE_GETUP_SLOW:
+        case EDGE_GETUP_QUICK:
+        case FORWARD_TECH:
+        case GROUND_ROLL_FORWARD_UP:
+        case GROUND_ROLL_FORWARD_DOWN:
+        {
+            return true;
+        }
+        case ROLL_BACKWARD:
+        case BACKWARD_TECH:
+        case GROUND_ROLL_BACKWARD_UP:
+        case GROUND_ROLL_BACKWARD_DOWN:
+        {
+            return false;
+        }
+        default:
+        {
+            return true;
+        }
+    }
 }
