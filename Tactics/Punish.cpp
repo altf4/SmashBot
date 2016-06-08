@@ -50,136 +50,27 @@ void Punish::DetermineChain()
         //Figure out where they will stop rolling, only on the first frame
         if(m_roll_position == 0)
         {
-            switch(m_state->m_memory->player_one_action)
+            double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action);
+
+            bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
+
+            if(m_state->m_memory->player_one_facing == directon)
             {
-                case ROLL_FORWARD:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case ROLL_BACKWARD:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_ROLL_SLOW:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_EDGE_ROLL_DISTANCE ;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_ROLL_QUICK:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_EDGE_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_GETUP_QUICK:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GETUP_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GETUP_DISTANCE;
-                    }
-                    break;
-                }
-                case EDGE_GETUP_SLOW:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GETUP_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GETUP_DISTANCE;
-                    }
-                    break;
-                }
-                case FORWARD_TECH:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_TECHROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_TECHROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case BACKWARD_TECH:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_TECHROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_TECHROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case GROUND_ROLL_FORWARD:
-                case GROUND_ROLL_FORWARD_OTHER:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GROUND_FORWARD_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GROUND_FORWARD_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                case GROUND_ROLL_BACKWARD:
-                case GROUND_ROLL_BACKWARD_OTHER:
-                {
-                    if(m_state->m_memory->player_one_facing)
-                    {
-                        m_roll_position = m_state->m_rollStartPosition - MARTH_GROUND_BACK_ROLL_DISTANCE;
-                    }
-                    else
-                    {
-                        m_roll_position = m_state->m_rollStartPosition + MARTH_GROUND_BACK_ROLL_DISTANCE;
-                    }
-                    break;
-                }
-                default:
-                {
-                    m_roll_position = m_state->m_rollStartPosition;
-                    break;
-                }
+                m_roll_position = m_state->m_rollStartPosition + rollDistance;
             }
+            else
+            {
+                m_roll_position = m_state->m_rollStartPosition - rollDistance;
+            }
+
+            //Calculate how much the enemy will slide
+            double enemySpeed = m_state->m_rollStartSpeed;
+            int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action);
+
+            double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
+            m_roll_position += slidingAdjustmentEnemy;
 
             if(m_roll_position > m_state->getStageEdgeGroundPosition())
             {
@@ -213,8 +104,9 @@ void Punish::DetermineChain()
             //We have to jump cancel the grab. So that takes an extra frame
             frameDelay++;
         }
-        double slidingAdjustment = m_state->calculateSlideDistance(std::abs(m_state->m_memory->player_two_speed_ground_x_self), frames_left - 1);
-        distance = std::abs(std::abs(m_roll_position - m_state->m_memory->player_two_x) - slidingAdjustment);
+        double slidingAdjustment = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
+            m_state->m_memory->player_two_speed_ground_x_self, frames_left - 1);
+        distance = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
 
         Logger::Instance()->Log(INFO, "Trying to punish a roll at position: " + std::to_string(m_roll_position) +
             " with: " + std::to_string(frames_left) + " frames left");
@@ -261,34 +153,32 @@ void Punish::DetermineChain()
         //Before
         frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-        Logger::Instance()->Log(INFO, "Frames until first hitbox of the attack: " + std::to_string(frames_left));
     }
     else
     {
         //After
         frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
-       Logger::Instance()->Log(INFO, "Frames left until end of the attack: " + std::to_string(frames_left));
     }
 
     //If we're in upsmash range, then prepare for attack
     if(m_state->m_memory->player_two_facing == player_two_is_to_the_left && //Facing the right way?
-        (distance < FOX_UPSMASH_RANGE ||
-        (distance < FOX_UPSMASH_RANGE - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
+        (distance < FOX_UPSMASH_RANGE_NEAR ||
+        (distance < FOX_UPSMASH_RANGE_NEAR - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING))))
     {
 
-        int frameDelay = 9; //Frames until the first smash hitbox, plus one for strage startup latency and another for charge lag
+        int frameDelay = 7; //Frames until the first smash hitbox, and another for charge lag
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING)
         {
-            frameDelay += 4;
+            frameDelay ++;
         }
 
         //Do we have time to upsmash? Do that.
         if(frames_left > frameDelay)
         {
-            //Do two less frames of charging than we could, just to be safe
+            //Do one less frame of charging than we could, just to be safe
             CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
             m_chain->PressButtons();
             return;

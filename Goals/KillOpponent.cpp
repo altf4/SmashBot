@@ -19,6 +19,7 @@ void KillOpponent::Strategize()
         m_state->m_memory->player_one_action_frame <= 1)
     {
         m_state->m_rollStartPosition = m_state->m_memory->player_one_x;
+        m_state->m_rollStartSpeed = m_state->m_memory->player_one_speed_x_attack;
     }
 
     if(m_state->m_memory->player_one_action == EDGE_CATCHING &&

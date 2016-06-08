@@ -141,14 +141,15 @@ enum ACTION
     LYING_GROUND_UP_HIT = 0xb9,
     GROUND_GETUP = 0xba,
     GROUND_ATTACK_UP = 0xbb,
-    GROUND_ROLL_FORWARD = 0xbc,
-    GROUND_ROLL_BACKWARD = 0xbd,
+    GROUND_ROLL_FORWARD_UP = 0xbc,
+    GROUND_ROLL_BACKWARD_UP = 0xbd,
     TECH_MISS_DOWN = 0xbf,
+    LYING_GROUND_DOWN = 0xc0,
     DAMAGE_GROUND = 0xc1,
     NEUTRAL_GETUP = 0xc2,
     GETUP_ATTACK = 0xc3,
-    GROUND_ROLL_FORWARD_OTHER = 0xc4, //I don't know why it is sometimes this anmiation instead of GROUND_ROLL_FORWARD
-    GROUND_ROLL_BACKWARD_OTHER = 0xc5, //I don't know why it is sometimes this anmiation instead of GROUND_ROLL_BACKWARD
+    GROUND_ROLL_FORWARD_DOWN = 0xc4,
+    GROUND_ROLL_BACKWARD_DOWN = 0xc5,
     NEUTRAL_TECH = 0xc7,
     FORWARD_TECH = 0xc8,
     BACKWARD_TECH = 0xc9,
@@ -291,10 +292,19 @@ public:
 
     //How far will you slide?
     //TODO: This only works for Fox on FD for now.
-    double calculateSlideDistance(double initSpeed, int frames);
+    double calculateSlideDistance(CHARACTER character, double initSpeed, int frames);
+
+    double getRollDistance(CHARACTER character, ACTION action);
+
+    //Returns the direction the roll goes, relative to the character's facing
+    bool getRollDirection(ACTION action);
+
+    //How many frames of vulnerablily does this animation have at the end? (made for rolls, really)
+    uint trailingVulnerableFrames(CHARACTER character, ACTION action);
 
     GameMemory *m_memory;
     double m_rollStartPosition;
+    double m_rollStartSpeed;
     double m_edgeInvincibilityStart;
 
 private:
