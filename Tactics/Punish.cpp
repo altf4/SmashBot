@@ -72,6 +72,15 @@ void Punish::DetermineChain()
             double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
             m_roll_position += slidingAdjustmentEnemy;
 
+            //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
+            if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
+                m_state->m_memory->player_one_action == MARTH_COUNTER)
+            {
+                double enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    m_state->m_rollStartSpeedSelf, totalFrames);
+                m_roll_position += enemySelfSlide;
+            }
+
             if(m_roll_position > m_state->getStageEdgeGroundPosition())
             {
                 m_roll_position = m_state->getStageEdgeGroundPosition();

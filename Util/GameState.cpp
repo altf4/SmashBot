@@ -21,6 +21,7 @@ GameState::GameState()
     m_rollStartPosition = 0;
     m_edgeInvincibilityStart = 0;
     m_rollStartSpeed = 0;
+    m_rollStartSpeedSelf = 0;
 }
 
 double GameState::getStageEdgePosition()

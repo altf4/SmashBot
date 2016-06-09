@@ -37,26 +37,45 @@ void TechChase::DetermineChain()
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
 
+    uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action);
+
+    int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
+
+    int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action);
+
+    //Is it safe to wavedash in after shielding the attack?
+    //  Don't wavedash off the edge of the stage
+    if(frames_left > 15 &&
+        m_state->m_memory->player_two_action == SHIELD_RELEASE &&
+        (m_state->getStageEdgeGroundPosition() > std::abs(m_state->m_memory->player_two_x) + 10))
+    {
+        CreateChain2(Wavedash, player_two_is_to_the_left);
+        m_chain->PressButtons();
+        return;
+    }
+
     //If our opponent is just lying there, go dash around the pivot point and wait
     if(m_state->m_memory->player_one_action == LYING_GROUND_UP ||
         m_state->m_memory->player_one_action == LYING_GROUND_DOWN ||
         m_state->m_memory->player_one_action == TECH_MISS_UP ||
         m_state->m_memory->player_one_action == TECH_MISS_DOWN)
     {
-        bool isLeft = m_state->m_memory->player_one_x < 0;
-        int pivot_offset = isLeft ? 20 : -20;
+        //try to pivot away from the enemy, unless that would put us off the stage
+        bool isRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+        int pivot_offset = isRight ? 20 : -20;
+        if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
+        {
+            pivot_offset = isRight ? -20 : 20;
+        }
         m_pivotPosition = m_state->m_memory->player_one_x + pivot_offset;
 
         CreateChain3(DashDance, m_pivotPosition, 0);
         m_chain->PressButtons();
         return;
     }
-
-    uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-        (ACTION)m_state->m_memory->player_one_action);
-
-    int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-        (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
     //If they're vulnerable, go punish it
     if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
@@ -82,11 +101,18 @@ void TechChase::DetermineChain()
 
             //Calculate how much the enemy will slide
             double enemySpeed = m_state->m_rollStartSpeed;
-            int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-                (ACTION)m_state->m_memory->player_one_action);
 
             double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
             m_roll_position += slidingAdjustmentEnemy;
+
+            //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
+            if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
+                m_state->m_memory->player_one_action == MARTH_COUNTER)
+            {
+                double enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    m_state->m_rollStartSpeedSelf, totalFrames);
+                m_roll_position += enemySelfSlide;
+            }
 
             //Roll position can't be off the stage
             if(m_roll_position > m_state->getStageEdgeGroundPosition())
@@ -140,6 +166,11 @@ void TechChase::DetermineChain()
         {
             vulnerable_frames = 59;
         }
+        //If the opponent is attacking, they don't have invulnerability like rolls do
+        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
+        {
+            vulnerable_frames = totalFrames;
+        }
 
         bool facingRight = m_state->m_memory->player_two_facing;
         if(m_state->m_memory->player_two_action == TURNING)
@@ -166,22 +197,51 @@ void TechChase::DetermineChain()
         }
         else
         {
+            //If we're sure we'll have time (Like when we have lots of vulnerable frames) dash dance right at the edge of range
+            //Default to dashing at the opponent
+            if(vulnerable_frames >= 7 &&
+                m_state->m_memory->player_one_action != FORWARD_TECH &&
+                m_state->m_memory->player_one_action != BACKWARD_TECH)
+            {
+                bool isRight = m_roll_position < m_state->m_memory->player_two_x;
+                int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
+                if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
+                {
+                    pivot_offset = isRight ? -FOX_JC_GRAB_MAX_SLIDE : FOX_JC_GRAB_MAX_SLIDE;
+                }
+                m_pivotPosition = m_roll_position + pivot_offset;
+
+                CreateChain3(DashDance, m_pivotPosition, 0);
+                m_chain->PressButtons();
+                return;
+            }
+
+            double currentDistance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
+
             //If they're right in front of us and we're not already running, then just hang out and wait
             if(m_state->m_memory->player_two_action != DASHING &&
                 m_state->m_memory->player_two_action != RUNNING &&
                 m_state->m_memory->player_two_action != TURNING &&
-                distance < FOX_GRAB_RANGE &&
-                to_the_left == m_state->m_memory->player_two_facing)
+                distance < FOX_GRAB_RANGE)
             {
-                CreateChain(Nothing);
-                m_chain->PressButtons();
-                return;
+                //If the target location is right behind us, just turn around, don't run
+                if(to_the_left != m_state->m_memory->player_two_facing)
+                {
+                    CreateChain2(Walk, to_the_left);
+                    m_chain->PressButtons();
+                    return;
+                }
+                else
+                {
+                    CreateChain(Nothing);
+                    m_chain->PressButtons();
+                    return;
+                }
             }
 
             //How many frames do we have to wait until we can just dash in there and grab in one go.
             //Tech roll is the longest roll and we can just barely make that with 0 frames of waiting. So
             //this should always be possible
-            double currentDistance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
 
             //This is the number of frames we're going to need to run the distance until we're in range
             int travelFrames = (currentDistance - FOX_GRAB_RANGE - FOX_JC_GRAB_MAX_SLIDE) / FOX_DASH_SPEED;
@@ -202,6 +262,18 @@ void TechChase::DetermineChain()
             //This is the smallest number of frames we have to wait or else we'll get there too early.
             int minWaitFrames = maxWaitFrames - vulnerable_frames;
             int midWaitFrames = (maxWaitFrames + minWaitFrames) / 2;
+
+            //If the enemy is just beyond our reach, then we should just walk forward a little. Don't dash or we'll slide past it
+            if((m_state->m_memory->player_two_action == STANDING ||
+                m_state->m_memory->player_two_action == WALK_SLOW ||
+                m_state->m_memory->player_two_action == WALK_MIDDLE) &&
+                currentDistance > FOX_GRAB_RANGE &&
+                currentDistance < FOX_GRAB_RANGE + FOX_JC_GRAB_MAX_SLIDE)
+            {
+                CreateChain2(Walk, to_the_left);
+                m_chain->PressButtons();
+                return;
+            }
 
             if(midWaitFrames > 0)
             {

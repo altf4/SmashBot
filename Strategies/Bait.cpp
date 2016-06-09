@@ -101,15 +101,6 @@ void Bait::DetermineTactic()
         m_attackFrame = 0;
     }
 
-    Logger::Instance()->Log(INFO, "player_one_on_ground: " + std::to_string(m_state->m_memory->player_one_on_ground));
-    Logger::Instance()->Log(INFO, "player_one_speed_x_attack: " + std::to_string(m_state->m_memory->player_one_speed_x_attack));
-    Logger::Instance()->Log(INFO, "player_one_speed_ground_x_self: " + std::to_string(m_state->m_memory->player_one_speed_ground_x_self));
-    Logger::Instance()->Log(INFO, "player_one_speed_air_x_self: " + std::to_string(m_state->m_memory->player_one_speed_air_x_self));
-    double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-        m_state->m_memory->player_one_speed_x_attack, 30);
-    Logger::Instance()->Log(INFO, "slidingAdjustmentEnemy: " + std::to_string(slidingAdjustmentEnemy));
-
-
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_tactic != NULL) && (!m_tactic->IsInterruptible()))
     {
@@ -124,6 +115,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL ||
         m_state->m_memory->player_two_action == SPOTDODGE ||
+        m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_two_action) ||
         m_state->m_memory->player_two_action == THROW_FORWARD ||
         m_state->m_memory->player_two_action == THROW_BACK ||
@@ -149,11 +141,12 @@ void Bait::DetermineTactic()
     if(m_state->m_memory->player_two_on_ground)
     {
         //If we're able to punish our opponent, let's do that
-        if((m_state->m_memory->player_one_action == SPOTDODGE ||
+        if(m_state->m_memory->player_one_action == SPOTDODGE ||
             m_state->m_memory->player_one_action == MARTH_COUNTER ||
             m_state->m_memory->player_one_action == MARTH_COUNTER_FALLING ||
-            m_state->m_memory->player_one_action == LANDING_SPECIAL) &&
-            distance < FOX_UPSMASH_RANGE-2)
+            m_state->m_memory->player_one_action == LANDING_SPECIAL ||
+            m_state->m_memory->player_one_action == TECH_MISS_UP ||
+            m_state->m_memory->player_one_action == TECH_MISS_DOWN)
         {
             if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
             {
@@ -224,9 +217,6 @@ void Bait::DetermineTactic()
         uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action);
 
-        Logger::Instance()->Log(INFO, "lastHitboxFrame: " + std::to_string(lastHitboxFrame));
-        Logger::Instance()->Log(INFO, "frames_left: " + std::to_string(frames_left));
-
         //If our oponnent is stuck in a laggy ending animation, punish it
         //Rolling or ending an attack
         if((m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
@@ -236,7 +226,7 @@ void Bait::DetermineTactic()
         {
             //Can we get an attack in time?
             if(frames_left > 7 ||
-                (m_state->m_memory->player_two_action == SHIELD_RELEASE && frames_left > 10))
+                (m_state->m_memory->player_two_action == SHIELD_RELEASE && frames_left > 15))
             {
                 //TODO: Can we close the distance in time?
                 if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
