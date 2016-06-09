@@ -54,7 +54,7 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
 6. **What Operating Systems does it play on?**
 
-    SmashBot runs on Linux currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. There are no plans to make a Windows port. If we're going to spend time porting, it's going to be to a Gamecube/Wii.
+    SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. There are no plans to make a Windows port. If we're going to spend time porting, it's going to be to a Gamecube/Wii.
 
 7. **I found a bug. How can I help?**
 
@@ -63,12 +63,10 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
 ##Rough Setup Steps:
 
-###Works on: Ubuntu 15.04+
-
 1. Get a working build of dolphin from source. The latest master branch should be fine. You can find it here:
 https://github.com/dolphin-emu/dolphin
 2. Configure your controller settings for player 1 and player 2. You will play as Player 1, SmashBot will take Player 2. You'll probably want a GameCube controller adapter. Configuring controller settings is out of the scope of this document, but check out the file `GCPadNew.ini` provided here for an example controller config that ought to work. Just stick that in your Dolphin config directory.
-3. Make sure you're running Melee v1.02 NTSC. Other versions will not work. 
+3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 4. Build SmashBot code by just running make. `make` There shouldn't be any dependencies to download. (Other than Dolphin)
 5. Run `./smashbot`
 6. Run dolphin and start up Melee.
