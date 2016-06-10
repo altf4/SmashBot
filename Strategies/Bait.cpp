@@ -219,10 +219,10 @@ void Bait::DetermineTactic()
 
         //If our oponnent is stuck in a laggy ending animation, punish it
         //Rolling or ending an attack
-        if((m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
-            m_state->isRollingState((ACTION)m_state->m_memory->player_one_action)) &&
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+            (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
             m_state->m_memory->player_one_on_ground &&
-            (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0))
+            (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0)))
         {
             //Can we get an attack in time?
             if(frames_left > 7 ||
@@ -380,10 +380,11 @@ void Bait::DetermineTactic()
 
     //If the opponent is off the stage, let's edgeguard them
     //NOTE: Sometimes players can get a little below 0 in Y coordinates without being off the stage
-    if((std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001 && !m_state->m_memory->player_one_on_ground) ||
+    if(!m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) &&
+        ((std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001 && !m_state->m_memory->player_one_on_ground) ||
         m_state->m_memory->player_one_y < -5.5 ||
         m_state->m_memory->player_one_action == EDGE_CATCHING ||
-        m_state->m_memory->player_one_action == EDGE_HANGING)
+        m_state->m_memory->player_one_action == EDGE_HANGING))
     {
         CreateTactic(Edgeguard);
         m_tactic->DetermineChain();
