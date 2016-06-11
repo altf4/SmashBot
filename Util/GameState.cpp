@@ -651,7 +651,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
                 case TECH_MISS_UP:
                 {
-                    return 26;
+                    return 25; //TODO This is actually 26... but it starts at 0, so the calculation gets screwed up
                 }
                 case TECH_MISS_DOWN:
                 {
@@ -926,7 +926,7 @@ double GameState::getRollDistance(CHARACTER character, ACTION action)
                 }
                 case GROUND_ROLL_BACKWARD_UP:
                 {
-                    return 30.87;
+                    return 35.83;
                 }
                 case GROUND_ROLL_FORWARD_DOWN:
                 {
@@ -1020,7 +1020,11 @@ uint GameState::trailingVulnerableFrames(CHARACTER character, ACTION action)
                 }
                 case GROUND_ROLL_BACKWARD_DOWN:
                 {
-                    return 4; //TODO: this is a guess
+                    return 5; //TODO: this is a guess
+                }
+                case GROUND_ATTACK_UP:
+                {
+                    return 5;
                 }
                 default:
                 {

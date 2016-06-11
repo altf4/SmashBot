@@ -67,8 +67,30 @@ void TechChase::DetermineChain()
         m_state->m_memory->player_one_action == TECH_MISS_UP ||
         m_state->m_memory->player_one_action == TECH_MISS_DOWN)
     {
-        //try to pivot away from the enemy, unless that would put us off the stage
         bool isRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+
+        //If opponent missed a tech right nearby us, just walk in close.
+        if(distance < 25 &&
+            m_state->m_memory->player_two_action != DASHING &&
+            m_state->m_memory->player_two_action != RUNNING)
+        {
+            //Walk in if they're getting too far away, or if they're behind us
+            if(distance > 7 ||
+                isRight == m_state->m_memory->player_two_facing)
+            {
+                CreateChain2(Walk, !isRight);
+                m_chain->PressButtons();
+                return;
+            }
+            else
+            {
+                CreateChain(Nothing);
+                m_chain->PressButtons();
+                return;
+            }
+        }
+
+        //try to pivot away from the enemy, unless that would put us off the stage
         int pivot_offset = isRight ? 20 : -20;
         if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
         {
@@ -109,8 +131,6 @@ void TechChase::DetermineChain()
             double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
             m_roll_position += slidingAdjustmentEnemy;
 
-            Logger::Instance()->Log(INFO, "slidingAdjustmentEnemy: " + std::to_string(slidingAdjustmentEnemy));
-
             //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
             if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
                 m_state->m_memory->player_one_action == MARTH_COUNTER)
@@ -147,7 +167,7 @@ void TechChase::DetermineChain()
         }
 
         int frameDelay = 7;
-        double distance;
+        double distanceFromRoll;
         if(m_state->m_memory->player_two_action == DASHING ||
             m_state->m_memory->player_two_action == RUNNING ||
             m_state->m_memory->player_two_action == SHIELD_RELEASE)
@@ -159,7 +179,7 @@ void TechChase::DetermineChain()
         double slidingAdjustment = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
             m_state->m_memory->player_two_speed_ground_x_self, frameDelay);
 
-        distance = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
+        distanceFromRoll = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
 
         Logger::Instance()->Log(INFO, "Trying to tech chase a roll at position: " + std::to_string(m_roll_position) +
             " with: " + std::to_string(frames_left) + " frames left");
@@ -195,7 +215,7 @@ void TechChase::DetermineChain()
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
             frames_left - frameDelay <= vulnerable_frames &&
-            distance < FOX_GRAB_RANGE &&
+            distanceFromRoll < FOX_GRAB_RANGE &&
             to_the_left == facingRight &&
             !behindEnemy &&
             m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work
@@ -213,10 +233,13 @@ void TechChase::DetermineChain()
             if(m_state->m_memory->player_two_action != DASHING &&
                 m_state->m_memory->player_two_action != RUNNING &&
                 m_state->m_memory->player_two_action != TURNING &&
-                distance < FOX_GRAB_RANGE)
+                distanceFromRoll < FOX_GRAB_RANGE)
             {
                 //If the target location is right behind us, just turn around, don't run
-                if(to_the_left != m_state->m_memory->player_two_facing)
+                // Also, if it's all the same, just get a little closer than we probably need.
+                // Sometimes grab is shorter range than we'd like
+                if(to_the_left != m_state->m_memory->player_two_facing ||
+                    distanceFromRoll > FOX_GRAB_RANGE/2)
                 {
                     CreateChain2(Walk, to_the_left);
                     m_chain->PressButtons();
@@ -238,12 +261,12 @@ void TechChase::DetermineChain()
             {
                 bool isRight = m_roll_position < m_state->m_memory->player_two_x;
                 int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
-                if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
+                //Don't anchor our dash dance off the stage
+                if(std::abs(m_roll_position + pivot_offset) > m_state->getStageEdgeGroundPosition())
                 {
                     pivot_offset = isRight ? -FOX_JC_GRAB_MAX_SLIDE : FOX_JC_GRAB_MAX_SLIDE;
                 }
                 m_pivotPosition = m_roll_position + pivot_offset;
-
                 CreateChain3(DashDance, m_pivotPosition, 0);
                 m_chain->PressButtons();
                 return;

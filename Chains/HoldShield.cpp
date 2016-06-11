@@ -28,7 +28,7 @@ bool HoldShield::IsInterruptible()
     }
 }
 
-HoldShield::HoldShield(uint frames)
+HoldShield::HoldShield(int frames)
 {
     m_startingFrame = m_state->m_memory->frame;
     m_holdFrames = frames;

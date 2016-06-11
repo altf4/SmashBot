@@ -13,6 +13,15 @@ void DashDance::PressButtons()
         return;
     }
 
+    //If we're walking, stop for a frame
+    if(m_state->m_memory->player_two_action == WALK_SLOW ||
+        m_state->m_memory->player_two_action == WALK_MIDDLE ||
+        m_state->m_memory->player_two_action == WALK_FAST)
+    {
+        m_controller->emptyInput();
+        return;
+    }
+
     //If we're starting the turn around animation, keep pressing that way or else we'll get stuck in the slow turnaround
     if(m_state->m_memory->player_two_action == TURNING &&
         m_state->m_memory->player_two_action_frame == 1)

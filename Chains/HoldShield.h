@@ -9,7 +9,7 @@ class HoldShield : public Chain
 
 public:
 
-    HoldShield(uint frames);
+    HoldShield(int frames);
     ~HoldShield();
     //Determine what buttons to press in order to execute our tactic
     void PressButtons();
@@ -17,7 +17,7 @@ public:
     std::string ToString(){return "HoldShield";};
 
 private:
-    uint m_holdFrames;
+    int m_holdFrames;
 
 };
 
