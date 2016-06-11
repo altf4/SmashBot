@@ -108,6 +108,8 @@ void Punish::DetermineChain()
         int frameDelay = 7;
 
         if(m_state->m_memory->player_two_action == DASHING ||
+            m_state->m_memory->player_two_action == SHIELD ||
+            m_state->m_memory->player_two_action == SHIELD_RELEASE ||
             m_state->m_memory->player_two_action == RUNNING)
         {
             //We have to jump cancel the grab. So that takes an extra frame

@@ -930,7 +930,7 @@ double GameState::getRollDistance(CHARACTER character, ACTION action)
                 }
                 case GROUND_ROLL_FORWARD_DOWN:
                 {
-                    return 28.35;
+                    return 34.65;
                 }
                 case GROUND_ROLL_BACKWARD_DOWN:
                 {
@@ -1031,6 +1031,34 @@ uint GameState::trailingVulnerableFrames(CHARACTER character, ACTION action)
         default:
         {
             return 0;
+        }
+    }
+}
+
+bool GameState::hasMultipleHitboxes(CHARACTER character, ACTION action)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            switch(action)
+            {
+                case SWORD_DANCE_4_LOW:
+                case SWORD_DANCE_4_LOW_AIR:
+                case GROUND_ATTACK_UP:
+                {
+                    return true;
+                }
+                default:
+                {
+                    return false;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            return false;
         }
     }
 }

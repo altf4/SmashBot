@@ -302,6 +302,9 @@ public:
     //How many frames of vulnerablily does this animation have at the end? (made for rolls, really)
     uint trailingVulnerableFrames(CHARACTER character, ACTION action);
 
+    //Is this a multihit attack?
+    bool hasMultipleHitboxes(CHARACTER character, ACTION action);
+
     GameMemory *m_memory;
     double m_rollStartPosition;
     double m_rollStartSpeed;

@@ -46,9 +46,13 @@ void TechChase::DetermineChain()
     int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
+    double distance = std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x);
+
     //Is it safe to wavedash in after shielding the attack?
     //  Don't wavedash off the edge of the stage
+    //  And don't bother if we're already in grab range. (Just grab them)
     if(frames_left > 15 &&
+        distance > FOX_GRAB_RANGE &&
         m_state->m_memory->player_two_action == SHIELD_RELEASE &&
         (m_state->getStageEdgeGroundPosition() > std::abs(m_state->m_memory->player_two_x) + 10))
     {
@@ -105,6 +109,8 @@ void TechChase::DetermineChain()
             double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
             m_roll_position += slidingAdjustmentEnemy;
 
+            Logger::Instance()->Log(INFO, "slidingAdjustmentEnemy: " + std::to_string(slidingAdjustmentEnemy));
+
             //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
             if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
                 m_state->m_memory->player_one_action == MARTH_COUNTER)
@@ -143,7 +149,8 @@ void TechChase::DetermineChain()
         int frameDelay = 7;
         double distance;
         if(m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == RUNNING)
+            m_state->m_memory->player_two_action == RUNNING ||
+            m_state->m_memory->player_two_action == SHIELD_RELEASE)
         {
             //We have to jump cancel the grab. So that takes an extra frame
             frameDelay++;
@@ -167,7 +174,10 @@ void TechChase::DetermineChain()
             vulnerable_frames = 59;
         }
         //If the opponent is attacking, they don't have invulnerability like rolls do
-        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
+        //Except getup attack, which is both a roll and an attack
+        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+            m_state->m_memory->player_one_action != GETUP_ATTACK &&
+            m_state->m_memory->player_one_action != GROUND_ATTACK_UP)
         {
             vulnerable_frames = totalFrames;
         }
@@ -197,25 +207,6 @@ void TechChase::DetermineChain()
         }
         else
         {
-            //If we're sure we'll have time (Like when we have lots of vulnerable frames) dash dance right at the edge of range
-            //Default to dashing at the opponent
-            if(vulnerable_frames >= 7 &&
-                m_state->m_memory->player_one_action != FORWARD_TECH &&
-                m_state->m_memory->player_one_action != BACKWARD_TECH)
-            {
-                bool isRight = m_roll_position < m_state->m_memory->player_two_x;
-                int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
-                if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
-                {
-                    pivot_offset = isRight ? -FOX_JC_GRAB_MAX_SLIDE : FOX_JC_GRAB_MAX_SLIDE;
-                }
-                m_pivotPosition = m_roll_position + pivot_offset;
-
-                CreateChain3(DashDance, m_pivotPosition, 0);
-                m_chain->PressButtons();
-                return;
-            }
-
             double currentDistance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
 
             //If they're right in front of us and we're not already running, then just hang out and wait
@@ -237,6 +228,25 @@ void TechChase::DetermineChain()
                     m_chain->PressButtons();
                     return;
                 }
+            }
+
+            //If we're sure we'll have time (Like when we have lots of vulnerable frames) dash dance right at the edge of range
+            //Default to dashing at the opponent
+            if(vulnerable_frames >= 7 &&
+                m_state->m_memory->player_one_action != FORWARD_TECH &&
+                m_state->m_memory->player_one_action != BACKWARD_TECH)
+            {
+                bool isRight = m_roll_position < m_state->m_memory->player_two_x;
+                int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
+                if(std::abs(m_state->m_memory->player_two_x + pivot_offset) > m_state->getStageEdgeGroundPosition())
+                {
+                    pivot_offset = isRight ? -FOX_JC_GRAB_MAX_SLIDE : FOX_JC_GRAB_MAX_SLIDE;
+                }
+                m_pivotPosition = m_roll_position + pivot_offset;
+
+                CreateChain3(DashDance, m_pivotPosition, 0);
+                m_chain->PressButtons();
+                return;
             }
 
             //How many frames do we have to wait until we can just dash in there and grab in one go.

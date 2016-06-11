@@ -319,8 +319,12 @@ void Bait::DetermineTactic()
         return;
     }
 
+    bool multipleHitboxes = m_state->hasMultipleHitboxes((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action);
+
     //If we need to defend against an attack, that's next priority. Unless we've already shielded this attack
-    if(!m_shieldedAttack && distance < MARTH_FSMASH_RANGE)
+    if((!m_shieldedAttack || multipleHitboxes) &&
+        distance < MARTH_FSMASH_RANGE)
     {
         //Don't bother parrying if the attack is over
         if(m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action) >=

@@ -2,8 +2,9 @@
 
 void GrabAndThrow::PressButtons()
 {
-    //If we're dashing, then jump cancel the grab
+    //Jump cancel the grab
     if(m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == SHIELD_RELEASE ||
         m_state->m_memory->player_two_action == RUNNING)
      {
          m_controller->pressButton(Controller::BUTTON_Y);
