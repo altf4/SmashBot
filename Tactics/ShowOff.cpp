@@ -5,7 +5,7 @@
 #include "../Chains/EdgeAction.h"
 #include "../Chains/Nothing.h"
 #include "../Chains/Wavedash.h"
-#include "../Chains/Walk.h"
+#include "../Chains/Run.h"
 
 ShowOff::ShowOff()
 {
@@ -34,7 +34,7 @@ void ShowOff::DetermineChain()
 
     if(m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x) < 5)
     {
-        CreateChain2(Walk, m_state->m_memory->player_two_x < 0);
+        CreateChain2(Run, m_state->m_memory->player_two_x < 0);
         m_chain->PressButtons();
         return;
     }
