@@ -101,6 +101,17 @@ void Bait::DetermineTactic()
         m_attackFrame = 0;
     }
 
+    //Escape out of our opponents combo / grab if they somehow get it
+    // This even takes precedence over uninterruptible chains (because they got interrupted anyway)
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action) ||
+        m_state->m_memory->player_two_action == TUMBLING)
+    {
+        CreateTactic(Escape);
+        m_tactic->DetermineChain();
+        return;
+    }
+    
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_tactic != NULL) && (!m_tactic->IsInterruptible()))
     {
@@ -305,16 +316,6 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == NEUTRAL_ATTACK_2))
     {
         CreateTactic(CreateDistance);
-        m_tactic->DetermineChain();
-        return;
-    }
-
-    //Escape out of our opponents combo / grab if they somehow get it
-    if(m_state->isDamageState((ACTION)m_state->m_memory->player_two_action) ||
-        m_state->isGrabbedState((ACTION)m_state->m_memory->player_two_action) ||
-        m_state->m_memory->player_two_action == TUMBLING)
-    {
-        CreateTactic(Escape);
         m_tactic->DetermineChain();
         return;
     }
