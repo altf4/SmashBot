@@ -32,6 +32,8 @@ void KeepDistance::DetermineChain()
         pivotPoint -= 1.1 * MARTH_FSMASH_RANGE;
     }
 
+    delete m_chain;
+    m_chain = NULL;
     CreateChain3(DashDance, pivotPoint, 0);
     m_chain->PressButtons();
     return;
