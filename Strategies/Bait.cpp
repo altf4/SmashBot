@@ -111,7 +111,7 @@ void Bait::DetermineTactic()
         m_tactic->DetermineChain();
         return;
     }
-    
+
     //If we're not in a state to interupt, just continue with what we've got going
     if((m_tactic != NULL) && (!m_tactic->IsInterruptible()))
     {
@@ -405,9 +405,11 @@ void Bait::DetermineTactic()
     }
 
     //If we're far away, just laser
+    // But stop once enemy is at kill percent
     if(std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) > 90 &&
         std::abs(m_state->m_memory->player_one_x) < 130 &&
-        std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition())
+        std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() &&
+        std::abs(m_state->m_memory->player_one_percent) < MARTH_UPSMASH_KILL_PERCENT)
     {
         CreateTactic(Laser);
         m_tactic->DetermineChain();
