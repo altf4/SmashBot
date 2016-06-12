@@ -4,7 +4,7 @@
 #include "Bait.h"
 #include "../Util/Constants.h"
 #include "../Util/Logger.h"
-#include "../Tactics/CloseDistance.h"
+#include "../Tactics/Approach.h"
 #include "../Tactics/CreateDistance.h"
 #include "../Tactics/KeepDistance.h"
 #include "../Tactics/Wait.h"
@@ -424,7 +424,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == SHIELD_REFLECT ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
-        CreateTactic2(CloseDistance, true);
+        CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
         return;
     }
@@ -435,7 +435,7 @@ void Bait::DetermineTactic()
     if(m_state->m_memory->player_one_action == DASHING &&
         m_state->m_memory->player_one_facing == onRight)
     {
-        CreateTactic2(CloseDistance, true);
+        CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
         return;
     }
@@ -446,7 +446,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_facing != onRight &&
         rand() % 8 == 0)
     {
-        CreateTactic2(CloseDistance, false);
+        CreateTactic2(Approach, false);
         m_tactic->DetermineChain();
         return;
     }

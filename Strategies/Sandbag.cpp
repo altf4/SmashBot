@@ -3,7 +3,7 @@
 
 #include "Sandbag.h"
 #include "../Util/Constants.h"
-#include "../Tactics/CloseDistance.h"
+#include "../Tactics/Approach.h"
 #include "../Tactics/CreateDistance.h"
 #include "../Tactics/KeepDistance.h"
 #include "../Tactics/Wait.h"
@@ -226,7 +226,7 @@ void Sandbag::DetermineTactic()
         m_state->m_memory->player_one_action == SHIELD_REFLECT ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
-        CreateTactic2(CloseDistance, true);
+        CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
         return;
     }
@@ -237,7 +237,7 @@ void Sandbag::DetermineTactic()
     if(m_state->m_memory->player_one_action == DASHING &&
         m_state->m_memory->player_one_facing == onRight)
     {
-        CreateTactic2(CloseDistance, true);
+        CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
         return;
     }

@@ -1,18 +1,18 @@
-#ifndef CLOSE_DISTANCE_H
-#define CLOSE_DISTANCE_H
+#ifndef APPROACH_H
+#define APPROACH_H
 
 #include "Tactic.h"
 
 //This tactic can be used to safely get in close with our opponent if they are not near
-class CloseDistance : public Tactic
+class Approach : public Tactic
 {
 
 public:
 
-    CloseDistance(bool);
-    ~CloseDistance();
+    Approach(bool);
+    ~Approach();
     void DetermineChain();
-    std::string ToString(){return "CloseDistance";};
+    std::string ToString(){return "Approach";};
     bool IsInterruptible();
 
 private:

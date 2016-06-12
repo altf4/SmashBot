@@ -1,22 +1,22 @@
 #include <cmath>
 
-#include "CloseDistance.h"
+#include "Approach.h"
 #include "../Chains/DashDance.h"
 #include "../Util/Constants.h"
 
-CloseDistance::CloseDistance(bool canInterrupt)
+Approach::Approach(bool canInterrupt)
 {
     m_canInterrupt = canInterrupt;
     m_chain = NULL;
     m_frameStarted = m_state->m_memory->frame;
 }
 
-CloseDistance::~CloseDistance()
+Approach::~Approach()
 {
     delete m_chain;
 }
 
-bool CloseDistance::IsInterruptible()
+bool Approach::IsInterruptible()
 {
     if(!m_canInterrupt)
     {
@@ -25,7 +25,7 @@ bool CloseDistance::IsInterruptible()
     return m_chain->IsInterruptible();
 }
 
-void CloseDistance::DetermineChain()
+void Approach::DetermineChain()
 {
     //Calculate distance between players
     double distance = pow(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x, 2);
