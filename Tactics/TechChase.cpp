@@ -43,6 +43,13 @@ void TechChase::DetermineChain()
     int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
+    //If enemy is in hit stun
+    bool isDamage = m_state->isDamageState((ACTION)m_state->m_memory->player_one_action);
+    if(isDamage)
+    {
+        frames_left = m_state->m_memory->player_one_hitstun_frames_left;
+    }
+
     int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
@@ -110,7 +117,8 @@ void TechChase::DetermineChain()
     }
 
     //If they're vulnerable, go punish it
-    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+    if(isDamage ||
+        m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
         m_state->m_memory->player_one_action_frame > lastHitboxFrame))
     {
@@ -160,6 +168,13 @@ void TechChase::DetermineChain()
             if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
             {
                 m_roll_position = m_state->m_memory->player_one_x;
+            }
+
+            if(isDamage)
+            {
+                double slideHitEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    m_state->m_memory->player_one_speed_x_attack, frames_left);
+                m_roll_position = m_state->m_memory->player_one_x + slideHitEnemy;
             }
 
             if(player_two_is_to_the_left)

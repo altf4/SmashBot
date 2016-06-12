@@ -228,9 +228,16 @@ void Bait::DetermineTactic()
         uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action);
 
+        //If enemy is in hit stun
+        if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
+        {
+            frames_left = m_state->m_memory->player_one_hitstun_frames_left;
+        }
+
         //If our oponnent is stuck in a laggy ending animation, punish it
         //Rolling or ending an attack
         if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+            m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
             (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
             m_state->m_memory->player_one_on_ground &&
             (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0)))
