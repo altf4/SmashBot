@@ -846,6 +846,7 @@ bool GameState::isIndexedFromZero(ACTION action)
         case ENTRY_START:
         case UAIR_LANDING:
         case BAIR_LANDING:
+        case DAIR_LANDING:
         case FALLING:
         case LANDING:
         case WAIT_ITEM:

@@ -416,13 +416,23 @@ void Bait::DetermineTactic()
         return;
     }
 
+    uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action);
+
     //If our opponent is doing something to put them in a vulnerable spot, approach
     if(m_state->m_memory->player_one_action == KNEE_BEND ||
         m_state->m_memory->player_one_action == JUMPING_FORWARD ||
         m_state->m_memory->player_one_action == SHIELD ||
         m_state->m_memory->player_one_action == SHIELD_START ||
         m_state->m_memory->player_one_action == SHIELD_REFLECT ||
-        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
+        m_state->m_memory->player_one_action == NAIR_LANDING ||
+        m_state->m_memory->player_one_action == FAIR_LANDING ||
+        m_state->m_memory->player_one_action == UAIR_LANDING ||
+        m_state->m_memory->player_one_action == BAIR_LANDING ||
+        m_state->m_memory->player_one_action == DAIR_LANDING ||
+        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
+        m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+        (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) && m_state->m_memory->player_one_action_frame > lastHitboxFrame))
     {
         CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
