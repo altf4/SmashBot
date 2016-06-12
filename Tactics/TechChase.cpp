@@ -220,7 +220,7 @@ void TechChase::DetermineChain()
 
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
-            frames_left - frameDelay <= vulnerable_frames &&
+            frames_left - frameDelay < vulnerable_frames &&
             distanceFromRoll < FOX_GRAB_RANGE &&
             to_the_left == facingRight &&
             !behindEnemy &&
@@ -283,31 +283,35 @@ void TechChase::DetermineChain()
             //this should always be possible
 
             //This is the number of frames we're going to need to run the distance until we're in range
-            int travelFrames = (currentDistance - FOX_GRAB_RANGE - FOX_JC_GRAB_MAX_SLIDE) / FOX_DASH_SPEED;
+            int travelFramesMin = (currentDistance - FOX_GRAB_RANGE - FOX_JC_GRAB_MAX_SLIDE) / FOX_DASH_SPEED;
+            int travelFramesMax = (currentDistance - FOX_JC_GRAB_MAX_SLIDE) / FOX_DASH_SPEED;
 
             //Account for the startup frames, too
             if(m_state->m_memory->player_two_action != DASHING &&
                 m_state->m_memory->player_two_action != RUNNING)
             {
-                travelFrames++;
+                travelFramesMin++;
+                travelFramesMax++;
             }
             if(to_the_left != facingRight)
             {
-                travelFrames++;
+                travelFramesMin++;
+                travelFramesMax++;
             }
 
-            //This is the most frames we can wait before we need to leave.
-            int maxWaitFrames = frames_left - travelFrames - 8;
-            //This is the smallest number of frames we have to wait or else we'll get there too early.
-            int minWaitFrames = maxWaitFrames - vulnerable_frames;
+            //This is the most frames we can wait before we NEED to leave.
+            int maxWaitFrames = frames_left - travelFramesMax - 8;
+            //This is the smallest number of frames we HAVE to wait or else we'll get there too early.
+            int minWaitFrames = (frames_left - vulnerable_frames) - travelFramesMin - 8;
             int midWaitFrames = (maxWaitFrames + minWaitFrames) / 2;
 
-            //If the enemy is just beyond our reach, then we should just walk forward a little. Don't dash or we'll slide past it
+            //If the enemy is juuuuuust beyond our reach, then we should just walk forward a little. Don't dash or we'll slide past it
+            // But only do this if we're facing the right way. We don't want to turn around using this
             if((m_state->m_memory->player_two_action == STANDING ||
                 m_state->m_memory->player_two_action == WALK_SLOW ||
                 m_state->m_memory->player_two_action == WALK_MIDDLE) &&
-                currentDistance > FOX_GRAB_RANGE &&
-                currentDistance < FOX_GRAB_RANGE + FOX_JC_GRAB_MAX_SLIDE)
+                currentDistance < FOX_JC_GRAB_MAX_SLIDE &&
+                to_the_left == facingRight)
             {
                 CreateChain2(Walk, to_the_left);
                 m_chain->PressButtons();

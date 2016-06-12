@@ -163,13 +163,13 @@ void Punish::DetermineChain()
     {
         //Before
         frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
     }
     else
     {
         //After
         frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-           (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+           (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
     }
 
     //If we're in upsmash range, then prepare for attack

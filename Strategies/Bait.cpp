@@ -73,7 +73,7 @@ void Bait::DetermineTactic()
     //Update the attack frame if the enemy started a new action
     if((m_lastAction != (ACTION)m_state->m_memory->player_one_action) ||
         (m_state->m_memory->player_one_action_counter > m_lastActionCount) ||
-        (m_state->m_memory->player_one_action_frame == 0))
+        (m_state->m_memory->player_one_action_frame == 1))
     {
         m_lastActionCount = m_state->m_memory->player_one_action_counter;
         m_shieldedAttack = false;
@@ -177,7 +177,7 @@ void Bait::DetermineTactic()
         {
             //How many frames do we have until the attack lands? If it's at least 3, then we can start a Punish
             int frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-                (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+                (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
             if(frames_left > 7)
             {
                 CreateTactic(Punish);
@@ -212,7 +212,7 @@ void Bait::DetermineTactic()
 
         //How many frames do we have until the attack is over?
         int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame - 1;
+            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
 
         uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
             (ACTION)m_state->m_memory->player_one_action);

@@ -83,7 +83,10 @@ enum ACTION
     JUMPING_ARIAL_FORWARD = 0x1b,
     JUMPING_ARIAL_BACKWARD = 0x1c,
     FALLING = 0x1D,    //The "wait" state of the air.
+    FALLING_AERIAL = 0x20,  //After double-jump
     DEAD_FALL = 0x23, //Falling after up-b
+    SPECIAL_FALL_FORWARD = 0x24,
+    SPECIAL_FALL_BACK = 0x25,
     TUMBLING = 0x26,
     CROUCH_START = 0x27, //Going from stand to crouch
     CROUCHING = 0x28,
@@ -157,10 +160,13 @@ enum ACTION
     GRAB_PULLING = 0xd5,
     GRAB_RUNNING = 0xd6,
     GRAB_WAIT = 0xd8,
+    GRAB_PUMMEL = 0xd9,
     THROW_FORWARD = 0xdb,
     THROW_BACK = 0xdc,
     THROW_UP = 0xdd,    //yuck
     THROW_DOWN = 0xde,
+    GRABBED_WAIT_HIGH = 0xe0, //XXX Not sure about this
+    PUMMELED_HIGH = 0xe1, //XXX Not sure about this
     GRAB_PULL = 0xe2,   //Being pulled inwards from the grab
     GRABBED = 0xe3,   //Grabbed
     GRAB_PUMMELED = 0xe4,   //Being pummeled
@@ -189,6 +195,7 @@ enum ACTION
     ENTRY_END = 0x144,    //Start of match. Can't move
     NEUTRAL_B_CHARGING = 0x156,
     NEUTRAL_B_ATTACKING = 0x157,
+    WAIT_ITEM = 0x159, //No idea what this is
     NEUTRAL_B_CHARGING_AIR = 0x15A,
     NEUTRAL_B_ATTACKING_AIR = 0x15B,
     SWORD_DANCE_1 = 0x15d,
@@ -286,9 +293,14 @@ public:
 
     //Is the given action an attack?
     bool isAttacking(ACTION a);
+
     //Does the given attack have reverse hit frames? (Do we need to worry about parrying from attacks if the
     //  enemy is facing the other way?)
     bool isReverseHit(ACTION a);
+
+    //Does Melee index this action from 0 (as opposed to 1)
+    //  (Melee is highly inconsistent about this and it screws up our calculations)
+    bool isIndexedFromZero(ACTION a);
 
     //How far will you slide?
     //TODO: This only works for Fox on FD for now.

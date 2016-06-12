@@ -801,6 +801,69 @@ bool GameState::isReverseHit(ACTION action)
     }
 }
 
+bool GameState::isIndexedFromZero(ACTION action)
+{
+    switch(action)
+    {
+        case DEAD_FLY_STAR:
+        case DEAD_FLY:
+        case DEAD_FLY_SPLATTER:
+        case ON_HALO_DESCENT:
+        case ON_HALO_WAIT:
+        case FALLING_AERIAL:
+        case CROUCH_END:
+        case NEUTRAL_TECH:
+        case FORWARD_TECH:
+        case BACKWARD_TECH:
+        case LANDING_SPECIAL:
+        case WALK_MIDDLE:
+        case WALK_FAST:
+        case DEAD_FALL:
+        case RUNNING:
+        case JUMPING_FORWARD:
+        case JUMPING_BACKWARD:
+        case JUMPING_ARIAL_FORWARD:
+        case JUMPING_ARIAL_BACKWARD:
+        case TUMBLING:
+        case NEUTRAL_ATTACK_2:
+        case EDGE_TEETERING_START:
+        case EDGE_TEETERING:
+        case EDGE_HANGING:
+        case GRABBED:
+        case GRAB:
+        case GRAB_WAIT:
+        case GRABBED_WAIT_HIGH:
+        case PUMMELED_HIGH:
+        case GRAB_PUMMEL:
+        case GRAB_PUMMELED:
+        case GRAB_RUNNING:
+        case KNEE_BEND:
+        case SHIELD_RELEASE:
+        case SHIELD_STUN:
+        case STANDING:
+        case SLIDING_OFF_EDGE:
+        case TECH_MISS_UP:
+        case ENTRY_START:
+        case UAIR_LANDING:
+        case BAIR_LANDING:
+        case FALLING:
+        case LANDING:
+        case WAIT_ITEM:
+        case NEUTRAL_B_CHARGING_AIR:
+        case DOWN_B_GROUND:
+        case DOWN_B_AIR:
+        case SWORD_DANCE_4_HIGH_AIR:
+        case SWORD_DANCE_3_LOW_AIR:
+        {
+            return true;
+        }
+        default:
+        {
+            return false;
+        }
+    }
+}
+
 bool GameState::isRollingState(ACTION action)
 {
     switch(action)

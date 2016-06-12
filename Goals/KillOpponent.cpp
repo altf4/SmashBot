@@ -2,6 +2,8 @@
 #include "../Strategies/Bait.h"
 #include "../Strategies/Sandbag.h"
 
+#include <iostream>
+
 KillOpponent::KillOpponent()
 {
     m_strategy = NULL;
@@ -14,6 +16,27 @@ KillOpponent::~KillOpponent()
 
 void KillOpponent::Strategize()
 {
+    //Melee is inconsistent and some actions are indexed from zero instead of one
+    // This throws all our math off, so let's fix that problem
+    if(m_state->isIndexedFromZero((ACTION)m_state->m_memory->player_one_action))
+    {
+        m_state->m_memory->player_one_action_frame++;
+    }
+    if(m_state->isIndexedFromZero((ACTION)m_state->m_memory->player_two_action))
+    {
+        m_state->m_memory->player_two_action_frame++;
+    }
+
+    //XXX: Uncomment this to test what frames actions are indexed from
+    // if(m_state->m_memory->player_one_action_frame == 0)
+    // {
+    //     std::cout << std::hex << "Add it to the list: 0x" << m_state->m_memory->player_one_action << std::endl;
+    // }
+    // if(m_state->m_memory->player_two_action_frame == 0)
+    // {
+    //     std::cout << std::hex << "Add it to the list: 0x" << m_state->m_memory->player_two_action << std::endl;
+    // }
+
     //If the opponent just started a roll, remember where they started from
     if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) &&
         m_state->m_memory->player_one_action_frame <= 1)

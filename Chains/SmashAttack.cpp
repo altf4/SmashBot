@@ -18,7 +18,7 @@ void SmashAttack::PressButtons()
     //TODO The charge point changes for different smashes
 
     //If we don't need to charge the smash attack, let's use the C-stick so there's no charging shenanigans
-    if((frame == 1 || frame == 0) && m_charge_frames == 0)
+    if(frame == 0 && m_charge_frames == 0)
     {
         m_canInterrupt = false;
         m_controller->releaseButton(Controller::BUTTON_Y);
@@ -48,7 +48,7 @@ void SmashAttack::PressButtons()
         return;
     }
 
-    if(frame == 1 || frame == 0 || m_state->m_memory->player_two_action == KNEE_BEND)
+    if(frame == 0 || m_state->m_memory->player_two_action == KNEE_BEND)
     {
         m_canInterrupt = false;
         m_controller->releaseButton(Controller::BUTTON_Y);

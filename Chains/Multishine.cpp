@@ -39,7 +39,7 @@ void Multishine::PressButtons()
 
     //Shine on the last frame of knee bend
     if(m_state->m_memory->player_two_action == KNEE_BEND &&
-        m_state->m_memory->player_two_action_frame >= 2)
+        m_state->m_memory->player_two_action_frame >= 3)
     {
         m_controller->pressButton(Controller::BUTTON_B);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
@@ -56,7 +56,7 @@ void Multishine::PressButtons()
     //Jump on the last frame of shine stun
     if((m_state->m_memory->player_two_action == DOWN_B_STUN ||
         m_state->m_memory->player_two_action == DOWN_B_GROUND_START) &&
-        m_state->m_memory->player_two_action_frame >= 3 &&
+        m_state->m_memory->player_two_action_frame >= 4 &&
         m_state->m_memory->player_two_on_ground)
     {
         m_controller->pressButton(Controller::BUTTON_Y);
