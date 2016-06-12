@@ -74,8 +74,14 @@ void TechChase::DetermineChain()
             m_state->m_memory->player_two_action != DASHING &&
             m_state->m_memory->player_two_action != RUNNING)
         {
+            bool onInnerStage = std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() - FOX_GRAB_RANGE;
+            bool nearRightEdge = m_state->m_memory->player_two_x > 0;
+            bool facingEdge = nearRightEdge == m_state->m_memory->player_two_facing;
+
             //Walk in if they're getting too far away, or if they're behind us
-            if(distance > 7 ||
+            //But if we've already backed them into a corner, don't go further
+            if((distance > 7 &&
+                (onInnerStage || !facingEdge)) ||
                 isRight == m_state->m_memory->player_two_facing)
             {
                 CreateChain2(Walk, !isRight);
