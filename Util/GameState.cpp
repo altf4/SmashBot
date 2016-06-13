@@ -93,7 +93,8 @@ bool GameState::isDamageState(ACTION action)
         action == THROWN_BACK ||
         action == THROWN_UP ||
         action == THROWN_DOWN ||
-        action == DAMAGE_GROUND)
+        action == DAMAGE_GROUND ||
+        action == SLIDING_OFF_EDGE) //Not 100% about this
     {
         return true;
     }
