@@ -332,9 +332,15 @@ void Bait::DetermineTactic()
     bool multipleHitboxes = m_state->hasMultipleHitboxes((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
+    //TODO: This is really kludgey and horrible. Replace this eventually with the solution to:
+    // https://github.com/altf4/SmashBot/issues/58
+    bool isUnderDolphinSlash = m_state->m_memory->player_one_y < m_state->m_memory->player_two_y &&
+        m_state->m_memory->player_one_action == UP_B &&
+        std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) < 25;
+
     //If we need to defend against an attack, that's next priority. Unless we've already shielded this attack
     if((!m_shieldedAttack || multipleHitboxes) &&
-        distance < MARTH_FSMASH_RANGE)
+        (distance < MARTH_FSMASH_RANGE || isUnderDolphinSlash))
     {
         //Don't bother parrying if the attack is over
         if(m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action) >=
@@ -342,7 +348,11 @@ void Bait::DetermineTactic()
         {
             //Don't bother parrying if the attack is in the wrong direction
             bool player_one_is_to_the_left = (m_state->m_memory->player_one_x - m_state->m_memory->player_two_x > 0);
-            if((m_state->m_memory->player_one_facing != player_one_is_to_the_left || (m_state->isReverseHit((ACTION)m_state->m_memory->player_one_action))) &&
+            bool opponentFacingUs = m_state->m_memory->player_one_facing != player_one_is_to_the_left;
+            //If the opponent is under the stage, hitboxes get weird. Let's always consider it facing us
+            opponentFacingUs |= m_state->m_memory->player_one_y < 0;
+
+            if((opponentFacingUs || m_state->isReverseHit((ACTION)m_state->m_memory->player_one_action)) &&
                 (m_state->m_memory->player_two_on_ground ||
                 m_state->m_memory->player_two_action == EDGE_HANGING ||
                 m_state->m_memory->player_two_action == EDGE_CATCHING))

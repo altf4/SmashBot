@@ -87,8 +87,14 @@ void Parry::DetermineChain()
         }
     }
 
-    if((frames_left_start > 0 ||
-        frames_left_end > 0) &&
+    //TODO: This is really kludgey and horrible. Replace this eventually with the solution to:
+    // https://github.com/altf4/SmashBot/issues/58
+    bool isUnderDolphinSlash = m_state->m_memory->player_one_y < m_state->m_memory->player_two_y &&
+        m_state->m_memory->player_one_action == UP_B &&
+        std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) < 25;
+
+    if((frames_left_start > 0 || frames_left_end > 0) &&
+        !isUnderDolphinSlash &&
         (m_state->m_memory->player_two_action == DASHING ||
         m_state->m_memory->player_two_action == STANDING ||
         m_state->m_memory->player_two_action == WALK_SLOW ||

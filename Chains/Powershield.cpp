@@ -4,6 +4,8 @@
 #include <algorithm>
 
 #include "Powershield.h"
+#include "../Util/Constants.h"
+
 void Powershield::PressButtons()
 {
     //What frame (relative to the start of the attack) we should be shielding on?
@@ -270,14 +272,20 @@ void Powershield::PressButtons()
             //If we're above the enemy, shield when they get close
             if(m_state->m_memory->player_two_y > m_state->m_memory->player_one_y)
             {
-                if(distance < 17)
+                double verticalDistance = std::abs(m_state->m_memory->player_two_y - m_state->m_memory->player_one_y);
+                if(verticalDistance < 40)
                 {
                     //Shield now
                     shield_on_frame = m_state->m_memory->player_one_action_frame;
+                    shield_on_frame = std::max((int)shield_on_frame, 4);
                 }
-                //No sooner than frame 2, no later than frame 6
-                shield_on_frame = std::min((int)shield_on_frame, 6);
-                shield_on_frame = std::max((int)shield_on_frame, 2);
+                else
+                {
+                    shield_on_frame = 6;
+                }
+                //No sooner than frame 4, no later than frame 6
+                //shield_on_frame = std::min((int)shield_on_frame, 6);
+                //shield_on_frame = std::max((int)shield_on_frame, 4);
             }
             break;
         }
@@ -407,6 +415,18 @@ void Powershield::PressButtons()
         }
         m_letGo = true;
         m_controller->releaseButton(Controller::BUTTON_L);
+    }
+
+    bool onRight = m_state->m_memory->player_two_x > 0;
+    //TODO: This is really kludgey and horrible. Replace this eventually with the solution to:
+    // https://github.com/altf4/SmashBot/issues/58
+    //If we're just going to wait until we're ready to powershield, then let's make sure we don't run off the stage
+    if(!m_hasShielded &&
+        m_state->m_memory->player_two_on_ground &&
+        std::abs(m_state->m_memory->player_two_x) + (2 * FOX_DASH_SPEED) > m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_two_action == DASHING)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
     }
 }
 
