@@ -145,19 +145,6 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    //Dash dance around the edge
-    if((m_state->m_memory->player_one_action == SLIDING_OFF_EDGE ||
-        m_state->m_memory->player_one_action == EDGE_CATCHING ||
-        m_state->m_memory->player_one_action == EDGE_HANGING) &&
-        m_state->m_memory->player_two_on_ground)
-    {
-        bool onLeft = m_state->m_memory->player_one_x < 0;
-        double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();
-        CreateChain3(DashDance, pivotPoint, 0);
-        m_chain->PressButtons();
-        return;
-    }
-
     //If we're still on the stage, see if it's safe to grab the edge
     if(m_state->m_memory->player_two_on_ground)
     {
@@ -192,6 +179,19 @@ void Edgeguard::DetermineChain()
             m_chain->PressButtons();
             return;
         }
+    }
+
+    //Dash dance around the edge
+    if((m_state->m_memory->player_one_action == SLIDING_OFF_EDGE ||
+        m_state->m_memory->player_one_action == EDGE_CATCHING ||
+        m_state->m_memory->player_one_action == EDGE_HANGING) &&
+        m_state->m_memory->player_two_on_ground)
+    {
+        bool onLeft = m_state->m_memory->player_one_x < 0;
+        double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();
+        CreateChain3(DashDance, pivotPoint, 0);
+        m_chain->PressButtons();
+        return;
     }
 
     //Do the marth killer if we're on the stage and Marth is going to be stuck recovering with an up-B

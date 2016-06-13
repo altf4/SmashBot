@@ -234,19 +234,21 @@ void Bait::DetermineTactic()
             frames_left = m_state->m_memory->player_one_hitstun_frames_left;
         }
 
-        //If our oponnent is stuck in a laggy ending animation, punish it
+        bool onStage = std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001;
+
+        //If our oponnent is stuck in a laggy ending animation (on stage), punish it
         //Rolling or ending an attack
-        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
+        if(onStage  &&
+            (m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
             m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
             (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
             m_state->m_memory->player_one_on_ground &&
-            (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0)))
+            (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0))))
         {
             //Can we get an attack in time?
             if(frames_left > 7 ||
                 (m_state->m_memory->player_two_action == SHIELD_RELEASE && frames_left > 15))
             {
-                //TODO: Can we close the distance in time?
                 if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
                 {
                     CreateTactic(Punish);

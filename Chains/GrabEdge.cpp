@@ -11,6 +11,12 @@ void GrabEdge::PressButtons()
         return;
     }
 
+    //We can't run if we're in knee bend. We're in a wavedash so let's just accept that
+    if(m_state->m_memory->player_two_action == KNEE_BEND)
+    {
+        m_isInWavedash = true;
+    }
+
     //If we're far away from the edge, then dash at the edge
     if(!m_isInWavedash && (std::abs(m_state->m_memory->player_two_x) < 72.5656))
     {
@@ -36,22 +42,27 @@ void GrabEdge::PressButtons()
     }
 
     //Once we're dashing away from the edge, jump
-    if(m_state->m_memory->player_two_action == DASHING)
+    if(m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == STANDING ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND)
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
         m_controller->pressButton(Controller::BUTTON_Y);
         return;
     }
 
-    //Just hang out and do nothing while knee bending
-    if(m_state->m_memory->player_two_action == KNEE_BEND)
+    //Just hang out and do nothing while initial knee bending
+    if(m_state->m_memory->player_two_action == KNEE_BEND &&
+        m_state->m_memory->player_two_action_frame < 3)
     {
         m_controller->emptyInput();
         return;
     }
 
     //Once we're in the air, airdodge backwards to the edge
-    if(!m_state->m_memory->player_two_on_ground && m_isInWavedash)
+    if((!m_state->m_memory->player_two_on_ground && m_isInWavedash) ||
+        (m_state->m_memory->player_two_action == KNEE_BEND &&
+        m_state->m_memory->player_two_action_frame >= 3))
     {
         m_controller->pressButton(Controller::BUTTON_L);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? .2 : .8, .2);

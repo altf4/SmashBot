@@ -139,6 +139,12 @@ void Waveshine::PressButtons()
 
 bool Waveshine::IsInterruptible()
 {
+    //If the enemy is off the stage, let's quit early
+    if(std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001)
+    {
+        return true;
+    }
+
     if(m_state->m_memory->frame - m_startingFrame > 20)
     {
         return true;
