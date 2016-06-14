@@ -52,11 +52,17 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
     For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator) But I do want to get it running on actual Gamecube/Wii hardware. If you'd like to help with this, let me know!
 
-6. **What Operating Systems does it play on?**
+6. **What's up with that Gecko code to fix latency?**
+
+    So, turns out that Melee has a bug in it that almost nobody has noticed since the game came out. The rate that frames are processed and the rate that the controller is polled are SLIGHTLY out of sync. This causes a drift in the delta between when your controller is polled for input and when the game processes it. The end result is an single frame of input latency whenever this drift causes the controller to be polled after the game engine processes. Normally this is not an issue for human players. It only happens sometimes, and even then it's only a single frame. You'd never notice. But SmashBot notices. SmashBot needs to be frame perfect every single time.
+
+    Shoutout to Dan Salvato for providing the Gecko code that patches this bug so that the controller is always consistently polled consistently before each frame.
+
+7. **What Operating Systems does it play on?**
 
     SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. There are no plans to make a Windows port. If we're going to spend time porting, it's going to be to a Gamecube/Wii.
 
-7. **I found a bug. How can I help?**
+8. **I found a bug. How can I help?**
 
     Hey thanks, that's awesome! For starters, make sure you can reliably reproduce the bug. Then go ahead and make an Issue on GitHub at https://github.com/altf4/SmashBot/issues. If you want to be even MORE awesome, run the AI with the "--debug" flag and upload the CSV file it gives you along with the issue. That CSV contains a full breakdown of the AI's state at each frame, so we can easily pinpoint what went wrong and where.
 
@@ -67,8 +73,9 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 https://github.com/dolphin-emu/dolphin
 2. Configure your controller settings for player 1 and player 2. You will play as Player 1, SmashBot will take Player 2. You'll probably want a GameCube controller adapter. Configuring controller settings is out of the scope of this document, but check out the file `GCPadNew.ini` provided here for an example controller config that ought to work. Just stick that in your Dolphin config directory.
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
-4. Build SmashBot code by just running make. `make` There shouldn't be any dependencies to download. (Other than Dolphin)
-5. Run `./smashbot`
-6. Run dolphin and start up Melee.
-7. Move focus over to the dolphin window. (Or else turn on background input on the controller) Just click on the dolphin window to do this.
-8. Set player 1 to Marth. SmashBot will choose its own character.  Set the stage to Final Destination. Start the match.
+4. Apply the Gecko code inside the file 'GeckoLatencyFixCode.txt' to Dolphin. Pretty soon, Dolphin will have this built in as a default Gecko code. Until then, use the one included here. See FAQ above for why and what this does. SmashBot will screw up if you don't apply this.
+5. Build SmashBot code by just running make. `make` There shouldn't be any dependencies to download. (Other than Dolphin)
+6. Run `./smashbot`
+7. Run dolphin and start up Melee.
+8. Move focus over to the dolphin window. (Or else turn on background input on the controller) Just click on the dolphin window to do this.
+9. Set player 1 to Marth. SmashBot will choose its own character.  Set the stage to Final Destination. Start the match.
