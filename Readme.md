@@ -54,7 +54,7 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
 6. **What's up with that Gecko code to fix latency?**
 
-    So, turns out that Melee has a bug in it that almost nobody has noticed since the game came out. The rate that frames are processed and the rate that the controller is polled are SLIGHTLY out of sync. This causes a drift in the delta between when your controller is polled for input and when the game processes it. The end result is an single frame of input latency whenever this drift causes the controller to be polled after the game engine processes. Normally this is not an issue for human players. It only happens sometimes, and even then it's only a single frame. You'd never notice. But SmashBot notices. SmashBot needs to be frame perfect every single time.
+    So, turns out that Melee has a bug in it that almost nobody has noticed since the game came out. The rate that frames are processed and the rate that the controller is polled are SLIGHTLY out of sync. This causes a drift in the delta between when your controller is polled for input and when the game processes it. The end result is a single frame of input latency whenever this drift causes the controller to be polled after the game engine processes. Normally this is not an issue for human players. It only happens sometimes, and even then it's only a single frame. You'd never notice. But SmashBot notices. SmashBot needs to be frame perfect every single time.
 
     Shoutout to Dan Salvato for providing the Gecko code that patches this bug so that the controller is always consistently polled consistently before each frame.
 
