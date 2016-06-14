@@ -7,6 +7,9 @@
 #include "../Chains/Nothing.h"
 #include "../Chains/EdgeAction.h"
 #include "../Chains/FireFox.h"
+#include "../Chains/FullJump.h"
+#include "../Chains/DI.h"
+#include "../Chains/Illusion.h"
 
 Recover::Recover()
 {
@@ -27,7 +30,7 @@ void Recover::DetermineChain()
         return;
     }
 
-    //If we're hanging on the egde, do an edge stall
+    //If we're hanging on the egde, wavedash on
     if(m_state->m_memory->player_two_action == EDGE_HANGING ||
       m_state->m_memory->player_two_action == EDGE_CATCHING)
     {
@@ -36,27 +39,90 @@ void Recover::DetermineChain()
         return;
     }
 
-    //TODO: This is only rudimentary recovery. Needs to be expanded
     //If we're off the stage...
     if(std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() + .001)
     {
-        if(m_state->m_memory->player_two_y > 0 &&
-          m_state->m_memory->player_two_y < 10)
+        double xDistanceToEdge = std::abs(std::abs(m_state->m_memory->player_two_x) - m_state->getStageEdgePosition());
+        bool onRight = m_state->m_memory->player_two_x > 0;
+        bool acceptableFallState = m_state->m_memory->player_two_action == FALLING ||
+            m_state->m_memory->player_two_action == FALLING_AERIAL ||
+            m_state->m_memory->player_two_action == FALLING_AERIAL ||
+            DOWN_B_AIR;
+
+        //Can we just fall and grab the edge?
+        if(acceptableFallState &&
+            m_state->m_memory->player_one_action != EDGE_HANGING &&
+            m_state->m_memory->player_one_action != EDGE_CATCHING &&
+            xDistanceToEdge < 4.5 &&
+            m_state->m_memory->player_two_y > -9)
         {
-            //Side-B back to the stage
+            if(m_state->m_memory->player_two_facing != onRight)
+            {
+                CreateChain(Nothing);
+                m_chain->PressButtons();
+                return;
+            }
+            else
+            {
+                if(m_state->m_memory->player_two_y < -6 &&
+                  m_state->m_memory->player_two_action != FOX_ILLUSION)
+                {
+                    //Illusion
+                    CreateChain2(Illusion, !onRight);
+                    m_chain->PressButtons();
+                    return;
+                }
+                else
+                {
+                    CreateChain(Nothing);
+                    m_chain->PressButtons();
+                    return;
+                }
+            }
         }
-        else
+
+        if(m_state->m_memory->player_two_y < -4 &&
+          m_state->m_memory->player_two_y > -8 &&
+          m_state->m_memory->player_two_action != FOX_ILLUSION)
         {
-            //Firefox back
+            //Illusion
+            CreateChain2(Illusion, !onRight);
+            m_chain->PressButtons();
+            return;
+        }
+
+        //Can we grab the edge, but are moving upwards?
+        if(xDistanceToEdge < 4.5 &&
+            m_state->m_memory->player_two_y > -10 &&
+            m_state->m_memory->player_two_facing != onRight &&
+            m_state->m_memory->player_two_speed_y_self > 0)
+        {
             CreateChain(FireFox);
             m_chain->PressButtons();
             return;
         }
 
+        //Do we still have a jump. If so, jump
+        if(m_state->m_memory->player_two_jumps_left > 0)
+        {
+            CreateChain(FullJump);
+            m_chain->PressButtons();
+            return;
+        }
+
+        //If we're jumping, just keep jumping
+        if((m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
+          m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD) &&
+          m_state->m_memory->player_two_speed_y_self > 0)
+        {
+            CreateChain3(DI, onRight ? 0 : 1, .5);
+            m_chain->PressButtons();
+            return;
+        }
     }
 
-    //Default to nothing in towards the player
-    CreateChain(Nothing);
+    //Firefox back
+    CreateChain(FireFox);
     m_chain->PressButtons();
     return;
 }

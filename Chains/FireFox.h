@@ -18,7 +18,6 @@ public:
 
   private:
       bool m_isRightEdge;
-      bool m_pressedJump;
       bool m_hasUpBd;
 
 };

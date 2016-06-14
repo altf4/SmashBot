@@ -407,6 +407,17 @@ void Bait::DetermineTactic()
         }
     }
 
+    //If we're both off the stage, but opponent is in a damage state, then just recover. We already hit them.
+    // But only if we're not super close to the edge?
+    if(std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001 &&
+        std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() + .001 &&
+        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
+    {
+        CreateTactic(Recover);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     //If the opponent is off the stage, let's edgeguard them
     //NOTE: Sometimes players can get a little below 0 in Y coordinates without being off the stage
     if(!m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) &&

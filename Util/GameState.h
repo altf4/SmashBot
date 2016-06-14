@@ -222,8 +222,10 @@ enum ACTION
     FIREFOX_AIR = 0x164, //Firefox in the air
     DOWN_B_GROUND_START = 0x168,
     DOWN_B_GROUND = 0x169,
+    SHINE_TURN = 0x16c,
     DOWN_B_STUN = 0x16d, //Fox is stunned in these frames
     DOWN_B_AIR = 0x16e,
+    FOX_ILLUSION = 0x15e,
     UP_B_GROUND = 0x16f,
     UP_B = 0x170,    //The upswing of the UP-B. (At least for marth)
     MARTH_COUNTER = 0x171,

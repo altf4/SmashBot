@@ -16,6 +16,9 @@ public:
     bool IsInterruptible();
     std::string ToString(){return "FullJump";};
 
+private:
+    bool m_pressedJump;
+
 };
 
 #endif
