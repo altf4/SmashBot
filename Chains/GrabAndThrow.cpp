@@ -122,7 +122,7 @@ GrabAndThrow::GrabAndThrow(THROW_DIRECTION direction)
     m_direction = direction;
     m_grabbedYet = false;
     m_pummeledYet = false;
-    if(m_state->m_memory->player_one_percent < 20)
+    if(m_state->m_memory->player_one_percent < 30)
     {
         m_pummeledYet = true;
     }
