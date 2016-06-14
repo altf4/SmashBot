@@ -574,7 +574,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
                 case NEUTRAL_ATTACK_2:
                 {
-                    return 19;
+                    return 20;
                 }
                 case NEUTRAL_B_ATTACKING:
                 case NEUTRAL_B_ATTACKING_AIR:

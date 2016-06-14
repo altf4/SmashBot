@@ -6,6 +6,7 @@
 
 //Max tipper range, measured from Marth's center
 #define MARTH_FSMASH_RANGE 38.50
+#define MARTH_JAB_RANGE 34
 
 #define MARTH_UP_B_HEIGHT 48
 #define MARTH_UP_B_X_DISTANCE 18

@@ -3,6 +3,7 @@
 #include "KeepDistance.h"
 #include "../Chains/DashDance.h"
 #include "../Util/Constants.h"
+#include "../Util/Logger.h"
 
 KeepDistance::KeepDistance()
 {
@@ -23,14 +24,20 @@ void KeepDistance::DetermineChain()
 
     bool onRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
     double pivotPoint = m_state->m_memory->player_one_x;
+    bool isLoopingAttack = m_state->m_memory->player_one_action == NEUTRAL_ATTACK_1 ||
+        m_state->m_memory->player_one_action == NEUTRAL_ATTACK_2 ||
+        m_state->m_memory->player_one_action == DOWNTILT;
+
     if(onRight)
     {
-        pivotPoint += 1.1 * MARTH_FSMASH_RANGE;
+        pivotPoint += 1.1 * (isLoopingAttack ? MARTH_JAB_RANGE+2 : MARTH_FSMASH_RANGE);
     }
     else
     {
-        pivotPoint -= 1.1 * MARTH_FSMASH_RANGE;
+        pivotPoint -= 1.1 * (isLoopingAttack ? MARTH_JAB_RANGE+2 : MARTH_FSMASH_RANGE);
     }
+
+    Logger::Instance()->Log(INFO, "pivotPoint: " + std::to_string(pivotPoint));
 
     delete m_chain;
     m_chain = NULL;

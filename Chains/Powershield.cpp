@@ -421,12 +421,25 @@ void Powershield::PressButtons()
     //TODO: This is really kludgey and horrible. Replace this eventually with the solution to:
     // https://github.com/altf4/SmashBot/issues/58
     //If we're just going to wait until we're ready to powershield, then let's make sure we don't run off the stage
+
+    //If opponent is in a looping attack, always run in.
+    bool isLoopingAttack = m_state->m_memory->player_one_action == NEUTRAL_ATTACK_1 ||
+        m_state->m_memory->player_one_action == NEUTRAL_ATTACK_2 ||
+        m_state->m_memory->player_one_action == DOWNTILT;
+
     if(!m_hasShielded &&
         m_state->m_memory->player_two_on_ground &&
         std::abs(m_state->m_memory->player_two_x) + (2 * FOX_DASH_SPEED) > m_state->getStageEdgeGroundPosition() &&
         m_state->m_memory->player_two_action == DASHING)
     {
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
+        if(isLoopingAttack)
+        {
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 1 : 0, .5);
+        }
+        else
+        {
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
+        }
     }
 }
 

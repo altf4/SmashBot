@@ -149,6 +149,16 @@ void Bait::DetermineTactic()
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
     distance = sqrt(distance);
 
+    bool isLoopingAttack = m_state->m_memory->player_one_action == NEUTRAL_ATTACK_1 ||
+        m_state->m_memory->player_one_action == NEUTRAL_ATTACK_2 ||
+        m_state->m_memory->player_one_action == DOWNTILT;
+
+    //MArth leans WAY in during jabs. The distance should be adjusted
+    if(isLoopingAttack)
+    {
+        distance -= 5;
+    }
+
     if(m_state->m_memory->player_two_on_ground)
     {
         //If we're able to punish our opponent, let's do that
@@ -317,18 +327,6 @@ void Bait::DetermineTactic()
         return;
     }
 
-    //If the enemy is in a looping attack outside our range, back off
-    if(distance > 35 &&
-        distance < 60 &&
-        (m_state->m_memory->player_one_action == DOWNTILT ||
-        m_state->m_memory->player_one_action == NEUTRAL_ATTACK_1 ||
-        m_state->m_memory->player_one_action == NEUTRAL_ATTACK_2))
-    {
-        CreateTactic(CreateDistance);
-        m_tactic->DetermineChain();
-        return;
-    }
-
     bool multipleHitboxes = m_state->hasMultipleHitboxes((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
@@ -338,9 +336,16 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == UP_B &&
         std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) < 25;
 
+    double attackRange = MARTH_FSMASH_RANGE;
+    if(isLoopingAttack)
+    {
+        //Really kludgey range adjustment
+        attackRange = MARTH_JAB_RANGE-5;
+    }
+
     //If we need to defend against an attack, that's next priority. Unless we've already shielded this attack
     if((!m_shieldedAttack || multipleHitboxes) &&
-        (distance < MARTH_FSMASH_RANGE || isUnderDolphinSlash))
+        (distance < attackRange || isUnderDolphinSlash))
     {
         //Don't bother parrying if the attack is over
         if(m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character, (ACTION)m_state->m_memory->player_one_action) >=
@@ -350,7 +355,7 @@ void Bait::DetermineTactic()
             bool player_one_is_to_the_left = (m_state->m_memory->player_one_x - m_state->m_memory->player_two_x > 0);
             bool opponentFacingUs = m_state->m_memory->player_one_facing != player_one_is_to_the_left;
             //If the opponent is under the stage, hitboxes get weird. Let's always consider it facing us
-            opponentFacingUs |= m_state->m_memory->player_one_y < 0;
+            opponentFacingUs = opponentFacingUs || (m_state->m_memory->player_one_y < 0);
 
             if((opponentFacingUs || m_state->isReverseHit((ACTION)m_state->m_memory->player_one_action)) &&
                 (m_state->m_memory->player_two_on_ground ||
@@ -438,6 +443,23 @@ void Bait::DetermineTactic()
     uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
+    bool afterAttack = m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
+        m_state->m_memory->player_one_action_frame > lastHitboxFrame;
+
+    //Specifically for Marth's jabs, don't approach unless we start just at the right time
+    if(isLoopingAttack &&
+        m_state->m_memory->player_one_action_frame == lastHitboxFrame)
+    {
+        Logger::Instance()->Log(INFO, "Jab Approach");
+        CreateTactic2(Approach, false);
+        m_tactic->DetermineChain();
+        return;
+    }
+    else
+    {
+         afterAttack = false;
+    }
+
     //If our opponent is doing something to put them in a vulnerable spot, approach
     if(m_state->m_memory->player_one_action == KNEE_BEND ||
         m_state->m_memory->player_one_action == JUMPING_FORWARD ||
@@ -451,7 +473,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == DAIR_LANDING ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
-        (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) && m_state->m_memory->player_one_action_frame > lastHitboxFrame))
+        afterAttack)
     {
         CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
