@@ -101,12 +101,11 @@ void Parry::DetermineChain()
         m_state->m_memory->player_two_action == TURNING))
     {
         //Do we have time to run away from the attack?
-        if(frames_left_start <= 0 ||
-            FOX_DASH_SPEED * frames_left_start > MARTH_FSMASH_RANGE - distance)
+        if(FOX_DASH_SPEED * frames_left_start > MARTH_FSMASH_RANGE - distance)
         {
             //Dash to the pivot point outside attack range
-            bool onRight = m_state->m_memory->player_one_x > 0;
-            double pivotPosition = m_state->m_memory->player_one_x + (onRight ? -MARTH_FSMASH_RANGE - 4 : MARTH_FSMASH_RANGE + 4);
+            bool onRight = m_state->m_memory->player_one_x < m_state->m_memory->player_two_x;
+            double pivotPosition = m_state->m_memory->player_one_x + (onRight ? MARTH_FSMASH_RANGE - 4 : -MARTH_FSMASH_RANGE + 4);
             Logger::Instance()->Log(INFO, "Trying to run away to pivot point: " + std::to_string(pivotPosition) +
                 " with: " + std::to_string(frames_left_start) + " frames left");
 
