@@ -37,6 +37,17 @@ void KeepDistance::DetermineChain()
         pivotPoint -= 1.1 * (isLoopingAttack ? MARTH_JAB_RANGE+2 : MARTH_FSMASH_RANGE);
     }
 
+    //Don't pivot past a given distance from the edge
+    //  Or else we let the opponent corner us
+    if(pivotPoint > m_state->getStageEdgeGroundPosition() - MARTH_FSMASH_RANGE)
+    {
+        pivotPoint = m_state->getStageEdgeGroundPosition() - MARTH_FSMASH_RANGE;
+    }
+    else if (pivotPoint < (-1) * (m_state->getStageEdgeGroundPosition() - MARTH_FSMASH_RANGE))
+    {
+        pivotPoint = (-1) * (m_state->getStageEdgeGroundPosition() - MARTH_FSMASH_RANGE);
+    }
+
     Logger::Instance()->Log(INFO, "pivotPoint: " + std::to_string(pivotPoint));
 
     delete m_chain;
