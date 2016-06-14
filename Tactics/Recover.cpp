@@ -54,7 +54,7 @@ void Recover::DetermineChain()
         if(acceptableFallState &&
             m_state->m_memory->player_one_action != EDGE_HANGING &&
             m_state->m_memory->player_one_action != EDGE_CATCHING &&
-            xDistanceToEdge < 4.5 &&
+            xDistanceToEdge < 6.5 &&
             m_state->m_memory->player_two_y > -9)
         {
             if(m_state->m_memory->player_two_facing != onRight)

@@ -83,6 +83,12 @@ bool GrabEdge::IsInterruptible()
 {
     bool facingOut = m_state->m_memory->player_two_facing == m_isLeftEdge;
 
+    //If we need to fastfall and haven't yet, don't leave
+    if((m_state->m_memory->player_two_action == FALLING) && !m_isInFastfall)
+    {
+        return false;
+    }
+
     //If we're in this state, something horrible has happened. We won't grab the edge. Abort
     if(facingOut && !m_state->m_memory->player_two_on_ground)
     {

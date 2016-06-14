@@ -411,8 +411,8 @@ void Bait::DetermineTactic()
     // But only if we're not super close to the edge?
     if(std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001 &&
         std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() + .001 &&
-        m_state->m_memory->player_one_action != EDGE_CATCHING &&
-        m_state->m_memory->player_one_action != EDGE_HANGING &&
+        m_state->m_memory->player_two_action != EDGE_CATCHING &&
+        m_state->m_memory->player_two_action != EDGE_HANGING &&
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
         CreateTactic(Recover);
