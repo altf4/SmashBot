@@ -31,8 +31,9 @@ void Recover::DetermineChain()
     }
 
     //If we're hanging on the egde, wavedash on
-    if(m_state->m_memory->player_two_action == EDGE_HANGING ||
-      m_state->m_memory->player_two_action == EDGE_CATCHING)
+    if(m_state->m_memory->player_one_on_ground &&
+        (m_state->m_memory->player_two_action == EDGE_HANGING ||
+        m_state->m_memory->player_two_action == EDGE_CATCHING))
     {
         CreateChain2(EdgeAction, WAVEDASH_UP);
         m_chain->PressButtons();
