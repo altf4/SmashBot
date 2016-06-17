@@ -244,7 +244,10 @@ void Bait::DetermineTactic()
             frames_left = m_state->m_memory->player_one_hitstun_frames_left;
         }
 
+        //You can actually get pushed over the bundaries of the stage a bit here. But that's fine
         bool onStage = std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001;
+        onStage = onStage || (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + 3.0 &&
+            m_state->m_memory->player_one_on_ground);
 
         //If our oponnent is stuck in a laggy ending animation (on stage), punish it
         //Rolling or ending an attack
