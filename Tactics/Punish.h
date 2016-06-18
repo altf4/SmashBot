@@ -14,7 +14,7 @@ public:
     std::string ToString(){return "Punish";};
 
 private:
-    double m_roll_position;
+    double m_endPosition;
 };
 
 #endif

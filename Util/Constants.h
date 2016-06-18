@@ -47,4 +47,7 @@
 //How much Fox slides when Jump-cancel grabbing at max speed
 #define FOX_JC_GRAB_MAX_SLIDE 14.72
 
+//It takes this many frames to wavedash and be back in action
+#define WAVEDASH_FRAMES 14
+
 #endif

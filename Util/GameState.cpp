@@ -942,7 +942,7 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
         }
     }
 
-    //This detedmines magnitude of slide
+    //This determines magnitude of slide
     double slideDistance = 0;
     for(int i = 1; i <= frames; i++)
     {
@@ -952,7 +952,7 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
     //Determine direction
     if(initSpeed < 0)
     {
-        return (-1) * slideDistance;
+        return (-1.0) * slideDistance;
     }
     return slideDistance;
 }
