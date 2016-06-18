@@ -169,6 +169,11 @@ void Bait::DetermineTactic()
             m_state->m_memory->player_one_action == TECH_MISS_UP ||
             m_state->m_memory->player_one_action == TECH_MISS_DOWN)
         {
+            if(m_actionChanged)
+            {
+                delete m_tactic;
+                m_tactic = NULL;
+            }
             if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
             {
                 CreateTactic(Punish);
@@ -177,11 +182,6 @@ void Bait::DetermineTactic()
             }
             else
             {
-                if(m_actionChanged)
-                {
-                    delete m_tactic;
-                    m_tactic = NULL;
-                }
                 CreateTactic(TechChase);
                 m_tactic->DetermineChain();
                 return;
@@ -201,6 +201,11 @@ void Bait::DetermineTactic()
                 (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
             if(frames_left > 7)
             {
+                if(m_actionChanged)
+                {
+                    delete m_tactic;
+                    m_tactic = NULL;
+                }
                 CreateTactic(Punish);
                 m_tactic->DetermineChain();
                 return;
@@ -226,6 +231,11 @@ void Bait::DetermineTactic()
             m_state->m_memory->player_two_action == EDGE_HANGING &&
             std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001)
         {
+            if(m_actionChanged)
+            {
+                delete m_tactic;
+                m_tactic = NULL;
+            }
             CreateTactic(Punish);
             m_tactic->DetermineChain();
             return;
@@ -248,6 +258,13 @@ void Bait::DetermineTactic()
         bool onStage = std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + .001;
         onStage = onStage || (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() + 3.0 &&
             m_state->m_memory->player_one_on_ground);
+        //Let's consider the opponent "on stage" if they're rolling on
+        onStage = onStage || (m_state->m_memory->player_one_action == EDGE_ROLL_SLOW ||
+            m_state->m_memory->player_one_action == EDGE_ROLL_QUICK ||
+            m_state->m_memory->player_one_action == EDGE_GETUP_SLOW ||
+            m_state->m_memory->player_one_action == EDGE_GETUP_QUICK ||
+            m_state->m_memory->player_one_action == EDGE_ATTACK_QUICK ||
+            m_state->m_memory->player_one_action == EDGE_ATTACK_SLOW);
 
         //If our oponnent is stuck in a laggy ending animation (on stage), punish it
         //Rolling or ending an attack
@@ -255,14 +272,18 @@ void Bait::DetermineTactic()
             (m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
             m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
             (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
-            m_state->m_memory->player_one_on_ground &&
             (m_state->m_memory->player_one_action_frame > lastHitboxFrame || lastHitboxFrame == 0))))
         {
             //Can we get an attack in time?
             if(frames_left > 7 ||
                 (m_state->m_memory->player_two_action == SHIELD_RELEASE && frames_left > 15))
             {
-                if(m_state->m_memory->player_one_percent > MARTH_UPSMASH_KILL_PERCENT)
+                if(m_actionChanged)
+                {
+                    delete m_tactic;
+                    m_tactic = NULL;
+                }
+                if(m_state->m_memory->player_one_percent >= MARTH_UPSMASH_KILL_PERCENT)
                 {
                     CreateTactic(Punish);
                     m_tactic->DetermineChain();
@@ -270,11 +291,6 @@ void Bait::DetermineTactic()
                 }
                 else
                 {
-                    if(m_actionChanged)
-                    {
-                        delete m_tactic;
-                        m_tactic = NULL;
-                    }
                     CreateTactic(TechChase);
                     m_tactic->DetermineChain();
                     return;

@@ -23,7 +23,7 @@
 //The depth where Marth cannot land on the stage anymore. He has to grab the edge
 #define MARTH_RECOVER_HIGH_EVENT_HORIZON -81
 
-#define MARTH_UPSMASH_KILL_PERCENT 85
+#define MARTH_UPSMASH_KILL_PERCENT 88
 
 #define FOX_SHINE_RADIUS 11.80
 #define FOX_ROLL_FRAMES 35
@@ -46,5 +46,8 @@
 
 //How much Fox slides when Jump-cancel grabbing at max speed
 #define FOX_JC_GRAB_MAX_SLIDE 14.72
+
+//It takes this many frames to wavedash and be back in action
+#define WAVEDASH_FRAMES 14
 
 #endif

@@ -14,7 +14,7 @@
 
 Punish::Punish()
 {
-    m_roll_position = 0;
+    m_endPosition = 0;
     m_chain = NULL;
 }
 
@@ -44,171 +44,146 @@ void Punish::DetermineChain()
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
 
-    //If they're rolling, go punish it where they will stop
-    if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
+    int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
+        (ACTION)m_state->m_memory->player_one_action);
+    int frames_left = totalFrames - m_state->m_memory->player_one_action_frame;
+
+    if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
     {
-        //Figure out where they will stop rolling, only on the first frame
-        if(m_roll_position == 0)
+        frames_left = m_state->m_memory->player_one_hitstun_frames_left;
+    }
+
+    //Are we before an attack?
+    if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
+    {
+        if(m_state->m_memory->player_one_action_frame < m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+            (ACTION)m_state->m_memory->player_one_action))
+        {
+            frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
+        }
+    }
+
+    double enemyHitSlide = 0;
+    double enemySelfSlide = 0;
+
+    //Figure out where they will stop rolling, only on the first frame
+    if(m_endPosition == 0)
+    {
+        //We're assuming that the opponent is vulnerable for some duration of time
+        //Where will the opponent be at the end of their vulnerable state?
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
         {
             double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
                 (ACTION)m_state->m_memory->player_one_action);
 
             bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
-
             if(m_state->m_memory->player_one_facing == directon)
             {
-                m_roll_position = m_state->m_rollStartPosition + rollDistance;
+                m_endPosition = m_state->m_rollStartPosition + rollDistance;
             }
             else
             {
-                m_roll_position = m_state->m_rollStartPosition - rollDistance;
+                m_endPosition = m_state->m_rollStartPosition - rollDistance;
             }
 
-            //Calculate how much the enemy will slide
-            double enemySpeed = m_state->m_rollStartSpeed;
-            int totalFrames = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-                (ACTION)m_state->m_memory->player_one_action);
+            //Calculate hit sliding from the START of the roll.
+            enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_rollStartSpeed, totalFrames);
+            m_endPosition += enemyHitSlide;
 
-            double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
-            m_roll_position += slidingAdjustmentEnemy;
-
-            //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
-            if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
-                m_state->m_memory->player_one_action == MARTH_COUNTER)
-            {
-                double enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    m_state->m_rollStartSpeedSelf, totalFrames);
-                m_roll_position += enemySelfSlide;
-            }
-
-            if(m_roll_position > m_state->getStageEdgeGroundPosition())
-            {
-                m_roll_position = m_state->getStageEdgeGroundPosition();
-            }
-            else if (m_roll_position < (-1) * m_state->getStageEdgeGroundPosition())
-            {
-                m_roll_position = (-1) * m_state->getStageEdgeGroundPosition();
-            }
-        }
-
-        int frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
-
-        //If we can't get there in time, just run in
-        if(frames_left <= 7)
-        {
-            CreateChain2(Run, player_two_is_to_the_left);
-            m_chain->PressButtons();
-            return;
-        }
-
-        //Upsmash if we're in range and facing the right way
-        //  Factor in sliding during the smash animation
-        double distance;
-        int frameDelay = 7;
-
-        if(m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == SHIELD ||
-            m_state->m_memory->player_two_action == SHIELD_RELEASE ||
-            m_state->m_memory->player_two_action == RUNNING)
-        {
-            //We have to jump cancel the grab. So that takes an extra frame
-            frameDelay++;
-        }
-        double slidingAdjustment = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
-            m_state->m_memory->player_two_speed_ground_x_self, frames_left - 1);
-        distance = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
-
-        Logger::Instance()->Log(INFO, "Trying to punish a roll at position: " + std::to_string(m_roll_position) +
-            " with: " + std::to_string(frames_left) + " frames left");
-
-        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
-        if(frames_left - frameDelay >= 0 &&
-            distance < FOX_UPSMASH_RANGE_NEAR &&
-            to_the_left == m_state->m_memory->player_two_facing)
-        {
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
-            m_chain->PressButtons();
-            return;
         }
         else
         {
-            //If the target location is right behind us, just turn around, don't run
-            if(distance < FOX_UPSMASH_RANGE_NEAR &&
-                to_the_left != m_state->m_memory->player_two_facing)
+            m_endPosition = m_state->m_memory->player_one_x;
+            enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_rollStartSpeedSelf, frames_left);
+            m_endPosition += enemySelfSlide;
+
+            enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_memory->player_one_speed_x_attack, frames_left);
+            m_endPosition += enemyHitSlide;
+        }
+
+        //You can't roll off the stage
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
+        {
+            if(m_endPosition > m_state->getStageEdgeGroundPosition())
             {
-                CreateChain2(Walk, to_the_left);
-                m_chain->PressButtons();
-                return;
+                m_endPosition = m_state->getStageEdgeGroundPosition();
             }
-            else
+            else if (m_endPosition < (-1) * m_state->getStageEdgeGroundPosition())
             {
-                CreateChain2(Run, to_the_left);
-                m_chain->PressButtons();
-                return;
+                m_endPosition = (-1) * m_state->getStageEdgeGroundPosition();
             }
         }
     }
+
+    //Take our sliding into account, assuming we started an attack this frame
+    double selfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
+        m_state->m_memory->player_two_speed_ground_x_self, frames_left);
+
+    double ourEndPosition = m_state->m_memory->player_two_x + selfSlide;
 
     //Calculate distance between players
-    double distance = pow(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x, 2);
-    distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
-    distance = sqrt(distance);
+    double distance = std::abs(m_endPosition - ourEndPosition);
 
-    //How many frames do we have until we need to do something?
-    int frames_left;
-    //Are we before the attack or after?
-    if(m_state->m_memory->player_one_action_frame < m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-        (ACTION)m_state->m_memory->player_one_action))
+    Logger::Instance()->Log(INFO, "Trying to punish at position: " + std::to_string(m_endPosition) +
+        " with: " + std::to_string(frames_left) + " frames left");
+
+    //It takes 7 frames to get the upsmash hitbox out
+    int frameDelay = 7;
+    //If we have to jump cancel, then that takes an extra frame
+    if(m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == SHIELD ||
+        m_state->m_memory->player_two_action == SHIELD_RELEASE ||
+        m_state->m_memory->player_two_action == RUNNING ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND)
     {
-        //Before
-        frames_left = m_state->firstHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
-            (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
-    }
-    else
-    {
-        //After
-        frames_left = m_state->totalActionFrames((CHARACTER)m_state->m_memory->player_one_character,
-           (ACTION)m_state->m_memory->player_one_action) - m_state->m_memory->player_one_action_frame;
+        frameDelay++;
     }
 
-    //If we're in upsmash range, then prepare for attack
-    if(m_state->m_memory->player_two_facing == player_two_is_to_the_left && //Facing the right way?
-        (distance < FOX_UPSMASH_RANGE_NEAR ||
-        (distance < FOX_UPSMASH_RANGE_NEAR - 25.5 && (m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == RUNNING))))
+    bool to_the_left = m_endPosition > ourEndPosition;
+
+    //Are we facing the right way, are in range, and have time to upsmash? Then do it.
+    if(frames_left - frameDelay >= 0 &&
+        distance < FOX_UPSMASH_RANGE_NEAR &&
+        to_the_left == m_state->m_memory->player_two_facing)
     {
-
-        int frameDelay = 7; //Frames until the first smash hitbox, and another for charge lag
-        if(m_state->m_memory->player_two_action == DASHING ||
-            m_state->m_memory->player_two_action == RUNNING)
-        {
-            frameDelay ++;
-        }
-
-        //Do we have time to upsmash? Do that.
-        if(frames_left > frameDelay)
-        {
-            //Do one less frame of charging than we could, just to be safe
-            CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
-            m_chain->PressButtons();
-            return;
-        }
-    }
-
-    //Is it safe to wavedash in after shielding the attack?
-    //  Don't wavedash off the edge of the stage
-    if(frames_left > 15 &&
-        m_state->m_memory->player_two_action == SHIELD_RELEASE &&
-        (m_state->getStageEdgeGroundPosition() > std::abs(m_state->m_memory->player_two_x) + 10))
-    {
-        CreateChain2(Wavedash, player_two_is_to_the_left);
+        CreateChain3(SmashAttack, SmashAttack::UP, std::max(0, frames_left - frameDelay - 1));
         m_chain->PressButtons();
         return;
     }
+    else
+    {
+        //If the target location is right behind us, just turn around, don't run
+        if(distance < FOX_UPSMASH_RANGE_NEAR &&
+            to_the_left != m_state->m_memory->player_two_facing &&
+            m_state->m_memory->player_two_action != DASHING &&
+            m_state->m_memory->player_two_action != RUNNING)
+        {
+            CreateChain2(Walk, to_the_left);
+            m_chain->PressButtons();
+            return;
+        }
 
-    //Default to running in towards the player
-    CreateChain2(Run, player_two_is_to_the_left);
-    m_chain->PressButtons();
-    return;
+        bool needsWavedash = m_state->m_memory->player_two_action == SHIELD_RELEASE ||
+            m_state->m_memory->player_two_action == SHIELD||
+            m_state->m_memory->player_two_action == DOWN_B_GROUND;
+
+        //Do we need to wavedash?
+        if(distance > FOX_UPSMASH_RANGE_NEAR &&
+            frames_left > WAVEDASH_FRAMES &&
+             needsWavedash)
+        {
+            CreateChain2(Wavedash, player_two_is_to_the_left);
+            m_chain->PressButtons();
+            return;
+        }
+
+        //Default to just running at our opponent
+        CreateChain2(Run, to_the_left);
+        m_chain->PressButtons();
+        return;
+    }
 }

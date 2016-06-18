@@ -652,7 +652,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
                 case TECH_MISS_UP:
                 {
-                    return 25; //TODO This is actually 26... but it starts at 0, so the calculation gets screwed up
+                    return 26;
                 }
                 case TECH_MISS_DOWN:
                 {
@@ -932,7 +932,15 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
         }
         case MARTH:
         {
-            slideCoeficient = MARTH_SLIDE_COEFICIENT;
+            if(m_memory->player_one_action == TECH_MISS_UP ||
+                m_memory->player_one_action == TECH_MISS_DOWN)
+            {
+                slideCoeficient = 0.05;
+            }
+            else
+            {
+                slideCoeficient = MARTH_SLIDE_COEFICIENT;
+            }
             break;
         }
         default:
@@ -942,7 +950,7 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
         }
     }
 
-    //This detedmines magnitude of slide
+    //This determines magnitude of slide
     double slideDistance = 0;
     for(int i = 1; i <= frames; i++)
     {
@@ -952,7 +960,7 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
     //Determine direction
     if(initSpeed < 0)
     {
-        return (-1) * slideDistance;
+        return (-1.0) * slideDistance;
     }
     return slideDistance;
 }
