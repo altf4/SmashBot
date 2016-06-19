@@ -224,11 +224,13 @@ void TechChase::DetermineChain()
         bool to_the_left = m_endPosition > m_state->m_memory->player_two_x;
         //Given sliding, are we going to be behind the enemy?
         bool behindEnemy = (m_endPosition < (m_state->m_memory->player_two_x + slidingAdjustment)) == m_state->m_memory->player_two_facing;
+        double verticalDistance = std::abs(m_state->m_memory->player_two_y - m_state->m_memory->player_one_y);
 
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
             frames_left - frameDelay < vulnerable_frames &&
             distanceFromRoll < FOX_GRAB_RANGE &&
+            verticalDistance < FOX_GRAB_RANGE_Y &&
             to_the_left == facingRight &&
             !behindEnemy &&
             m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work

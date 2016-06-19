@@ -36,6 +36,9 @@
 #define FOX_UPSMASH_RANGE_NEAR 14.5
 //Conservative actually. I've missed at 15.62 at the closest
 #define FOX_GRAB_RANGE 13.5
+//Vertical grab range
+#define FOX_GRAB_RANGE_Y 6.5
+
 //Until it turns to a run
 #define FOX_DASH_FRAMES 12
 #define FOX_DASH_SPEED 2.2
