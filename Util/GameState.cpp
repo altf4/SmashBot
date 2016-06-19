@@ -229,7 +229,9 @@ uint GameState::firstHitboxFrame(CHARACTER character, ACTION action)
                     return 6;
                 }
                 case NEUTRAL_B_ATTACKING:
+                case NEUTRAL_B_FULL_CHARGE:
                 case NEUTRAL_B_ATTACKING_AIR:
+                case NEUTRAL_B_FULL_CHARGE_AIR:
                 {
                     return 5;
                 }
@@ -388,7 +390,9 @@ uint GameState::lastHitboxFrame(CHARACTER character, ACTION action)
                     return 10;
                 }
                 case NEUTRAL_B_ATTACKING:
+                case NEUTRAL_B_FULL_CHARGE:
                 case NEUTRAL_B_ATTACKING_AIR:
+                case NEUTRAL_B_FULL_CHARGE_AIR:
                 {
                     return 10;
                 }
@@ -577,7 +581,9 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                     return 20;
                 }
                 case NEUTRAL_B_ATTACKING:
+                case NEUTRAL_B_FULL_CHARGE:
                 case NEUTRAL_B_ATTACKING_AIR:
+                case NEUTRAL_B_FULL_CHARGE_AIR:
                 {
                     return 33;
                 }
@@ -754,7 +760,9 @@ bool GameState::isAttacking(ACTION action)
         case NEUTRAL_ATTACK_2:
         case NEUTRAL_ATTACK_3:
         case NEUTRAL_B_ATTACKING:
+        case NEUTRAL_B_FULL_CHARGE:
         case NEUTRAL_B_ATTACKING_AIR:
+        case NEUTRAL_B_FULL_CHARGE_AIR:
         case EDGE_ATTACK_QUICK:
         case EDGE_ATTACK_SLOW:
         case GROUND_ATTACK_UP:

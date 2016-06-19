@@ -367,8 +367,10 @@ void Powershield::PressButtons()
             shield_on_frame = 3;
             break;
         }
-        case NEUTRAL_B_ATTACKING_AIR:
         case NEUTRAL_B_ATTACKING:
+        case NEUTRAL_B_FULL_CHARGE:
+        case NEUTRAL_B_ATTACKING_AIR:
+        case NEUTRAL_B_FULL_CHARGE_AIR:
         {
             //If we're right in close
             if(distance < 18)
