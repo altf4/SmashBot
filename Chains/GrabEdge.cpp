@@ -11,8 +11,9 @@ void GrabEdge::PressButtons()
         return;
     }
 
-    //We can't run if we're in knee bend. We're in a wavedash so let's just accept that
-    if(m_state->m_memory->player_two_action == KNEE_BEND)
+    //We can't run if we're in knee bend or shine. We're in a wavedash so let's just accept that
+    if(m_state->m_memory->player_two_action == KNEE_BEND ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND)
     {
         m_isInWavedash = true;
     }

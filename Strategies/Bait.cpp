@@ -389,17 +389,41 @@ void Bait::DetermineTactic()
         }
     }
 
-    //If we're both off the stage, but opponent is in a damage state, then just recover. We already hit them.
-    // But only if we're not super close to the edge?
-    if(std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgeGroundPosition() + .001 &&
-        std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() + .001 &&
-        m_state->m_memory->player_two_action != EDGE_CATCHING &&
-        m_state->m_memory->player_two_action != EDGE_HANGING &&
-        m_state->isDamageState((ACTION)m_state->m_memory->player_one_action))
+    bool opponentOnStage = m_state->m_memory->player_one_on_ground ||
+        (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_one_y > -5);
+    bool selfOnStage = m_state->m_memory->player_two_on_ground ||
+        (std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_two_y > -5);
+
+    //Logger::Instance()->Log(INFO, "opponentOnStage: ");
+
+    //If we're both off the stage...
+    if(!opponentOnStage &&
+        !selfOnStage)
     {
-        CreateTactic(Recover);
-        m_tactic->DetermineChain();
-        return;
+        //If we're able to shine opponent right now, let's do that
+        if(std::abs(distance) < FOX_SHINE_RADIUS &&
+            !m_state->m_memory->player_one_invulnerable &&
+            m_state->m_memory->player_one_action != AIRDODGE &&
+            m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING)
+        {
+            CreateTactic(Edgeguard);
+            m_tactic->DetermineChain();
+            return;
+        }
+
+        //Opponent is in a damage state, then just recover. We already hit them.
+        //Or if we're below the opponent
+        if((m_state->m_memory->player_two_action != EDGE_CATCHING &&
+            m_state->m_memory->player_two_action != EDGE_HANGING &&
+            m_state->isDamageState((ACTION)m_state->m_memory->player_one_action)) ||
+            m_state->m_memory->player_one_y > m_state->m_memory->player_two_y + 8)
+        {
+            CreateTactic(Recover);
+            m_tactic->DetermineChain();
+            return;
+        }
     }
 
     //If the opponent is off the stage, let's edgeguard them
@@ -445,7 +469,6 @@ void Bait::DetermineTactic()
     if(isLoopingAttack &&
         m_state->m_memory->player_one_action_frame == lastHitboxFrame)
     {
-        Logger::Instance()->Log(INFO, "Jab Approach");
         CreateTactic2(Approach, false);
         m_tactic->DetermineChain();
         return;

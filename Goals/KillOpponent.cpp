@@ -100,7 +100,7 @@ void KillOpponent::Strategize()
         if(m_lastActionSelf != DEAD_FALL &&
             m_lastActionSelf != UP_B)
         {
-            m_state->m_memory->player_one_action = WAVEDASH_SLIDE;
+            m_state->m_memory->player_two_action = WAVEDASH_SLIDE;
             m_lastActionFrameSelf = 1;
         }
     }
@@ -133,6 +133,11 @@ void KillOpponent::Strategize()
         m_state->m_memory->player_one_action_frame == 1)
     {
         m_state->m_edgeInvincibilityStart = m_state->m_memory->frame;
+    }
+    if(m_state->m_memory->player_two_action == EDGE_CATCHING &&
+        m_state->m_memory->player_two_action_frame == 1)
+    {
+        m_state->m_edgeInvincibilityStartSelf = m_state->m_memory->frame;
     }
 
     m_lastAction = (ACTION)m_state->m_memory->player_one_action;

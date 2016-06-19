@@ -15,7 +15,7 @@
 #define MARTH_DOUBLE_JUMP_HEIGHT 23
 
 //The depth of Marth at which he can't recover anymore. If he's gone down this low, he's dead
-#define MARTH_LOWER_EVENT_HORIZON -96
+#define MARTH_LOWER_EVENT_HORIZON -98
 
 //The depth where Marth has to UP-B to recover, jumping and/or air dodging alone isn't enough
 #define MARTH_JUMP_ONLY_EVENT_HORIZON -47

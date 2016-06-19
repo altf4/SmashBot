@@ -30,8 +30,12 @@ void Recover::DetermineChain()
         return;
     }
 
+    bool opponentOnStage = m_state->m_memory->player_one_on_ground ||
+        (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_one_y > -5);
+
     //If we're hanging on the egde, wavedash on
-    if(m_state->m_memory->player_one_on_ground &&
+    if(opponentOnStage &&
         (m_state->m_memory->player_two_action == EDGE_HANGING ||
         m_state->m_memory->player_two_action == EDGE_CATCHING))
     {
@@ -40,22 +44,27 @@ void Recover::DetermineChain()
         return;
     }
 
+    bool selfOnStage = m_state->m_memory->player_two_on_ground ||
+        (std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_two_y > -5);
+
     //If we're off the stage...
-    if(std::abs(m_state->m_memory->player_two_x) > m_state->getStageEdgeGroundPosition() + .001)
+    if(!selfOnStage)
     {
         double xDistanceToEdge = std::abs(std::abs(m_state->m_memory->player_two_x) - m_state->getStageEdgePosition());
         bool onRight = m_state->m_memory->player_two_x > 0;
         bool acceptableFallState = m_state->m_memory->player_two_action == FALLING ||
             m_state->m_memory->player_two_action == FALLING_AERIAL ||
             m_state->m_memory->player_two_action == FALLING_AERIAL ||
-            DOWN_B_AIR;
+            m_state->m_memory->player_two_action == DOWN_B_AIR;
 
         //Can we just fall and grab the edge?
         if(acceptableFallState &&
             m_state->m_memory->player_one_action != EDGE_HANGING &&
             m_state->m_memory->player_one_action != EDGE_CATCHING &&
             xDistanceToEdge < 6.5 &&
-            m_state->m_memory->player_two_y > -9)
+            m_state->m_memory->player_two_y > -9 &&
+            m_state->m_memory->player_two_speed_y_self <= 0)
         {
             if(m_state->m_memory->player_two_facing != onRight)
             {
@@ -98,7 +107,7 @@ void Recover::DetermineChain()
 
         //Can we grab the edge, but are moving upwards?
         if(xDistanceToEdge < 4.5 &&
-            m_state->m_memory->player_two_y > -10 &&
+            m_state->m_memory->player_two_y > -15 &&
             m_state->m_memory->player_two_facing != onRight &&
             m_state->m_memory->player_two_speed_y_self > 0)
         {

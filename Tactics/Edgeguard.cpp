@@ -12,6 +12,7 @@
 #include "../Chains/Waveshine.h"
 #include "../Chains/EdgeStall.h"
 #include "../Chains/DashDance.h"
+#include "../Chains/FireFox.h"
 #include "../Util/Controller.h"
 #include "../Util/Logger.h"
 
@@ -45,7 +46,7 @@ void Edgeguard::DetermineChain()
     {
         if(m_state->m_memory->player_two_action == EDGE_HANGING)
         {
-            CreateChain2(EdgeAction, WAVEDASH_UP);
+            CreateChain2(EdgeAction, STAND_UP);
             m_chain->PressButtons();
             return;
         }
@@ -95,18 +96,16 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_one_action != MARTH_COUNTER &&
         m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING)
     {
-        //Are we in a state where we can shine?
-        if(m_state->m_memory->player_two_action == FALLING ||
-            m_state->m_memory->player_two_action == EDGE_HANGING)
-        {
-            CreateChain(JumpCanceledShine);
-            m_chain->PressButtons();
-            return;
-        }
+        CreateChain(JumpCanceledShine);
+        m_chain->PressButtons();
+        return;
     }
 
+    bool canEdgeStall = m_state->m_memory->player_two_action == EDGE_HANGING ||
+        (m_state->m_memory->player_two_action == EDGE_CATCHING && m_state->m_memory->player_two_action_frame == 7);
+
     //Refresh invincibility if the enemy is getting close
-    if(m_state->m_memory->player_two_action == EDGE_HANGING &&
+    if(canEdgeStall &&
         distance < (2 * MARTH_FSMASH_RANGE) &&
         edge_distance > 25)
     {
@@ -121,14 +120,13 @@ void Edgeguard::DetermineChain()
     }
 
     //Drop down and shine the enemy if they are below us and we have enough invincibility
-    int invincibilityFramesLeft = 29 - (m_state->m_memory->frame - m_state->m_edgeInvincibilityStart);
-    //TODO Test out this 8 unit lateral leeway
-    if(std::abs(m_state->m_memory->player_two_x - m_state->m_memory->player_one_x) < 8 &&
-        (invincibilityFramesLeft * FOX_FASTFALL_SPEED) < distance &&
+    int invincibilityFramesLeft = 29 - (m_state->m_memory->frame - m_state->m_edgeInvincibilityStartSelf);
+    if(std::abs(m_state->m_memory->player_two_x - m_state->m_memory->player_one_x) < 7 &&
+        (invincibilityFramesLeft * FOX_FASTFALL_SPEED) > distance &&
         m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
-        m_state->m_memory->player_one_y > (-1)*(FOX_DOUBLE_JUMP_HEIGHT) &&
-        m_state->m_memory->player_one_on_ground &&
-        m_state->m_memory->player_two_on_ground)
+        !m_state->m_memory->player_one_on_ground &&
+        !m_state->m_memory->player_two_on_ground &&
+        m_state->m_memory->player_one_jumps_left == 0)
     {
         CreateChain2(EdgeAction, FASTFALL);
         m_chain->PressButtons();
@@ -228,6 +226,19 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_two_action == FALLING)
     {
         CreateChain3(DI, m_state->m_memory->player_one_x > m_state->m_memory->player_two_x ? true : false, .5);
+        m_chain->PressButtons();
+        return;
+    }
+
+    double xDistanceToEdge = std::abs(std::abs(m_state->m_memory->player_two_x) - m_state->getStageEdgePosition());
+    bool onRight = m_state->m_memory->player_two_x > 0;
+    //Can we grab the edge, but are moving upwards?
+    if(xDistanceToEdge < 4.5 &&
+        m_state->m_memory->player_two_y > -10 &&
+        m_state->m_memory->player_two_facing != onRight &&
+        m_state->m_memory->player_two_speed_y_self > 0)
+    {
+        CreateChain(FireFox);
         m_chain->PressButtons();
         return;
     }
