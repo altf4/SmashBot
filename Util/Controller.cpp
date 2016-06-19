@@ -81,48 +81,56 @@ void Controller::pressButton(BUTTON b)
     {
         case BUTTON_A:
         {
+            m_prevFrameState.m_a = true;
             button_string = STRING_A;
             logger->Log(INFO, "Button press: " + STRING_A);
             break;
         }
         case BUTTON_B:
         {
+            m_prevFrameState.m_b = true;
             button_string = STRING_B;
             logger->Log(INFO, "Button press: " + STRING_B);
             break;
         }
         case BUTTON_X:
         {
+            m_prevFrameState.m_x = true;
             button_string = STRING_X;
             logger->Log(INFO, "Button press: " + STRING_X);
             break;
         }
         case BUTTON_Y:
         {
+            m_prevFrameState.m_y = true;
             button_string = STRING_Y;
             logger->Log(INFO, "Button press: " + STRING_Y);
             break;
         }
         case BUTTON_L:
         {
+            m_prevFrameState.m_l_trigger = true;
             button_string = STRING_L;
             logger->Log(INFO, "Button press: " + STRING_L);
             break;
         }
         case BUTTON_R:
         {
+            m_prevFrameState.m_r_trigger = true;
             button_string = STRING_R;
             logger->Log(INFO, "Button press: " + STRING_R);
             break;
         }
         case BUTTON_Z:
         {
+            m_prevFrameState.m_z = true;
             button_string = STRING_Z;
             logger->Log(INFO, "Button press: " + STRING_Z);
             break;
         }
         case BUTTON_START:
         {
+            m_prevFrameState.m_start = true;
             button_string = STRING_START;
             logger->Log(INFO, "Button press: " + STRING_START);
             break;
@@ -151,18 +159,6 @@ void Controller::pressButton(BUTTON b)
             logger->Log(INFO, "Button press: " + STRING_D_RIGHT);
             break;
         }
-        case BUTTON_MAIN:
-        {
-            button_string = STRING_MAIN;
-            logger->Log(INFO, "Button press: " + STRING_MAIN);
-            break;
-        }
-        case BUTTON_C:
-        {
-            button_string = STRING_C;
-            logger->Log(INFO, "Button press: " + STRING_C);
-            break;
-        }
         default:
         {
             std::cout << "WARNING: Invalid button selected!" << std::endl;
@@ -182,48 +178,56 @@ void Controller::releaseButton(BUTTON b)
     {
         case BUTTON_A:
         {
+            m_prevFrameState.m_a = false;
             button_string = STRING_A;
             logger->Log(INFO, "Button release: " + STRING_A);
             break;
         }
         case BUTTON_B:
         {
+            m_prevFrameState.m_b = false;
             button_string = STRING_B;
             logger->Log(INFO, "Button release: " + STRING_B);
             break;
         }
         case BUTTON_X:
         {
+            m_prevFrameState.m_x = false;
             button_string = STRING_X;
             logger->Log(INFO, "Button release: " + STRING_X);
             break;
         }
         case BUTTON_Y:
         {
+            m_prevFrameState.m_y = false;
             button_string = STRING_Y;
             logger->Log(INFO, "Button release: " + STRING_Y);
             break;
         }
         case BUTTON_L:
         {
+            m_prevFrameState.m_l_trigger = false;
             button_string = STRING_L;
             logger->Log(INFO, "Button release: " + STRING_L);
             break;
         }
         case BUTTON_R:
         {
+            m_prevFrameState.m_r_trigger = false;
             button_string = STRING_R;
             logger->Log(INFO, "Button release: " + STRING_R);
             break;
         }
         case BUTTON_Z:
         {
+            m_prevFrameState.m_z = false;
             button_string = STRING_Z;
             logger->Log(INFO, "Button release: " + STRING_Z);
             break;
         }
         case BUTTON_START:
         {
+            m_prevFrameState.m_start = false;
             button_string = STRING_START;
             logger->Log(INFO, "Button release: " + STRING_START);
             break;
@@ -252,18 +256,6 @@ void Controller::releaseButton(BUTTON b)
             logger->Log(INFO, "Button release: " + STRING_D_RIGHT);
             break;
         }
-        case BUTTON_MAIN:
-        {
-            button_string = STRING_MAIN;
-            logger->Log(INFO, "Button release: " + STRING_MAIN);
-            break;
-        }
-        case BUTTON_C:
-        {
-            button_string = STRING_C;
-            logger->Log(INFO, "Button release: " + STRING_C);
-            break;
-        }
         default:
         {
             std::cout << "WARNING: Invalid button selected!" << std::endl;
@@ -282,12 +274,14 @@ void Controller::pressShoulder(BUTTON b, double amount)
     {
         case BUTTON_L:
         {
+            m_prevFrameState.m_l_shoulder = amount;
             button_string = STRING_L;
             logger->Log(INFO, "Shoulder press: " + STRING_L + " to " + std::to_string(amount));
             break;
         }
         case BUTTON_R:
         {
+            m_prevFrameState.m_r_shoulder = amount;
             button_string = STRING_R;
             logger->Log(INFO, "Shoulder press: " + STRING_R + " to " + std::to_string(amount));
             break;
@@ -310,12 +304,16 @@ void Controller::tiltAnalog(BUTTON b, double x, double y)
     {
         case BUTTON_MAIN:
         {
+            m_prevFrameState.m_main_stick_x = x;
+            m_prevFrameState.m_main_stick_y = y;
             button_string = STRING_MAIN;
             logger->Log(INFO, "Tilt analog: " + STRING_MAIN + " to " + std::to_string(x) + ", " + std::to_string(y));
             break;
         }
         case BUTTON_C:
         {
+            m_prevFrameState.m_c_stick_x = x;
+            m_prevFrameState.m_c_stick_y = y;
             button_string = STRING_C;
             logger->Log(INFO, "Tilt analog: " + STRING_C + " to " + std::to_string(x) + ", " + std::to_string(y));
             break;

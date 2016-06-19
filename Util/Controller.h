@@ -5,6 +5,28 @@
 
 #include <string>
 
+struct ControllerState
+{
+    //This is missing the D-pad for now. But we probabably won't ever use it anyway
+    bool m_a;
+    bool m_b;
+    bool m_x;
+    bool m_y;
+    bool m_z;
+    bool m_start;
+    bool m_l_trigger;
+    bool m_r_trigger;
+
+    double m_main_stick_x;
+    double m_main_stick_y;
+
+    double m_c_stick_x;
+    double m_c_stick_y;
+
+    double m_l_shoulder;
+    double m_r_shoulder;
+};
+
 class Controller {
 public:
     enum BUTTON {
@@ -25,6 +47,7 @@ public:
     };
 
     static Controller *Instance();
+    ControllerState m_prevFrameState;
 
     void pressButton(BUTTON b);
     void releaseButton(BUTTON b);
