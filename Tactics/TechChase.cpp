@@ -270,14 +270,20 @@ void TechChase::DetermineChain()
                 m_state->m_memory->player_two_action == SHIELD||
                 m_state->m_memory->player_two_action == DOWN_B_GROUND;
 
+            Logger::Instance()->Log(INFO, "player_one_speed_y_self: " + std::to_string(m_state->m_memory->player_one_speed_y_self));
+
             //Do we need to wavedash?
-            if(distance > FOX_UPSMASH_RANGE_NEAR &&
-                frames_left > WAVEDASH_FRAMES &&
+            if(frames_left >= WAVEDASH_FRAMES &&
                  needsWavedash)
             {
-                CreateChain2(Wavedash, player_two_is_to_the_left);
-                m_chain->PressButtons();
-                return;
+                //Is it against an aerial? If so, make sure it's a rising attack so opponent can't cancel it
+                if(m_state->m_memory->player_one_on_ground ||
+                    m_state->m_memory->player_one_speed_y_self > 0)
+                {
+                    CreateChain2(Wavedash, player_two_is_to_the_left);
+                    m_chain->PressButtons();
+                    return;
+                }
             }
 
             //If we're sure we'll have time (Like when we have lots of vulnerable frames) dash dance right at the edge of range
