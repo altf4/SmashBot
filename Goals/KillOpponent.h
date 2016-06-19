@@ -16,9 +16,12 @@ public:
 private:
     //The action the opponent was in last frame
     ACTION m_lastAction;
+    ACTION m_lastActionSelf;
 
     //The action frame of last action. Used for keeping track of wavedash slide frames
     uint m_lastActionFrame;
+
+    bool m_moonwalkStepA;
 };
 
 #endif

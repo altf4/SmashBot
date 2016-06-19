@@ -323,6 +323,8 @@ public:
     double m_rollStartSpeed;
     double m_rollStartSpeedSelf;
     double m_edgeInvincibilityStart;
+    //If we dash back this frame, will we moonwalk?
+    bool m_moonwalkRisk;
 
 private:
     GameState();

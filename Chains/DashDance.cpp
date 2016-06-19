@@ -5,11 +5,17 @@
 
 void DashDance::PressButtons()
 {
-    //Try not to moonwalk
-    if(m_state->m_memory->player_two_action == DASHING &&
-        m_state->m_memory->player_two_action_frame == 2)
+    //Avoid moonwalking
+    if(m_state->m_moonwalkRisk)
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = true;
+        return;
+    }
+    if(m_moonwalkPrevent)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = false;
         return;
     }
 
@@ -80,6 +86,7 @@ DashDance::DashDance(double pivot, double radius)
 {
     m_pivotPoint = pivot;
     m_radius = radius;
+    m_moonwalkPrevent = false;
 }
 
 DashDance::~DashDance()

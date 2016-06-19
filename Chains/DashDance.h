@@ -19,6 +19,7 @@ public:
 private:
     double m_pivotPoint;
     double m_radius;
+    bool m_moonwalkPrevent;
 };
 
 #endif

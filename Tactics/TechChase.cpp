@@ -272,8 +272,6 @@ void TechChase::DetermineChain()
                 m_state->m_memory->player_two_action == SHIELD||
                 m_state->m_memory->player_two_action == DOWN_B_GROUND;
 
-            Logger::Instance()->Log(INFO, "player_one_speed_y_self: " + std::to_string(m_state->m_memory->player_one_speed_y_self));
-
             //Do we need to wavedash?
             if(frames_left >= WAVEDASH_FRAMES &&
                  needsWavedash)

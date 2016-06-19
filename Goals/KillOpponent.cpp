@@ -6,8 +6,9 @@ KillOpponent::KillOpponent()
 {
     m_strategy = NULL;
     m_lastAction = (ACTION)m_state->m_memory->player_one_action;
+    m_lastActionSelf = (ACTION)m_state->m_memory->player_two_action;
     m_lastActionFrame = 0;
-
+    m_moonwalkStepA = false;
 }
 
 KillOpponent::~KillOpponent()
@@ -37,6 +38,39 @@ void KillOpponent::Strategize()
     // {
     //     std::cout << std::hex << "Add it to the list: 0x" << m_state->m_memory->player_two_action << std::endl;
     // }
+
+    //Moonwalk early detection
+    //If the control stick went through neutral, then reset the moonwalk state bools
+    if(Controller::Instance()->m_prevFrameState.m_main_stick_x == 0.5)
+    {
+        m_moonwalkStepA = false;
+    }
+
+    bool wasRunning = m_lastActionSelf == DASHING ||
+        m_lastActionSelf == RUNNING  ||
+        m_lastActionSelf == TURNING;
+
+    bool isRunning = m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == RUNNING;
+
+    bool controlStickSmashed = Controller::Instance()->m_prevFrameState.m_main_stick_x == 0 ||
+        Controller::Instance()->m_prevFrameState.m_main_stick_x == 1;
+
+    //Step B: Be in a running state with the control stick to one side
+    if(m_moonwalkStepA && isRunning && controlStickSmashed)
+    {
+        m_state->m_moonwalkRisk = true;
+    }
+    else
+    {
+        m_state->m_moonwalkRisk = false;
+    }
+
+    //Step A: Be in a non-running state
+    if(!wasRunning)
+    {
+        m_moonwalkStepA = true;
+    }
 
     if(m_state->m_memory->player_one_action == WAVEDASH_SLIDE)
     {
@@ -87,6 +121,7 @@ void KillOpponent::Strategize()
     }
 
     m_lastAction = (ACTION)m_state->m_memory->player_one_action;
+    m_lastActionSelf = (ACTION)m_state->m_memory->player_two_action;
 
     //If the opponent is invincible, don't attack them. Just dodge everything they do
     //UNLESS they are invincible due to rolling on the stage. Then go ahead and punish it, it will be safe by the time

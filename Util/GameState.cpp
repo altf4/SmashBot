@@ -22,6 +22,7 @@ GameState::GameState()
     m_edgeInvincibilityStart = 0;
     m_rollStartSpeed = 0;
     m_rollStartSpeedSelf = 0;
+    m_moonwalkRisk = false;
 }
 
 double GameState::getStageEdgePosition()
