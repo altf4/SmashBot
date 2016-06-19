@@ -230,6 +230,7 @@ enum ACTION
     UP_B = 0x170,    //The upswing of the UP-B. (At least for marth)
     MARTH_COUNTER = 0x171,
     MARTH_COUNTER_FALLING = 0x173,
+    WAVEDASH_SLIDE = 0x176,
 };
 
 enum MENU
@@ -281,9 +282,6 @@ public:
     //    return value of 0 means not an airial attack, or not supported yet
     uint landingLag(CHARACTER, ACTION);
 
-    //Is the current landing special state from UP-B (true) or wavedash (false)
-    void setLandingState(bool);
-
     //Are this any one of the damage states?
     bool isDamageState(ACTION);
 
@@ -305,7 +303,6 @@ public:
     bool isIndexedFromZero(ACTION a);
 
     //How far will you slide?
-    //TODO: This only works for Fox on FD for now.
     double calculateSlideDistance(CHARACTER character, double initSpeed, int frames);
 
     double getRollDistance(CHARACTER character, ACTION action);
@@ -328,7 +325,6 @@ public:
 private:
     GameState();
     static GameState *m_instance;
-    bool m_landingFromUpB;
 };
 
 #endif

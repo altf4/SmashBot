@@ -16,12 +16,6 @@ public:
     std::string ToString(){return "Bait";};
 
 private:
-    //Frame that the player's attack started
-    //0 means no attack
-    uint m_attackFrame;
-    //The action the opponent was in last frame
-    ACTION m_lastAction;
-    uint m_lastActionCount;
     //Did the enemy's action change from last frame?
     bool m_actionChanged;
     //Have we shielded the opponent's current attack?

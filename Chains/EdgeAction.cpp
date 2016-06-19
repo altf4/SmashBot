@@ -115,7 +115,7 @@ void EdgeAction::PressButtons()
     m_controller->emptyInput();
 
     if(m_state->m_memory->player_two_action == STANDING ||
-        m_state->m_memory->player_two_action == LANDING_SPECIAL)
+        m_state->m_memory->player_two_action == WAVEDASH_SLIDE)
     {
         m_readyToInterrupt = true;
     }

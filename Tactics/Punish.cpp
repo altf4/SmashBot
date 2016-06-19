@@ -67,7 +67,7 @@ void Punish::DetermineChain()
     double enemyHitSlide = 0;
     double enemySelfSlide = 0;
 
-    //Figure out where they will stop rolling, only on the first frame
+    //Figure out where they will stop, only on the first frame
     if(m_endPosition == 0)
     {
         //We're assuming that the opponent is vulnerable for some duration of time
@@ -97,7 +97,7 @@ void Punish::DetermineChain()
         {
             m_endPosition = m_state->m_memory->player_one_x;
             enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                m_state->m_rollStartSpeedSelf, frames_left);
+                m_state->m_memory->player_one_speed_ground_x_self, frames_left);
             m_endPosition += enemySelfSlide;
 
             enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,

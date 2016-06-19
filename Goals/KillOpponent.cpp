@@ -2,11 +2,12 @@
 #include "../Strategies/Bait.h"
 #include "../Strategies/Sandbag.h"
 
-#include <iostream>
-
 KillOpponent::KillOpponent()
 {
     m_strategy = NULL;
+    m_lastAction = (ACTION)m_state->m_memory->player_one_action;
+    m_lastActionFrame = 0;
+
 }
 
 KillOpponent::~KillOpponent()
@@ -37,6 +38,39 @@ void KillOpponent::Strategize()
     //     std::cout << std::hex << "Add it to the list: 0x" << m_state->m_memory->player_two_action << std::endl;
     // }
 
+    if(m_state->m_memory->player_one_action == WAVEDASH_SLIDE)
+    {
+        m_lastActionFrame++;
+        m_state->m_memory->player_one_action_frame = m_lastActionFrame;
+    }
+
+    // Unfortunately, the game reuses LANDING_SPECIAL for both landing from an UP-B and from a wavedash
+    // So we figure out if it's the wavedash version and silently make a "new" action state for it
+    if(m_state->m_memory->player_one_action == LANDING_SPECIAL)
+    {
+        if(m_lastAction != DEAD_FALL &&
+            m_lastAction != UP_B)
+        {
+            m_state->m_memory->player_one_action = WAVEDASH_SLIDE;
+            m_lastActionFrame = 1;
+        }
+    }
+
+    //So, turns out that the game changes the player's action state (to 2 or 3) on us when they're charging
+    //If this happens, just change it back. Maybe there's a more elegant solution
+    if(m_state->m_memory->player_one_action == 0x00 ||
+        m_state->m_memory->player_one_action == 0x02 ||
+        m_state->m_memory->player_one_action == 0x03)
+    {
+        m_state->m_memory->player_one_action = m_lastAction;
+    }
+    //Sometimes, it will also happen when invincible, turning to ENTRY
+    if(m_state->m_memory->player_one_charging_smash &&
+        m_state->m_memory->player_one_action == ENTRY)
+    {
+        m_state->m_memory->player_one_action = m_lastAction;
+    }
+
     //If the opponent just started a roll, remember where they started from
     if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) &&
         m_state->m_memory->player_one_action_frame <= 1)
@@ -51,6 +85,8 @@ void KillOpponent::Strategize()
     {
         m_state->m_edgeInvincibilityStart = m_state->m_memory->frame;
     }
+
+    m_lastAction = (ACTION)m_state->m_memory->player_one_action;
 
     //If the opponent is invincible, don't attack them. Just dodge everything they do
     //UNLESS they are invincible due to rolling on the stage. Then go ahead and punish it, it will be safe by the time

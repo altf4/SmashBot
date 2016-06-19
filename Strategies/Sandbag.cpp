@@ -11,16 +11,14 @@
 #include "../Tactics/Recover.h"
 #include "../Tactics/ShowOff.h"
 #include "../Tactics/Escape.h"
+#include "../Util/Logger.h"
 
 Sandbag::Sandbag()
 {
     m_tactic = NULL;
-    m_attackFrame = 0;
-    m_lastAction = (ACTION)m_state->m_memory->player_one_action;
     m_shieldedAttack = false;
     m_actionChanged = true;
     m_chargingLastFrame = false;
-    m_lastActionCount = 0;
 }
 
 Sandbag::~Sandbag()
@@ -30,52 +28,19 @@ Sandbag::~Sandbag()
 
 void Sandbag::DetermineTactic()
 {
-    //TODO: Move this logic away from here and Bait into KillOpponent
-    //Determine how many frames of lag our opponent has during the LANDING_SPECIAL action
-    // Unfortunately, the game reuses LANDING_SPECIAL for both landing from an UP-B and from a wavedash
-    // So it's non-trivial to figure out which it is.
-    if(m_state->m_memory->player_one_action == LANDING_SPECIAL)
-    {
-        if(m_lastAction == DEAD_FALL || m_lastAction == UP_B)
-        {
-            m_state->setLandingState(true);
-        }
-        if(m_lastAction == AIRDODGE)
-        {
-            m_state->setLandingState(false);
-        }
-    }
-
-    //Has opponent just released a sharged smash attack?
-    bool m_chargedSmashReleased = false;
+    //Has opponent just released a charged smash attack?
+    bool chargedSmashReleased = false;
     if(!m_state->m_memory->player_one_charging_smash && m_chargingLastFrame)
     {
-        m_chargedSmashReleased = true;
+        chargedSmashReleased = true;
     }
     m_chargingLastFrame = m_state->m_memory->player_one_charging_smash;
 
-    //So, turns out that the game changes the player's action state (to 2 or 3) on us when they're charging
-    //If this happens, just change it back. Maybe there's a more elegant solution
-    if(m_state->m_memory->player_one_action == 0x00 ||
-        m_state->m_memory->player_one_action == 0x02 ||
-        m_state->m_memory->player_one_action == 0x03)
-    {
-        m_state->m_memory->player_one_action = m_lastAction;
-    }
-
     //Update the attack frame if the enemy started a new action
-    if((m_lastAction != (ACTION)m_state->m_memory->player_one_action) ||
-        (m_state->m_memory->player_one_action_counter > m_lastActionCount) ||
-        (m_state->m_memory->player_one_action_frame == 1))
+    if(m_state->m_memory->player_one_action_frame == 1)
     {
-        m_lastActionCount = m_state->m_memory->player_one_action_counter;
         m_shieldedAttack = false;
         m_actionChanged = true;
-        m_lastAction = (ACTION)m_state->m_memory->player_one_action;
-        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-        {
-            m_attackFrame = m_state->m_memory->frame;
-        }
     }
     //Continuing same previous action
     else
@@ -88,10 +53,6 @@ void Sandbag::DetermineTactic()
         {
             m_shieldedAttack = true;
         }
-    }
-    if(!m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-    {
-        m_attackFrame = 0;
     }
 
     //If we're not in a state to interupt, just continue with what we've got going
@@ -106,6 +67,7 @@ void Sandbag::DetermineTactic()
         m_state->m_memory->player_two_action == ENTRY_START ||
         m_state->m_memory->player_two_action == ENTRY_END ||
         m_state->m_memory->player_two_action == SHIELD_STUN ||
+        m_state->m_memory->player_two_action == WAVEDASH_SLIDE ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL)
     {
         CreateTactic(Wait);
@@ -176,7 +138,7 @@ void Sandbag::DetermineTactic()
                 if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
                 {
                     //If the p1 action changed, scrap the old Parry and make a new one.
-                    if(m_actionChanged || m_chargedSmashReleased)
+                    if(m_actionChanged || chargedSmashReleased)
                     {
                         delete m_tactic;
                         m_tactic = NULL;

@@ -13,6 +13,12 @@ public:
     void Strategize();
     std::string ToString(){return "KillOpponent";};
 
+private:
+    //The action the opponent was in last frame
+    ACTION m_lastAction;
+
+    //The action frame of last action. Used for keeping track of wavedash slide frames
+    uint m_lastActionFrame;
 };
 
 #endif

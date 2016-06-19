@@ -21,12 +21,9 @@
 Bait::Bait()
 {
     m_tactic = NULL;
-    m_attackFrame = 0;
-    m_lastAction = (ACTION)m_state->m_memory->player_one_action;
     m_shieldedAttack = false;
     m_actionChanged = true;
     m_chargingLastFrame = false;
-    m_lastActionCount = 0;
 }
 
 Bait::~Bait()
@@ -38,51 +35,19 @@ void Bait::DetermineTactic()
 {
     //Logger::Instance()->Log(INFO, "");
 
-    //Determine how many frames of lag our opponent has during the LANDING_SPECIAL action
-    // Unfortunately, the game reuses LANDING_SPECIAL for both landing from an UP-B and from a wavedash
-    // So it's non-trivial to figure out which it is.
-    if(m_state->m_memory->player_one_action == LANDING_SPECIAL)
-    {
-        if(m_lastAction == DEAD_FALL || m_lastAction == UP_B)
-        {
-            m_state->setLandingState(true);
-        }
-        if(m_lastAction == AIRDODGE)
-        {
-            m_state->setLandingState(false);
-        }
-    }
-
-    //Has opponent just released a sharged smash attack?
-    bool m_chargedSmashReleased = false;
+    //Has opponent just released a charged smash attack?
+    bool chargedSmashReleased = false;
     if(!m_state->m_memory->player_one_charging_smash && m_chargingLastFrame)
     {
-        m_chargedSmashReleased = true;
+        chargedSmashReleased = true;
     }
     m_chargingLastFrame = m_state->m_memory->player_one_charging_smash;
 
-    //So, turns out that the game changes the player's action state (to 2 or 3) on us when they're charging
-    //If this happens, just change it back. Maybe there's a more elegant solution
-    if(m_state->m_memory->player_one_action == 0x00 ||
-        m_state->m_memory->player_one_action == 0x02 ||
-        m_state->m_memory->player_one_action == 0x03)
-    {
-        m_state->m_memory->player_one_action = m_lastAction;
-    }
-
     //Update the attack frame if the enemy started a new action
-    if((m_lastAction != (ACTION)m_state->m_memory->player_one_action) ||
-        (m_state->m_memory->player_one_action_counter > m_lastActionCount) ||
-        (m_state->m_memory->player_one_action_frame == 1))
+    if(m_state->m_memory->player_one_action_frame == 1)
     {
-        m_lastActionCount = m_state->m_memory->player_one_action_counter;
         m_shieldedAttack = false;
         m_actionChanged = true;
-        m_lastAction = (ACTION)m_state->m_memory->player_one_action;
-        if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-        {
-            m_attackFrame = m_state->m_memory->frame;
-        }
     }
     //Continuing same previous action
     else
@@ -95,10 +60,6 @@ void Bait::DetermineTactic()
         {
             m_shieldedAttack = true;
         }
-    }
-    if(!m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-    {
-        m_attackFrame = 0;
     }
 
     //Escape out of our opponents combo / grab if they somehow get it
@@ -125,6 +86,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == ENTRY_END ||
         m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->m_memory->player_two_action == LANDING_SPECIAL ||
+        m_state->m_memory->player_two_action == WAVEDASH_SLIDE ||
         m_state->m_memory->player_two_action == SPOTDODGE ||
         m_state->m_memory->player_two_action == SHIELD_STUN ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_two_action) ||
@@ -166,6 +128,7 @@ void Bait::DetermineTactic()
             m_state->m_memory->player_one_action == MARTH_COUNTER ||
             m_state->m_memory->player_one_action == MARTH_COUNTER_FALLING ||
             m_state->m_memory->player_one_action == LANDING_SPECIAL ||
+            m_state->m_memory->player_one_action == WAVEDASH_SLIDE ||
             m_state->m_memory->player_one_action == TECH_MISS_UP ||
             m_state->m_memory->player_one_action == TECH_MISS_DOWN)
         {
@@ -391,7 +354,7 @@ void Bait::DetermineTactic()
                     if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
                     {
                         //If the p1 action changed, scrap the old Parry and make a new one.
-                        if(m_actionChanged || m_chargedSmashReleased)
+                        if(m_actionChanged || chargedSmashReleased)
                         {
                             delete m_tactic;
                             m_tactic = NULL;
@@ -495,6 +458,7 @@ void Bait::DetermineTactic()
     //If our opponent is doing something to put them in a vulnerable spot, approach
     if(m_state->m_memory->player_one_action == KNEE_BEND ||
         m_state->m_memory->player_one_action == JUMPING_FORWARD ||
+        m_state->m_memory->player_one_action == JUMPING_BACKWARD ||
         m_state->m_memory->player_one_action == SHIELD ||
         m_state->m_memory->player_one_action == SHIELD_START ||
         m_state->m_memory->player_one_action == SHIELD_REFLECT ||
@@ -503,6 +467,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_one_action == UAIR_LANDING ||
         m_state->m_memory->player_one_action == BAIR_LANDING ||
         m_state->m_memory->player_one_action == DAIR_LANDING ||
+        m_state->m_memory->player_one_action == AIRDODGE ||
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         afterAttack)

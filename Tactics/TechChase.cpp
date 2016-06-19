@@ -16,7 +16,7 @@
 
 TechChase::TechChase()
 {
-    m_roll_position = 0;
+    m_endPosition = 0;
     m_pivotPosition = 0;
     m_chain = NULL;
 }
@@ -116,74 +116,66 @@ void TechChase::DetermineChain()
         return;
     }
 
+    double enemyHitSlide = 0;
+    double enemySelfSlide = 0;
+
     //If they're vulnerable, go punish it
     if(isDamage ||
+        m_state->m_memory->player_one_action == WAVEDASH_SLIDE ||
+        m_state->m_memory->player_one_action == LANDING_SPECIAL ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
         m_state->m_memory->player_one_action_frame > lastHitboxFrame))
     {
-        //Figure out where they will stop rolling, only on the first frame
-        if(m_roll_position == 0)
+        //Figure out where they will stop, only on the first frame
+        if(m_endPosition == 0)
         {
-            double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
-                (ACTION)m_state->m_memory->player_one_action);
-
-            bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
-
-            if(m_state->m_memory->player_one_facing == directon)
+            //We're assuming that the opponent is vulnerable for some duration of time
+            //Where will the opponent be at the end of their vulnerable state?
+            if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
             {
-                m_roll_position = m_state->m_rollStartPosition + rollDistance;
+                double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    (ACTION)m_state->m_memory->player_one_action);
+
+                bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
+                if(m_state->m_memory->player_one_facing == directon)
+                {
+                    m_endPosition = m_state->m_rollStartPosition + rollDistance;
+                }
+                else
+                {
+                    m_endPosition = m_state->m_rollStartPosition - rollDistance;
+                }
+
+                //Calculate hit sliding from the START of the roll.
+                enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    m_state->m_rollStartSpeed, totalFrames);
+                m_endPosition += enemyHitSlide;
+
             }
             else
             {
-                m_roll_position = m_state->m_rollStartPosition - rollDistance;
-            }
+                m_endPosition = m_state->m_memory->player_one_x;
+                enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                    m_state->m_memory->player_one_speed_ground_x_self, frames_left);
+                m_endPosition += enemySelfSlide;
 
-            //Calculate how much the enemy will slide
-            double enemySpeed = m_state->m_rollStartSpeed;
-
-            double slidingAdjustmentEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character, enemySpeed, totalFrames);
-            m_roll_position += slidingAdjustmentEnemy;
-
-            //Don't adjust for self sliding if the enemy is in a roll. That distance is already accounted for
-            if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) ||
-                m_state->m_memory->player_one_action == MARTH_COUNTER)
-            {
-                double enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    m_state->m_rollStartSpeedSelf, totalFrames);
-                m_roll_position += enemySelfSlide;
-            }
-
-            //Roll position can't be off the stage
-            if(m_roll_position > m_state->getStageEdgeGroundPosition())
-            {
-                m_roll_position = m_state->getStageEdgeGroundPosition();
-            }
-            else if (m_roll_position < (-1) * m_state->getStageEdgeGroundPosition())
-            {
-                m_roll_position = (-1) * m_state->getStageEdgeGroundPosition();
-            }
-
-            //If the opponent is attacking, set their roll position to be where they're at now (not the last roll)
-            if(m_state->isAttacking((ACTION)m_state->m_memory->player_one_action))
-            {
-                m_roll_position = m_state->m_memory->player_one_x;
-            }
-
-            if(isDamage)
-            {
-                double slideHitEnemy = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
                     m_state->m_memory->player_one_speed_x_attack, frames_left);
-                m_roll_position = m_state->m_memory->player_one_x + slideHitEnemy;
+                m_endPosition += enemyHitSlide;
             }
 
-            if(player_two_is_to_the_left)
+            //You can't roll off the stage
+            if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
             {
-                m_pivotPosition = m_roll_position - FOX_GRAB_RANGE;
-            }
-            else
-            {
-                m_pivotPosition = m_roll_position + FOX_GRAB_RANGE;
+                if(m_endPosition > m_state->getStageEdgeGroundPosition())
+                {
+                    m_endPosition = m_state->getStageEdgeGroundPosition();
+                }
+                else if (m_endPosition < (-1) * m_state->getStageEdgeGroundPosition())
+                {
+                    m_endPosition = (-1) * m_state->getStageEdgeGroundPosition();
+                }
             }
         }
 
@@ -200,9 +192,9 @@ void TechChase::DetermineChain()
         double slidingAdjustment = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_two_character,
             m_state->m_memory->player_two_speed_ground_x_self, frameDelay);
 
-        distanceFromRoll = std::abs(m_roll_position - (m_state->m_memory->player_two_x + slidingAdjustment));
+        distanceFromRoll = std::abs(m_endPosition - (m_state->m_memory->player_two_x + slidingAdjustment));
 
-        Logger::Instance()->Log(INFO, "Trying to tech chase a roll at position: " + std::to_string(m_roll_position) +
+        Logger::Instance()->Log(INFO, "Trying to tech chase a roll at position: " + std::to_string(m_endPosition) +
             " with: " + std::to_string(frames_left) + " frames left");
 
         //How many frames of vulnerability are there at the tail end of the animation?
@@ -229,9 +221,9 @@ void TechChase::DetermineChain()
             facingRight = !facingRight;
         }
 
-        bool to_the_left = m_roll_position > m_state->m_memory->player_two_x;
+        bool to_the_left = m_endPosition > m_state->m_memory->player_two_x;
         //Given sliding, are we going to be behind the enemy?
-        bool behindEnemy = (m_roll_position < (m_state->m_memory->player_two_x + slidingAdjustment)) == m_state->m_memory->player_two_facing;
+        bool behindEnemy = (m_endPosition < (m_state->m_memory->player_two_x + slidingAdjustment)) == m_state->m_memory->player_two_facing;
 
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
@@ -248,7 +240,7 @@ void TechChase::DetermineChain()
         }
         else
         {
-            double currentDistance = std::abs(m_roll_position - m_state->m_memory->player_two_x);
+            double currentDistance = std::abs(m_endPosition - m_state->m_memory->player_two_x);
 
             //If they're right in front of us and we're not already running, then just hang out and wait
             if(m_state->m_memory->player_two_action != DASHING &&
@@ -274,20 +266,34 @@ void TechChase::DetermineChain()
                 }
             }
 
+            bool needsWavedash = m_state->m_memory->player_two_action == SHIELD_RELEASE ||
+                m_state->m_memory->player_two_action == SHIELD||
+                m_state->m_memory->player_two_action == DOWN_B_GROUND;
+
+            //Do we need to wavedash?
+            if(distance > FOX_UPSMASH_RANGE_NEAR &&
+                frames_left > WAVEDASH_FRAMES &&
+                 needsWavedash)
+            {
+                CreateChain2(Wavedash, player_two_is_to_the_left);
+                m_chain->PressButtons();
+                return;
+            }
+
             //If we're sure we'll have time (Like when we have lots of vulnerable frames) dash dance right at the edge of range
             //Default to dashing at the opponent
             if(vulnerable_frames >= 7 &&
                 m_state->m_memory->player_one_action != FORWARD_TECH &&
                 m_state->m_memory->player_one_action != BACKWARD_TECH)
             {
-                bool isRight = m_roll_position < m_state->m_memory->player_two_x;
+                bool isRight = m_endPosition < m_state->m_memory->player_two_x;
                 int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
                 //Don't anchor our dash dance off the stage
-                if(std::abs(m_roll_position + pivot_offset) > m_state->getStageEdgeGroundPosition())
+                if(std::abs(m_endPosition + pivot_offset) > m_state->getStageEdgeGroundPosition())
                 {
                     pivot_offset = isRight ? -FOX_JC_GRAB_MAX_SLIDE : FOX_JC_GRAB_MAX_SLIDE;
                 }
-                m_pivotPosition = m_roll_position + pivot_offset;
+                m_pivotPosition = m_endPosition + pivot_offset;
                 CreateChain3(DashDance, m_pivotPosition, 0);
                 m_chain->PressButtons();
                 return;
@@ -352,8 +358,8 @@ void TechChase::DetermineChain()
             //Make a new Run chain, since it's always interruptible
             delete m_chain;
             m_chain = NULL;
-            bool left_of_pivot_position = m_state->m_memory->player_two_x < m_pivotPosition;
-            CreateChain2(Run, left_of_pivot_position);
+            bool left_of_end_position = m_state->m_memory->player_two_x < m_endPosition;
+            CreateChain2(Run, left_of_end_position);
             m_chain->PressButtons();
             return;
         }

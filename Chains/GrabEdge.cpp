@@ -70,7 +70,7 @@ void GrabEdge::PressButtons()
     }
 
     //Just hang out and do nothing while wave landing
-    if(m_state->m_memory->player_two_action == LANDING_SPECIAL)
+    if(m_state->m_memory->player_two_action == WAVEDASH_SLIDE)
     {
         m_controller->emptyInput();
         return;

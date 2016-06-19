@@ -13,7 +13,8 @@ public:
     std::string ToString(){return "TechChase";};
 
 private:
-    double m_roll_position, m_pivotPosition;
+    double m_endPosition;
+    double m_pivotPosition;
 };
 
 #endif

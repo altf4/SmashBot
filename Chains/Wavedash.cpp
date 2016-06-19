@@ -101,7 +101,7 @@ bool Wavedash::IsInterruptible()
     {
         return true;
     }
-    if(m_state->m_memory->player_two_action == LANDING_SPECIAL)
+    if(m_state->m_memory->player_two_action == WAVEDASH_SLIDE)
     {
         return true;
     }

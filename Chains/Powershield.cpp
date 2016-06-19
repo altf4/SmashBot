@@ -373,17 +373,17 @@ void Powershield::PressButtons()
             //If we're right in close
             if(distance < 18)
             {
-                shield_on_frame = 2;
+                shield_on_frame = 4;
             }
             //Mid distance
             else if(distance >= 18 && distance < 27)
             {
-                shield_on_frame = 2;
+                shield_on_frame = 4;
             }
             //Long distance
             else if(distance >= 27)
             {
-                shield_on_frame = 3;
+                shield_on_frame = 5;
             }
             break;
         }

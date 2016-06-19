@@ -231,7 +231,7 @@ uint GameState::firstHitboxFrame(CHARACTER character, ACTION action)
                 case NEUTRAL_B_ATTACKING:
                 case NEUTRAL_B_ATTACKING_AIR:
                 {
-                    return 16;
+                    return 5;
                 }
                 case EDGE_ATTACK_SLOW:
                 {
@@ -390,7 +390,7 @@ uint GameState::lastHitboxFrame(CHARACTER character, ACTION action)
                 case NEUTRAL_B_ATTACKING:
                 case NEUTRAL_B_ATTACKING_AIR:
                 {
-                    return 21;
+                    return 10;
                 }
                 case EDGE_ATTACK_SLOW:
                 {
@@ -579,7 +579,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 case NEUTRAL_B_ATTACKING:
                 case NEUTRAL_B_ATTACKING_AIR:
                 {
-                    return 44;
+                    return 33;
                 }
                 case EDGE_ATTACK_SLOW:
                 {
@@ -591,14 +591,7 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
                 case LANDING_SPECIAL:
                 {
-                    if(m_landingFromUpB)
-                    {
-                        return 30;
-                    }
-                    else
-                    {
-                        return 10;
-                    }
+                    return 30;
                 }
                 case MARTH_COUNTER_FALLING:
                 case MARTH_COUNTER:
@@ -673,6 +666,10 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 {
                     return 49;
                 }
+                case WAVEDASH_SLIDE:
+                {
+                    return 10;
+                }
                 default:
                 {
                     return 0;
@@ -691,14 +688,11 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
                 }
                 case LANDING_SPECIAL:
                 {
-                    if(m_landingFromUpB)
-                    {
-                        return 30;
-                    }
-                    else
-                    {
-                        return 10;
-                    }
+                    return 30;
+                }
+                case WAVEDASH_SLIDE:
+                {
+                    return 10;
                 }
                 default:
                 {
@@ -712,11 +706,6 @@ uint GameState::totalActionFrames(CHARACTER character, ACTION action)
             break;
         }
     }
-}
-
-void GameState::setLandingState(bool state)
-{
-    m_landingFromUpB = state;
 }
 
 bool GameState::isAttacking(ACTION action)
