@@ -8,6 +8,7 @@ KillOpponent::KillOpponent()
     m_lastAction = (ACTION)m_state->m_memory->player_one_action;
     m_lastActionSelf = (ACTION)m_state->m_memory->player_two_action;
     m_lastActionFrame = 0;
+    m_lastActionFrameSelf = 0;
     m_moonwalkStepA = false;
 }
 
@@ -77,6 +78,11 @@ void KillOpponent::Strategize()
         m_lastActionFrame++;
         m_state->m_memory->player_one_action_frame = m_lastActionFrame;
     }
+    if(m_state->m_memory->player_two_action == WAVEDASH_SLIDE)
+    {
+        m_lastActionFrameSelf++;
+        m_state->m_memory->player_two_action_frame = m_lastActionFrameSelf;
+    }
 
     // Unfortunately, the game reuses LANDING_SPECIAL for both landing from an UP-B and from a wavedash
     // So we figure out if it's the wavedash version and silently make a "new" action state for it
@@ -87,6 +93,15 @@ void KillOpponent::Strategize()
         {
             m_state->m_memory->player_one_action = WAVEDASH_SLIDE;
             m_lastActionFrame = 1;
+        }
+    }
+    if(m_state->m_memory->player_two_action == LANDING_SPECIAL)
+    {
+        if(m_lastActionSelf != DEAD_FALL &&
+            m_lastActionSelf != UP_B)
+        {
+            m_state->m_memory->player_one_action = WAVEDASH_SLIDE;
+            m_lastActionFrameSelf = 1;
         }
     }
 

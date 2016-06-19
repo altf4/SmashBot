@@ -27,11 +27,21 @@ void GrabEdge::PressButtons()
     m_isInWavedash = true;
 
     //Fastfall once in the air
-    if((m_state->m_memory->player_two_action == FALLING) && !m_isInFastfall)
+    if((m_state->m_memory->player_two_action == FALLING) &&
+        !m_isInFastfall)
     {
-        m_isInFastfall = true;
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
-        return;
+        if(m_state->m_memory->player_two_speed_y_self < 0)
+        {
+            m_isInFastfall = true;
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+            return;
+        }
+        else
+        {
+            m_controller->emptyInput();
+            return;
+        }
+
     }
 
     //Dash Backwards if we're facing towards the edge and are in a state where we can dash

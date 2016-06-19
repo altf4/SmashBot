@@ -148,6 +148,15 @@ void Edgeguard::DetermineChain()
     //If we're still on the stage, see if it's safe to grab the edge
     if(m_state->m_memory->player_two_on_ground)
     {
+
+        //If we're already transitioning into grabbing the edge, then keep going.
+        if(m_state->m_memory->player_two_action == KNEE_BEND)
+        {
+            CreateChain(GrabEdge);
+            m_chain->PressButtons();
+            return;
+        }
+
         //If the enemy is in a stunned damage state, go ahead and try.
         if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) &&
             m_state->m_memory->player_one_hitstun_frames_left > 15)

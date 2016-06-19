@@ -20,6 +20,7 @@ private:
 
     //The action frame of last action. Used for keeping track of wavedash slide frames
     uint m_lastActionFrame;
+    uint m_lastActionFrameSelf;
 
     bool m_moonwalkStepA;
 };

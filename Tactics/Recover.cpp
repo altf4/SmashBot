@@ -66,7 +66,9 @@ void Recover::DetermineChain()
             else
             {
                 if(m_state->m_memory->player_two_y < -6 &&
-                  m_state->m_memory->player_two_action != FOX_ILLUSION)
+                    m_state->m_memory->player_two_action != FOX_ILLUSION &&
+                    m_state->m_memory->player_one_action != EDGE_HANGING &&
+                    m_state->m_memory->player_one_action != EDGE_CATCHING)
                 {
                     //Illusion
                     CreateChain2(Illusion, !onRight);
@@ -83,8 +85,10 @@ void Recover::DetermineChain()
         }
 
         if(m_state->m_memory->player_two_y < -4 &&
-          m_state->m_memory->player_two_y > -8 &&
-          m_state->m_memory->player_two_action != FOX_ILLUSION)
+            m_state->m_memory->player_two_y > -8 &&
+            m_state->m_memory->player_two_action != FOX_ILLUSION &&
+            m_state->m_memory->player_one_action != EDGE_HANGING &&
+            m_state->m_memory->player_one_action != EDGE_CATCHING)
         {
             //Illusion
             CreateChain2(Illusion, !onRight);
