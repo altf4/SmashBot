@@ -41,6 +41,13 @@ void Edgeguard::DetermineChain()
         lowerEventHorizon += MARTH_DOUBLE_JUMP_HEIGHT;
     }
 
+    if(m_state->m_memory->player_two_action == EDGE_CATCHING)
+    {
+        CreateChain(Nothing);
+        m_chain->PressButtons();
+        return;
+    }
+
     //Marth is dead if he's at this point
     if(m_state->m_memory->player_one_y < lowerEventHorizon)
     {
@@ -101,11 +108,8 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    bool canEdgeStall = m_state->m_memory->player_two_action == EDGE_HANGING ||
-        (m_state->m_memory->player_two_action == EDGE_CATCHING && m_state->m_memory->player_two_action_frame == 7);
-
     //Refresh invincibility if the enemy is getting close
-    if(canEdgeStall &&
+    if(m_state->m_memory->player_two_action == EDGE_HANGING &&
         distance < (2 * MARTH_FSMASH_RANGE) &&
         edge_distance > 25)
     {
@@ -126,6 +130,8 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
         !m_state->m_memory->player_one_on_ground &&
         !m_state->m_memory->player_two_on_ground &&
+        m_state->m_memory->player_one_action != AIRDODGE &&
+        m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING &&
         m_state->m_memory->player_one_jumps_left == 0)
     {
         CreateChain2(EdgeAction, FASTFALL);

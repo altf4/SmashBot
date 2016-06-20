@@ -855,6 +855,7 @@ bool GameState::isIndexedFromZero(ACTION action)
         case DOWN_B_AIR:
         case SWORD_DANCE_4_HIGH_AIR:
         case SWORD_DANCE_3_LOW_AIR:
+        case FIREFOX_AIR:
         {
             return true;
         }
