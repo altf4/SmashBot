@@ -60,7 +60,7 @@ void EdgeAction::PressButtons()
                     break;
                 }
                 m_pressedBack = true;
-                m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? 1 : 0, .5);
+                m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? .8 : .2, .5);
                 return;
             }
             //If we're falling, jump

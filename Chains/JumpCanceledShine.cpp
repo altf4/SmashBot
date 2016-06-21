@@ -11,8 +11,14 @@ JumpCanceledShine::~JumpCanceledShine()
 
 bool JumpCanceledShine::IsInterruptible()
 {
+    if(m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
+        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD)
+    {
+        return true;
+    }
+
     uint frame = m_state->m_memory->frame - m_startingFrame;
-    if(frame >= 8)
+    if(frame >= 20)
     {
         return true;
     }
@@ -21,40 +27,40 @@ bool JumpCanceledShine::IsInterruptible()
 
 void JumpCanceledShine::PressButtons()
 {
+    //If we're on the edge, drop down
     if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
         bool onRight = m_state->m_memory->player_two_x > 0;
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 1 : 0, .5);
-        m_startingFrame++;
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? .8 : .2, .5);
         return;
     }
 
-    uint frame = m_state->m_memory->frame - m_startingFrame;
-    switch(frame)
+    //Jump out of our shine
+    if(m_state->m_memory->player_two_action == DOWN_B_AIR)
     {
-        case 0:
-        {
-            //Down-B
-            m_controller->pressButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
-            break;
-        }
-        case 6:
-        {
-            //Let go of Down-B
-            m_controller->releaseButton(Controller::BUTTON_B);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_controller->pressButton(Controller::BUTTON_Y);
+        return;
+    }
 
-            //Jump
-            m_controller->pressButton(Controller::BUTTON_Y);
+    //Let go of jump if we're jumping
+    if(m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
+        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD)
+    {
+        m_controller->emptyInput();
+        return;
+    }
 
-            break;
-        }
-        case 7:
-        {
-            //Let go of Jump
-            m_controller->releaseButton(Controller::BUTTON_Y);
-            break;
-        }
+    //Shine
+    if(m_state->m_memory->player_two_action != DOWN_B_STUN &&
+        m_state->m_memory->player_two_action != DOWN_B_AIR)
+    {
+        m_controller->pressButton(Controller::BUTTON_B);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
+        return;
+    }
+    else
+    {
+        m_controller->emptyInput();
+        return;
     }
 }

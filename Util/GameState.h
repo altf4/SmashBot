@@ -229,6 +229,7 @@ enum ACTION
     DOWN_B_AIR = 0x16e,
     FOX_ILLUSION = 0x15e,
     UP_B_GROUND = 0x16f,
+    SHINE_RELEASE_AIR = 0x170,
     UP_B = 0x170,    //The upswing of the UP-B. (At least for marth)
     MARTH_COUNTER = 0x171,
     MARTH_COUNTER_FALLING = 0x173,

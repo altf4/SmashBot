@@ -3,27 +3,11 @@
 
 void EdgeStall::PressButtons()
 {
-    //We're stunned for this duration, so do nothing
-    if(m_state->m_memory->player_two_action == EDGE_CATCHING)
-    {
-        m_catchCount++;
-        if(m_catchCount == 7)
-        {
-            m_catchCount = 0;
-            m_pressedBack = true;
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 0 : 1, .5);
-            return;
-        }
-        else
-        {
-            m_controller->emptyInput();
-            return;
-        }
-    }
-
     //If we're hanging, then drop down
     if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
+        m_startingFrame = m_state->m_memory->frame;
+
         if(m_pressedBack)
         {
             m_controller->emptyInput();
@@ -33,8 +17,24 @@ void EdgeStall::PressButtons()
         else
         {
           m_pressedBack = true;
-          m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 0 : 1, .5);
+          m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? .2 : .8, .5);
           return;
+        }
+    }
+
+    //We're stunned for this duration, so do nothing
+    if(m_state->m_memory->player_two_action == EDGE_CATCHING)
+    {
+        if(m_state->m_memory->player_two_action_frame >= 7)
+        {
+            m_pressedBack = true;
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? .2 : .8, .5);
+            return;
+        }
+        else
+        {
+            m_controller->emptyInput();
+            return;
         }
     }
 
@@ -60,6 +60,11 @@ bool EdgeStall::IsInterruptible()
     {
         return true;
     }
+    if(m_state->m_memory->player_two_action == FIREFOX_WAIT_AIR)
+    {
+        return false;
+    }
+
     if(m_state->m_memory->frame - m_startingFrame > 30)
     {
         //Safety return. In case we screw something up, don't permanently get stuck in this chain.
@@ -81,7 +86,6 @@ EdgeStall::EdgeStall()
     }
     m_startingFrame = m_state->m_memory->frame;
     m_pressedBack = false;
-    m_catchCount = 0;
 }
 
 EdgeStall::~EdgeStall()

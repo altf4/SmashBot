@@ -89,6 +89,7 @@ void KillOpponent::Strategize()
     if(m_state->m_memory->player_one_action == LANDING_SPECIAL)
     {
         if(m_lastAction != DEAD_FALL &&
+            m_lastAction != LANDING_SPECIAL &&
             m_lastAction != UP_B)
         {
             m_state->m_memory->player_one_action = WAVEDASH_SLIDE;
@@ -98,6 +99,7 @@ void KillOpponent::Strategize()
     if(m_state->m_memory->player_two_action == LANDING_SPECIAL)
     {
         if(m_lastActionSelf != DEAD_FALL &&
+            m_lastActionSelf != LANDING_SPECIAL &&
             m_lastActionSelf != UP_B)
         {
             m_state->m_memory->player_two_action = WAVEDASH_SLIDE;

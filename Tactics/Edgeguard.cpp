@@ -41,6 +41,13 @@ void Edgeguard::DetermineChain()
         lowerEventHorizon += MARTH_DOUBLE_JUMP_HEIGHT;
     }
 
+    if(m_state->m_memory->player_two_action == EDGE_CATCHING)
+    {
+        CreateChain(Nothing);
+        m_chain->PressButtons();
+        return;
+    }
+
     //Marth is dead if he's at this point
     if(m_state->m_memory->player_one_y < lowerEventHorizon)
     {
@@ -89,9 +96,15 @@ void Edgeguard::DetermineChain()
     double edge_distance_y = std::abs(m_state->m_memory->player_one_y - EDGE_HANGING_Y_POSITION);
     double edge_distance = sqrt(pow(edge_distance_x, 2) + pow(edge_distance_y, 2));
 
+    //Are they close enough and falling downwards?
+    bool canOpponentGrabEdge = edge_distance < 18 &&
+        m_state->m_memory->player_one_speed_y_self < 0;
+
     //If we're able to shine p1 right now, let's do that
     if(std::abs(distance) < FOX_SHINE_RADIUS &&
+        !canOpponentGrabEdge &&
         !m_state->m_memory->player_one_invulnerable &&
+        m_state->m_memory->player_one_action != EDGE_CATCHING &&
         m_state->m_memory->player_one_action != AIRDODGE &&
         m_state->m_memory->player_one_action != MARTH_COUNTER &&
         m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING)
@@ -101,11 +114,8 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    bool canEdgeStall = m_state->m_memory->player_two_action == EDGE_HANGING ||
-        (m_state->m_memory->player_two_action == EDGE_CATCHING && m_state->m_memory->player_two_action_frame == 7);
-
     //Refresh invincibility if the enemy is getting close
-    if(canEdgeStall &&
+    if(m_state->m_memory->player_two_action == EDGE_HANGING &&
         distance < (2 * MARTH_FSMASH_RANGE) &&
         edge_distance > 25)
     {
@@ -126,6 +136,9 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
         !m_state->m_memory->player_one_on_ground &&
         !m_state->m_memory->player_two_on_ground &&
+        !canOpponentGrabEdge &&
+        m_state->m_memory->player_one_action != AIRDODGE &&
+        m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING &&
         m_state->m_memory->player_one_jumps_left == 0)
     {
         CreateChain2(EdgeAction, FASTFALL);

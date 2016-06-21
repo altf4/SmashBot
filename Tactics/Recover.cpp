@@ -10,6 +10,7 @@
 #include "../Chains/FullJump.h"
 #include "../Chains/DI.h"
 #include "../Chains/Illusion.h"
+#include "../Util/Logger.h"
 
 Recover::Recover()
 {
@@ -30,14 +31,9 @@ void Recover::DetermineChain()
         return;
     }
 
-    bool opponentOnStage = m_state->m_memory->player_one_on_ground ||
-        (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() &&
-        m_state->m_memory->player_one_y > -5);
-
     //If we're hanging on the egde, wavedash on
-    if(opponentOnStage &&
-        (m_state->m_memory->player_two_action == EDGE_HANGING ||
-        m_state->m_memory->player_two_action == EDGE_CATCHING))
+    if(m_state->m_memory->player_two_action == EDGE_HANGING ||
+        m_state->m_memory->player_two_action == EDGE_CATCHING)
     {
         CreateChain2(EdgeAction, WAVEDASH_UP);
         m_chain->PressButtons();

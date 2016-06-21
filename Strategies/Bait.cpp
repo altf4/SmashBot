@@ -89,6 +89,7 @@ void Bait::DetermineTactic()
         m_state->m_memory->player_two_action == WAVEDASH_SLIDE ||
         m_state->m_memory->player_two_action == SPOTDODGE ||
         m_state->m_memory->player_two_action == SHIELD_STUN ||
+        m_state->m_memory->player_two_action == EDGE_CATCHING ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_two_action) ||
         m_state->m_memory->player_two_action == THROW_FORWARD ||
         m_state->m_memory->player_two_action == THROW_BACK ||
@@ -413,16 +414,19 @@ void Bait::DetermineTactic()
             return;
         }
 
-        //Opponent is in a damage state, then just recover. We already hit them.
-        //Or if we're below the opponent
-        if((m_state->m_memory->player_two_action != EDGE_CATCHING &&
-            m_state->m_memory->player_two_action != EDGE_HANGING &&
-            m_state->isDamageState((ACTION)m_state->m_memory->player_one_action)) ||
-            m_state->m_memory->player_one_y > m_state->m_memory->player_two_y + 8)
+        //If we're already on the edge, just stay there
+        if(m_state->m_memory->player_two_action != EDGE_CATCHING &&
+            m_state->m_memory->player_two_action != EDGE_HANGING)
         {
-            CreateTactic(Recover);
-            m_tactic->DetermineChain();
-            return;
+            //Opponent is in a damage state, then just recover. We already hit them.
+            //Or if we're below the opponent
+            if(m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
+                m_state->m_memory->player_one_y > m_state->m_memory->player_two_y + 8)
+            {
+                CreateTactic(Recover);
+                m_tactic->DetermineChain();
+                return;
+            }
         }
     }
 

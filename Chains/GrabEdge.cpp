@@ -19,7 +19,7 @@ void GrabEdge::PressButtons()
     }
 
     //If we're far away from the edge, then dash at the edge
-    if(!m_isInWavedash && (std::abs(m_state->m_memory->player_two_x) < 72.5656))
+    if(!m_isInWavedash && (std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() - 13))
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 0 : 1, .5);
         return;
@@ -65,6 +65,18 @@ void GrabEdge::PressButtons()
     //Just hang out and do nothing while initial knee bending
     if(m_state->m_memory->player_two_action == KNEE_BEND &&
         m_state->m_memory->player_two_action_frame < 3)
+    {
+        m_controller->emptyInput();
+        return;
+    }
+
+    //Apparently you can be temporarily standing a little past the normal edge of the stage
+    double edgeDistance = std::abs(m_state->getStageEdgeGroundPosition() + .5 - std::abs(m_state->m_memory->player_two_x));
+    bool slidingTowardEdge = (m_state->m_memory->player_two_speed_ground_x_self > 0) != m_isLeftEdge;
+
+    //If we're about to slide off next frame. Just let it happen, don't air dodge
+    if(slidingTowardEdge &&
+        std::abs(m_state->m_memory->player_two_speed_ground_x_self) > edgeDistance)
     {
         m_controller->emptyInput();
         return;

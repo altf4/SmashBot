@@ -19,8 +19,6 @@ public:
 private:
     bool m_isLeftEdge;
     bool m_pressedBack;
-    uint m_catchCount;
-
 };
 
 #endif

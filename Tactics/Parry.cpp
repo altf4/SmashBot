@@ -34,15 +34,30 @@ void Parry::DetermineChain()
 
     if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
-        if(m_state->m_memory->player_one_action == UP_B)
+        //If they're UP-B'ing low and have to grab the edge, then roll up
+        if(m_state->m_memory->player_one_action == UP_B &&
+            m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + MARTH_DOUBLE_JUMP_HEIGHT)
         {
             CreateChain3(EdgeAction, ROLL_UP, 3);
             m_chain->PressButtons();
             return;
         }
-        CreateChain2(EdgeAction, STAND_UP);
-        m_chain->PressButtons();
-        return;
+
+        if(m_state->m_memory->player_one_action == UP_B)
+        {
+            if(m_state->m_memory->player_one_y > -44) //Horrible kludgey number here. The idea is to getup at the last possible moment
+            {
+                CreateChain3(EdgeAction, STAND_UP, 0);
+                m_chain->PressButtons();
+                return;
+            }
+            else
+            {
+                CreateChain(Nothing);
+                m_chain->PressButtons();
+                return;
+            }
+        }
     }
 
     //Can we just dash out of range?
