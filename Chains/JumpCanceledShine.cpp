@@ -12,7 +12,9 @@ JumpCanceledShine::~JumpCanceledShine()
 bool JumpCanceledShine::IsInterruptible()
 {
     if(m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
-        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD)
+        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD ||
+        m_state->m_memory->player_two_action == JUMPING_FORWARD ||
+        m_state->m_memory->player_two_action == JUMPING_BACKWARD)
     {
         return true;
     }
@@ -36,7 +38,8 @@ void JumpCanceledShine::PressButtons()
     }
 
     //Jump out of our shine
-    if(m_state->m_memory->player_two_action == DOWN_B_AIR)
+    if(m_state->m_memory->player_two_action == DOWN_B_AIR ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND)
     {
         m_controller->pressButton(Controller::BUTTON_Y);
         return;
@@ -44,7 +47,9 @@ void JumpCanceledShine::PressButtons()
 
     //Let go of jump if we're jumping
     if(m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
-        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD)
+        m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD ||
+        m_state->m_memory->player_two_action == JUMPING_FORWARD ||
+        m_state->m_memory->player_two_action == JUMPING_BACKWARD)
     {
         m_controller->emptyInput();
         return;
