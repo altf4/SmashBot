@@ -97,7 +97,8 @@ void Edgeguard::DetermineChain()
     double edge_distance = sqrt(pow(edge_distance_x, 2) + pow(edge_distance_y, 2));
 
     //Are they close enough and falling downwards?
-    bool canOpponentGrabEdge = edge_distance < 18 &&
+    bool canOpponentGrabEdge = m_state->m_memory->player_one_y > -24 && //Kludgey number. Make this more elegant
+        edge_distance_x < 14.72 &&
         m_state->m_memory->player_one_speed_y_self < 0;
 
     //If we're able to shine p1 right now, let's do that
@@ -159,7 +160,6 @@ void Edgeguard::DetermineChain()
     //If we're still on the stage, see if it's safe to grab the edge
     if(m_state->m_memory->player_two_on_ground)
     {
-
         //If we're already transitioning into grabbing the edge, then keep going.
         if(m_state->m_memory->player_two_action == KNEE_BEND)
         {
@@ -201,6 +201,15 @@ void Edgeguard::DetermineChain()
         }
     }
 
+    //Do the marth killer if we're on the stage and Marth is going to be stuck recovering with an up-B
+    if(m_state->m_memory->player_two_on_ground &&
+        m_state->m_memory->player_one_y < MARTH_JUMP_ONLY_EVENT_HORIZON)
+    {
+        CreateChain(MarthKiller);
+        m_chain->PressButtons();
+        return;
+    }
+
     //Dash dance around the edge
     if((m_state->m_memory->player_one_action == SLIDING_OFF_EDGE ||
         m_state->m_memory->player_one_action == EDGE_CATCHING ||
@@ -210,16 +219,6 @@ void Edgeguard::DetermineChain()
         bool onLeft = m_state->m_memory->player_one_x < 0;
         double pivotPoint = onLeft ? (-1) * m_state->getStageEdgeGroundPosition() : m_state->getStageEdgeGroundPosition();
         CreateChain3(DashDance, pivotPoint, 0);
-        m_chain->PressButtons();
-        return;
-    }
-
-    //Do the marth killer if we're on the stage and Marth is going to be stuck recovering with an up-B
-    if(m_state->m_memory->player_two_on_ground &&
-        m_state->m_memory->player_one_jumps_left == 0 &&
-        edge_distance_x > 30)
-    {
-        CreateChain(MarthKiller);
         m_chain->PressButtons();
         return;
     }

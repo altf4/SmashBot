@@ -16,14 +16,9 @@ public:
     bool IsInterruptible();
     std::string ToString(){return "MarthKiller";};
 
-
 private:
-    bool m_shielded;
-    bool m_rolled;
-    bool m_onRight;
-    uint m_rollFrame;
-    double m_shieldOffset;
-    bool m_canInterrupt;
+    double m_lightShieldDirection;
+    int m_backoffFrames;
 };
 
 #endif

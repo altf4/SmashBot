@@ -2,125 +2,126 @@
 #include <algorithm>
 
 #include "MarthKiller.h"
+#include "../Util/Constants.h"
 #include "../Util/Logger.h"
 
 void MarthKiller::PressButtons()
 {
-    if(m_state->m_memory->player_one_action == DEAD_FALL ||
-        m_state->m_memory->player_one_action == DEAD_DOWN)
+    bool onRight = m_state->m_memory->player_one_x > 0;
+
+    double distanceFromEdge = m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x);
+
+    //Dash back, since we're about to start running
+    if(m_state->m_memory->player_two_action == DASHING &&
+        m_state->m_memory->player_two_action_frame >= FOX_DASH_FRAMES-1)
     {
-        m_controller->emptyInput();
-        m_canInterrupt = true;
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, !m_state->m_memory->player_two_facing, .5);
         return;
     }
 
-    if(m_shielded == false && m_rolled == true)
+    //Should we hard shield right now?
+    //Note: Our "facing" bool doesn't change right away in the turning animation. So it looks here like it's backwards.
+    // But it's not
+    if(m_state->m_memory->player_two_action == TURNING &&
+        m_state->m_memory->player_two_facing == onRight &&
+        distanceFromEdge < 1.4)
+     {
+         m_controller->pressButton(Controller::BUTTON_L);
+         return;
+     }
+
+     //If we're starting the turn around animation, keep pressing that way or else we'll get stuck in the slow turnaround
+     if(m_state->m_memory->player_two_action == TURNING &&
+         m_state->m_memory->player_two_action_frame == 1)
+     {
+         //If we're turning back towards the stage, and didn't shield, then we need to do a random backoff
+         if(m_state->m_memory->player_two_facing == onRight)
+         {
+             m_backoffFrames = (rand() % 5) + 1;
+         }
+         return;
+     }
+
+    //Are we in position to pivot?
+    if(m_state->m_memory->player_two_action == DASHING &&
+        m_state->m_memory->player_two_facing == onRight &&
+        distanceFromEdge < FOX_DASH_SPEED + FOX_TURN_SLIDE)
     {
-        //If we are ready to shield but never needed to roll, then just go ahead with the light shield
-        // Incrementally hold further to the side to avoid rolling
-        m_controller->releaseButton(Controller::BUTTON_L);
-        m_controller->pressShoulder(Controller::BUTTON_L, .4);
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? .5 + m_shieldOffset : .5 - m_shieldOffset, .5);
-        //Increment by .05 each frame, up to the max of .5
-        m_shieldOffset += .02;
-        m_shieldOffset = std::min((double)m_shieldOffset, .5);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
         return;
     }
 
-    //Roll over to the edge
-    if(m_rolled == false)
+    //Dash at the edge if we're not close enough
+    if(m_state->m_memory->player_two_action == DASHING ||
+        m_state->m_memory->player_two_action == TURNING ||
+        distanceFromEdge > FOX_DASH_SPEED + FOX_TURN_SLIDE)
     {
-        if(m_shielded == false)
+        //Unless we're trying to re-roll how far we are from the edge at pivot
+        if(m_backoffFrames > 0)
         {
-            m_controller->pressButton(Controller::BUTTON_L);
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
-            m_shielded = true;
+            m_backoffFrames--;
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 0 : 1, .5);
             return;
         }
         else
         {
-            m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? 1 : 0, .5);
-            m_rolled = true;
-            m_rollFrame = m_state->m_memory->frame;
+            m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? 1 : 0, .5);
             return;
         }
     }
 
-    if(!m_state->m_memory->player_two_on_ground)
+    //Once we're shielding, let go of the hard shield and start light shielding
+    if(m_state->m_memory->player_two_action == SHIELD_START ||
+        m_state->m_memory->player_two_action == SHIELD ||
+        m_state->m_memory->player_two_action == SHIELD_STUN ||
+        m_state->m_memory->player_two_action == SHIELD_REFLECT)
     {
-        m_controller->emptyInput();
-        return;
-    }
-
-    if(m_state->m_memory->player_two_action == EDGE_CATCHING)
-    {
-        m_controller->emptyInput();
-        return;
-    }
-
-    //Let go of hard shield, start light shield
-    if(m_state->m_memory->frame >= m_rollFrame+1 &&
-        m_rollFrame > 0)
-    {
+        //Incrementally hold further to the side to avoid rolling
         m_controller->releaseButton(Controller::BUTTON_L);
         m_controller->pressShoulder(Controller::BUTTON_L, .4);
-        m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_onRight ? .9 : .1, .5);
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, onRight ? .5 + m_lightShieldDirection : .5 - m_lightShieldDirection, .5);
+        //Increment by .05 each frame, up to the max of .5
+        m_lightShieldDirection += .02;
+        m_lightShieldDirection = std::min((double)m_lightShieldDirection, .5);
         return;
     }
 
     //If all else fails, just hang out and do nothing
     m_controller->emptyInput();
-    return;
 }
 
 bool MarthKiller::IsInterruptible()
 {
-    if(m_state->m_memory->player_two_action == EDGE_HANGING ||
-        m_state->m_memory->player_one_action == EDGE_HANGING ||
-        m_state->m_memory->player_one_action == EDGE_CATCHING ||
+    if(m_state->m_memory->player_one_action == DEAD_FALL ||
+        m_state->m_memory->player_one_action == DEAD_DOWN ||
         m_state->m_memory->player_one_on_ground)
     {
-        m_controller->pressShoulder(Controller::BUTTON_L, 0);
         return true;
     }
 
-    if(m_state->m_memory->player_one_action == DEAD_FALL &&
-        m_state->m_memory->player_one_y < -23)
+    if(m_state->m_memory->player_one_action == UP_B &&
+        m_state->m_memory->player_two_action != SHIELD_REFLECT &&
+        m_state->m_memory->player_two_action != SHIELD &&
+        m_state->m_memory->player_two_action != SHIELD_START)
     {
-        m_controller->pressShoulder(Controller::BUTTON_L, 0);
         return true;
     }
 
     //Get unstuck eventually. Shouldn't get here.
     uint frame = m_state->m_memory->frame - m_startingFrame;
-    if(frame > 180)
+    if(frame > 240)
     {
-        m_controller->pressShoulder(Controller::BUTTON_L, 0);
+        m_controller->emptyInput();
         return true;
     }
 
-    return m_canInterrupt;
+    return false;
 }
 
 MarthKiller::MarthKiller()
 {
-    m_rolled = false;
-    m_shielded = false;
-    m_onRight = m_state->m_memory->player_two_x > 0;
-    m_rollFrame = 0;
-    m_shieldOffset = 0;
-    m_canInterrupt = false;
-
-    //Are we already in position to do a MarthKiller?
-    if(std::abs(m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x)) < 1 &&
-        m_state->m_memory->player_two_facing != m_onRight)
-    {
-        m_rolled = true;
-        if(m_state->m_memory->player_two_action == SHIELD)
-        {
-            m_shielded = true;
-        }
-    }
+    m_backoffFrames = 0;
+    m_lightShieldDirection = 0;
 }
 
 MarthKiller::~MarthKiller()

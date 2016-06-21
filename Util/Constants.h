@@ -42,10 +42,14 @@
 //Until it turns to a run
 #define FOX_DASH_FRAMES 12
 #define FOX_DASH_SPEED 2.2
+#define FOX_DASH_ACCELERATION .12
 
 //How fast a character decelerates. IE: Their speed will reduce by exactly this much per frame, if sliding
 #define FOX_SLIDE_COEFICIENT 0.08
 #define MARTH_SLIDE_COEFICIENT 0.06
+
+//Distance Fox slides going into a turn from dash
+#define FOX_TURN_SLIDE 0.43
 
 //How much Fox slides when Jump-cancel grabbing at max speed
 #define FOX_JC_GRAB_MAX_SLIDE 14.72
