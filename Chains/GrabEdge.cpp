@@ -45,8 +45,12 @@ void GrabEdge::PressButtons()
 
     }
 
+    double distanceFromEdge = m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x);
+
     //Dash Backwards if we're facing towards the edge and are in a state where we can dash
-    if(m_isLeftEdge != m_state->m_memory->player_two_facing)
+    // Or if we're too close to safely wavedash back
+    if(m_isLeftEdge != m_state->m_memory->player_two_facing ||
+        distanceFromEdge < 3)
     {
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_isLeftEdge ? 1 : 0, .5);
         return;
