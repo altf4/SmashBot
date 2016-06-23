@@ -20,9 +20,13 @@ void DashDance::PressButtons()
     }
 
     //If we're walking, stop for a frame
+    //Also, if we're shielding, don't try to dash. We will accidentally roll
     if(m_state->m_memory->player_two_action == WALK_SLOW ||
         m_state->m_memory->player_two_action == WALK_MIDDLE ||
-        m_state->m_memory->player_two_action == WALK_FAST)
+        m_state->m_memory->player_two_action == WALK_FAST ||
+        m_state->m_memory->player_two_action == SHIELD_START ||
+        m_state->m_memory->player_two_action == SHIELD_REFLECT ||
+        m_state->m_memory->player_two_action == SHIELD)
     {
         m_controller->emptyInput();
         return;
