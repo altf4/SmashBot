@@ -16,7 +16,6 @@ public:
     std::string ToString(){return "Illusion";};
 
 private:
-    bool m_pressedSideB;
     bool m_goRight;
 
 };

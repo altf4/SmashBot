@@ -218,6 +218,9 @@ enum ACTION
     SWORD_DANCE_4_HIGH_AIR = 0x16c,
     SWORD_DANCE_4_MID_AIR = 0x16d,
     SWORD_DANCE_4_LOW_AIR = 0x16e,
+    FOX_ILLUSION_START = 0x15e,
+    FOX_ILLUSION = 0x15f,
+    FOX_ILLUSION_SHORTENED = 0x160,
     FIREFOX_WAIT_GROUND = 0x161, //Firefox wait on the ground
     FIREFOX_WAIT_AIR = 0x162, //Firefox wait in the air
     FIREFOX_GROUND = 0x163, //Firefox on the ground
@@ -227,7 +230,6 @@ enum ACTION
     SHINE_TURN = 0x16c,
     DOWN_B_STUN = 0x16d, //Fox is stunned in these frames
     DOWN_B_AIR = 0x16e,
-    FOX_ILLUSION = 0x15e,
     UP_B_GROUND = 0x16f,
     SHINE_RELEASE_AIR = 0x170,
     UP_B = 0x170,    //The upswing of the UP-B. (At least for marth)

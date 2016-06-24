@@ -54,6 +54,16 @@ void Recover::DetermineChain()
             m_state->m_memory->player_two_action == FALLING_AERIAL ||
             m_state->m_memory->player_two_action == DOWN_B_AIR;
 
+        // //If we're in our shine and ABOVE the stage, just let go and fall.
+        // if(m_state->m_memory->player_two_action == DOWN_B_AIR &&
+        //     m_state->m_memory->player_two_action_frame < 11 &&
+        //     m_state->m_memory->player_two_y > -10)
+        // {
+        //     CreateChain(Nothing);
+        //     m_chain->PressButtons();
+        //     return;
+        // }
+
         //Can we just fall and grab the edge?
         if(acceptableFallState &&
             m_state->m_memory->player_one_action != EDGE_HANGING &&
@@ -91,7 +101,7 @@ void Recover::DetermineChain()
 
         if(m_state->m_memory->player_two_y < -4 &&
             m_state->m_memory->player_two_y > -8 &&
-            m_state->m_memory->player_two_action != FOX_ILLUSION &&
+            m_state->m_memory->player_two_action != FOX_ILLUSION_START &&
             m_state->m_memory->player_one_action != EDGE_HANGING &&
             m_state->m_memory->player_one_action != EDGE_CATCHING)
         {
@@ -107,7 +117,7 @@ void Recover::DetermineChain()
             m_state->m_memory->player_two_facing != onRight &&
             m_state->m_memory->player_two_speed_y_self > 0)
         {
-            CreateChain(FireFox);
+            CreateChain2(FireFox, true);
             m_chain->PressButtons();
             return;
         }
@@ -120,10 +130,11 @@ void Recover::DetermineChain()
             return;
         }
 
-        //If we're jumping, just keep jumping
+        //If we're jumping, just keep jumping until we're above the stage
         if((m_state->m_memory->player_two_action == JUMPING_ARIAL_FORWARD ||
-          m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD) &&
-          m_state->m_memory->player_two_speed_y_self > 0)
+            m_state->m_memory->player_two_action == JUMPING_ARIAL_BACKWARD) &&
+            m_state->m_memory->player_two_speed_y_self > 0 &&
+            m_state->m_memory->player_two_y < 0)
         {
             CreateChain3(DI, onRight ? 0 : 1, .5);
             m_chain->PressButtons();
@@ -131,8 +142,17 @@ void Recover::DetermineChain()
         }
     }
 
-    //Firefox back
-    CreateChain(FireFox);
+    bool enemyOnStage = m_state->m_memory->player_one_on_ground ||
+        (std::abs(m_state->m_memory->player_one_x) < m_state->getStageEdgeGroundPosition() &&
+        m_state->m_memory->player_one_y > -5);
+
+    //Firefox back, randomly choose to sweetspot
+    bool sweetspot = rand() % 2 == 0;
+    if(!enemyOnStage)
+    {
+        sweetspot = true;
+    }
+    CreateChain2(FireFox, sweetspot);
     m_chain->PressButtons();
     return;
 }

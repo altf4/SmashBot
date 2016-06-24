@@ -101,6 +101,13 @@ void Edgeguard::DetermineChain()
         edge_distance_x < 14.72 &&
         m_state->m_memory->player_one_speed_y_self < 0;
 
+    bool inShine = m_state->m_memory->player_two_action == DOWN_B_GROUND ||
+        m_state->m_memory->player_two_action == DOWN_B_STUN ||
+        m_state->m_memory->player_two_action == DOWN_B_GROUND_START ||
+        m_state->m_memory->player_two_action == DOWN_B_AIR ||
+        m_state->m_memory->player_two_action == SHINE_TURN ||
+        m_state->m_memory->player_two_action == SHINE_RELEASE_AIR;
+
     //If we're able to shine p1 right now, let's do that
     if(std::abs(distance) < FOX_SHINE_RADIUS &&
         !canOpponentGrabEdge &&
@@ -108,7 +115,8 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_one_action != EDGE_CATCHING &&
         m_state->m_memory->player_one_action != AIRDODGE &&
         m_state->m_memory->player_one_action != MARTH_COUNTER &&
-        m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING)
+        m_state->m_memory->player_one_action != MARTH_COUNTER_FALLING &&
+        !inShine)
     {
         CreateChain(JumpCanceledShine);
         m_chain->PressButtons();
@@ -250,7 +258,7 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_two_facing != onRight &&
         m_state->m_memory->player_two_speed_y_self > 0)
     {
-        CreateChain(FireFox);
+        CreateChain2(FireFox, true);
         m_chain->PressButtons();
         return;
     }

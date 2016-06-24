@@ -57,7 +57,10 @@ void JumpCanceledShine::PressButtons()
 
     //Shine
     if(m_state->m_memory->player_two_action != DOWN_B_STUN &&
-        m_state->m_memory->player_two_action != DOWN_B_AIR)
+        m_state->m_memory->player_two_action != DOWN_B_AIR &&
+        m_state->m_memory->player_two_action != SHINE_TURN &&
+        m_state->m_memory->player_two_action != DOWN_B_GROUND &&
+        m_state->m_memory->player_two_action != DOWN_B_STUN)
     {
         m_controller->pressButton(Controller::BUTTON_B);
         m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, 0);
