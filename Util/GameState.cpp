@@ -1139,3 +1139,201 @@ bool GameState::hasMultipleHitboxes(CHARACTER character, ACTION action)
         }
     }
 }
+
+double GameState::getMaxHorizontalAirSpeed(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 0.88875;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getInitHorizontalAirSpeed(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 0.9825;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getInitVerticalAirSpeed(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 2.027;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getHorizontalAirAccel(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 0.005;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::calculateMaxAirDistance(CHARACTER character, double initSpeed, int frames, bool direction)
+{
+    double accel = getHorizontalAirAccel(character);
+    double maxSpeed = getMaxHorizontalAirSpeed(character);
+    double negMaxSpeed = (-1.0)*maxSpeed;
+
+    //This determines magnitude of slide
+    double totalDistance = 0;
+
+    for(int i = 1; i <= frames; i++)
+    {
+        //If going right...
+        if(direction)
+        {
+            if(initSpeed > maxSpeed)
+            {
+                //Decelerate down to max speed
+                totalDistance += std::max(initSpeed - (i * accel), maxSpeed);
+            }
+            else
+            {
+                //Accelerate up to max speed
+                totalDistance += std::min(initSpeed + (i * accel), maxSpeed);
+            }
+        }
+        else
+        {
+            if(initSpeed < negMaxSpeed)
+            {
+                //Decelerate down to max speed
+                totalDistance += std::min(initSpeed + (i * accel), negMaxSpeed);
+            }
+            else
+            {
+                //Accelerate up to max speed
+                totalDistance += std::max(initSpeed - (i * accel), negMaxSpeed);
+            }
+        }
+    }
+    return totalDistance;
+}
+
+int GameState::getFramesUntilFallingFromJump(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 24;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getDoubleJumpHeightMax(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 25.187989;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getGravity(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 0.085;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getMaxFallingSpeed(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 2.2;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::getFastfallSpeed(CHARACTER character)
+{
+    switch(character)
+    {
+        case MARTH:
+        {
+            return 2.5;
+        }
+        case FOX:
+        {
+            return 3.4;
+        }
+        default:
+        {
+            return 0;
+        }
+    }
+}
+
+double GameState::calculateDoubleJumpHeight(CHARACTER character, double initSpeed)
+{
+    double gravity = getGravity(character);
+    double height = 0;
+
+    for(int i = 1;; i++)
+    {
+        double tick = initSpeed - (i * gravity);
+        if(tick < 0)
+        {
+            break;
+        }
+        height += tick;
+    }
+    return height;
+}

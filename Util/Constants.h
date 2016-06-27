@@ -3,6 +3,9 @@
 
 //TODO: maybe marth specific
 #define EDGE_HANGING_Y_POSITION -23.7163639069
+#define EDGE_MAGNETISM_X 14.72
+#define EDGE_MAGNETISM_Y 24
+#define EDGE_MAGNETISM_Y_TOP 11
 
 //Max tipper range, measured from Marth's center
 #define MARTH_FSMASH_RANGE 38.50
@@ -12,7 +15,6 @@
 #define MARTH_UP_B_X_DISTANCE 18
 
 #define MARTH_RUN_SPEED 1.7775000334
-#define MARTH_DOUBLE_JUMP_HEIGHT 23
 
 //The depth of Marth at which he can't recover anymore. If he's gone down this low, he's dead
 #define MARTH_LOWER_EVENT_HORIZON -98
@@ -27,7 +29,6 @@
 
 #define FOX_SHINE_RADIUS 11.80
 #define FOX_ROLL_FRAMES 35
-#define FOX_FASTFALL_SPEED 3.4
 #define FOX_DOUBLE_JUMP_HEIGHT 40.15
 
 //This is a little conservative, actually

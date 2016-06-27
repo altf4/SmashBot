@@ -310,6 +310,10 @@ public:
     //How far will you slide?
     double calculateSlideDistance(CHARACTER character, double initSpeed, int frames);
 
+    //How far could the given character (in the air) with the given initial speed go in the given amount of frames?
+    // (Horizontally)
+    double calculateMaxAirDistance(CHARACTER character, double initSpeed, int frames, bool direction);
+
     double getRollDistance(CHARACTER character, ACTION action);
 
     //Returns the direction the roll goes, relative to the character's facing
@@ -320,6 +324,41 @@ public:
 
     //Is this a multihit attack?
     bool hasMultipleHitboxes(CHARACTER character, ACTION action);
+
+    //Get the max self air speed of the given character
+    // NOTE: This is not the highest speed that a character can get to, it's the maximum equilibrium speed.
+    // This means that once a character jumps, they will often start at a higher speed than this, but will quickly
+    // decelerate until they reach the speed returned here. Similarly, this is the fastest speed that the character
+    // can DI into horizontally
+    double getMaxHorizontalAirSpeed(CHARACTER character);
+
+    //Get the maximm initial air speed after double jumping
+    // NOTE: This is often higher than the max speed, meaning that "acceleration" will actually decelerate
+    double getInitHorizontalAirSpeed(CHARACTER character);
+
+    //As soon as the character double-jumps, how fast do they move upwards?
+    double getInitVerticalAirSpeed(CHARACTER character);
+
+    //Get the amount of acceleration a character has towards the max air speed
+    double getHorizontalAirAccel(CHARACTER character);
+
+    //How fast the character accelerates downward
+    double getGravity(CHARACTER character);
+
+    //NOTE: This means NON-fastall speed
+    double getMaxFallingSpeed(CHARACTER character);
+
+    //Fastfall speed of this character
+    double getFastfallSpeed(CHARACTER character);
+
+    //How many frames does it take the character to jump and then start falling?
+    int getFramesUntilFallingFromJump(CHARACTER character);
+
+    //How high does the character double jump at max?
+    double getDoubleJumpHeightMax(CHARACTER character);
+
+    //How high will the character fly upwards, given the initial speed?
+    double calculateDoubleJumpHeight(CHARACTER character, double initSpeed);
 
     GameMemory *m_memory;
     double m_rollStartPosition;
