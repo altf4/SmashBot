@@ -35,6 +35,10 @@ void Bait::DetermineTactic()
 {
     //Logger::Instance()->Log(INFO, "");
 
+    Logger::Instance()->Log(INFO, "player_one_speed_x_attack: " + std::to_string(m_state->m_memory->player_one_speed_x_attack));
+    Logger::Instance()->Log(INFO, "player_one_speed_air_x_self: " + std::to_string(m_state->m_memory->player_one_speed_air_x_self));
+    Logger::Instance()->Log(INFO, "player_one_speed_y_self: " + std::to_string(m_state->m_memory->player_one_speed_y_self));
+
     //Has opponent just released a charged smash attack?
     bool chargedSmashReleased = false;
     if(!m_state->m_memory->player_one_charging_smash && m_chargingLastFrame)

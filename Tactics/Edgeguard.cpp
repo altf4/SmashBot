@@ -36,9 +36,10 @@ void Edgeguard::DetermineChain()
     }
 
     double lowerEventHorizon = MARTH_LOWER_EVENT_HORIZON;
+    double doubleJumpHeight = m_state->getDoubleJumpHeightMax((CHARACTER)m_state->m_memory->player_one_character);
     if(m_state->m_memory->player_one_jumps_left == 0)
     {
-        lowerEventHorizon += MARTH_DOUBLE_JUMP_HEIGHT;
+        lowerEventHorizon += doubleJumpHeight;
     }
 
     if(m_state->m_memory->player_two_action == EDGE_CATCHING)
@@ -72,7 +73,7 @@ void Edgeguard::DetermineChain()
         m_state->m_memory->player_two_action == EDGE_HANGING)
     {
         //Is marth so low that he must grab the edge? If so, just roll up.
-        if(m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + MARTH_DOUBLE_JUMP_HEIGHT)
+        if(m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + doubleJumpHeight)
         {
             CreateChain3(EdgeAction, ROLL_UP, 2);
             m_chain->PressButtons();
@@ -94,11 +95,10 @@ void Edgeguard::DetermineChain()
 
     double edge_distance_x = std::abs(std::abs(m_state->m_memory->player_one_x) - m_state->getStageEdgePosition());
     double edge_distance_y = std::abs(m_state->m_memory->player_one_y - EDGE_HANGING_Y_POSITION);
-    double edge_distance = sqrt(pow(edge_distance_x, 2) + pow(edge_distance_y, 2));
 
     //Are they close enough and falling downwards?
-    bool canOpponentGrabEdge = m_state->m_memory->player_one_y > -24 && //Kludgey number. Make this more elegant
-        edge_distance_x < 14.72 &&
+    bool canOpponentGrabEdge = m_state->m_memory->player_one_y > -EDGE_MAGNETISM_Y && //Kludgey number. Make this more elegant
+        edge_distance_x < EDGE_MAGNETISM_X &&
         m_state->m_memory->player_one_speed_y_self < 0;
 
     bool inShine = m_state->m_memory->player_two_action == DOWN_B_GROUND ||
@@ -123,25 +123,75 @@ void Edgeguard::DetermineChain()
         return;
     }
 
-    //Refresh invincibility if the enemy is getting close
-    if(m_state->m_memory->player_two_action == EDGE_HANGING &&
-        distance < (2 * MARTH_FSMASH_RANGE) &&
-        edge_distance > 25)
+    double foxFastFallSpeed = m_state->getFastfallSpeed((CHARACTER)m_state->m_memory->player_two_character);
+
+    //Consider refreshing invincibility if the enemy is getting close
+    if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
-        //Don't edge stall if opponent can up-b to the edge quickly
-        if(edge_distance_y > MARTH_UP_B_HEIGHT + 10 ||
-            ((edge_distance_x > MARTH_UP_B_X_DISTANCE) && (std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgePosition())))
+        //Let's do some math and see if we can safely edge stall without risk of our opponent grabbing the edge
+        bool onRightOfOpponent = m_state->m_memory->player_one_x > m_state->m_memory->player_two_x;
+
+        bool initSpeed = m_state->m_memory->player_one_speed_air_x_self;
+        if(m_state->m_memory->player_one_jumps_left > 0)
         {
-            CreateChain(EdgeStall);
-            m_chain->PressButtons();
-            return;
+            initSpeed = m_state->getInitHorizontalAirSpeed((CHARACTER)m_state->m_memory->player_one_character);
+            if(!onRightOfOpponent)
+            {
+                initSpeed *= -1.0;
+            }
+        }
+
+        //How far at best could the opponent travel in the next 29 frames? (The amount of time it takes to finish the edge stall)
+        double maxHorizontalDistance = m_state->calculateMaxAirDistance((CHARACTER)m_state->m_memory->player_one_character, initSpeed, 29, onRightOfOpponent);
+        double endPositionX = m_state->m_memory->player_one_x + maxHorizontalDistance;
+        bool canReachEdgeHorizontal = std::abs(endPositionX) < m_state->getStageEdgePosition() + EDGE_MAGNETISM_X;
+
+        //Can opponent reach the edge vertically?
+        bool canReachEdgeVertical = false;
+
+        //Does opponent need to jump?
+        if(m_state->m_memory->player_one_y < -EDGE_MAGNETISM_Y)
+        {
+            //Calculate how how they can jump to given their current rates
+            double vertSpeed = m_state->m_memory->player_one_speed_y_self;
+            if(m_state->m_memory->player_one_jumps_left > 0)
+            {
+                //If they still have a jump, consider the possibility that they could use it
+                vertSpeed = m_state->getInitVerticalAirSpeed((CHARACTER)m_state->m_memory->player_one_character);
+            }
+            double jumpHeight = m_state->calculateDoubleJumpHeight((CHARACTER)m_state->m_memory->player_one_character, vertSpeed);
+            if(m_state->m_memory->player_one_y + jumpHeight > -EDGE_MAGNETISM_Y)
+            {
+                canReachEdgeVertical = true;
+            }
+        }
+        else
+        {
+            //Opponent is above, trying to fall down
+            //TODO
+            foxFastFallSpeed
+        }
+
+        //The oppoent can't read the edge in time
+        //NOTE: Technically, this doesn't test that the opponent can reach the x and y positions of the edge at the SAME time
+        // So, it might refuse to edge stall conservatively in some rare cases
+        if(!canReachEdgeHorizontal || !canReachEdgeVertical)
+        {
+            //Don't edge stall if opponent can up-b to the edge quickly
+            if(edge_distance_y > MARTH_UP_B_HEIGHT + 10 ||
+                ((edge_distance_x > MARTH_UP_B_X_DISTANCE) && (std::abs(m_state->m_memory->player_one_x) > m_state->getStageEdgePosition())))
+            {
+                CreateChain(EdgeStall);
+                m_chain->PressButtons();
+                return;
+            }
         }
     }
 
     //Drop down and shine the enemy if they are below us and we have enough invincibility
     int invincibilityFramesLeft = 29 - (m_state->m_memory->frame - m_state->m_edgeInvincibilityStartSelf);
     if(std::abs(m_state->m_memory->player_two_x - m_state->m_memory->player_one_x) < 7 &&
-        (invincibilityFramesLeft * FOX_FASTFALL_SPEED) > distance &&
+        (invincibilityFramesLeft * foxFastFallSpeed) > distance &&
         m_state->m_memory->player_two_y > m_state->m_memory->player_one_y &&
         !m_state->m_memory->player_one_on_ground &&
         !m_state->m_memory->player_two_on_ground &&

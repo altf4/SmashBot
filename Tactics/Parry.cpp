@@ -34,9 +34,10 @@ void Parry::DetermineChain()
 
     if(m_state->m_memory->player_two_action == EDGE_HANGING)
     {
+        double doubleJumpHeight = m_state->getDoubleJumpHeightMax((CHARACTER)m_state->m_memory->player_one_character);
         //If they're UP-B'ing low and have to grab the edge, then roll up
         if(m_state->m_memory->player_one_action == UP_B &&
-            m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + MARTH_DOUBLE_JUMP_HEIGHT)
+            m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + doubleJumpHeight)
         {
             CreateChain3(EdgeAction, ROLL_UP, 3);
             m_chain->PressButtons();
