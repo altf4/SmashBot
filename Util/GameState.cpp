@@ -18,6 +18,7 @@ GameState *GameState::Instance()
 GameState::GameState()
 {
     m_memory = new GameMemory();
+    m_memory->menu_state = CHARACTER_SELECT; //Let's assume we're in the character select screen unless we know otherwise
     m_rollStartPosition = 0;
     m_edgeInvincibilityStart = 0;
     m_edgeInvincibilityStartSelf = 0;

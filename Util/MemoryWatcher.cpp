@@ -518,6 +518,7 @@ bool MemoryWatcher::ReadMemory()
             case 0x479d30:
             {
                 value_int = std::stoul(value.c_str(), nullptr, 16);
+                value_int &= 0x000000FF;
                 m_state->m_memory->menu_state = value_int;
                 break;
             }
