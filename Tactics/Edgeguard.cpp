@@ -36,10 +36,12 @@ void Edgeguard::DetermineChain()
     }
 
     double lowerEventHorizon = MARTH_LOWER_EVENT_HORIZON;
-    double doubleJumpHeight = m_state->getDoubleJumpHeightMax((CHARACTER)m_state->m_memory->player_one_character);
-    if(m_state->m_memory->player_one_jumps_left == 0)
+    if(m_state->m_memory->player_one_jumps_left == 0 &&
+        m_state->m_memory->player_one_speed_y_self > 0)
     {
-        lowerEventHorizon += doubleJumpHeight;
+        double jumpHeight = m_state->calculateDoubleJumpHeight((CHARACTER)m_state->m_memory->player_one_character,
+            m_state->m_memory->player_one_speed_y_self);
+        lowerEventHorizon += jumpHeight;
     }
 
     if(m_state->m_memory->player_two_action == EDGE_CATCHING)
@@ -72,6 +74,7 @@ void Edgeguard::DetermineChain()
     if(m_state->m_memory->player_one_action == UP_B &&
         m_state->m_memory->player_two_action == EDGE_HANGING)
     {
+        double doubleJumpHeight = m_state->getDoubleJumpHeightMax((CHARACTER)m_state->m_memory->player_one_character);
         //Is marth so low that he must grab the edge? If so, just roll up.
         if(m_state->m_memory->player_one_y < MARTH_RECOVER_HIGH_EVENT_HORIZON + doubleJumpHeight)
         {
