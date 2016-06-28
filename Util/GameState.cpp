@@ -52,6 +52,11 @@ double GameState::getStageEdgePosition()
             edge_position = 66.2554016113;
             break;
         }
+        case POKEMON_STADIUM:
+        {
+            edge_position = 90.657852;
+            break;
+        }
     }
     return edge_position;
 }
@@ -79,6 +84,11 @@ double GameState::getStageEdgeGroundPosition()
         case FOUNTAIN_OF_DREAMS:
         {
             edge_position = 63.3475494385;
+            break;
+        }
+        case POKEMON_STADIUM:
+        {
+            edge_position = 87.75;
             break;
         }
     }
