@@ -29,71 +29,300 @@ GameState::GameState()
 
 double GameState::getStageEdgePosition()
 {
-    double edge_position = 100;
     switch(m_memory->stage)
     {
         case BATTLEFIELD:
         {
-            edge_position = 71.3078536987;
-            break;
+            return 71.3078536987;
         }
         case FINAL_DESTINATION:
         {
-            edge_position = 88.4735488892;
-            break;
+            return 88.4735488892;
         }
         case DREAMLAND:
         {
-            edge_position = 80.1791534424;
-            break;
+            return 80.1791534424;
         }
         case FOUNTAIN_OF_DREAMS:
         {
-            edge_position = 66.2554016113;
-            break;
+            return 66.2554016113;
         }
         case POKEMON_STADIUM:
         {
-            edge_position = 90.657852;
-            break;
+            return 90.657852;
+        }
+        case YOSHI_STORY:
+        {
+            return 58.907848;
         }
     }
-    return edge_position;
+    return 1000;
 }
 
 double GameState::getStageEdgeGroundPosition()
 {
-    double edge_position = 100;
     switch(m_memory->stage)
     {
         case BATTLEFIELD:
         {
-            edge_position = 68.4000015259;
-            break;
+            return 68.4000015259;
         }
         case FINAL_DESTINATION:
         {
-            edge_position = 85.5656967163;
-            break;
+            return 85.5656967163;
         }
         case DREAMLAND:
         {
-            edge_position = 77.2713012695;
-            break;
+            return 77.2713012695;
         }
         case FOUNTAIN_OF_DREAMS:
         {
-            edge_position = 63.3475494385;
-            break;
+            return 63.3475494385;
         }
         case POKEMON_STADIUM:
         {
-            edge_position = 87.75;
-            break;
+            return 87.75;
+        }
+        case YOSHI_STORY:
+        {
+            return 56;
         }
     }
-    return edge_position;
+    return 1000;
 }
+
+//Does the current stage have side platforms?
+bool GameState::hasSidePlatforms()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        case POKEMON_STADIUM:
+        case DREAMLAND:
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return true;
+        }
+        case FINAL_DESTINATION:
+        {
+            return false;
+        }
+    }
+    return false;
+}
+
+//Does the current stage have a top platform?
+bool GameState::hasTopPlatform()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        case DREAMLAND:
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return true;
+        }
+        case POKEMON_STADIUM:
+        case FINAL_DESTINATION:
+        {
+            return false;
+        }
+    }
+    return false;
+}
+
+double GameState::sidePlatformHeight()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return 27.2001;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return 30.142199;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return 1000; //These platforms move around...
+        }
+        case POKEMON_STADIUM:
+        {
+            return 25.000099;
+        }
+        case YOSHI_STORY:
+        {
+            return 23.450098;
+        }
+    }
+    return 1000;
+}
+
+double GameState::sidePlatformOutterEdge()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return 57.600002;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return 61.392899;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return 49.5;
+        }
+        case POKEMON_STADIUM:
+        {
+            return 55;
+        }
+        case YOSHI_STORY:
+        {
+            return 59.5;
+        }
+    }
+    return 1000;
+}
+
+double GameState::sidePlatformInnerEdge()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return 20;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return 31.725401;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return 21;
+        }
+        case POKEMON_STADIUM:
+        {
+            return 25;
+        }
+        case YOSHI_STORY:
+        {
+            return 28;
+        }
+    }
+    return 1000;
+}
+
+double GameState::topPlatformHeight()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return 54.400101;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return 51.4254;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return 42.750099;
+        }
+        case POKEMON_STADIUM:
+        {
+            return 1000;
+        }
+        case YOSHI_STORY:
+        {
+            return 42.000099;
+        }
+    }
+    return 1000;
+}
+
+double GameState::topPlatformRightEdge()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return 18.800001;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return 19.017099;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return 14.25;
+        }
+        case POKEMON_STADIUM:
+        {
+            return 1000;
+        }
+        case YOSHI_STORY:
+        {
+            return 15.75;
+        }
+    }
+    return 1000;
+}
+
+double GameState::topPlatformLeftEdge()
+{
+    switch(m_memory->stage)
+    {
+        case BATTLEFIELD:
+        {
+            return -18.800001;
+        }
+        case FINAL_DESTINATION:
+        {
+            return 1000;
+        }
+        case DREAMLAND:
+        {
+            return -19.018101;
+        }
+        case FOUNTAIN_OF_DREAMS:
+        {
+            return -14.25;
+        }
+        case POKEMON_STADIUM:
+        {
+            return 1000;
+        }
+        case YOSHI_STORY:
+        {
+            return -15.75;
+        }
+    }
+    return 1000;
+}
+
 
 bool GameState::isDamageState(ACTION action)
 {

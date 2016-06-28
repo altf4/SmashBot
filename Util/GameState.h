@@ -260,6 +260,7 @@ enum STAGE
     DREAMLAND = 0x1a,
     FOUNTAIN_OF_DREAMS = 0x8,
     POKEMON_STADIUM = 0x12,
+    YOSHI_STORY = 0x6,
 };
 
 class GameState {
@@ -270,6 +271,20 @@ public:
     double getStageEdgePosition();
     //This is the x coordinate of the edge, as you would be teetering while standing on the stage
     double getStageEdgeGroundPosition();
+
+    //Does the current stage have side platforms?
+    bool hasSidePlatforms();
+
+    //Does the current stage have a top platform?
+    bool hasTopPlatform();
+
+    //Get dimensions of the platforms
+    double sidePlatformHeight();
+    double sidePlatformOutterEdge();
+    double sidePlatformInnerEdge();
+    double topPlatformHeight();
+    double topPlatformRightEdge();
+    double topPlatformLeftEdge();
 
     //Returns the frame of the first hitbox
     //    return value of 0 means not an attack, or not supported yet
