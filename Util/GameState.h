@@ -385,6 +385,16 @@ public:
     //If we dash back this frame, will we moonwalk?
     bool m_moonwalkRisk;
 
+    //Helper booleans to tell us who is on platforms or not
+    bool m_on_platform_self;
+    bool m_on_platform_left_self;
+    bool m_on_platform_right_self;
+    bool m_on_platform_top_self;
+    bool m_on_platform_opponent;
+    bool m_on_platform_left_opponent;
+    bool m_on_platform_right_opponent;
+    bool m_on_platform_top_opponent;
+
 private:
     GameState();
     static GameState *m_instance;

@@ -29,7 +29,8 @@ void SHDL::PressButtons()
             return;
         }
         //If we're ready, but facing the wrong direction, then turn around.
-        if(m_state->m_memory->player_two_facing == (m_state->m_memory->player_one_x < m_state->m_memory->player_two_x))
+        if(m_state->m_memory->player_two_facing == (m_state->m_memory->player_one_x < m_state->m_memory->player_two_x) &&
+            m_state->m_memory->player_two_action != TURNING)
         {
             m_controller->tiltAnalog(Controller::BUTTON_MAIN, m_state->m_memory->player_two_facing ? .25 : .75, .5);
             return;

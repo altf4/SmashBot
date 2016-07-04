@@ -25,6 +25,15 @@ GameState::GameState()
     m_rollStartSpeed = 0;
     m_rollStartSpeedSelf = 0;
     m_moonwalkRisk = false;
+    //Helper booleans to tell us who is on platforms or not
+    m_on_platform_self = false;
+    m_on_platform_left_self = false;
+    m_on_platform_right_self = false;
+    m_on_platform_top_self = false;
+    m_on_platform_opponent = false;
+    m_on_platform_left_opponent = false;
+    m_on_platform_right_opponent = false;
+    m_on_platform_top_opponent = false;
 }
 
 double GameState::getStageEdgePosition()
@@ -100,6 +109,7 @@ bool GameState::hasSidePlatforms()
         case POKEMON_STADIUM:
         case DREAMLAND:
         case FOUNTAIN_OF_DREAMS:
+        case YOSHI_STORY:
         {
             return true;
         }
@@ -119,6 +129,7 @@ bool GameState::hasTopPlatform()
         case BATTLEFIELD:
         case DREAMLAND:
         case FOUNTAIN_OF_DREAMS:
+        case YOSHI_STORY:
         {
             return true;
         }
@@ -1388,6 +1399,10 @@ double GameState::getMaxHorizontalAirSpeed(CHARACTER character)
         {
             return 0.88875;
         }
+        case FOX:
+        {
+            return 0.819625;
+        }
         default:
         {
             return 0;
@@ -1402,6 +1417,10 @@ double GameState::getInitHorizontalAirSpeed(CHARACTER character)
         case MARTH:
         {
             return 0.9825;
+        }
+        case FOX:
+        {
+            return 0.86875;
         }
         default:
         {
@@ -1418,6 +1437,10 @@ double GameState::getInitVerticalAirSpeed(CHARACTER character)
         {
             return 2.027;
         }
+        case FOX:
+        {
+            return 4.186;
+        }
         default:
         {
             return 0;
@@ -1432,6 +1455,10 @@ double GameState::getHorizontalAirAccel(CHARACTER character)
         case MARTH:
         {
             return 0.005;
+        }
+        case FOX:
+        {
+            return 0.02;
         }
         default:
         {
@@ -1490,6 +1517,10 @@ int GameState::getFramesUntilFallingFromJump(CHARACTER character)
         {
             return 24;
         }
+        case FOX:
+        {
+            return 20;
+        }
         default:
         {
             return 0;
@@ -1504,6 +1535,10 @@ double GameState::getDoubleJumpHeightMax(CHARACTER character)
         case MARTH:
         {
             return 25.187989;
+        }
+        case FOX:
+        {
+            return 40.203998;
         }
         default:
         {
@@ -1520,6 +1555,10 @@ double GameState::getGravity(CHARACTER character)
         {
             return 0.085;
         }
+        case FOX:
+        {
+            return 0.23;
+        }
         default:
         {
             return 0;
@@ -1534,6 +1573,10 @@ double GameState::getMaxFallingSpeed(CHARACTER character)
         case MARTH:
         {
             return 2.2;
+        }
+        case FOX:
+        {
+            return 2.8;
         }
         default:
         {

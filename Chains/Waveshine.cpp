@@ -29,6 +29,20 @@ void Waveshine::PressButtons()
         return;
     }
 
+    //Avoid moonwalking
+    if(m_state->m_moonwalkRisk)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = true;
+        return;
+    }
+    if(m_moonwalkPrevent)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = false;
+        return;
+    }
+
     //Pivot shine! You can't shine from a dash animation. So make it a pivot
     if(m_frameShined == 0 &&
         m_state->m_memory->player_two_action == DASHING)
@@ -161,6 +175,7 @@ Waveshine::Waveshine()
     m_frameKneeBend = 0;
     m_airdodgeFrame = 0;
     m_isBusy = false;
+    m_moonwalkPrevent = false;
 }
 
 Waveshine::~Waveshine()

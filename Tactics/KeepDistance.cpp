@@ -2,8 +2,8 @@
 
 #include "KeepDistance.h"
 #include "../Chains/DashDance.h"
+#include "../Chains/BoardPlatform.h"
 #include "../Util/Constants.h"
-#include "../Util/Logger.h"
 
 KeepDistance::KeepDistance()
 {
@@ -48,7 +48,26 @@ void KeepDistance::DetermineChain()
         pivotPoint = (-1) * (m_state->getStageEdgeGroundPosition() - MARTH_FSMASH_RANGE);
     }
 
-    Logger::Instance()->Log(INFO, "pivotPoint: " + std::to_string(pivotPoint));
+    //Is the opponent on a side platform and we're not?
+    if((m_state->m_on_platform_left_opponent || m_state->m_on_platform_right_opponent) &&
+        !m_state->m_on_platform_left_self &&
+        !m_state->m_on_platform_right_self)
+    {
+        //Board the opposite platform they are on
+        BoardPlatform::PLATFORM platform;
+        if(m_state->m_on_platform_left_opponent)
+        {
+            platform = BoardPlatform::RIGHT_PLATFORM;
+        }
+        else
+        {
+            platform = BoardPlatform::LEFT_PLATFORM;
+        }
+
+        CreateChain2(BoardPlatform, platform);
+        m_chain->PressButtons();
+        return;
+    }
 
     delete m_chain;
     m_chain = NULL;

@@ -16,6 +16,8 @@ public:
     std::string ToString(){return "Bait";};
 
 private:
+    void onPlatforms();
+
     //Did the enemy's action change from last frame?
     bool m_actionChanged;
     //Have we shielded the opponent's current attack?

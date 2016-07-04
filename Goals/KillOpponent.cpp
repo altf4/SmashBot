@@ -145,6 +145,65 @@ void KillOpponent::Strategize()
     m_lastAction = (ACTION)m_state->m_memory->player_one_action;
     m_lastActionSelf = (ACTION)m_state->m_memory->player_two_action;
 
+    m_state->m_on_platform_self = false;
+    m_state->m_on_platform_left_self = false;
+    m_state->m_on_platform_right_self = false;
+    m_state->m_on_platform_top_self = false;
+    m_state->m_on_platform_opponent = false;
+    m_state->m_on_platform_left_opponent = false;
+    m_state->m_on_platform_right_opponent = false;
+    m_state->m_on_platform_top_opponent = false;
+
+    if(m_state->m_memory->player_two_y > 1 &&
+        m_state->m_memory->player_two_on_ground &&
+        m_state->hasSidePlatforms())
+    {
+        m_state->m_on_platform_self = true;
+    }
+    if(m_state->m_memory->player_one_y > 1 &&
+        m_state->m_memory->player_one_on_ground &&
+        m_state->hasSidePlatforms())
+    {
+        m_state->m_on_platform_opponent = true;
+    }
+
+    if(m_state->m_on_platform_self)
+    {
+        if(m_state->hasTopPlatform() &&
+            m_state->m_memory->player_two_y > m_state->topPlatformHeight()-1)
+        {
+            m_state->m_on_platform_top_self = true;
+        }
+        if(m_state->hasSidePlatforms() &&
+            m_state->m_memory->player_two_x > m_state->sidePlatformInnerEdge())
+        {
+            m_state->m_on_platform_right_self = true;
+        }
+        if(m_state->hasSidePlatforms() &&
+            m_state->m_memory->player_two_x < (-1.0)*m_state->sidePlatformInnerEdge())
+        {
+            m_state->m_on_platform_left_self = true;
+        }
+    }
+    if(m_state->m_on_platform_opponent)
+    {
+        if(m_state->hasTopPlatform() &&
+            m_state->m_memory->player_one_y > m_state->topPlatformHeight()-1)
+        {
+            m_state->m_on_platform_top_opponent = true;
+        }
+        if(m_state->hasSidePlatforms() &&
+            m_state->m_memory->player_one_x > m_state->sidePlatformInnerEdge())
+        {
+            m_state->m_on_platform_right_opponent = true;
+        }
+        if(m_state->hasSidePlatforms() &&
+            m_state->m_memory->player_one_x < (-1.0)*m_state->sidePlatformInnerEdge())
+        {
+            m_state->m_on_platform_left_opponent = true;
+        }
+    }
+
     //If the opponent is invincible, don't attack them. Just dodge everything they do
     //UNLESS they are invincible due to rolling on the stage. Then go ahead and punish it, it will be safe by the time
     //  they are back up.

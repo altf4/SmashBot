@@ -18,6 +18,20 @@ void GrabEdge::PressButtons()
         m_isInWavedash = true;
     }
 
+    //Avoid moonwalking
+    if(m_state->m_moonwalkRisk)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = true;
+        return;
+    }
+    if(m_moonwalkPrevent)
+    {
+        m_controller->tiltAnalog(Controller::BUTTON_MAIN, .5, .5);
+        m_moonwalkPrevent = false;
+        return;
+    }
+
     //If we're far away from the edge, then dash at the edge
     if(!m_isInWavedash && (std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() - 13))
     {

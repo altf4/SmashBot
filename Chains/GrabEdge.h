@@ -22,6 +22,7 @@ private:
     bool m_isLeftEdge;
     bool m_isInWavedash;
     bool m_isInFastfall;
+    bool m_moonwalkPrevent;
 };
 
 #endif

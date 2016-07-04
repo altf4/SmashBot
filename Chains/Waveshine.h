@@ -23,6 +23,7 @@ private:
     uint m_frameKneeBend;
     uint m_airdodgeFrame;
     bool m_isBusy;
+    bool m_moonwalkPrevent;
 };
 
 #endif

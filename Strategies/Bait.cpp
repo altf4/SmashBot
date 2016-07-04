@@ -463,6 +463,15 @@ void Bait::DetermineTactic()
         return;
     }
 
+    //If we're on opposite side platforms, laser
+    if((m_state->m_on_platform_left_opponent && m_state->m_on_platform_right_self) ||
+        (m_state->m_on_platform_left_self && m_state->m_on_platform_right_opponent))
+    {
+        CreateTactic(Laser);
+        m_tactic->DetermineChain();
+        return;
+    }
+
     uint lastHitboxFrame = m_state->lastHitboxFrame((CHARACTER)m_state->m_memory->player_one_character,
         (ACTION)m_state->m_memory->player_one_action);
 
@@ -498,6 +507,16 @@ void Bait::DetermineTactic()
         m_state->isDamageState((ACTION)m_state->m_memory->player_one_action) ||
         m_state->isRollingState((ACTION)m_state->m_memory->player_one_action) ||
         afterAttack)
+    {
+        CreateTactic2(Approach, true);
+        m_tactic->DetermineChain();
+        return;
+    }
+
+    //If we're on the same platform, approach
+    if((m_state->m_on_platform_top_self && m_state->m_on_platform_top_opponent) ||
+        (m_state->m_on_platform_left_self && m_state->m_on_platform_left_opponent) ||
+        (m_state->m_on_platform_right_self && m_state->m_on_platform_right_opponent))
     {
         CreateTactic2(Approach, true);
         m_tactic->DetermineChain();
