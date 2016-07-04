@@ -20,6 +20,12 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
 ###Plus way more!
 
+###Supported Characters and Stages
+
+![SupportedCharacters](images/SupportedCharacters.png)
+
+![SupportedStages](images/SupportedStages.png)
+
 ###FAQ
 
 1. **What character does SmashBot play?**
@@ -32,11 +38,7 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
     The long answer is that SmashBot only interfaces with the game by pressing buttons on a virtual controller. There isn't anything it does that you **couldn't** do in principle. It just so happens, however, that a computer is much faster and more reliable than you, so it's able to do things that a human realistically can't.
 
-3. **Are there any current limitations to SmashBot?**
-
-    Yes, right now SmashBot is limited to playing against Marth only, and on Final Destination. Support for other characters and stages will be added soon.
-
-4. **How is SmashBot designed?**
+3. **How is SmashBot designed?**
 
     SmashBot makes decisions on a 4 tiered hierarchy of objectives: Goals, Strategies, Tactics, and Chains. Each objective inspects the current game state and decides which lower level objective will be best to achieve it.
 
@@ -48,15 +50,15 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 
     **Chains** are the lowest level of objective that consists of a "chain" of button presses that Smashers will recognize, such as Wavedash, Jump-canceled Upsmash, etc...
 
-5. **Can I play SmashBot on a regular Gamecube or hacked Wii?**
+4. **Can I play SmashBot on a regular Gamecube or hacked Wii?**
 
     For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator) But I do want to get it running on actual Gamecube/Wii hardware. If you'd like to help with this, let me know!
 
-6. **What Operating Systems does it play on?**
+5. **What Operating Systems does it play on?**
 
     SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. There are no plans to make a Windows port. If we're going to spend time porting, it's going to be to a Gamecube/Wii.
 
-7. **I found a bug. How can I help?**
+6. **I found a bug. How can I help?**
 
     Hey thanks, that's awesome! For starters, make sure you can reliably reproduce the bug. Then go ahead and make an Issue on GitHub at https://github.com/altf4/SmashBot/issues. If you want to be even MORE awesome, run the AI with the "--debug" flag and upload the CSV file it gives you along with the issue. That CSV contains a full breakdown of the AI's state at each frame, so we can easily pinpoint what went wrong and where.
 
@@ -76,4 +78,4 @@ Configuring controller settings is out of the scope of this document, but check 
 7. Run `./smashbot`
 8. Run dolphin and start up Melee.
 9. Move focus over to the dolphin window. (Or else turn on background input on the controller) Just click on the dolphin window to do this.
-10. Set player 1 to Marth. SmashBot will choose its own character. Start the match.
+10. Set player 1 to a supported character. (See above) SmashBot will choose its own character. Start the match.
