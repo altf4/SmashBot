@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "GrabEdge.h"
 #include "TransitionHelper.h"

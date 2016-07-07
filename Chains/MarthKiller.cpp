@@ -1,4 +1,6 @@
 #include <cmath>
+#include <cstdlib>
+#include <stdlib.h>
 #include <algorithm>
 
 #include "MarthKiller.h"

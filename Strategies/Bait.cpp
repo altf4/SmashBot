@@ -1,4 +1,6 @@
 #include <cmath>
+#include <cstdlib>
+#include <stdlib.h>
 #include <math.h>
 
 #include "Bait.h"

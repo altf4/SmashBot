@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "Approach.h"
 #include "../Chains/DashDance.h"

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "KeepDistance.h"
 #include "../Chains/DashDance.h"

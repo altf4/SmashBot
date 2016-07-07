@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "Escape.h"
 #include "../Chains/SmashDI.h"
 #include "../Chains/Nothing.h"

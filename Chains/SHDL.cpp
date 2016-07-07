@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "SHDL.h"
 #include "TransitionHelper.h"

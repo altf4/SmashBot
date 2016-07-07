@@ -1,6 +1,7 @@
 #include <typeinfo>
 #include <math.h>
 #include <cmath>
+#include <cstdlib>
 
 #include "TechChase.h"
 #include "../Util/Constants.h"

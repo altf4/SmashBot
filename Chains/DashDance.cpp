@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdlib>
 
 #include "DashDance.h"
 #include "../Util/Constants.h"

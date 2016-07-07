@@ -1,6 +1,8 @@
 #include <typeinfo>
 #include <math.h>
 #include <cmath>
+#include <cstdlib>
+#include <stdlib.h>
 
 #include "Recover.h"
 #include "../Util/Constants.h"
