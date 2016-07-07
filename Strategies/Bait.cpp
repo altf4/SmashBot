@@ -458,7 +458,7 @@ void Bait::DetermineTactic()
     if(std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x) > 90 &&
         std::abs(m_state->m_memory->player_one_x) < 130 &&
         std::abs(m_state->m_memory->player_two_x) < m_state->getStageEdgeGroundPosition() &&
-        std::abs(m_state->m_memory->player_one_percent) < MARTH_UPSMASH_KILL_PERCENT)
+        std::abs((int)m_state->m_memory->player_one_percent) < MARTH_UPSMASH_KILL_PERCENT)
     {
         CreateTactic(Laser);
         m_tactic->DetermineChain();

@@ -75,7 +75,7 @@ void BoardPlatform::PressButtons()
     distance += pow(m_state->m_memory->player_one_y - m_state->m_memory->player_two_y, 2);
     distance = sqrt(distance);
     //If we're able to shine p1 right now, let's do that
-    if(std::abs(distance) < FOX_SHINE_RADIUS)
+    if(std::fabs(distance) < FOX_SHINE_RADIUS)
     {
         //Is the opponent in a state where they can get hit by shine?
         //And are we in a state where we can perform a shine?
