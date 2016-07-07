@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <cstdlib>
 
 #include "GameState.h"
 #include "Constants.h"

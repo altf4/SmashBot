@@ -294,7 +294,7 @@ void TechChase::DetermineChain()
                 m_state->m_memory->player_one_action != BACKWARD_TECH)
             {
                 bool isRight = m_endPosition < m_state->m_memory->player_two_x;
-                int pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
+                double pivot_offset = isRight ? FOX_JC_GRAB_MAX_SLIDE : -FOX_JC_GRAB_MAX_SLIDE;
                 //Don't anchor our dash dance off the stage
                 if(std::abs(m_endPosition + pivot_offset) > m_state->getStageEdgeGroundPosition())
                 {

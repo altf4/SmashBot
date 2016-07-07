@@ -1,5 +1,5 @@
 #ifndef ILLUSION_H
-#define ILLLUSION_H
+#define ILLUSION_H
 
 #include "Chain.h"
 
