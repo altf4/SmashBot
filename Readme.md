@@ -70,7 +70,8 @@ SmashBot is an AI that plays Super Smash Bros: Melee inside the Dolphin emulator
 Then run `sudo apt-get update` and `sudo apt-get install dolphin-emu`
 2. Configure your controller settings for player 1 and player 2. You will play as Player 1, SmashBot will take Player 2. You'll probably want a Wii U GameCube controller adapter. If you don't already have one, you can get one from Amazon here:
 https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI
-Configuring controller settings is out of the scope of this document, but check out the file `GCPadNew.ini` provided here for an example controller config that ought to work. Just stick that in your Dolphin config directory.
+Configuring controller settings is out of the scope of this document, but check out the file `GCPadNew.ini` provided here for an example controller config that ought to work. Just stick that in your Dolphin config directory. Detailed instructions can be found here:
+https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 4. Apply the latest Melee Netplay Community Settings Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. (Long story)
 5. Apply "Press Y to toggle frozen stages" Gecko Code. If you want to play on Pokemon Stadium, use the frozen version.
