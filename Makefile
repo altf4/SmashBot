@@ -14,6 +14,14 @@ EXECUTABLE=smashbot
 all: goals strats tactics chains main util
 	$(CC) $(LDFLAGS) *.o -o $(EXECUTABLE)
 
+.PHONY: main
+.PHONY: goals
+.PHONY: strats
+.PHONY: tactics
+.PHONY: chains
+.PHONY: util
+.PHONY: clean
+
 main:
 	$(CC) $(CFLAGS) $(SOURCES)
 
