@@ -73,7 +73,7 @@ https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI
 Configuring controller settings is out of the scope of this document, but check out the file `GCPadNew.ini` provided here for an example controller config that ought to work. Just stick that in your Dolphin config directory. Detailed instructions can be found here:
 https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
-4. Apply the latest Melee Netplay Community Settings Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. (Long story)
+4. Apply the latest Melee Netplay Community Settings Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. (Long story) You will need to enable cheat codes in Dolphin by choosing Config->General Tab->Enable Cheats. Then right click on the Melee game at the Dolphin home screen and go to Properties->Gecko Codes to find the Gecko Code list.
 5. Apply "Press Y to toggle frozen stages" Gecko Code. If you want to play on Pokemon Stadium, use the frozen version.
 6. Build SmashBot code by just running make. `make` There shouldn't be any dependencies to download. (Other than Dolphin)
 7. Run `./smashbot`
