@@ -1,6 +1,7 @@
 #include <string>
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
 
 #include "GameState.h"
 #include "Constants.h"
@@ -1206,7 +1207,7 @@ double GameState::calculateSlideDistance(CHARACTER character, double initSpeed, 
     double slideDistance = 0;
     for(int i = 1; i <= frames; i++)
     {
-        slideDistance += std::max(std::fabs(initSpeed) - (i * slideCoeficient), 0.0);
+        slideDistance += std::max(std::abs(initSpeed) - (i * slideCoeficient), 0.0);
     }
 
     //Determine direction
