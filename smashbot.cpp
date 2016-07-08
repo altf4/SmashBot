@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <pwd.h>
 #include <csignal>
 #include <string>
 #include <time.h>
@@ -18,55 +17,18 @@
 #include "Util/GameState.h"
 #include "Util/MemoryWatcher.h"
 #include "Util/Logger.h"
+#include "Util/Paths.h"
 
 bool isDebug = false;
 
 void FirstTimeSetup()
 {
-    struct passwd *pw = getpwuid(getuid());
-    std::string home_path = std::string(pw->pw_dir);
-    std::string legacy_config_path = home_path + "/.dolphin-emu";
-    std::string mem_watcher_path;
-    std::string pipe_path;
-
-    struct stat buffer;
-    if(stat(legacy_config_path.c_str(), &buffer) != 0)
-    {
-        //If the legacy app path is not present, see if the new one is
-        const char *env_XDG_DATA_HOME = std::getenv("XDG_DATA_HOME");
-        if(env_XDG_DATA_HOME == NULL)
-        {
-            //Try $HOME/.local/share next
-            std::string backup_path = home_path + "/.local/share/dolphin-emu";
-            if(stat(backup_path.c_str(), &buffer) != 0)
-            {
-                std::cout << "ERROR: $XDG_DATA_HOME was empty and so was $HOME/.dolphin-emu and $HOME/.local/share/dolphin-emu " \
-                    "Are you sure Dolphin is installed? Make sure it is, and then run SmashBot again." << std::endl;
-                exit(-1);
-            }
-            else
-            {
-                mem_watcher_path = backup_path;
-                mem_watcher_path += "/MemoryWatcher/";
-                pipe_path = backup_path;
-                pipe_path += "/Pipes/";
-            }
-        }
-        else
-        {
-            mem_watcher_path = env_XDG_DATA_HOME;
-            mem_watcher_path += "/MemoryWatcher/";
-            pipe_path = env_XDG_DATA_HOME;
-            pipe_path += "/Pipes/";
-        }
-    }
-    else
-    {
-        mem_watcher_path = legacy_config_path + "/MemoryWatcher/";
-        pipe_path = legacy_config_path + "/Pipes/";
-    }
+    std::string config_path = Paths::GetConfigPath();
+    std::string mem_watcher_path = config_path + "MemoryWatcher/";
+    std::string pipe_path = config_path + "Pipes/";
 
     //Create the MemoryWatcher directory if it doesn't already exist
+    struct stat buffer;
     if(stat(mem_watcher_path.c_str(), &buffer) != 0)
     {
         if(mkdir(mem_watcher_path.c_str(), 0775) != 0)

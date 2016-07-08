@@ -15,6 +15,7 @@
 
 #include "Controller.h"
 #include "Logger.h"
+#include "Paths.h"
 
 Controller* Controller::m_instance = NULL;
 
@@ -29,44 +30,14 @@ Controller *Controller::Instance()
 
 Controller::Controller()
 {
-    struct passwd *pw = getpwuid(getuid());
-    std::string home_path = std::string(pw->pw_dir);
-    std::string legacy_config_path = home_path + "/.dolphin-emu";
-    std::string pipe_path;
-
-    struct stat buffer;
-    if(stat(legacy_config_path.c_str(), &buffer) != 0)
-    {
-        //If the legacy app path is not present, see if the new one is
-        const char *env_XDG_DATA_HOME = std::getenv("XDG_DATA_HOME");
-        if(env_XDG_DATA_HOME == NULL)
-        {
-            //Try $HOME/.local/share next
-            std::string backup_path = home_path + "/.local/share/dolphin-emu";
-            if(stat(backup_path.c_str(), &buffer) != 0)
-            {
-                std::cout << "ERROR: $XDG_DATA_HOME was empty and so was $HOME/.dolphin-emu and $HOME/.local/share/dolphin-emu " \
-                    "Are you sure Dolphin is installed? Make sure it is, and then run SmashBot again." << std::endl;
-                exit(-1);
-            }
-            pipe_path = backup_path;
-            pipe_path += "/Pipes/SmashBot";
-        }
-        else
-        {
-            pipe_path = env_XDG_DATA_HOME;
-            pipe_path += "/Pipes/SmashBot";
-        }
-    }
-    else
-    {
-        pipe_path = legacy_config_path + "/Pipes/SmashBot";
-    }
+    std::string config_path = Paths::GetConfigPath();
+    std::string pipe_path = config_path + "/Pipes/SmashBot";
 
     m_fifo = mkfifo(pipe_path.c_str(), S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     std::cout << "DEBUG: Waiting for Dolphin..." << std::endl;
 
-    if ((m_fifo = open(pipe_path.c_str(), O_WRONLY)) < 0) {
+    if ((m_fifo = open(pipe_path.c_str(), O_WRONLY)) < 0)
+    {
        printf("%s\n", strerror(errno));
        return;
     }

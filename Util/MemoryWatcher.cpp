@@ -14,46 +14,14 @@
 #include <sys/stat.h>
 
 #include "MemoryWatcher.h"
+#include "Paths.h"
 
 MemoryWatcher::MemoryWatcher()
 {
     m_state = GameState::Instance();
 
-    struct passwd *pw = getpwuid(getuid());
-    std::string home_path = std::string(pw->pw_dir);
-    std::string legacy_config_path = home_path + "/.dolphin-emu";
-    std::string mem_watcher_path;
-
-    struct stat buffer;
-    if(stat(legacy_config_path.c_str(), &buffer) != 0)
-    {
-        //If the legacy app path is not present, see if the new one is
-        const char *env_XDG_DATA_HOME = std::getenv("XDG_DATA_HOME");
-        if(env_XDG_DATA_HOME == NULL)
-        {
-            //Try $HOME/.local/share next
-            std::string backup_path = home_path + "/.local/share/dolphin-emu";
-            if(stat(backup_path.c_str(), &buffer) != 0)
-            {
-                std::cout << "ERROR: $XDG_DATA_HOME was empty and so was $HOME/.dolphin-emu and $HOME/.local/share/dolphin-emu " \
-                    "Are you sure Dolphin is installed? Make sure it is, and then run SmashBot again." << std::endl;
-                exit(-1);
-            }
-            mem_watcher_path = backup_path;
-            mem_watcher_path += "/MemoryWatcher/";
-        }
-        else
-        {
-            mem_watcher_path = env_XDG_DATA_HOME;
-            mem_watcher_path += "/MemoryWatcher/";
-        }
-    }
-    else
-    {
-        mem_watcher_path = legacy_config_path + "/MemoryWatcher/";
-    }
-
-    mem_watcher_path += "MemoryWatcher";
+    std::string config_path = Paths::GetConfigPath();
+    std::string mem_watcher_path = config_path + "/MemoryWatcher/MemoryWatcher";
 
     m_file = socket(AF_UNIX, SOCK_DGRAM, 0);
     struct sockaddr_un addr;
