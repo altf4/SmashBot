@@ -22,7 +22,7 @@ std::string Paths::GetConfigPath()
 
     //Are we on OSX?
     std::string osx_config_path = home_path + "/Library/Application Support/Dolphin/";
-    if(stat(legacy_config_path.c_str(), &buffer) == 0)
+    if(stat(osx_config_path.c_str(), &buffer) == 0)
     {
         return osx_config_path;
     }
