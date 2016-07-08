@@ -10,6 +10,7 @@ std::string Paths::GetConfigPath()
 {
     struct passwd *pw = getpwuid(getuid());
     std::string home_path = std::string(pw->pw_dir);
+    std::cout << "home_path: " << home_path << std::endl;
     std::string legacy_config_path = home_path + "/.dolphin-emu";
     std::string mem_watcher_path;
     std::string pipe_path;
@@ -22,6 +23,7 @@ std::string Paths::GetConfigPath()
 
     //Are we on OSX?
     std::string osx_config_path = home_path + "/Library/Application Support/Dolphin/";
+    std::cout << "legacy_config_path: " << legacy_config_path << std::endl;
     if(stat(legacy_config_path.c_str(), &buffer) == 0)
     {
         return osx_config_path;
