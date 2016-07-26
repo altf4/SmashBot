@@ -11,19 +11,23 @@ UTIL=Util/*.cpp
 
 EXECUTABLE=smashbot
 
-all: goals strats tactics chains main util
+all: util goals strats tactics chains main
 	$(CC) $(LDFLAGS) *.o -o $(EXECUTABLE)
 
 .PHONY: main
+.PHONY: util
 .PHONY: goals
 .PHONY: strats
 .PHONY: tactics
 .PHONY: chains
-.PHONY: util
 .PHONY: clean
 
 main:
 	$(CC) $(CFLAGS) $(SOURCES)
+
+util:
+	./Util/constants.py
+	$(CC) $(CFLAGS) $(UTIL)
 
 goals:
 	$(CC) $(CFLAGS) $(GOALS)
@@ -36,9 +40,6 @@ tactics:
 
 chains:
 	$(CC) $(CFLAGS) $(CHAINS)
-
-util:
-	$(CC) $(CFLAGS) $(UTIL)
 
 clean:
 	rm -f *.o */*.o *.d */*.d smashbot

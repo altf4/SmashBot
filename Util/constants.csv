@@ -1,0 +1,28 @@
+EDGE_HANGING_Y_POSITION,-23.7163639069,TODO: maybe marth specific
+EDGE_MAGNETISM_X,14.72
+EDGE_MAGNETISM_Y,24
+EDGE_MAGNETISM_Y_TOP,11
+MARTH_FSMASH_RANGE,38.50,"Max tipper range, measured from Marth's center"
+MARTH_JAB_RANGE,34
+MARTH_UP_B_HEIGHT,48
+MARTH_UP_B_X_DISTANCE,18
+MARTH_RUN_SPEED,1.7775000334
+MARTH_LOWER_EVENT_HORIZON,-98,"The depth of Marth at which he can't recover anymore. If he's gone down this low, he's dead"
+MARTH_JUMP_ONLY_EVENT_HORIZON,-47,"The depth where Marth has to UP-B to recover, jumping and/or air dodging alone isn't enough"
+MARTH_RECOVER_HIGH_EVENT_HORIZON,-81,"The depth where Marth cannot land on the stage anymore. He has to grab the edge"
+MARTH_UPSMASH_KILL_PERCENT,88
+FOX_SHINE_RADIUS,11.80
+FOX_ROLL_FRAMES,35
+FOX_DOUBLE_JUMP_HEIGHT,40.15
+FOX_UPSMASH_RANGE,17.5,"This is a little conservative, actually"
+FOX_UPSMASH_RANGE_NEAR,14.5,"The closest hitbox. The one that comes out on frame 7"
+FOX_GRAB_RANGE,13.5,"Conservative actually. I've missed at 15.62 at the closest"
+FOX_GRAB_RANGE_Y,6.5,"Vertical grab range"
+FOX_DASH_FRAMES,12,"Until it turns to a run"
+FOX_DASH_SPEED,2.2
+FOX_DASH_ACCELERATION,.12
+FOX_SLIDE_COEFICIENT,0.08,"How fast a character decelerates. IE: Their speed will reduce by exactly this much per frame, if sliding"
+MARTH_SLIDE_COEFICIENT,0.06
+FOX_TURN_SLIDE,0.43,"Distance Fox slides going into a turn from dash"
+FOX_JC_GRAB_MAX_SLIDE,14.72,"How much Fox slides when Jump-cancel grabbing at max speed"
+WAVEDASH_FRAMES,14,"It takes this many frames to wavedash and be back in action"
