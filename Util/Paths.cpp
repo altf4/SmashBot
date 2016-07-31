@@ -35,7 +35,7 @@ std::string Paths::GetConfigPath()
     }
 
     //Try $HOME/.local/share next
-    std::string backup_path = home_path + "/.local/share/dolphin-emu";
+    std::string backup_path = home_path + "/.local/share/dolphin-emu/";
     if(stat(backup_path.c_str(), &buffer) == 0)
     {
         return backup_path;
