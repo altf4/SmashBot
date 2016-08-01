@@ -29,12 +29,18 @@ TechChase::~TechChase()
 
 void TechChase::DetermineChain()
 {
-    //If we're not in a state to interupt, just continue with what we've got going
+    //Step 0: If we're not interuptible, then just keep doing what we are already doing
     if((m_chain != NULL) && (!m_chain->IsInterruptible()))
     {
         m_chain->PressButtons();
         return;
     }
+
+    //**********************************************************************************
+    // Step 1: Set up global variables
+    //      There's a lot of calculations that happen below, so first let's set up some
+    //      helper variables that are reused frequently
+    //**********************************************************************************
 
     bool player_two_is_to_the_left = (m_state->m_memory->player_one_x > m_state->m_memory->player_two_x);
 
@@ -56,6 +62,68 @@ void TechChase::DetermineChain()
 
     double distance = std::abs(m_state->m_memory->player_one_x - m_state->m_memory->player_two_x);
 
+    double enemyHitSlide = 0;
+    double enemySelfSlide = 0;
+
+    //Figure out where they will stop, only on the first frame
+    if(m_endPosition == 0)
+    {
+        //We're assuming that the opponent is vulnerable for some duration of time
+        //Where will the opponent be at the end of their vulnerable state?
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
+        {
+            double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
+                (ACTION)m_state->m_memory->player_one_action);
+
+            bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
+            if(m_state->m_memory->player_one_facing == directon)
+            {
+                m_endPosition = m_state->m_rollStartPosition + rollDistance;
+            }
+            else
+            {
+                m_endPosition = m_state->m_rollStartPosition - rollDistance;
+            }
+
+            //Calculate hit sliding from the START of the roll.
+            enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_rollStartSpeed, totalFrames);
+            m_endPosition += enemyHitSlide;
+
+        }
+        else
+        {
+            m_endPosition = m_state->m_memory->player_one_x;
+            enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_memory->player_one_speed_ground_x_self, frames_left);
+            m_endPosition += enemySelfSlide;
+
+            enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
+                m_state->m_memory->player_one_speed_x_attack, frames_left);
+            m_endPosition += enemyHitSlide;
+        }
+
+        //You can't roll off the stage
+        if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
+        {
+            if(m_endPosition > m_state->getStageEdgeGroundPosition())
+            {
+                m_endPosition = m_state->getStageEdgeGroundPosition();
+            }
+            else if (m_endPosition < (-1) * m_state->getStageEdgeGroundPosition())
+            {
+                m_endPosition = (-1) * m_state->getStageEdgeGroundPosition();
+            }
+        }
+    }
+
+    //**********************************************************************************
+    //  Step 2: Do we need to wavedash in order to get closer?
+    //      When we're in shield, we can't dash. Fastest option is to wavedash. But we'll
+    //      be in stun for a while when sliding, so make sure that we have enough time
+    //      to complete the wavedash safely.
+    //**********************************************************************************
+
     //Is it safe to wavedash in after shielding the attack?
     //  Don't wavedash off the edge of the stage
     //  And don't bother if we're already in grab range. (Just grab them)
@@ -69,7 +137,10 @@ void TechChase::DetermineChain()
         return;
     }
 
-    //If our opponent is just lying there, go dash around the pivot point and wait
+    //**********************************************************************************
+    //  Step 3: If opponent is lying on the ground, wait nearby for them to get up
+    //**********************************************************************************
+
     if(m_state->m_memory->player_one_action == LYING_GROUND_UP ||
         m_state->m_memory->player_one_action == LYING_GROUND_DOWN ||
         m_state->m_memory->player_one_action == TECH_MISS_UP ||
@@ -117,10 +188,15 @@ void TechChase::DetermineChain()
         return;
     }
 
-    double enemyHitSlide = 0;
-    double enemySelfSlide = 0;
+    //**********************************************************************************
+    // Step 4: Opponent is in stun. Go grab them.
+    //      Four main ways this can happen:
+    //          a - Pre-attack windup
+    //          b - Post-attack cooldown
+    //          c - Stunned state
+    //          d - Roll state
+    //**********************************************************************************
 
-    //If they're vulnerable, go punish it
     if(isDamage ||
         m_state->m_memory->player_one_action == WAVEDASH_SLIDE ||
         m_state->m_memory->player_one_action == LANDING_SPECIAL ||
@@ -128,58 +204,6 @@ void TechChase::DetermineChain()
         (m_state->isAttacking((ACTION)m_state->m_memory->player_one_action) &&
         m_state->m_memory->player_one_action_frame > lastHitboxFrame))
     {
-        //Figure out where they will stop, only on the first frame
-        if(m_endPosition == 0)
-        {
-            //We're assuming that the opponent is vulnerable for some duration of time
-            //Where will the opponent be at the end of their vulnerable state?
-            if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
-            {
-                double rollDistance = m_state->getRollDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    (ACTION)m_state->m_memory->player_one_action);
-
-                bool directon = m_state->getRollDirection((ACTION)m_state->m_memory->player_one_action);
-                if(m_state->m_memory->player_one_facing == directon)
-                {
-                    m_endPosition = m_state->m_rollStartPosition + rollDistance;
-                }
-                else
-                {
-                    m_endPosition = m_state->m_rollStartPosition - rollDistance;
-                }
-
-                //Calculate hit sliding from the START of the roll.
-                enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    m_state->m_rollStartSpeed, totalFrames);
-                m_endPosition += enemyHitSlide;
-
-            }
-            else
-            {
-                m_endPosition = m_state->m_memory->player_one_x;
-                enemySelfSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    m_state->m_memory->player_one_speed_ground_x_self, frames_left);
-                m_endPosition += enemySelfSlide;
-
-                enemyHitSlide = m_state->calculateSlideDistance((CHARACTER)m_state->m_memory->player_one_character,
-                    m_state->m_memory->player_one_speed_x_attack, frames_left);
-                m_endPosition += enemyHitSlide;
-            }
-
-            //You can't roll off the stage
-            if(m_state->isRollingState((ACTION)m_state->m_memory->player_one_action))
-            {
-                if(m_endPosition > m_state->getStageEdgeGroundPosition())
-                {
-                    m_endPosition = m_state->getStageEdgeGroundPosition();
-                }
-                else if (m_endPosition < (-1) * m_state->getStageEdgeGroundPosition())
-                {
-                    m_endPosition = (-1) * m_state->getStageEdgeGroundPosition();
-                }
-            }
-        }
-
         int frameDelay = 7;
         double distanceFromRoll;
         if(m_state->m_memory->player_two_action == DASHING ||
@@ -227,6 +251,9 @@ void TechChase::DetermineChain()
         bool behindEnemy = (m_endPosition < (m_state->m_memory->player_two_x + slidingAdjustment)) == m_state->m_memory->player_two_facing;
         double verticalDistance = std::abs(m_state->m_memory->player_two_y - m_state->m_memory->player_one_y);
 
+        //TODO: Needs updating for platform edges
+        double distanceFromEdge = m_state->getStageEdgeGroundPosition() - std::abs(m_state->m_memory->player_two_x);
+
         //Can we grab the opponent right now?
         if(frames_left - frameDelay >= 0 &&
             frames_left - frameDelay < vulnerable_frames &&
@@ -237,9 +264,18 @@ void TechChase::DetermineChain()
             m_state->m_memory->player_one_action != TECH_MISS_UP && //Don't try to grab when they miss a tech, it doesn't work
             m_state->m_memory->player_one_action != TECH_MISS_DOWN)
         {
-            CreateChain2(GrabAndThrow, DOWN_THROW);
-            m_chain->PressButtons();
-            return;
+            if(distanceFromEdge < 20)
+            {
+                CreateChain2(GrabAndThrow, FORWARD_THROW);
+                m_chain->PressButtons();
+                return;
+            }
+            else
+            {
+                CreateChain2(GrabAndThrow, DOWN_THROW);
+                m_chain->PressButtons();
+                return;
+            }
         }
         else
         {
@@ -333,11 +369,13 @@ void TechChase::DetermineChain()
             int minWaitFrames = (frames_left - vulnerable_frames) - travelFramesMin - 8;
             int midWaitFrames = (maxWaitFrames + minWaitFrames) / 2;
 
+            bool canWalkState =  m_state->m_memory->player_two_action == STANDING ||
+                m_state->m_memory->player_two_action == WALK_SLOW ||
+                m_state->m_memory->player_two_action == WALK_MIDDLE;
+
             //If the enemy is juuuuuust beyond our reach, then we should just walk forward a little. Don't dash or we'll slide past it
             // But only do this if we're facing the right way. We don't want to turn around using this
-            if((m_state->m_memory->player_two_action == STANDING ||
-                m_state->m_memory->player_two_action == WALK_SLOW ||
-                m_state->m_memory->player_two_action == WALK_MIDDLE) &&
+            if(canWalkState &&
                 currentDistance < FOX_JC_GRAB_MAX_SLIDE &&
                 to_the_left == facingRight)
             {
