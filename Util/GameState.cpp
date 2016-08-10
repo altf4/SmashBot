@@ -1614,7 +1614,7 @@ double GameState::calculateDoubleJumpHeight(CHARACTER character, double initSpee
     for(int i = 1;; i++)
     {
         double tick = initSpeed - (i * gravity);
-        if(tick < 0)
+        if(tick < 0 || i > 100)
         {
             break;
         }
