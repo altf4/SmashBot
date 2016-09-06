@@ -4,3 +4,4 @@ smashbot
 *.d
 *~
 Logs/*
+*.pyc
