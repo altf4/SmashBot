@@ -36,6 +36,5 @@ class MemoryWatcher:
             data = self.sock.recvfrom(4096)[0].decode('utf-8').splitlines()
         except socket.timeout:
             return None
-        assert len(data) == 2
         # Strip the null terminator, pad with zeros, then convert to bytes
         return data[0], binascii.unhexlify(data[1].strip('\x00').zfill(8))

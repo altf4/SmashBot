@@ -1,0 +1,46 @@
+"Name","Address","Player"
+"percent","004530E0",1
+"percent","00453F70",2
+"stock","0045310E",1
+"stock","00453F9E",2
+"facing","004530C0",1
+"facing","00453F50",2
+"x","00453090",1
+"x","00453F20",2
+"y","00453094",1
+"y","00453F24",2
+"action","00453130 70",1
+"action_counter","00453130 20CC",1
+"action_frame","00453130 8F4",1
+"invulnerable","00453130 19EC",1
+"hitlag_frames_left","00453130 19BC",1
+"hitstun_frames_left","00453130 23a0",1
+"charging_smash","00453130 2174",1
+"jumps_left","00453130 19C8",1
+"on_ground","00453130 140",1
+"speed_air_x_self","00453130 E0",1
+"speed_y_self","00453130 E4",1
+"speed_x_attack","00453130 EC",1
+"speed_y_attack","00453130 F0",1
+"speed_ground_x_self","00453130 14C",1
+"action","00453FC0 70",2
+"action_counter","00453FC0 20CC",2
+"action_frame","00453FC0 8F4",2
+"invulnerable","00453FC0 19EC",2
+"hitlag_frames_left","00453FC0 19BC",2
+"hitstun_frames_left","00453FC0 23a0",2
+"charging_smash","00453FC0 2174",2
+"jumps_left","00453FC0 19C8",2
+"on_ground","00453FC0 140",2
+"speed_air_x_self","00453FC0 E0",2
+"speed_y_self","00453FC0 E4",2
+"speed_x_attack","00453FC0 EC",2
+"speed_y_attack","00453FC0 F0",2
+"speed_ground_x_self","00453FC0 14C",2
+"character","003F0E0A",1
+"character","003F0E2E",2
+"menu_state","00479d30",0
+"stage","004D6CAD",0
+"cursor_x","0111826C",2
+"cursor_y","01118270",2
+"frame","00479D60",0

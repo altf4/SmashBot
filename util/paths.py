@@ -88,7 +88,7 @@ def configure_controller_settings(port):
     #Change player 2's device to be SmashBot
     section = "GCPad" + str(port)
     if not config.has_section(section):
-        config.create_section(section)
+        config.add_section(section)
     config.set(section, 'Device', 'Pipe/0/SmashBot')
     config.set(section, 'Buttons/B', 'Button B')
     config.set(section, 'Buttons/X', 'Button X')
