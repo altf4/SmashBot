@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Stage(Enum):
+    NO_STAGE = 0
     FINAL_DESTINATION = 0x19
     BATTLEFIELD = 0x18
     POKEMON_STADIUM = 0x12
@@ -13,6 +14,12 @@ class Menu(Enum):
     STAGE_SELECT = 1
     IN_GAME = 2
     POSTGAME_SCORES = 4
+
+class Character(Enum):
+    FOX = 0x0a
+    MEWTWO = 0x15
+    MARTH = 0x17
+    UNKNOWN_CHARACTER = 0xff
 
 class Action(Enum):
     DEAD_DOWN = 0x0
@@ -191,3 +198,4 @@ class Action(Enum):
     MARTH_COUNTER = 0x171
     MARTH_COUNTER_FALLING = 0x173
     WAVEDASH_SLIDE = 0x176
+    UNKNOWN_ANIMATION = 0xffff

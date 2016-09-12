@@ -22,4 +22,4 @@ game_state = gamestate.GameState()
 for mem_update in memory_watcher:
     if game_state.update(mem_update):
         #TODO: The frame has incremented, process it!
-        pass
+        print(game_state)
