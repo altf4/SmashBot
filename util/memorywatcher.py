@@ -3,6 +3,7 @@
 import binascii
 import os
 import socket
+from util import paths
 
 class MemoryWatcher:
     """Reads and parses game memory changes.
@@ -10,8 +11,9 @@ class MemoryWatcher:
     call next() on this class to get a single change, or else use it like a
     normal iterator.
     """
-    def __init__(self, path):
+    def __init__(self):
         """Creates the socket if it does not exist, and then opens it."""
+        path = paths.get_memory_watcher_socket_path()
         try:
             os.unlink(path)
         except OSError:

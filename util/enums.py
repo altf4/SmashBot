@@ -21,6 +21,23 @@ class Character(Enum):
     MARTH = 0x17
     UNKNOWN_CHARACTER = 0xff
 
+class Button(Enum):
+    BUTTON_A = "A"
+    BUTTON_B = "B"
+    BUTTON_X = "X"
+    BUTTON_Y = "Y"
+    BUTTON_Z = "Z"
+    BUTTON_L = "L"
+    BUTTON_R = "R"
+    BUTTON_START = "START"
+    BUTTON_D_UP = "D_UP"
+    BUTTON_D_DOWN = "D_DOWN"
+    BUTTON_D_LEFT = "D_LEFT"
+    BUTTON_D_RIGHT = "D_RIGHT"
+    #Control sticks considered "buttons" here
+    BUTTON_MAIN = "MAIN"
+    BUTTON_C = "C"
+
 class Action(Enum):
     DEAD_DOWN = 0x0
     DEAD_LEFT = 0x1
