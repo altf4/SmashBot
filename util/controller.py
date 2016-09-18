@@ -34,8 +34,8 @@ class Controller:
         command += "RELEASE D_DOWN" + "\n"
         command += "RELEASE D_LEFT" + "\n"
         command += "RELEASE D_RIGHT" + "\n"
-        command += "SET MAIN 0 0" + "\n"
-        command += "SET C 0 0" + "\n"
+        command += "SET MAIN .5 .5" + "\n"
+        command += "SET C .5 .5" + "\n"
         command += "SET L 0" + "\n"
         command += "SET R 0" + "\n"
         self.pipe.write(command)
