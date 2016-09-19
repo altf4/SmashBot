@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from util import memorywatcher, paths, gamestate, controller, enums
-from goals import choosecharacter
+from goals import choosecharacter, killopponent, skippostgame
 
 import argparse
 import globals
@@ -36,17 +36,16 @@ controller = globals.controller
 
 #"Main loop" of SmashBot, process memory updates until the frame has incremented
 for mem_update in memory_watcher:
+    #If the frame counter has updated, then process it!
     if game_state.update(mem_update):
-        #TODO: The frame has incremented, process it!
-        #print(game_state)
         if game_state.menu_state == enums.Menu.IN_GAME:
-            if game_state.frame % 2:
-                controller.press_button(enums.Button.BUTTON_A)
-            else:
-                controller.release_button(enums.Button.BUTTON_A)
+            creategoal(killopponent.KillOpponent)
+            goal.pickstrategy()
         elif game_state.menu_state == enums.Menu.CHARACTER_SELECT:
             creategoal(choosecharacter.ChooseCharacter)
             goal.pickstrategy()
-
+        elif game_state.menu_state == enums.Menu.POSTGAME_SCORES:
+            creategoal(skippostgame.SkipPostgame)
+            goal.pickstrategy()
         #Flush and button presses queued up
         controller.flush()

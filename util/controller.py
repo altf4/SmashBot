@@ -1,20 +1,52 @@
 from util import paths, enums
+import copy
+
+class ControllerState:
+    def __init__(self):
+        self.button = dict()
+        #Boolean buttons
+        self.button[enums.Button.BUTTON_A] = False
+        self.button[enums.Button.BUTTON_B] = False
+        self.button[enums.Button.BUTTON_X] = False
+        self.button[enums.Button.BUTTON_Y] = False
+        self.button[enums.Button.BUTTON_Z] = False
+        self.button[enums.Button.BUTTON_L] = False
+        self.button[enums.Button.BUTTON_R] = False
+        self.button[enums.Button.BUTTON_START] = False
+        self.button[enums.Button.BUTTON_D_UP] = False
+        self.button[enums.Button.BUTTON_D_DOWN] = False
+        self.button[enums.Button.BUTTON_D_LEFT] = False
+        self.button[enums.Button.BUTTON_D_RIGHT] = False
+        #Analog sticks
+        self.main_stick = (.5, .5)
+        self.c_stick = (.5, .5)
+        #Analog shoulders
+        self.l_shoulder = 0
+        self.r_shoulder = 0
 
 class Controller:
     def __init__(self):
         pipe_path = paths.get_dolphin_pipes_path()
         self.pipe = open(pipe_path, "w")
+        self.prev = ControllerState()
+        self.current = ControllerState()
 
     def press_button(self, button):
         command = "PRESS " + str(button.value) + "\n"
+        self.current.button[button] = True
         self.pipe.write(command)
 
     def release_button(self, button):
         command = "RELEASE " + str(button.value) + "\n"
+        self.current.button[button] = False
         self.pipe.write(command)
 
     def press_shoulder(self, button, amount):
         command = "SET " + str(button.value) + " " + str(amount) + "\n"
+        if button == enums.Button.BUTTON_L:
+            self.current.l_shoulder = amount
+        elif button == enums.Button.BUTTON_R:
+            self.current.r_shoulder = amount
         self.pipe.write(command)
 
     def tilt_analog(self, button, x, y):
@@ -42,3 +74,5 @@ class Controller:
 
     def flush(self):
         self.pipe.flush()
+        #Move the current controller state into the previous one
+        self.prev = copy.copy(self.current)
