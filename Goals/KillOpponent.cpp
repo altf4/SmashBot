@@ -10,6 +10,8 @@ KillOpponent::KillOpponent()
     m_lastActionFrame = 0;
     m_lastActionFrameSelf = 0;
     m_moonwalkStepA = false;
+    m_state->m_edgeInvincibilityStart = 0;
+    m_state->m_edgeInvincibilityStartSelf = 0;
 }
 
 KillOpponent::~KillOpponent()
