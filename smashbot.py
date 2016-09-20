@@ -21,6 +21,9 @@ parser.add_argument('--port', '-p', type=int,
 parser.add_argument('--opponent', '-o', type=int,
                     help='The controller port the human will play on',
                     default=1)
+parser.add_argument('--debug', '-d',
+                    help='Debug mode. Creates a CSV of all game state',
+                    default=1)
 
 args = parser.parse_args()
 

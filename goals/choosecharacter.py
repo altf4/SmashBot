@@ -43,7 +43,7 @@ class ChooseCharacter(goal.Goal):
 
         #If fox is selected, and we're out of the fox area, then we're good. Do nothing
         if (isOverFox == False) and (smashbot_state.character == enums.Character.FOX):
-            controller.emptyInput()
+            controller.empty_input()
             return
 
         #If fox is NOT selected and we're out of the fox area, then move in
@@ -66,4 +66,4 @@ class ChooseCharacter(goal.Goal):
                 controller.tilt_analog(enums.Button.BUTTON_MAIN, 0, .5)
                 return
 
-            controller.emptyInput()
+            controller.empty_input()

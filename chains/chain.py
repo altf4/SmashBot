@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
-class Strategy:
-    def __init__(self):
-        pass
+class Chain:
+    interruptible = True
 
     @abstractmethod
     def pressbuttons(self):

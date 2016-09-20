@@ -53,7 +53,7 @@ class Controller:
         command = "SET " + str(button.value) + " " + str(x) + " " + str(y) + "\n"
         self.pipe.write(command)
 
-    def emptyInput(self):
+    def empty_input(self):
         command = "RELEASE A" + "\n"
         command += "RELEASE B" + "\n"
         command += "RELEASE X" + "\n"
