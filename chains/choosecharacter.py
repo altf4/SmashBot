@@ -1,13 +1,10 @@
 from util import enums
-from goals import goal
+from chains import chain
 import globals
 
-class ChooseCharacter(goal.Goal):
+class ChooseCharacter(chain.Chain):
 
-    #NOTE: We just go ahead and press the buttons here rather than deferring to
-    #   a strategy since selecting a character is simple, and it would just muddy
-    #   the logic of combat, which is more important anyway
-    def pickstrategy(self):
+    def pressbuttons(self):
         game_state = globals.gamestate
         smashbot_state = globals.smashbot_state
         controller = globals.controller

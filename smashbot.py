@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 from util import memorywatcher, paths, gamestate, controller, enums, logger
-from goals import choosecharacter, killopponent, skippostgame
+#TODO: Make this auto-import all new chains
+from chains import choosecharacter, multishine, skippostgame
 
 import argparse
 import globals
 import signal
 import sys
 
-goal = None
+chain = None
 
 parser = argparse.ArgumentParser(description='SmashBot: The AI that beats you at Melee')
 parser.add_argument('--port', '-p', type=int,
@@ -33,12 +34,12 @@ def signal_handler(signal, frame):
         print("Log file created: " + log.filename)
         sys.exit(0)
 
-def creategoal(new_goal):
-    global goal
-    if goal == None:
-        goal = new_goal()
-    if type(goal) !=  new_goal:
-        goal = new_goal()
+def createchain(new_chain):
+    global chain
+    if chain == None:
+        chain = new_chain()
+    if type(chain) !=  new_chain:
+        chain = new_chain()
 
 if args.debug:
     signal.signal(signal.SIGINT, signal_handler)
@@ -53,14 +54,14 @@ for mem_update in memory_watcher:
     #If the frame counter has updated, then process it!
     if game_state.update(mem_update):
         if game_state.menu_state == enums.Menu.IN_GAME:
-            creategoal(killopponent.KillOpponent)
-            goal.pickstrategy()
+            createchain(multishine.MultiShine)
+            chain.pressbuttons()
         elif game_state.menu_state == enums.Menu.CHARACTER_SELECT:
-            creategoal(choosecharacter.ChooseCharacter)
-            goal.pickstrategy()
+            createchain(choosecharacter.ChooseCharacter)
+            chain.pressbuttons()
         elif game_state.menu_state == enums.Menu.POSTGAME_SCORES:
-            creategoal(skippostgame.SkipPostgame)
-            goal.pickstrategy()
+            createchain(skippostgame.SkipPostgame)
+            chain.pressbuttons()
         #Flush and button presses queued up
         controller.flush()
         if args.debug:
