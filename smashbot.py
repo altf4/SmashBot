@@ -1,18 +1,13 @@
 #!/usr/bin/python3
-from util import memorywatcher, paths, gamestate, controller, enums
+from util import memorywatcher, paths, gamestate, controller, enums, logger
 from goals import choosecharacter, killopponent, skippostgame
 
 import argparse
 import globals
+import signal
+import sys
 
 goal = None
-
-def creategoal(new_goal):
-    global goal
-    if goal == None:
-        goal = new_goal()
-    if type(goal) !=  new_goal:
-        goal = new_goal()
 
 parser = argparse.ArgumentParser(description='SmashBot: The AI that beats you at Melee')
 parser.add_argument('--port', '-p', type=int,
@@ -21,9 +16,8 @@ parser.add_argument('--port', '-p', type=int,
 parser.add_argument('--opponent', '-o', type=int,
                     help='The controller port the human will play on',
                     default=1)
-parser.add_argument('--debug', '-d',
-                    help='Debug mode. Creates a CSV of all game state',
-                    default=1)
+parser.add_argument('--debug', '-d', action='store_true',
+                    help='Debug mode. Creates a CSV of all game state')
 
 args = parser.parse_args()
 
@@ -31,6 +25,23 @@ args = parser.parse_args()
 paths.first_time_setup()
 paths.configure_controller_settings(args.port)
 globals.init(args.port, args.opponent)
+log = globals.log
+
+def signal_handler(signal, frame):
+        log.writelog()
+        print("") #because the ^C will be on the terminal
+        print("Log file created: " + log.filename)
+        sys.exit(0)
+
+def creategoal(new_goal):
+    global goal
+    if goal == None:
+        goal = new_goal()
+    if type(goal) !=  new_goal:
+        goal = new_goal()
+
+if args.debug:
+    signal.signal(signal.SIGINT, signal_handler)
 
 memory_watcher = memorywatcher.MemoryWatcher()
 
@@ -52,3 +63,6 @@ for mem_update in memory_watcher:
             goal.pickstrategy()
         #Flush and button presses queued up
         controller.flush()
+        if args.debug:
+            log.logframe()
+            log.writeframe()
