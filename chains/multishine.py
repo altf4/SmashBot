@@ -19,7 +19,7 @@ class MultiShine(chain.Chain):
 
         #Shine on frame 3 of knee bend, else nothing
         if smashbot_state.action == enums.Action.KNEE_BEND:
-            if smashbot_state.action_frame == 3:
+            if smashbot_state.action_frame == 2:
                 controller.press_button(enums.Button.BUTTON_B)
                 controller.tilt_analog(enums.Button.BUTTON_MAIN, .5, 0)
                 self.interruptible = False

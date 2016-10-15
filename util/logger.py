@@ -11,14 +11,21 @@ class Logger:
             'Opponent y', 'SmashBot x', 'SmashBot y', 'Opponent Facing', 'SmashBot Facing',
             'Opponent Action', 'SmashBot Action', 'Opponent Action Frame', 'SmashBot Action Frame',
             'Opponent Jumps Left', 'SmashBot Jumps Left', 'Opponent Stock', 'SmashBot Stock',
-            'Opponent Percent', 'SmashBot Percent', 'Notes', 'Frame Process Time']
+            'Opponent Percent', 'SmashBot Percent', 'Buttons Pressed', 'Notes', 'Frame Process Time']
         self.writer = csv.DictWriter(self.csvfile, fieldnames=fieldnames, extrasaction='ignore')
         self.current_row = dict()
         self.rows = []
         self.filename = self.csvfile.name
 
-    def log(self, column, contents):
-        self.current_row[column] = contents
+    def log(self, column, contents, concat=False):
+        #Should subsequent logs be cumulative?
+        if concat:
+            if column in self.current_row:
+                self.current_row[column] += contents
+            else:
+                self.current_row[column] = contents
+        else:
+            self.current_row[column] = contents
 
     #Log any common per-frame items
     def logframe(self):

@@ -34,16 +34,22 @@ class Controller:
 
     def press_button(self, button):
         command = "PRESS " + str(button.value) + "\n"
+        log = globals.log
+        log.log("Buttons Pressed", command, concat=True)
         self.current.button[button] = True
         self.pipe.write(command)
 
     def release_button(self, button):
         command = "RELEASE " + str(button.value) + "\n"
+        log = globals.log
+        log.log("Buttons Pressed", command, concat=True)
         self.current.button[button] = False
         self.pipe.write(command)
 
     def press_shoulder(self, button, amount):
         command = "SET " + str(button.value) + " " + str(amount) + "\n"
+        log = globals.log
+        log.log("Buttons Pressed", command, concat=True)
         if button == enums.Button.BUTTON_L:
             self.current.l_shoulder = amount
         elif button == enums.Button.BUTTON_R:
@@ -52,6 +58,8 @@ class Controller:
 
     def tilt_analog(self, button, x, y):
         command = "SET " + str(button.value) + " " + str(x) + " " + str(y) + "\n"
+        log = globals.log
+        log.log("Buttons Pressed", command, concat=True)
         self.pipe.write(command)
 
     def empty_input(self):
@@ -72,6 +80,8 @@ class Controller:
         command += "SET L 0" + "\n"
         command += "SET R 0" + "\n"
         self.pipe.write(command)
+        log = globals.log
+        log.log("Buttons Pressed", "Empty Input", concat=True)
 
     def flush(self):
         self.pipe.flush()
