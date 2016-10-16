@@ -35,10 +35,11 @@ globals.init(args.port, args.opponent)
 log = globals.log
 
 def signal_handler(signal, frame):
+    if args.debug:
         log.writelog()
         print("") #because the ^C will be on the terminal
         print("Log file created: " + log.filename)
-        sys.exit(0)
+    sys.exit(0)
 
 def createchain(new_chain):
     global chain
