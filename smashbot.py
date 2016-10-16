@@ -8,13 +8,19 @@ import globals
 import signal
 import sys
 
+def check_port(value):
+    ivalue = int(value)
+    if ivalue < 1 or ivalue > 4:
+         raise argparse.ArgumentTypeError("%s is an invalid controller port. Must be 1, 2, 3, or 4." % value)
+    return ivalue
+
 chain = None
 
 parser = argparse.ArgumentParser(description='SmashBot: The AI that beats you at Melee')
-parser.add_argument('--port', '-p', type=int,
+parser.add_argument('--port', '-p', type=check_port,
                     help='The controller port SmashBot will play on',
                     default=2)
-parser.add_argument('--opponent', '-o', type=int,
+parser.add_argument('--opponent', '-o', type=check_port,
                     help='The controller port the human will play on',
                     default=1)
 parser.add_argument('--debug', '-d', action='store_true',
@@ -23,7 +29,7 @@ parser.add_argument('--debug', '-d', action='store_true',
 args = parser.parse_args()
 
 #Setup some config files before we can really play
-paths.first_time_setup()
+paths.first_time_setup(args.port)
 paths.configure_controller_settings(args.port)
 globals.init(args.port, args.opponent)
 log = globals.log

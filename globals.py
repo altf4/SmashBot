@@ -5,7 +5,7 @@ def init(smashbot_port, opponent_port):
     global gamestate
     gamestate = gamestate.GameState()
     global controller
-    controller = controller.Controller()
+    controller = controller.Controller(smashbot_port)
     global smashbot_state
     smashbot_state = gamestate.player[smashbot_port]
     global opponent_state

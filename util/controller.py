@@ -26,8 +26,8 @@ class ControllerState:
         self.r_shoulder = 0
 
 class Controller:
-    def __init__(self):
-        pipe_path = paths.get_dolphin_pipes_path()
+    def __init__(self, port):
+        pipe_path = paths.get_dolphin_pipes_path(port)
         self.pipe = open(pipe_path, "w")
         self.prev = ControllerState()
         self.current = ControllerState()

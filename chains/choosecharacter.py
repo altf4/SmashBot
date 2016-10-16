@@ -5,7 +5,6 @@ import globals
 class ChooseCharacter(chain.Chain):
 
     def pressbuttons(self):
-        game_state = globals.gamestate
         smashbot_state = globals.smashbot_state
         controller = globals.controller
 

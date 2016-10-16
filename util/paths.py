@@ -47,13 +47,13 @@ def get_dolphin_config_path():
     sys.exit(1)
     return ""
 
-def get_dolphin_pipes_path():
-    return get_dolphin_home_path() + "/Pipes/SmashBot"
+def get_dolphin_pipes_path(port):
+    return get_dolphin_home_path() + "/Pipes/SmashBot" + str(port)
 
 def get_memory_watcher_socket_path():
     return get_dolphin_home_path() + "/MemoryWatcher/MemoryWatcher"
 
-def first_time_setup():
+def first_time_setup(port):
     config_path = get_dolphin_home_path()
     mem_watcher_path = config_path + "MemoryWatcher/"
     pipes_path = config_path + "Pipes/"
@@ -75,7 +75,7 @@ def first_time_setup():
             "You may need to restart Dolphin and SmashBot in order for this to work. " \
             "(You should only see this warning once)")
 
-    pipes_path += "SmashBot"
+    pipes_path += "SmashBot" + str(port)
     if not os.path.exists(pipes_path):
         os.mkfifo(pipes_path)
 
@@ -85,11 +85,11 @@ def configure_controller_settings(port):
     config = configparser.SafeConfigParser()
     config.read(controller_config_path)
 
-    #Change player 2's device to be SmashBot
+    #Add a SmashBot standard controller config to the given port
     section = "GCPad" + str(port)
     if not config.has_section(section):
         config.add_section(section)
-    config.set(section, 'Device', 'Pipe/0/SmashBot')
+    config.set(section, 'Device', 'Pipe/0/SmashBot' + str(port))
     config.set(section, 'Buttons/A', 'Button A')
     config.set(section, 'Buttons/B', 'Button B')
     config.set(section, 'Buttons/X', 'Button X')
@@ -120,3 +120,14 @@ def configure_controller_settings(port):
 
     with open(controller_config_path, 'w') as configfile:
         config.write(configfile)
+
+    #Change SmashBot's controller port to use "standard" input
+    dolphinn_config_path = get_dolphin_config_path() + "Dolphin.ini"
+    config = configparser.SafeConfigParser()
+    config.read(dolphinn_config_path)
+
+    #Indexed at 0. "6" means standard controller
+    config.set("Core", 'SIDevice'+str(port-1), "6")
+
+    with open(dolphinn_config_path, 'w') as dolphinfile:
+        config.write(dolphinfile)
