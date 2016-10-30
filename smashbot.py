@@ -60,6 +60,9 @@ controller = globals.controller
 for mem_update in memory_watcher:
     #If the frame counter has updated, then process it!
     if game_state.update(mem_update):
+        #for index,  proj in enumerate(game_state.projectiles):
+            #print(index)
+            #print(proj.x, proj.y, proj.x_speed, proj.y_speed, proj.subtype)
         if game_state.menu_state == enums.Menu.IN_GAME:
             createchain(multishine.MultiShine)
             chain.pressbuttons()
