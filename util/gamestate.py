@@ -137,12 +137,14 @@ class GameState:
                 self.player[player_int].hitlag_frames_left = int(temp)
             except ValueError:
                 pass
+            return False
         if label == "hitstun_frames_left":
             temp = unpack('>f', mem_update[1])[0]
             try:
                 self.player[player_int].hitstun_frames_left = int(temp)
             except ValueError:
                 pass
+            return False
         if label == "charging_smash":
             temp = unpack('>I', mem_update[1])[0]
             if temp == 2:
@@ -184,6 +186,9 @@ class GameState:
                 self.i = 0
             self.i += 1
             self.newframe = False
+            if len(mem_update[1]) < 10:
+                self.projectiles.clear()
+                return False
             proj = Projectile()
             proj.x = unpack('>f', mem_update[1][0x4c:0x50])[0]
             proj.y = unpack('>f', mem_update[1][0x50:0x54])[0]
