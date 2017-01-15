@@ -5,3 +5,4 @@ smashbot
 *~
 Logs/*
 *.pyc
+*.model
