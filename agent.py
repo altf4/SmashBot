@@ -38,8 +38,8 @@ class Agent():
         self.action_dim = action_dim
         self.gamestate_dim = gamestate_dim
         #180 experiences means 3 seconds worth of memory
-        self.memory_size = 120
-        self.batchsize = 60
+        self.memory_size = 180
+        self.batchsize = 100
 
         self.memory = deque(maxlen=self.memory_size)
 
