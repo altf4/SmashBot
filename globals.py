@@ -10,5 +10,5 @@ def init(dolphin, smashbot_port, opponent_port):
     smashbot_state = gamestate.player[smashbot_port]
     global opponent_state
     opponent_state = gamestate.player[opponent_port]
-    global log
-    log = melee.logger.Logger()
+    global framedata
+    framedata = melee.framedata.FrameData(False)

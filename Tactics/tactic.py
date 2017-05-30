@@ -10,3 +10,9 @@ class Tactic:
         self.chain.step()
 
     def step(self): ...
+
+    def isinteruptible(self):
+        if self.chain:
+            return self.chain.interruptible
+        else:
+            return False

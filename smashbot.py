@@ -102,5 +102,6 @@ while True:
     controller.flush()
 
     if log:
+        log.log("Notes", "Goals: " + str(goal), concat=False)
         log.logframe(gamestate)
         log.writeframe()

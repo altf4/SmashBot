@@ -31,12 +31,12 @@ class DashDance(Chain):
             return;
 
         #Dash back, since we're about to start running
-        if smashbot_state.action == melee.Action.DASHING and \
-            smashbot_state.action_frame >= 11:#melee.Action.FOX_DASH_FRAMES-1:
-                controller.tilt_analog(melee.Button.BUTTON_MAIN, smashbot_state.facing, .5);
+        # #melee.Action.FOX_DASH_FRAMES
+        if smashbot_state.action == melee.Action.DASHING and smashbot_state.action_frame >= 11:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
                 return;
 
-        #We can't dash RIGHT after landing. So just chill for a bit
+        #We can't dash IMMEDIATELY after landing. So just chill for a bit
         if (smashbot_state.action == melee.Action.LANDING and smashbot_state.action_frame < 2) or \
             not smashbot_state.on_ground:
                 controller.empty_input();
@@ -61,5 +61,5 @@ class DashDance(Chain):
             return;
 
         #Keep running the direction we're going
-        controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), .5);
+        controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
         return;
