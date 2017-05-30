@@ -10,6 +10,12 @@ class Bait(Strategy):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
 
+        # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
+        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED]
+        if smashbot_state.action in grabbedactions:
+            self.picktactic(Tactics.Defend)
+            return
+
         if self.tactic and not self.tactic.isinteruptible():
             self.tactic.step()
             return
@@ -36,7 +42,7 @@ class Bait(Strategy):
                 # Already handled above
 
                 # 3: Can we run away from the hit so that it whiffs?
-                #   Retreat
+                #   Defend
 
                 # 4: Shield or spotdodge the attack
                 #   Defend

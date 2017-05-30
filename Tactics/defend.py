@@ -14,9 +14,9 @@ class Defend(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
 
-        #If we can't interrupt the chain, just continue it
-        if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED]
+        if smashbot_state.action in grabbedactions:
+            self.pickchain(Chains.Struggle)
             return
 
         # Is the attack a grab? If so, spot dodge right away
