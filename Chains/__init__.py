@@ -5,3 +5,5 @@ from Chains.spotdodge import SpotDodge
 from Chains.waveshine import Waveshine
 from Chains.run import Run
 from Chains.struggle import Struggle
+from Chains.grabandthrow import GrabAndThrow
+from Chains.multishine import Multishine

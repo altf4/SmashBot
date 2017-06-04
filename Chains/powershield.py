@@ -16,7 +16,7 @@ class Powershield(Chain):
 
         # If we're in shield stun, we can let go
         if smashbot_state.action == Action.SHIELD_STUN:
-            interruptible = True
+            self.interruptible = True
             controller.empty_input()
             return
 
@@ -26,9 +26,9 @@ class Powershield(Chain):
             return
 
         if not isshielding:
-            interruptible = False
+            self.interruptible = False
             controller.press_button(Button.BUTTON_L);
             return
 
-        interruptible = True
+        self.interruptible = True
         controller.empty_input()

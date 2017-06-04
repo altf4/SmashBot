@@ -4,6 +4,7 @@ import Tactics
 from melee.enums import Action, Button
 from Strategies.strategy import Strategy
 from Tactics.punish import Punish
+from Tactics.pressure import Pressure
 
 class Bait(Strategy):
     def step(self):
@@ -59,6 +60,18 @@ class Bait(Strategy):
         # Is opponent rolling? Punish it
         if globals.framedata.isroll(opponent_state.character, opponent_state.action):
             self.picktactic(Tactics.Punish)
+            return
+
+        # Can we shield pressure them?
+        if Pressure.canpressure():
+            self.picktactic(Tactics.Pressure)
+            return
+
+        # Is opponent shielding?
+        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+            Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+        if opponent_state.action in shieldactions:
+            self.picktactic(Tactics.Approach)
             return
 
         self.picktactic(Tactics.KeepDistance)

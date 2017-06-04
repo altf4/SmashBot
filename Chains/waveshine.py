@@ -5,8 +5,12 @@ from Chains.chain import Chain
 
 # Shine, then wavedash
 class Waveshine(Chain):
-    def __init__(self):
+    # Distance argument is a multiplier to how far we'll wavedash
+    # 0 is straight in place
+    # 1 is max distance
+    def __init__(self, distance=1):
         self.hasshined = False
+        self.distance = distance
 
     def step(self):
         controller = globals.controller
@@ -37,7 +41,8 @@ class Waveshine(Chain):
             return;
 
         isInShineStart = (smashbot_state.action == Action.DOWN_B_STUN or \
-            smashbot_state.action == Action.DOWN_B_GROUND_START)
+            smashbot_state.action == Action.DOWN_B_GROUND_START or \
+            smashbot_state.action == Action.DOWN_B_GROUND)
 
         # Jump out of shine
         if isInShineStart and smashbot_state.action_frame >= 3 and smashbot_state.on_ground:
@@ -55,7 +60,11 @@ class Waveshine(Chain):
             controller.press_button(Button.BUTTON_L)
             # Always wavedash toward opponent
             onleft = smashbot_state.x < opponent_state.x
-            controller.tilt_analog(Button.BUTTON_MAIN, int(onleft), .2);
+            # Normalize distance to be .5 -> 1
+            x = (self.distance + 0.5) / 2
+            if not onleft:
+                x = -x
+            controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
             return
 
         # If we're sliding and have shined, then we're all done here
@@ -63,5 +72,8 @@ class Waveshine(Chain):
             self.interruptible = True
             controller.empty_input()
             return
+
+        if smashbot_state.action == Action.STANDING:
+            self.interruptible = True
 
         controller.empty_input()

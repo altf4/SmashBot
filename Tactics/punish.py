@@ -9,6 +9,12 @@ class Punish(Tactic):
     # Static function that returns whether we have enough time to run in and punish,
     # given the current gamestate. Either a shine or upsmash
     def canpunish():
+        # Can't punish opponent in shield
+        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+            Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+        if globals.opponent_state.action in shieldactions:
+            return False
+
         # Can we shine right now without any movement?
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
