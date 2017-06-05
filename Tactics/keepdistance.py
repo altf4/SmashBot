@@ -9,7 +9,7 @@ class KeepDistance(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
 
-        bufferzone = 35
+        bufferzone = 30
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
         # Figure out which side we should dash dance on
