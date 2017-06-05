@@ -10,7 +10,7 @@ from Chains.grabandthrow import THROW_DIRECTION
 class Pressure(Tactic):
     def __init__(self):
         # Pick a random max number of shines
-        self.shinemax = random.randint(4, 10)
+        self.shinemax = random.randint(3, 6)
         self.shinecount = 0
         # 50/50 chance of waveshining back into range if we get too far
         self.waveshine = bool(random.getrandbits(1))
@@ -24,7 +24,7 @@ class Pressure(Tactic):
 
         # We must be in upsmash range
         #TODO: Wrap this up somewhere
-        inrange = globals.gamestate.distance < 14.5
+        inrange = globals.gamestate.distance < 13.5
 
         # We must be facing our opponent
         onright = globals.opponent_state.x < globals.smashbot_state.x
@@ -47,25 +47,38 @@ class Pressure(Tactic):
             globals.smashbot_state.action_frame == 2:
             self.shinecount += 1
 
-        shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
+        canshine = globals.smashbot_state.action in [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
             Action.RUNNING, Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.KNEE_BEND]
-        canshine = globals.smashbot_state.action in shineablestates
-        if not canshine:
+
+        candash = globals.smashbot_state.action in [Action.DASHING, Action.TURNING, Action.RUNNING, \
+            Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
+
+        if not canshine and candash:
             # Dash dance at our opponent
             self.chain = None
             self.pickchain(Chains.DashDance, [globals.opponent_state.x])
             return
 
-        inrange = globals.gamestate.distance < 11.80
+        #TODO: Wrap this up somewhere
+        # If we're out of grab range, wavedash in far
+        if globals.gamestate.distance > 13.5:
+            self.pickchain(Chains.Wavedash)
+            return
+
+        # TODO: Wrap this up somewhere
+        inrange = globals.gamestate.distance < 11.80-3
         if inrange and (self.shinecount < self.shinemax):
             # Multishine
             self.pickchain(Chains.Multishine)
             return
         else:
             if self.waveshine:
-
-                self.pickchain(Chains.Waveshine, [.7])
+                x = 0.5
+                # If opponent is facing us, do the max distance wavedash to cross them up (avoid grab)
+                if (globals.opponent_state.x < globals.smashbot_state.x) == globals.opponent_state.facing:
+                    x = 1.0
+                self.pickchain(Chains.Waveshine, [x])
             else:
                 self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.DOWN])
             return

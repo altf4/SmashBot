@@ -31,9 +31,14 @@ class GrabAndThrow(Chain):
             self.interruptible = True
             return
 
+        if smashbot_state.action == Action.LANDING_SPECIAL:
+            controller.empty_input()
+            self.interruptible = True
+            return
+
         # If we need to jump cancel, do it
         jcstates = [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
-        if smashbot_state.action in jcstates:
+        if (smashbot_state.action in jcstates) and smashbot_state.action_frame >= 3:
             controller.press_button(Button.BUTTON_Y);
             controller.release_button(Button.BUTTON_Z);
             return

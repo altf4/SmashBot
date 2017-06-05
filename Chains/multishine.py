@@ -36,7 +36,7 @@ class Multishine(Chain):
             smashbot_state.action == Action.DOWN_B_GROUND)
 
         #Jump out of shine
-        if isInShineStart and smashbot_state.action_frame >= 4 and smashbot_state.on_ground:
+        if isInShineStart and smashbot_state.action_frame >= 3 and smashbot_state.on_ground:
             controller.press_button(Button.BUTTON_Y)
             self.interruptible = False
             return

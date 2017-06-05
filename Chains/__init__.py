@@ -3,6 +3,7 @@ from Chains.dashdance import DashDance
 from Chains.powershield import Powershield
 from Chains.spotdodge import SpotDodge
 from Chains.waveshine import Waveshine
+from Chains.wavedash import Wavedash
 from Chains.run import Run
 from Chains.struggle import Struggle
 from Chains.grabandthrow import GrabAndThrow
