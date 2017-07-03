@@ -16,6 +16,12 @@ class Wavedash(Chain):
         smashbot_state = globals.smashbot_state
         opponent_state = globals.opponent_state
 
+        # If we're in shield stun, just wait
+        if smashbot_state.action == Action.SHIELD_STUN:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         # We shouldn't need these. It's just there in case we miss the knee bend somehow
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
         jumpcancel = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)

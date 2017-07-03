@@ -8,3 +8,5 @@ from Chains.run import Run
 from Chains.struggle import Struggle
 from Chains.grabandthrow import GrabAndThrow
 from Chains.multishine import Multishine
+from Chains.smashattack import SmashAttack
+from Chains.nothing import Nothing

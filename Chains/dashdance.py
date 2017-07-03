@@ -14,6 +14,11 @@ class DashDance(Chain):
 
         #TODO: Moonwalk protection
 
+        # If we're stuck wavedashing, just hang out and do nothing
+        if smashbot_state.action == melee.Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
+            controller.empty_input()
+            return;
+
         #If we're walking, stop for a frame
         #Also, if we're shielding, don't try to dash. We will accidentally roll
         if smashbot_state.action == melee.Action.WALK_SLOW or \
