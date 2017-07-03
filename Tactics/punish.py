@@ -100,18 +100,16 @@ class Punish(Tactic):
         if smashbot_state.action in runningactions:
             framesneeded += 3
 
-        #globals.logger.log("Notes", "framesneeded: " + str(framesneeded) + " ", concat=True)
-
         endposition = opponent_state.x
         # If we have the time....
         if framesneeded < framesleft:
             # Calculate where the opponent will end up
-            # TODO: Consider hitstun
             if opponent_state.hitstun_frames_left > 0:
                 endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
 
             if globals.framedata.isroll(opponent_state.character, opponent_state.action):
                 endposition = globals.framedata.endrollposition(opponent_state, globals.gamestate.stage)
+                endposition += globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
                 # But don't go off the end of the stage
                 endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
                 endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
