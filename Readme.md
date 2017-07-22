@@ -23,9 +23,7 @@
 
 4. **How is SmashBot designed?**
 
-    SmashBot makes decisions on a 4 tiered hierarchy of objectives: Goals, Strategies, Tactics, and Chains. Each objective inspects the current game state and decides which lower level objective will be best to achieve it.
-
-    **Goals** are the highest level objective, and inform the AI what the intended overall outcome should be. IE: Beating our opponent in a match, or navigating the menu to select our character.
+    SmashBot makes decisions on a tiered hierarchy of objectives: Strategies, Tactics, and Chains. Each objective inspects the current game state and decides which lower level objective will be best to achieve it.
 
     **Strategies** are the highest level means that the AI will use to accomplish the overall goal. For instance, the SmashBot will typically take the strategy of baiting the opponent into a poor move.
 

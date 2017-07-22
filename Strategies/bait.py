@@ -7,6 +7,18 @@ from Tactics.punish import Punish
 from Tactics.pressure import Pressure
 
 class Bait(Strategy):
+    def __str__(self):
+        string = "Bait"
+
+        if not self.tactic:
+            return string
+        string += str(type(self.tactic))
+
+        if not self.tactic.chain:
+            return string
+        string += str(type(self.tactic.chain))
+        return string
+
     def step(self):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state

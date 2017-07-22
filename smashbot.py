@@ -4,7 +4,7 @@ import argparse
 import signal
 import sys
 
-from Goals.killopponent import KillOpponent
+from Strategies.bait import Bait
 
 import globals
 
@@ -75,7 +75,7 @@ dolphin.run(render=True)
 #   dolphin will hang waiting for input and never receive it
 controller.connect()
 
-goal = KillOpponent()
+strategy = Bait()
 
 #Main loop
 while True:
@@ -84,9 +84,8 @@ while True:
 
     #What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        #XXX: This is where your AI does all of its stuff!
-        #The goal "step" will cascade all the way down the objective hierarchy
-        goal.step()
+        #The strategy "step" will cascade all the way down the objective hierarchy
+        strategy.step()
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
@@ -102,6 +101,6 @@ while True:
     controller.flush()
 
     if log:
-        log.log("Notes", "Goals: " + str(goal), concat=True)
+        log.log("Notes", "Goals: " + str(strategy), concat=True)
         log.logframe(gamestate)
         log.writeframe()
