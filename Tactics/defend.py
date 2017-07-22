@@ -5,6 +5,38 @@ from melee.enums import Action, Button
 from Tactics.tactic import Tactic
 
 class Defend(Tactic):
+    def needsdefense():
+        # Is opponent attacking?
+        opponent_state = globals.opponent_state
+        smashbot_state = globals.smashbot_state
+        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
+            # What state of the attack is the opponent in?
+            # Windup / Attacking / Cooldown
+            attackstate = globals.framedata.attackstate_simple(opponent_state)
+            if attackstate == melee.enums.AttackState.WINDUP:
+                # 1: Sweep out predicted attack zone. Do we need to care about the attack?
+                #   break
+                # IE: Maybe the attack is the wrong way or too far away
+                #TODO
+
+                # 2: Can we hit them first before their hitbox comes out?
+                #   Punish
+                # Already handled above
+
+                # 3: Can we run away from the hit so that it whiffs?
+                #   Defend
+
+                # 4: Shield or spotdodge the attack
+                #   Defend
+                return True
+
+            if attackstate == melee.enums.AttackState.ATTACKING:
+                return True
+
+            if attackstate == melee.enums.AttackState.COOLDOWN:
+                pass
+        return False
+
     def step(self):
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:

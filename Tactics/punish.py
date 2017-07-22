@@ -43,6 +43,9 @@ class Punish(Tactic):
         if opponent_state.action in shieldactions:
             return False
 
+        if globals.framedata.isroll(opponent_state.character, opponent_state.action):
+            return True
+
         # Can we shine right now without any movement?
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \

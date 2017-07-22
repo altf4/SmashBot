@@ -5,6 +5,7 @@ from melee.enums import Action, Button
 from Strategies.strategy import Strategy
 from Tactics.punish import Punish
 from Tactics.pressure import Pressure
+from Tactics.defend import Defend
 
 class Bait(Strategy):
     def __str__(self):
@@ -33,45 +34,16 @@ class Bait(Strategy):
             self.tactic.step()
             return
 
+        # TODO: Maybe we need to put a check for projectiles specifically up here ahead of punish
+
         # If we can punish our opponent for a laggy move, let's do that
         if Punish.canpunish():
             self.picktactic(Tactics.Punish)
             return
 
-        # Is opponent attacking?
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
-            # What state of the attack is the opponent in?
-            # Windup / Attacking / Cooldown
-            attackstate = globals.framedata.attackstate_simple(opponent_state)
-            if attackstate == melee.enums.AttackState.WINDUP:
-                pass
-                # 1: Sweep out predicted attack zone. Do we need to care about the attack?
-                # IE: Maybe the attack is the wrong way or too far away
-                #   break
-                #TODO
-
-                # 2: Can we hit them first before their hitbox comes out?
-                #   Punish
-                # Already handled above
-
-                # 3: Can we run away from the hit so that it whiffs?
-                #   Defend
-
-                # 4: Shield or spotdodge the attack
-                #   Defend
-                self.picktactic(Tactics.Defend)
-                return
-
-            if attackstate == melee.enums.AttackState.ATTACKING:
-                self.picktactic(Tactics.Defend)
-                return
-
-            if attackstate == melee.enums.AttackState.COOLDOWN:
-                pass
-
-        # Is opponent rolling? Punish it
-        if globals.framedata.isroll(opponent_state.character, opponent_state.action):
-            self.picktactic(Tactics.Punish)
+        # Do we need to defend an attack?
+        if Defend.needsdefense():
+            self.picktactic(Tactics.Defend)
             return
 
         # Can we shield pressure them?
