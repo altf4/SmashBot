@@ -14,6 +14,12 @@ class DashDance(Chain):
 
         #TODO: Moonwalk protection
 
+        # If we're in spotdodge, do nothing
+        if smashbot_state.action == melee.Action.SPOTDODGE:
+            self.interruptible = True
+            controller.empty_input()
+            return;
+
         # If we're stuck wavedashing, just hang out and do nothing
         if smashbot_state.action == melee.Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
             controller.empty_input()

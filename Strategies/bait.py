@@ -70,7 +70,9 @@ class Bait(Strategy):
         # Is opponent shielding?
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
-        if opponent_state.action in shieldactions:
+        # Is opponent starting a jump?
+        earlyjumpactions = [Action.KNEE_BEND, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]
+        if opponent_state.action in shieldactions or opponent_state.action in earlyjumpactions:
             self.picktactic(Tactics.Approach)
             return
 
