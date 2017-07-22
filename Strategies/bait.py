@@ -34,7 +34,9 @@ class Bait(Strategy):
             self.tactic.step()
             return
 
-        # TODO: Maybe we need to put a check for projectiles specifically up here ahead of punish
+        if Defend.needsprojectiledefense():
+            self.picktactic(Tactics.Defend)
+            return
 
         # If we can punish our opponent for a laggy move, let's do that
         if Punish.canpunish():
