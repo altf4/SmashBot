@@ -29,6 +29,10 @@ class Punish(Tactic):
 
         # Opponent is in hitstun
         if opponent_state.hitstun_frames_left > 0:
+            # Special case here for lying on the ground.
+            #   For some reason, the hitstun count is totally wrong for these actions
+            if opponent_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
+                return 0
             return opponent_state.hitstun_frames_left
         return 0
 

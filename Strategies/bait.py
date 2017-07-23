@@ -34,6 +34,11 @@ class Bait(Strategy):
             self.tactic.step()
             return
 
+        # If we're in the cooldown for an attack, just do nothing
+        if globals.framedata.attackstate_simple(smashbot_state) == melee.enums.AttackState.COOLDOWN:
+            self.picktactic(Tactics.Wait)
+            return
+
         if Defend.needsprojectiledefense():
             self.picktactic(Tactics.Defend)
             return
