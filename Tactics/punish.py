@@ -47,6 +47,14 @@ class Punish(Tactic):
         if opponent_state.action in shieldactions:
             return False
 
+        left = Punish.framesleft()
+        # Will our opponent be invulnerable for the entire punishable window?
+        if left <= opponent_state.invulnerability_left:
+            return False
+
+        if left < 1:
+            return False
+
         if globals.framedata.isroll(opponent_state.character, opponent_state.action):
             return True
 
@@ -61,10 +69,6 @@ class Punish(Tactic):
 
         if inshinerange and globals.smashbot_state.action in shineablestates:
             return True
-
-        left = Punish.framesleft()
-        if left < 1:
-            return False
 
         #TODO: Wrap this up into a helper
         foxrunspeed = 2.2

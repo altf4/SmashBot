@@ -63,7 +63,8 @@ class Bait(Strategy):
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         # Is opponent starting a jump?
         earlyjumpactions = [Action.KNEE_BEND, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]
-        if opponent_state.action in shieldactions or opponent_state.action in earlyjumpactions:
+        if (opponent_state.action in shieldactions or opponent_state.action in earlyjumpactions) \
+                and opponent_state.invulnerability_left <= 0:
             self.picktactic(Tactics.Approach)
             return
 

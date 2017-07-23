@@ -8,15 +8,20 @@ from melee.enums import Character
 class KeepDistance(Tactic):
     def getbufferzone(self):
         character = globals.opponent_state.character
+        bufferzone = 30
         if character == Character.FOX:
-            return 20
+            bufferzone = 20
         if character == Character.FALCO:
-            return 20
+            bufferzone == 20
         if character == Character.CPTFALCON:
-            return 20
+            bufferzone == 20
         if character == Character.MARTH:
-            return 30
-        return 30
+            bufferzone == 30
+
+        # Stay a little further out if they're invulnerable
+        if globals.opponent_state.invulnerable:
+            bufferzone += 20
+        return bufferzone
 
     def step(self):
         opponent_state = globals.opponent_state

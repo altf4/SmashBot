@@ -22,6 +22,9 @@ class Pressure(Tactic):
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         sheilding = globals.opponent_state.action in shieldactions
 
+        if globals.opponent_state.invulnerability_left > 0:
+            return False
+
         # We must be in upsmash range
         #TODO: Wrap this up somewhere
         inrange = globals.gamestate.distance < 13.5
