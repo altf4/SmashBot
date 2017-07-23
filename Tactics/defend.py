@@ -24,7 +24,6 @@ class Defend(Tactic):
                     smashbot_y += 8
                 distance = math.sqrt((proj_x - smashbot_x)**2 + (proj_y - smashbot_y)**2)
                 # TODO: Make this distance dependent on the projectile subtype
-                globals.logger.log("Notes", "Distance: " + str(distance), concat=True)
                 if distance < 10:
                     return True
         return False
