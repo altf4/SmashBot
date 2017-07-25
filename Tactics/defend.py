@@ -32,32 +32,21 @@ class Defend(Tactic):
         # Is opponent attacking?
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
-            # What state of the attack is the opponent in?
-            # Windup / Attacking / Cooldown
-            attackstate = globals.framedata.attackstate_simple(opponent_state)
-            if attackstate == melee.enums.AttackState.WINDUP:
-                # 1: Sweep out predicted attack zone. Do we need to care about the attack?
-                #   break
-                # IE: Maybe the attack is the wrong way or too far away
-                #TODO
+        framedata = globals.framedata
 
-                # 2: Can we hit them first before their hitbox comes out?
-                #   Punish
-                # Already handled above
+        # What state of the attack is the opponent in?
+        # Windup / Attacking / Cooldown / Not Attacking
+        attackstate = framedata.attackstate_simple(opponent_state)
+        if attackstate == melee.enums.AttackState.COOLDOWN:
+            return False
+        if attackstate == melee.enums.AttackState.NOT_ATTACKING:
+            return False
 
-                # 3: Can we run away from the hit so that it whiffs?
-                #   Defend
+        # Will we be hit by this attack if we stand still?
+        hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        if hitframe:
+            return True
 
-                # 4: Shield or spotdodge the attack
-                #   Defend
-                return True
-
-            if attackstate == melee.enums.AttackState.ATTACKING:
-                return True
-
-            if attackstate == melee.enums.AttackState.COOLDOWN:
-                pass
         return False
 
     def step(self):
@@ -69,6 +58,7 @@ class Defend(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
         projectiles = globals.gamestate.projectiles
+        framedata = globals.framedata
 
         # Do we need to defend against a projectile?
         #   If there is a projectile, just assume that's why we're here.
@@ -88,14 +78,24 @@ class Defend(Tactic):
             self.pickchain(Chains.SpotDodge)
             return
 
-        # If the hitbox is next frame, do something about it
-        firsthitbox = globals.framedata.firsthitboxframe(opponent_state.character, \
-            opponent_state.action)
-        framesuntilhit = firsthitbox - opponent_state.action_frame
+        hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        framesuntilhit = hitframe - opponent_state.action_frame
 
         # Do we only have one frame left?
         if framesuntilhit == 1:
             self.pickchain(Chains.Powershield)
         else:
-            # Just dash at the opponent I guess
-            self.pickchain(Chains.DashDance, [opponent_state.x])
+            bufferzone = 35
+            pivotpoint = opponent_state.x
+            # Dash to a point away from the opponent, out of range
+            if opponent_state.x < smashbot_state.x:
+                # Dash right
+                pivotpoint += bufferzone
+                # But don't run off the edge
+                pivotpoint = min(melee.stages.edgegroundposition(globals.gamestate.stage)-5, pivotpoint)
+            else:
+                # Dash Left
+                pivotpoint -= bufferzone
+                # But don't run off the edge
+                pivotpoint = max(-melee.stages.edgegroundposition(globals.gamestate.stage) + 5, pivotpoint)
+            self.pickchain(Chains.DashDance, [pivotpoint])
