@@ -10,3 +10,4 @@ from Chains.grabandthrow import GrabAndThrow
 from Chains.multishine import Multishine
 from Chains.smashattack import SmashAttack
 from Chains.nothing import Nothing
+from Chains.shffl import Shffl

@@ -10,10 +10,34 @@ from Chains.grabandthrow import THROW_DIRECTION
 class Pressure(Tactic):
     def __init__(self):
         # Pick a random max number of shines
-        self.shinemax = random.randint(3, 6)
+        self.shinemax = random.randint(5, 10)
         self.shinecount = 0
-        # 50/50 chance of waveshining back into range if we get too far
-        self.waveshine = bool(random.getrandbits(1))
+
+        self.waveshine = False
+        self.shffl = False
+        self.dashdance = False
+
+        # Remove the dash dance from the random pool if we're in a spot where it would be bad
+        dashchance = 2
+        if globals.smashbot_state not in [Action.STANDING, Action.TURNING, Action.DASHING]:
+            dashchance = 0
+
+        # What sort of shield pressure should this be? Pick one at random
+        rand = random.choice([1]*5 + [2]*3 + [3]*dashchance)
+
+        # If we're on our last 2 stocks, only do dash dance
+        if globals.smashbot_state.stock <= 2:
+            rand = 3
+
+        # 50% chance of being SHFFL style pressure
+        if rand == 1:
+            self.shffl = True
+        # 30% chance of being waveshine style pressure
+        if rand == 2:
+            self.waveshine = True
+        # 20% chance of being dashdance style pressure
+        if rand == 3:
+            self.dashdance = True
 
     # We can shield pressuring if...
     def canpressure():
@@ -27,7 +51,7 @@ class Pressure(Tactic):
 
         # We must be in upsmash range
         #TODO: Wrap this up somewhere
-        inrange = globals.gamestate.distance < 13.5
+        inrange = globals.gamestate.distance < 20
 
         # We must be facing our opponent
         onright = globals.opponent_state.x < globals.smashbot_state.x
@@ -43,6 +67,15 @@ class Pressure(Tactic):
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step()
+            return
+
+        if self.dashdance:
+            self.chain = None
+            if globals.smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
+                distance = max(globals.gamestate.distance / 20, 1)
+                self.pickchain(Chains.Wavedash, [distance])
+                return
+            self.pickchain(Chains.DashDance, [globals.opponent_state.x])
             return
 
         # Keep a running count of how many shines we've done
@@ -76,12 +109,22 @@ class Pressure(Tactic):
             self.pickchain(Chains.Multishine)
             return
         else:
-            if self.waveshine:
-                x = 0.5
-                # If opponent is facing us, do the max distance wavedash to cross them up (avoid grab)
-                if (globals.opponent_state.x < globals.smashbot_state.x) == globals.opponent_state.facing:
-                    x = 1.0
-                self.pickchain(Chains.Waveshine, [x])
-            else:
-                self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.DOWN])
+            if not inrange:
+                # How do we get back into range? Wavedash or SHFFL?
+                if self.waveshine:
+                    x = 0.5
+                    # If opponent is facing us, do the max distance wavedash to cross them up (avoid grab)
+                    if (globals.opponent_state.x < globals.smashbot_state.x) == globals.opponent_state.facing:
+                        x = 1.0
+                    self.chain = None
+                    self.pickchain(Chains.Waveshine, [x])
+                    shinecount = 0
+                    return
+                if self.shffl:
+                    self.chain = None
+                    self.pickchain(Chains.Shffl)
+                    shinecount = 0
+                    return
+
+            self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.DOWN])
             return

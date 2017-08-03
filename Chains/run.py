@@ -5,6 +5,7 @@ from Chains.chain import Chain
 
 class Run(Chain):
     def step(self, rundirection):
+        controller = globals.controller
         # Run in the specified direction
         controller.tilt_analog(Button.BUTTON_MAIN, int(rundirection), .5)
         self.interruptible = True

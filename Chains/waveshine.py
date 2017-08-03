@@ -32,6 +32,11 @@ class Waveshine(Chain):
             self.hasshined = True
             return
 
+        # If we're in the early knee bend frames, just hang on and wait
+        if (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame < 3):
+            controller.empty_input()
+            return
+
         # Pivot. You can't shine from a dash animation. So make it a pivot
         if smashbot_state.action == Action.DASHING:
             # Turn around
@@ -45,10 +50,14 @@ class Waveshine(Chain):
             smashbot_state.action == Action.DOWN_B_GROUND)
 
         # Jump out of shine
-        if isInShineStart and smashbot_state.action_frame >= 3 and smashbot_state.on_ground:
+        if isInShineStart:
             self.interruptible = False
-            controller.press_button(Button.BUTTON_Y)
-            return
+            if smashbot_state.action_frame >= 3:
+                controller.press_button(Button.BUTTON_Y)
+                return
+            else:
+                controller.empty_input()
+                return
 
         # We shouldn't need these. It's just there in case we miss the knee bend somehow
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
@@ -76,4 +85,5 @@ class Waveshine(Chain):
         if smashbot_state.action == Action.STANDING:
             self.interruptible = True
 
+        self.interruptible = True
         controller.empty_input()
