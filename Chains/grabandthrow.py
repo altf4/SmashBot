@@ -45,11 +45,15 @@ class GrabAndThrow(Chain):
 
         # Grab on knee bend
         if smashbot_state.action == Action.KNEE_BEND:
+            # Let go of Z if we already had it pressed
+            if controller.prev.button[Button.BUTTON_Z]:
+                controller.release_button(Button.BUTTON_Z);
+                return
             controller.press_button(Button.BUTTON_Z);
             return
 
         # Do the throw
-        if smashbot_state.action == Action.GRAB_WAIT:
+        if smashbot_state.action == Action.GRAB_WAIT or smashbot_state == Action.GRAB_PULLING:
             if self.direction == THROW_DIRECTION.DOWN:
                 controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             if self.direction == THROW_DIRECTION.UP:
@@ -62,4 +66,8 @@ class GrabAndThrow(Chain):
             return
 
         # Do the grab
+        # Let go of Z if we already had it pressed
+        if controller.prev.button[Button.BUTTON_Z]:
+            controller.release_button(Button.BUTTON_Z);
+            return
         controller.press_button(Button.BUTTON_Z);

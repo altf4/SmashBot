@@ -69,8 +69,8 @@ class Waveshine(Chain):
             controller.press_button(Button.BUTTON_L)
             # Always wavedash toward opponent
             onleft = smashbot_state.x < opponent_state.x
-            # Normalize distance to be .5 -> 1
-            x = (self.distance + 0.5) / 2
+            # Normalize distance from (0->1) to (0.5 -> 1)
+            x = (self.distance / 2) + .5
             if not onleft:
                 x = -x
             controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
@@ -81,9 +81,6 @@ class Waveshine(Chain):
             self.interruptible = True
             controller.empty_input()
             return
-
-        if smashbot_state.action == Action.STANDING:
-            self.interruptible = True
 
         self.interruptible = True
         controller.empty_input()

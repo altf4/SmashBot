@@ -10,7 +10,7 @@ from Chains.grabandthrow import THROW_DIRECTION
 class Pressure(Tactic):
     def __init__(self):
         # Pick a random max number of shines
-        self.shinemax = random.randint(5, 10)
+        self.shinemax = random.randint(0, 8)
         self.shinecount = 0
 
         self.waveshine = False
@@ -49,21 +49,15 @@ class Pressure(Tactic):
         if globals.opponent_state.invulnerability_left > 0:
             return False
 
-        # We must be in upsmash range
-        #TODO: Wrap this up somewhere
-        inrange = globals.gamestate.distance < 20
+        # We must be in close range
+        inrange = globals.gamestate.distance < 30
 
-        # We must be facing our opponent
-        onright = globals.opponent_state.x < globals.smashbot_state.x
-        facing = globals.smashbot_state.facing
-        # When we're turning, the facing bool is sorta backwards
-        if globals.smashbot_state.action == Action.TURNING:
-            facing = not facing
-        facingopponent = facing != onright
-
-        return sheilding and inrange and facingopponent
+        return sheilding and inrange
 
     def step(self):
+        smashbot_state = globals.smashbot_state
+        opponent_state = globals.opponent_state
+
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step()
@@ -71,50 +65,60 @@ class Pressure(Tactic):
 
         if self.dashdance:
             self.chain = None
-            if globals.smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
-                distance = max(globals.gamestate.distance / 20, 1)
+            # Don't try to dashdance if we know we can't
+            if smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
+                distance = max(gamestate.distance / 20, 1)
                 self.pickchain(Chains.Wavedash, [distance])
                 return
-            self.pickchain(Chains.DashDance, [globals.opponent_state.x])
+            self.pickchain(Chains.DashDance, [opponent_state.x])
             return
 
         # Keep a running count of how many shines we've done
-        if globals.smashbot_state.action == Action.DOWN_B_GROUND_START and \
-            globals.smashbot_state.action_frame == 2:
+        if smashbot_state.action == Action.DOWN_B_GROUND_START and \
+            smashbot_state.action_frame == 2:
             self.shinecount += 1
 
-        canshine = globals.smashbot_state.action in [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
+        canshine = smashbot_state.action in [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
             Action.RUNNING, Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.KNEE_BEND]
 
-        candash = globals.smashbot_state.action in [Action.DASHING, Action.TURNING, Action.RUNNING, \
+        candash = smashbot_state.action in [Action.DASHING, Action.TURNING, Action.RUNNING, \
             Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
 
-        if not canshine and candash:
+        inshinerange = globals.gamestate.distance < 11.80-3
+        # Where will opponent end up, after sliding is accounted for? (at the end of our grab)
+        endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_ground_x_self, 7)
+        ingrabrange = abs(endposition - smashbot_state.x) < 13.5
+
+        # If we're out of range, and CAN dash, then let's just dash in no matter
+        #   what other options are here.
+        if not inshinerange and candash:
             # Dash dance at our opponent
             self.chain = None
-            self.pickchain(Chains.DashDance, [globals.opponent_state.x])
+            self.pickchain(Chains.DashDance, [opponent_state.x])
             return
 
-        #TODO: Wrap this up somewhere
-        # If we're out of grab range, wavedash in far
-        if globals.gamestate.distance > 13.5:
-            self.pickchain(Chains.Wavedash)
-            return
+        neutral = smashbot_state.action in [Action.STANDING, Action.DASHING, Action.TURNING, \
+            Action.RUNNING, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
 
-        # TODO: Wrap this up somewhere
-        inrange = globals.gamestate.distance < 11.80-3
-        if inrange and (self.shinecount < self.shinemax):
-            # Multishine
+        facingopponent = smashbot_state.facing == (smashbot_state.x < opponent_state.x)
+        # If we're turning, then any action will turn around, so take that into account
+        if smashbot_state.action == Action.TURNING:
+            facingopponent = not facingopponent
+
+        # Multishine if we're in range, facing our opponent and haven't used up all our shines
+        if inshinerange and facingopponent and (self.shinecount < self.shinemax):
             self.pickchain(Chains.Multishine)
             return
+        # Here's where things get complicated...
         else:
-            if not inrange:
-                # How do we get back into range? Wavedash or SHFFL?
+            # If we're not in range, then we need to get back into range. But how?
+            #   Wavedash or SHFFL?
+            if not inshinerange:
                 if self.waveshine:
                     x = 0.5
                     # If opponent is facing us, do the max distance wavedash to cross them up (avoid grab)
-                    if (globals.opponent_state.x < globals.smashbot_state.x) == globals.opponent_state.facing:
+                    if (opponent_state.x < smashbot_state.x) == opponent_state.facing:
                         x = 1.0
                     self.chain = None
                     self.pickchain(Chains.Waveshine, [x])
@@ -126,5 +130,14 @@ class Pressure(Tactic):
                     shinecount = 0
                     return
 
-            self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.DOWN])
-            return
+            # Recalculate facing for the slide end
+            facingopponent = smashbot_state.facing == (smashbot_state.x < endposition)
+
+            # Grab opponent
+            if ingrabrange and facingopponent and (self.shinecount >= self.shinemax):
+                self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.DOWN])
+                return
+
+        # If we fall through, then just dashdance at our opponent
+        self.chain = None
+        self.pickchain(Chains.DashDance, [opponent_state.x])

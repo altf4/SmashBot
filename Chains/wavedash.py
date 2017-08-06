@@ -37,7 +37,7 @@ class Wavedash(Chain):
 
         shielding = smashbot_state.action in [Action.SHIELD_START, Action.SHIELD, \
             Action.SHIELD_RELEASE, Action.SHIELD_STUN, Action.SHIELD_REFLECT]
-        neutral = smashbot_state.action in [Action.STANDING, Action.DASHING, \
+        neutral = smashbot_state.action in [Action.STANDING, Action.DASHING, Action.TURNING, \
             Action.RUNNING, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
 
         # Jump out of shield or neutral
@@ -53,8 +53,8 @@ class Wavedash(Chain):
             controller.press_button(Button.BUTTON_L)
             # Always wavedash toward opponent
             onleft = smashbot_state.x < opponent_state.x
-            # Normalize distance to be .5 -> 1
-            x = (self.distance + 0.5) / 2
+            # Normalize distance from (0->1) to (0.5 -> 1)
+            x = (self.distance / 2) + .5
             if not onleft:
                 x = -x
             controller.tilt_analog(Button.BUTTON_MAIN, x, .2);

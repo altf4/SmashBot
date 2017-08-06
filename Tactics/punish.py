@@ -152,6 +152,7 @@ class Punish(Tactic):
         #TODO: Wrap the shine range into a helper
         foxshinerange = 11.8
         if globals.gamestate.distance < foxshinerange:
+            self.chain = None
             self.pickchain(Chains.Waveshine)
             return
 

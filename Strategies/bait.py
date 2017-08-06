@@ -36,8 +36,10 @@ class Bait(Strategy):
 
         # If we're in the cooldown for an attack, just do nothing
         if globals.framedata.attackstate_simple(smashbot_state) == melee.enums.AttackState.COOLDOWN:
-            self.picktactic(Tactics.Wait)
-            return
+            # Make an exception for shine states, since we're still actionable for them
+            if smashbot_state.action not in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.DOWN_B_STUN]:
+                self.picktactic(Tactics.Wait)
+                return
 
         if Defend.needsprojectiledefense():
             self.picktactic(Tactics.Defend)
