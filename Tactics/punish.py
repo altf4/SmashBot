@@ -10,6 +10,12 @@ class Punish(Tactic):
     # How many frames do we have to work with for the punish
     def framesleft():
         opponent_state = globals.opponent_state
+
+        # For some dumb reason, the game shows the standing animation as having a large hitstun
+        #   manually account for this
+        if opponent_state == Action.STANDING:
+            return 1
+
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
