@@ -19,7 +19,7 @@ class Pressure(Tactic):
 
         # Remove the dash dance from the random pool if we're in a spot where it would be bad
         dashchance = 2
-        if globals.smashbot_state not in [Action.STANDING, Action.TURNING, Action.DASHING]:
+        if globals.smashbot_state.action not in [Action.STANDING, Action.TURNING, Action.DASHING]:
             dashchance = 0
 
         # What sort of shield pressure should this be? Pick one at random
