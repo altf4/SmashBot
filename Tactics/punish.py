@@ -23,7 +23,7 @@ class Punish(Tactic):
             attackstate = globals.framedata.attackstate_simple(opponent_state)
             if attackstate == melee.enums.AttackState.WINDUP:
                 frame = globals.framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
-                return max(0, frame - opponent_state.action_frame)
+                return max(0, frame - opponent_state.action_frame - 1)
             if attackstate == melee.enums.AttackState.ATTACKING:
                 return 0
             if attackstate == melee.enums.AttackState.COOLDOWN:
