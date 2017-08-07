@@ -102,6 +102,9 @@ class Punish(Tactic):
 
         # Can we charge an upsmash right now?
         framesleft = Punish.framesleft()
+        if globals.logger:
+            globals.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
+
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
         # 3 if in shield, shine, or dash/running
@@ -118,15 +121,17 @@ class Punish(Tactic):
             framesneeded += 3
 
         endposition = opponent_state.x
+        isroll = globals.framedata.isroll(opponent_state.character, opponent_state.action)
+
         # If we have the time....
         if framesneeded < framesleft:
             # Calculate where the opponent will end up
             if opponent_state.hitstun_frames_left > 0:
                 endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
 
-            if globals.framedata.isroll(opponent_state.character, opponent_state.action):
+            if isroll:
                 endposition = globals.framedata.endrollposition(opponent_state, globals.gamestate.stage)
-                endposition += globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
+                endposition += globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack + opponent_state.speed_ground_x_self, framesleft)
                 # But don't go off the end of the stage
                 endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
                 endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
@@ -135,6 +140,19 @@ class Punish(Tactic):
             # Take our sliding into account
             slidedistance = globals.framedata.slidedistance(smashbot_state.character, smashbot_state.speed_ground_x_self, framesleft)
             smashbot_endposition = slidedistance + smashbot_state.x
+
+
+            # Do we have to consider character pushing?
+            # Are we between the character's current and predicted position?
+            if abs(opponent_state.x) < abs(smashbot_endposition) and abs(smashbot_endposition) < abs(endposition):
+                # Add a little bit of push distance along that path
+                # 0.3 pushing for max of 16 frames
+                onleft = smashbot_state.x < opponent_state.x
+                if onleft:
+                    smashbot_endposition -= 4.8
+                else:
+                    smashbot_endposition += 4.8
+
             facing = smashbot_state.facing == (smashbot_endposition < endposition)
             # Remember that if we're turning, the attack will come out the opposite way
             if smashbot_state.action == Action.TURNING:
@@ -155,12 +173,18 @@ class Punish(Tactic):
                     self.pickchain(Chains.Wavedash)
                     return
 
+        # We can't smash our opponent, so let's just shine instead. Do we have time for that?
         #TODO: Wrap the shine range into a helper
+        framesneeded = 1
+        if smashbot_state.action == Action.DASHING:
+            framesneeded = 2
         foxshinerange = 11.8
-        if globals.gamestate.distance < foxshinerange:
-            self.chain = None
-            self.pickchain(Chains.Waveshine)
-            return
+        if globals.gamestate.distance < foxshinerange and (framesneeded < framesleft):
+            # Also, don't shine someone in the middle of a roll
+            if (not isroll) or (opponent_state.action_frame < 3):
+                self.chain = None
+                self.pickchain(Chains.Waveshine)
+                return
 
         # Kill the existing chain and start a new one
         self.chain = None
