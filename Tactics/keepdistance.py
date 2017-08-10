@@ -10,14 +10,22 @@ class KeepDistance(Tactic):
         character = globals.opponent_state.character
         bufferzone = 30
         if character == Character.FOX:
-            bufferzone = 20
+            bufferzone = 18
         if character == Character.FALCO:
-            bufferzone == 20
+            bufferzone = 18
         if character == Character.CPTFALCON:
-            bufferzone == 20
+            bufferzone = 20
         if character == Character.MARTH:
-            bufferzone == 30
-
+            bufferzone = 30
+        if character == Character.PIKACHU:
+            bufferzone = 15
+        if character == Character.JIGGLYPUFF:
+            bufferzone = 15
+        if character == Character.PEACH:
+            bufferzone = 20
+        # If we're in the first two difficulty levels, just get in there
+        if globals.difficulty > 2:
+            bufferzone = 0
         # Stay a little further out if they're invulnerable
         if globals.opponent_state.invulnerable:
             bufferzone += 20

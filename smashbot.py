@@ -90,7 +90,7 @@ while True:
         if args.difficulty:
             globals.difficulty = int(args.difficulty)
         else:
-            globals.difficulty = gamestate.smashbot_state.stock
+            globals.difficulty = globals.smashbot_state.stock
         strategy.step()
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
