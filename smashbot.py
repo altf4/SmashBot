@@ -29,6 +29,8 @@ parser.add_argument('--live', '-l',
                     default=True)
 parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode. Creates a CSV of all game state')
+parser.add_argument('--difficulty', '-i', type=int,
+                    help='Manually specify difficulty level of SmashBot')
 
 args = parser.parse_args()
 
@@ -85,6 +87,10 @@ while True:
     #What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
         #The strategy "step" will cascade all the way down the objective hierarchy
+        if args.difficulty:
+            globals.difficulty = int(args.difficulty)
+        else:
+            globals.difficulty = gamestate.smashbot_state.stock
         strategy.step()
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:

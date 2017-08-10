@@ -14,3 +14,5 @@ def init(dolphin, smashbot_port, opponent_port):
     framedata = melee.framedata.FrameData()
     global logger
     logger = dolphin.logger
+    global difficulty
+    difficulty = 4
