@@ -13,7 +13,7 @@ class Punish(Tactic):
 
         # For some dumb reason, the game shows the standing animation as having a large hitstun
         #   manually account for this
-        if opponent_state == Action.STANDING:
+        if opponent_state.action == Action.STANDING:
             return 1
 
         # Is opponent attacking?
