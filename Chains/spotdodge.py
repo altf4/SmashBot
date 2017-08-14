@@ -8,6 +8,12 @@ class SpotDodge(Chain):
         controller = globals.controller
         smashbot_state = globals.smashbot_state
 
+        # Don't try to spot dodge in the air
+        if not smashbot_state.on_ground:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         # If we're shielding, do the spot dodge
         if smashbot_state.action == Action.SHIELD_REFLECT:
             self.interruptible = False

@@ -8,6 +8,12 @@ class Powershield(Chain):
         controller = globals.controller
         smashbot_state = globals.smashbot_state
 
+        # Don't try to shield in the air
+        if not smashbot_state.on_ground:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         isshielding = smashbot_state.action == Action.SHIELD \
             or smashbot_state.action == Action.SHIELD_START \
             or smashbot_state.action == Action.SHIELD_REFLECT \

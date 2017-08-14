@@ -11,3 +11,7 @@ from Chains.multishine import Multishine
 from Chains.smashattack import SmashAttack
 from Chains.nothing import Nothing
 from Chains.shffl import Shffl
+from Chains.jump import Jump
+from Chains.firefox import Firefox
+from Chains.di import DI
+from Chains.illusion import Illusion

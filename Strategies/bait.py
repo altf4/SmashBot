@@ -6,6 +6,7 @@ from Strategies.strategy import Strategy
 from Tactics.punish import Punish
 from Tactics.pressure import Pressure
 from Tactics.defend import Defend
+from Tactics.recover import Recover
 
 class Bait(Strategy):
     def __str__(self):
@@ -40,6 +41,17 @@ class Bait(Strategy):
             if smashbot_state.action not in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.DOWN_B_STUN]:
                 self.picktactic(Tactics.Wait)
                 return
+
+        if Recover.needsrecovery():
+            self.picktactic(Tactics.Recover)
+            return
+
+        # Difficulty 5 is a debug / training mode
+        #   Don't do any attacks, and don't do any shielding
+        #   Take attacks, DI, and recover
+        if globals.difficulty == 5:
+            self.picktactic(Tactics.KeepDistance)
+            return
 
         if Defend.needsprojectiledefense():
             self.picktactic(Tactics.Defend)
