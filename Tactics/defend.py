@@ -81,6 +81,18 @@ class Defend(Tactic):
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
 
+        # If the attack has exactly one hitbox, then try shine clanking to defend
+        if framedata.hitboxcount(opponent_state.character, opponent_state.action) == 1:
+            # It must be the first frame of the attack
+            firstframe = framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
+            if hitframe == firstframe:
+                # For the time being, let's restrict this to ground attacks only on difficulties 1-3
+                if globals.difficulty == 4 or opponent_state.on_ground:
+                    if (framesuntilhit == 2 and smashbot_state.action == Action.DASHING) or \
+                            (framesuntilhit == 1 and smashbot_state.action == Action.TURNING):
+                        self.pickchain(Chains.Waveshine)
+                        return
+
         # Do we only have one frame left?
         if framesuntilhit == 1:
             self.pickchain(Chains.Powershield)
