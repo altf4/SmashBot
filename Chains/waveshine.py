@@ -25,7 +25,7 @@ class Waveshine(Chain):
         lastdashframe = (smashbot_state.action == Action.DASHING) and (smashbot_state.action_frame == 12)
 
         # Do the shine if we can
-        if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe):
+        if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine):
             self.interruptible = False
             controller.press_button(Button.BUTTON_B);
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0);
@@ -45,9 +45,17 @@ class Waveshine(Chain):
             controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
             return;
 
-        isInShineStart = (smashbot_state.action == Action.DOWN_B_STUN or \
-            smashbot_state.action == Action.DOWN_B_GROUND_START or \
-            smashbot_state.action == Action.DOWN_B_GROUND)
+        isInShineStart = smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
+        isinshield = smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD]
+
+        # Jump out of shield
+        if isinshield:
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.empty_input()
+                return
+            self.interruptible = False
+            controller.press_button(Button.BUTTON_Y)
+            return
 
         # Jump out of shine
         if isInShineStart:

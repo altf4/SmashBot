@@ -40,6 +40,13 @@ class Punish(Tactic):
             if opponent_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
                 return 1
             return opponent_state.hitstun_frames_left
+
+        # Opponent is in a lag state
+        if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
+                Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
+            # TODO: DO an actual lookup to see how many frames this is
+            return 5
+
         return 1
 
     # Static function that returns whether we have enough time to run in and punish,
@@ -194,6 +201,10 @@ class Punish(Tactic):
         framesneeded = 1
         if smashbot_state.action == Action.DASHING:
             framesneeded = 2
+        if smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD]:
+            framesneeded = 4
+        if smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
+            framesneeded = 4
         foxshinerange = 11.8
         if globals.gamestate.distance < foxshinerange and (framesneeded <= framesleft):
             # Also, don't shine someone in the middle of a roll

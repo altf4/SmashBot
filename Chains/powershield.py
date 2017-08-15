@@ -19,9 +19,16 @@ class Powershield(Chain):
 
         # Hold onto the shield until the attack is done
         # TODO: Shield DI in here
-        if globals.framedata.attackstate_simple(globals.opponent_state) == melee.enums.AttackState.ATTACKING:
+        if self.hold and globals.framedata.attackstate_simple(globals.opponent_state) == melee.enums.AttackState.ATTACKING:
             self.interruptible = False
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             controller.press_button(Button.BUTTON_L);
+            return
+
+        # We're done if we are in shield release
+        if smashbot_state.action == Action.SHIELD_RELEASE:
+            self.interruptible = True
+            controller.empty_input()
             return
 
         isshielding = smashbot_state.action == Action.SHIELD \
@@ -44,6 +51,7 @@ class Powershield(Chain):
         if not isshielding:
             self.interruptible = False
             controller.press_button(Button.BUTTON_L);
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             return
 
         self.interruptible = True
