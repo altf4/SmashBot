@@ -22,6 +22,9 @@ class Punish(Tactic):
             # Windup / Attacking / Cooldown
             attackstate = globals.framedata.attackstate_simple(opponent_state)
             if attackstate == melee.enums.AttackState.WINDUP:
+                # Don't try to punish standup attack windup
+                if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
+                    return 0
                 frame = globals.framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
                 return max(0, frame - opponent_state.action_frame - 1)
             if attackstate == melee.enums.AttackState.ATTACKING:
