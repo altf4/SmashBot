@@ -95,7 +95,8 @@ class Defend(Tactic):
 
         # Do we only have one frame left?
         if framesuntilhit == 1:
-            self.pickchain(Chains.Powershield)
+            hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
+            self.pickchain(Chains.Powershield, [hold])
         else:
             bufferzone = 35
             pivotpoint = opponent_state.x

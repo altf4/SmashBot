@@ -4,6 +4,9 @@ from melee.enums import Action, Button
 from Chains.chain import Chain
 
 class Powershield(Chain):
+    def __init__(self, hold=False):
+        self.hold = hold
+
     def step(self):
         controller = globals.controller
         smashbot_state = globals.smashbot_state
@@ -12,6 +15,13 @@ class Powershield(Chain):
         if not smashbot_state.on_ground:
             self.interruptible = True
             controller.empty_input()
+            return
+
+        # Hold onto the shield until the attack is done
+        # TODO: Shield DI in here
+        if globals.framedata.attackstate_simple(globals.opponent_state) == melee.enums.AttackState.ATTACKING:
+            self.interruptible = False
+            controller.press_button(Button.BUTTON_L);
             return
 
         isshielding = smashbot_state.action == Action.SHIELD \
