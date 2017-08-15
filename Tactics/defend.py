@@ -93,8 +93,8 @@ class Defend(Tactic):
                         self.pickchain(Chains.Waveshine)
                         return
 
-        # Do we only have one frame left?
-        if framesuntilhit == 1:
+        # Are we in the powershield window?
+        if framesuntilhit <= 2:
             hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
             self.pickchain(Chains.Powershield, [hold])
         else:
