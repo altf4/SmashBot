@@ -6,3 +6,4 @@ from Tactics.keepdistance import KeepDistance
 from Tactics.pressure import Pressure
 from Tactics.wait import Wait
 from Tactics.recover import Recover
+from Tactics.mitigate import Mitigate

@@ -7,6 +7,7 @@ from Tactics.punish import Punish
 from Tactics.pressure import Pressure
 from Tactics.defend import Defend
 from Tactics.recover import Recover
+from Tactics.mitigate import Mitigate
 
 class Bait(Strategy):
     def __str__(self):
@@ -24,6 +25,10 @@ class Bait(Strategy):
     def step(self):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
+
+        if Mitigate.needsmitigation():
+            self.picktactic(Tactics.Mitigate)
+            return
 
         # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
         grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED]
