@@ -42,6 +42,10 @@ class Wavedash(Chain):
 
         # Jump out of shield or neutral
         if shielding or neutral:
+            # If we already pressed Y last frame, let go
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.empty_input()
+                return
             self.interruptible = False
             controller.press_button(Button.BUTTON_Y)
             return
