@@ -67,7 +67,7 @@ class Pressure(Tactic):
             self.chain = None
             # Don't try to dashdance if we know we can't
             if smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
-                distance = max(gamestate.distance / 20, 1)
+                distance = max(globals.gamestate.distance / 20, 1)
                 self.pickchain(Chains.Wavedash, [distance])
                 return
             self.pickchain(Chains.DashDance, [opponent_state.x])
