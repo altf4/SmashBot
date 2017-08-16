@@ -67,8 +67,8 @@ class Defend(Tactic):
             self.pickchain(Chains.Powershield)
             return
 
-        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED]
-        if smashbot_state.action in grabbedactions:
+        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED, Action.GRABBED_WAIT_HIGH]
+        if (smashbot_state.action in grabbedactions) or (opponent_state.action == Action.GRAB_PULLING):
             self.pickchain(Chains.Struggle)
             return
 
