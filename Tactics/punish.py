@@ -22,6 +22,9 @@ class Punish(Tactic):
             # Windup / Attacking / Cooldown
             attackstate = globals.framedata.attackstate_simple(opponent_state)
             if attackstate == melee.enums.AttackState.WINDUP:
+                # Don't try to punish opponent in windup when they're invulnerable
+                if opponent_state.invulnerability_left > 0:
+                    return 0
                 # Don't try to punish standup attack windup
                 if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
                     return 0
