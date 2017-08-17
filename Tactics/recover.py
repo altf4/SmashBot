@@ -10,6 +10,9 @@ class Recover(Tactic):
     # Do we need to recover?
     def needsrecovery():
 
+        if not globals.opponent_state.off_stage and globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            return True
+
         # If we're on stage, then we don't need to recover
         if not globals.smashbot_state.off_stage:
             return False
@@ -38,9 +41,14 @@ class Recover(Tactic):
     def step(self):
         smashbot_state = globals.smashbot_state
         opponent_state = globals.opponent_state
+
         # If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step()
+            return
+
+        if globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            self.pickchain(Chains.Edgedash)
             return
 
         # If we can't possibly illusion to recover, don't try

@@ -15,3 +15,5 @@ from Chains.jump import Jump
 from Chains.firefox import Firefox
 from Chains.di import DI
 from Chains.illusion import Illusion
+from Chains.edgedash import Edgedash
+from Chains.edgestall import Edgestall
