@@ -61,6 +61,14 @@ class Firefox(Chain):
             controller.empty_input()
             return
 
+        # We need to jump out of our shine
+        if smashbot_state.action in [Action.DOWN_B_AIR, Action.DOWN_B_STUN]:
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.release_button(Button.BUTTON_Y)
+            else:
+                controller.press_button(Button.BUTTON_Y)
+            return
+
         x = 0
         if smashbot_state.x < 0:
             x = 1

@@ -2,6 +2,7 @@ import melee
 import globals
 import Chains
 import random
+import math
 from melee.enums import Action
 from Tactics.tactic import Tactic
 from Chains.firefox import FIREFOX
@@ -9,28 +10,48 @@ from Chains.firefox import FIREFOX
 class Recover(Tactic):
     # Do we need to recover?
     def needsrecovery():
+        smashbot_state = globals.smashbot_state
+        opponent_state = globals.opponent_state
 
-        if not globals.opponent_state.off_stage and globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+        onedge = globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
+        opponentonedge = globals.opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
+
+        if not opponent_state.off_stage and onedge:
+            globals.logger.log("Notes", "one ", concat=True)
             return True
 
         # If we're on stage, then we don't need to recover
-        if not globals.smashbot_state.off_stage:
+        if not smashbot_state.off_stage:
+            globals.logger.log("Notes", "two ", concat=True)
+            return False
+
+        if smashbot_state.on_ground:
+            globals.logger.log("Notes", "onground ", concat=True)
             return False
 
         # We can now assume that we're off the stage...
 
         # If opponent is on stage
-        if not globals.opponent_state.off_stage:
+        if not opponent_state.off_stage:
+            globals.logger.log("Notes", "three ", concat=True)
             return True
 
-        # If opponent is in hitstun, then recover
-        if globals.opponent_state.off_stage and globals.opponent_state.hitstun_frames_left > 0:
+        # If opponent is in hitstun, then recover, unless we're on the edge.
+        if opponent_state.off_stage and opponent_state.hitstun_frames_left > 0 and not onedge:
+            globals.logger.log("Notes", "four ", concat=True)
             return True
 
-        # If opponent is closer to the edge, recover
-        if globals.opponent_state.off_stage and (abs(globals.smashbot_state.x) > abs(globals.opponent_state.x)):
+        if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -20:
+            globals.logger.log("Notes", "dead fall ", concat=True)
             return True
 
+        # # If opponent is closer to the edge, recover
+        # edgedistance = math.sqrt(   )
+        # if globals.opponent_state.off_stage and :
+        #     globals.logger.log("Notes", "five ", concat=True)
+        #     return True
+
+        globals.logger.log("Notes", "six ", concat=True)
         return False
 
     def __init__(self):
@@ -57,14 +78,28 @@ class Recover(Tactic):
 
         diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
 
+        # If we can just grab the edge with a firefox, do that
+        facinginwards = smashbot_state.facing == (smashbot_state.x < 0)
+        if not facinginwards and smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
+            facinginwards = True
+
+        if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
+            self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])
+            return
+
+        # If we can just do nothing and grab the edge, do that
+        if -5 < smashbot_state.y and (diff_x < 10) and facinginwards and smashbot_state.speed_y_self < 0:
+            self.pickchain(Chains.Nothing)
+            return
+
         # If we're ligned up, do the illusion
         #   88 is a little longer than the illusion max length
         if self.useillusion and (-15 < smashbot_state.y < 0) and (diff_x < 88):
             self.pickchain(Chains.Illusion)
             return
 
-        # First jump back to the stage
-        if smashbot_state.jumps_left > 0:
+        # First jump back to the stage if we're low
+        if smashbot_state.jumps_left > 0 and smashbot_state.y < -20:
             self.pickchain(Chains.Jump)
             return
 
@@ -81,13 +116,6 @@ class Recover(Tactic):
         # Don't firefox if we're super high up, wait a little to come down
         if smashbot_state.speed_y_self < 0 and smashbot_state.y < 30:
             self.pickchain(Chains.Firefox)
-            return
-
-        # Are we in range to grab the edge right now, but are moving upwards?
-        facinginwards = (smashbot_state.x < 0) == smashbot_state.facing
-        inedgegrabrange = diff_x < 4.5 and (-15 < smashbot_state.y < -5)
-        if smashbot_state.speed_y_self > 0 and inedgegrabrange and facinginwards:
-            self.pickchain(Chains.Firefox, [FIREFOX.EDGE])
             return
 
         # DI into the stage

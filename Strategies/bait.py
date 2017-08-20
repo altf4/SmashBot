@@ -8,6 +8,7 @@ from Tactics.pressure import Pressure
 from Tactics.defend import Defend
 from Tactics.recover import Recover
 from Tactics.mitigate import Mitigate
+from Tactics.edgeguard import Edgeguard
 
 class Bait(Strategy):
     def __str__(self):
@@ -75,6 +76,11 @@ class Bait(Strategy):
         # Can we shield pressure them?
         if Pressure.canpressure():
             self.picktactic(Tactics.Pressure)
+            return
+
+        # Can we edge guard them?
+        if Edgeguard.canedgeguard():
+            self.picktactic(Tactics.Edgeguard)
             return
 
         # Is opponent shielding?

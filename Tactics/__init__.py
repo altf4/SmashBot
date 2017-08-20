@@ -7,3 +7,4 @@ from Tactics.pressure import Pressure
 from Tactics.wait import Wait
 from Tactics.recover import Recover
 from Tactics.mitigate import Mitigate
+from Tactics.edgeguard import Edgeguard

@@ -98,6 +98,10 @@ class Defend(Tactic):
 
         # Are we in the powershield window?
         if framesuntilhit <= 2:
+            if smashbot_state.action == Action.EDGE_HANGING:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
             hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
             self.pickchain(Chains.Powershield, [hold])
         else:

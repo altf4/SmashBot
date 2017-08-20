@@ -7,8 +7,6 @@ from Tactics.tactic import Tactic
 class Mitigate(Tactic):
 
     def needsmitigation():
-        if globals.smashbot_state.hitlag_frames_left > 0:
-            return True
         if Action.DAMAGE_AIR_1.value < globals.smashbot_state.action.value < Action.DAMAGE_FLY_ROLL.value:
             return True
         if globals.smashbot_state.action == Action.TUMBLING:

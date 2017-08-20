@@ -17,3 +17,5 @@ from Chains.di import DI
 from Chains.illusion import Illusion
 from Chains.edgedash import Edgedash
 from Chains.edgestall import Edgestall
+from Chains.grabedge import Grabedge
+from Chains.dropdownshine import Dropdownshine
