@@ -24,6 +24,12 @@ class Waveshine(Chain):
         jcshine = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
         lastdashframe = (smashbot_state.action == Action.DASHING) and (smashbot_state.action_frame == 12)
 
+        # If somehow we are off stage, give up immediately
+        if smashbot_state.off_stage:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         # Do the shine if we can
         if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine):
             self.interruptible = False

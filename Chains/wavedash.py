@@ -22,6 +22,12 @@ class Wavedash(Chain):
             controller.empty_input()
             return
 
+        # If somehow we are off stage, give up immediately
+        if smashbot_state.off_stage:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         # We shouldn't need these. It's just there in case we miss the knee bend somehow
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
         jumpcancel = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
