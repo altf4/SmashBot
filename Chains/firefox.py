@@ -56,7 +56,7 @@ class Firefox(Chain):
             return
 
         # If we're traveling in the air, let go of the stick
-        if smashbot_state.action == Action.FIREFOX_AIR:
+        if smashbot_state.action in [Action.FIREFOX_AIR, Action.DEAD_FALL]:
             self.interruptible = False
             controller.empty_input()
             return
@@ -86,24 +86,20 @@ class Firefox(Chain):
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             return
 
-        # Press the Up-B if we are not already in it, and we're not still moving upwards
-        if smashbot_state.speed_y_self < 0:
-            # Is this a "forbidden" angle? Don't try it if it is.
+        # Is this a "forbidden" angle? Don't try it if it is.
+        if self.direction == FIREFOX.EDGE:
             x, y = self.getangle()
             # Let's add a little extra room so we don't miscalculate
             # if .3625 < y < .6375 or .3625 < x < .6375:
             if (.3525 < y < .6475) or (.3525 < x < .6475) and (smashbot_state.y > -15):
                 controller.empty_input()
                 return
-            # If we already pressed B last frame, let go
-            if controller.prev.button[Button.BUTTON_B]:
-                self.interruptible = True
-                controller.empty_input()
-                return
-            controller.press_button(Button.BUTTON_B)
-            controller.tilt_analog(Button.BUTTON_MAIN, .5, 1)
-            self.interruptible = False
-            return
 
-        self.interruptible = True
-        controller.empty_input()
+        # If we already pressed B last frame, let go
+        if controller.prev.button[Button.BUTTON_B]:
+            self.interruptible = True
+            controller.empty_input()
+            return
+        controller.press_button(Button.BUTTON_B)
+        controller.tilt_analog(Button.BUTTON_MAIN, .5, 1)
+        self.interruptible = False

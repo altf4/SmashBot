@@ -17,41 +17,38 @@ class Recover(Tactic):
         opponentonedge = globals.opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
         if not opponent_state.off_stage and onedge:
-            globals.logger.log("Notes", "one ", concat=True)
             return True
 
         # If we're on stage, then we don't need to recover
         if not smashbot_state.off_stage:
-            globals.logger.log("Notes", "two ", concat=True)
             return False
 
         if smashbot_state.on_ground:
-            globals.logger.log("Notes", "onground ", concat=True)
             return False
 
         # We can now assume that we're off the stage...
 
         # If opponent is on stage
         if not opponent_state.off_stage:
-            globals.logger.log("Notes", "three ", concat=True)
             return True
 
         # If opponent is in hitstun, then recover, unless we're on the edge.
         if opponent_state.off_stage and opponent_state.hitstun_frames_left > 0 and not onedge:
-            globals.logger.log("Notes", "four ", concat=True)
             return True
 
         if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -20:
-            globals.logger.log("Notes", "dead fall ", concat=True)
             return True
 
-        # # If opponent is closer to the edge, recover
-        # edgedistance = math.sqrt(   )
-        # if globals.opponent_state.off_stage and :
-        #     globals.logger.log("Notes", "five ", concat=True)
-        #     return True
+        # If opponent is closer to the edge, recover
+        diff_x_opponent = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(opponent_state.x))
+        diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
 
-        globals.logger.log("Notes", "six ", concat=True)
+        opponent_dist = math.sqrt( opponent_state.y**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( smashbot_state.y**2 + (diff_x)**2 )
+
+        if opponent_dist < smashbot_dist:
+            return True
+
         return False
 
     def __init__(self):
@@ -82,6 +79,23 @@ class Recover(Tactic):
         facinginwards = smashbot_state.facing == (smashbot_state.x < 0)
         if not facinginwards and smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
             facinginwards = True
+
+        if smashbot_state.action == Action.DEAD_FALL:
+            x = 0
+            if smashbot_state.x < 0:
+                x = 1
+            self.chain = None
+            self.pickchain(Chains.DI, [x, 0.5])
+            return
+
+        # Are we facing the wrong way in shine? Turn around
+        if smashbot_state.action == Action.DOWN_B_STUN and not facinginwards:
+            x = 0
+            if smashbot_state.x < 0:
+                x = 1
+            self.chain = None
+            self.pickchain(Chains.DI, [x, 0.5])
+            return
 
         if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
             self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])

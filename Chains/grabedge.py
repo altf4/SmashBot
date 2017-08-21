@@ -78,7 +78,11 @@ class Grabedge(Chain):
             if smashbot_state.speed_y_self > -3.35:
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             else:
-                controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
+                # DI in to the opponent
+                x = 0
+                if smashbot_state.x < opponent_state.x:
+                    x = 1
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, x, 0.5)
             return
 
         # Shine turnaround
