@@ -81,11 +81,16 @@ class Waveshine(Chain):
         if jcshine or smashbot_state.action in jumping:
             self.interruptible = False
             controller.press_button(Button.BUTTON_L)
-            # Always wavedash toward opponent
+            # Always wavedash the direction opponent is moving
+            opponentspeed = globals.opponent_state.speed_x_attack + globals.opponent_state.speed_ground_x_self
+            direction = opponentspeed > 0
             onleft = smashbot_state.x < opponent_state.x
+            if abs(opponentspeed) < 0.01:
+                direction = onleft
+
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = (self.distance / 2) + .5
-            if not onleft:
+            if not direction:
                 x = -x
             controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
             return

@@ -9,6 +9,7 @@ from Tactics.defend import Defend
 from Tactics.recover import Recover
 from Tactics.mitigate import Mitigate
 from Tactics.edgeguard import Edgeguard
+from Tactics.infinite import Infinite
 
 class Bait(Strategy):
     def __str__(self):
@@ -61,6 +62,11 @@ class Bait(Strategy):
 
         if Defend.needsprojectiledefense():
             self.picktactic(Tactics.Defend)
+            return
+
+        # If we can infinite our opponent, do that!
+        if Infinite.caninfinite():
+            self.picktactic(Tactics.Infinite)
             return
 
         # If we can punish our opponent for a laggy move, let's do that
