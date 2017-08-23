@@ -31,6 +31,8 @@ parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode. Creates a CSV of all game state')
 parser.add_argument('--difficulty', '-i', type=int,
                     help='Manually specify difficulty level of SmashBot')
+parser.add_argument('--nodolphin', '-n', action='store_true',
+                    help='Don\'t run dolphin, (it is already running))')
 
 args = parser.parse_args()
 
@@ -69,7 +71,8 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 #Run dolphin and render the output
-dolphin.run(render=True)
+if not args.nodolphin:
+    dolphin.run(render=True)
 
 #Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
