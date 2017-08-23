@@ -19,6 +19,10 @@ class Infinite(Tactic):
         if globals.difficulty >= 3:
             return False
 
+        if opponent_state.action in [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+                Action.SHIELD_STUN, Action.SHIELD_REFLECT]:
+            return False
+
         # Should we try a waveshine infinite?
         #   They need to have high friction and not fall down
         if opponent_state.action in [Action.STANDING, Action.TURNING, Action.DASHING, Action.RUNNING]:
