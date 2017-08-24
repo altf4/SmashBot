@@ -156,9 +156,9 @@ class Punish(Tactic):
                 endposition += globals.framedata.slidedistance(opponent_state.character, speed, framesleft)
 
                 # But don't go off the end of the stage
-                endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
-
-                endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
+                if opponent_state.action not in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP]:
+                    endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
+                    endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
 
             # And we're in range...
             # Take our sliding into account
@@ -186,8 +186,22 @@ class Punish(Tactic):
             # Remember that if we're turning, the attack will come out the opposite way
             if smashbot_state.action == Action.TURNING:
                 facing = not facing
+
+            # Get height of opponent at the targeted frame
+            height = opponent_state.y
+            speed = opponent_state.speed_y_attack
+            gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
+            termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
+            if not opponent_state.on_ground:
+                # Loop through each frame and count the distances
+                for i in range(framesleft):
+                    speed -= gravity
+                    # We can't go faster than termvelocity downwards
+                    speed = max(speed, -termvelocity)
+                    height += speed
+
             distance = abs(endposition - smashbot_endposition)
-            if distance < 14.5 and facing:
+            if distance < 14.5 and facing and height < 8:
                 # Do the upsmash
                 # NOTE: If we get here, we want to delete the chain and start over
                 #   Since the amount we need to charge may have changed
