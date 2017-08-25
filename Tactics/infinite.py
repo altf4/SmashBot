@@ -37,7 +37,7 @@ class Infinite(Tactic):
             return False
 
         # If opponent is going to slide to the edge, then we have to stop
-        endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
+        endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
         if abs(endposition)+5 > melee.stages.edgegroundposition(globals.gamestate.stage):
             return False
 

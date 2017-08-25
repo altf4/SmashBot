@@ -54,7 +54,7 @@ class Grabedge(Chain):
         # If we turn right now, what will our speed be?
         if smashbot_state.action == Action.DASHING:
             turnspeed = (abs(smashbot_state.speed_ground_x_self) - 0.32) / 4
-        slidedistance = globals.framedata.slidedistance(smashbot_state.character, turnspeed, 7)
+        slidedistance = globals.framedata.slidedistance(smashbot_state, turnspeed, 7)
         closetoedge = edgedistance < slidedistance
 
         # This is actually shine turnaround

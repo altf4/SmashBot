@@ -45,6 +45,25 @@ class Punish(Tactic):
             #   For some reason, the hitstun count is totally wrong for these actions
             if opponent_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
                 return 1
+
+            # If opponent is in the air, we need to cap the retun at when they will hit the ground
+            if opponent_state.y > .02 or not opponent_state.on_ground:
+                # When will they land?
+                speed = opponent_state.speed_y_attack + opponent_state.speed_y_self
+                height = opponent_state.y
+                gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
+                termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
+                count = 0
+                while height > 0:
+                    height += speed
+                    speed -= gravity
+                    speed = max(speed, -termvelocity)
+                    count += 1
+                    # Shortcut if we get too far
+                    if count > 120:
+                        break
+                return count
+
             return opponent_state.hitstun_frames_left
 
         # Opponent is in a lag state
@@ -140,7 +159,7 @@ class Punish(Tactic):
         if framesneeded <= framesleft:
             # Calculate where the opponent will end up
             if opponent_state.hitstun_frames_left > 0:
-                endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state.character, opponent_state.speed_x_attack, framesleft)
+                endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
 
             if isroll:
                 endposition = globals.framedata.endrollposition(opponent_state, globals.gamestate.stage)
@@ -153,7 +172,7 @@ class Punish(Tactic):
                     initialrollmovement = -initialrollmovement
 
                 speed = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self - initialrollmovement
-                endposition += globals.framedata.slidedistance(opponent_state.character, speed, framesleft)
+                endposition += globals.framedata.slidedistance(opponent_state, speed, framesleft)
 
                 # But don't go off the end of the stage
                 if opponent_state.action not in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP]:
@@ -162,7 +181,7 @@ class Punish(Tactic):
 
             # And we're in range...
             # Take our sliding into account
-            slidedistance = globals.framedata.slidedistance(smashbot_state.character, smashbot_state.speed_ground_x_self, framesleft)
+            slidedistance = globals.framedata.slidedistance(smashbot_state, smashbot_state.speed_ground_x_self, framesleft)
             smashbot_endposition = slidedistance + smashbot_state.x
 
             # Do we have to consider character pushing?
