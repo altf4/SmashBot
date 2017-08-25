@@ -7,7 +7,7 @@ from Tactics.tactic import Tactic
 class Mitigate(Tactic):
 
     def needsmitigation():
-        if Action.DAMAGE_AIR_1.value < globals.smashbot_state.action.value < Action.DAMAGE_FLY_ROLL.value:
+        if Action.DAMAGE_AIR_1.value <= globals.smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             return True
         if globals.smashbot_state.action == Action.TUMBLING:
             return True
@@ -42,7 +42,31 @@ class Mitigate(Tactic):
             self.chain = None
             self.pickchain(Chains.DI, [x, y])
             return
-        if Action.DAMAGE_AIR_1.value < smashbot_state.action.value < Action.DAMAGE_FLY_ROLL.value:
+
+        # Tech if we need to
+        #   Calculate when we will land
+        if smashbot_state.y > -4 and not smashbot_state.on_ground and \
+                Action.DAMAGE_AIR_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
+            framesuntillanding = 0
+            speed = smashbot_state.speed_y_attack + smashbot_state.speed_y_self
+            height = smashbot_state.y
+            gravity = globals.framedata.characterdata[smashbot_state.character]["Gravity"]
+            termvelocity = globals.framedata.characterdata[smashbot_state.character]["TerminalVelocity"]
+            while height > 0:
+                height += speed
+                speed -= gravity
+                speed = max(speed, -termvelocity)
+                framesuntillanding += 1
+                # Shortcut if we get too far
+                if framesuntillanding > 120:
+                    break
+            # Do the tech
+            if framesuntillanding < 4:
+                self.pickchain(Chains.Tech)
+                return
+
+        # Regular DI
+        if Action.DAMAGE_AIR_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             # DI up and in if we're at high percent
             x = 0.5
             y = 0.5
@@ -66,7 +90,7 @@ class Mitigate(Tactic):
             self.pickchain(Chains.DI, [x, 0.5])
             return
 
-        # DI into the stage
+        # DI into the stage as a fallback
         x = 0
         if smashbot_state.x < 0:
             x = 1
