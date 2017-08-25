@@ -220,7 +220,7 @@ class Punish(Tactic):
                     height += speed
 
             distance = abs(endposition - smashbot_endposition)
-            if distance < 14.5 and facing and height < 8:
+            if distance < 14.5 and facing and -5 < height < 8:
                 # Do the upsmash
                 # NOTE: If we get here, we want to delete the chain and start over
                 #   Since the amount we need to charge may have changed
