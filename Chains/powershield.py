@@ -17,9 +17,16 @@ class Powershield(Chain):
             controller.empty_input()
             return
 
+        # If we get to cooldown, let go
+        attackstate = globals.framedata.attackstate_simple(globals.opponent_state)
+        if attackstate in [melee.enums.AttackState.COOLDOWN, melee.enums.AttackState.NOT_ATTACKING]:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         # Hold onto the shield until the attack is done
         # TODO: Shield DI in here
-        if self.hold and globals.framedata.attackstate_simple(globals.opponent_state) == melee.enums.AttackState.ATTACKING:
+        if self.hold:
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             controller.press_button(Button.BUTTON_L);
