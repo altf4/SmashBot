@@ -10,6 +10,7 @@ from Tactics.recover import Recover
 from Tactics.mitigate import Mitigate
 from Tactics.edgeguard import Edgeguard
 from Tactics.infinite import Infinite
+from Tactics.celebrate import Celebrate
 
 class Bait(Strategy):
     def __str__(self):
@@ -51,6 +52,10 @@ class Bait(Strategy):
 
         if Recover.needsrecovery():
             self.picktactic(Tactics.Recover)
+            return
+
+        if Celebrate.deservescelebration():
+            self.picktactic(Tactics.Celebrate)
             return
 
         # Difficulty 5 is a debug / training mode
