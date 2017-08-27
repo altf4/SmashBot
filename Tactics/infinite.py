@@ -5,10 +5,33 @@ from melee.enums import Action
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Tactics.punish import Punish
+from melee.enums import Character
 
 class Infinite(Tactic):
     def __init__(self):
         self.movingright = globals.opponent_state.speed_x_attack + globals.opponent_state.speed_ground_x_self > 0
+
+    def killpercent():
+        character = globals.opponent_state.character
+        if character == Character.CPTFALCON:
+            return 113
+        if character == Character.FALCO:
+            return 93
+        if character == Character.FOX:
+            return 86
+        if character == Character.SHEIK:
+            return 85
+        if character == Character.PIKACHU:
+            return 73
+        if character == Character.PEACH:
+            return 80
+        if character == Character.ZELDA:
+            return 70
+        if character == Character.MARTH:
+            return 79
+        if character == Character.JIGGLYPUFF:
+            return 55
+        return 120
 
     def caninfinite():
         opponent_state = globals.opponent_state
@@ -43,7 +66,7 @@ class Infinite(Tactic):
 
         if globals.framedata.characterdata[opponent_state.character]["Friction"] >= 0.06 and \
                 opponent_state.hitstun_frames_left > 1 and not isroll and opponent_state.on_ground \
-                and opponent_state.percent < 120:
+                and opponent_state.percent < Infinite.killpercent():
             return True
 
         return False
