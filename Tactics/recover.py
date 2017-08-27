@@ -13,8 +13,8 @@ class Recover(Tactic):
         smashbot_state = globals.smashbot_state
         opponent_state = globals.opponent_state
 
-        onedge = globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
-        opponentonedge = globals.opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
+        onedge = smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
+        opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
         if not opponent_state.off_stage and onedge:
             return True
@@ -108,7 +108,7 @@ class Recover(Tactic):
 
         # If we're ligned up, do the illusion
         #   88 is a little longer than the illusion max length
-        if self.useillusion and (-15 < smashbot_state.y < 0) and (diff_x < 88):
+        if self.useillusion and (-15 < smashbot_state.y < -5) and (diff_x < 88):
             self.pickchain(Chains.Illusion)
             return
 
@@ -118,7 +118,7 @@ class Recover(Tactic):
             return
 
         # If we're high and doing an Illusion, just let ourselves fall into place
-        if self.useillusion and smashbot_state.y > 0:
+        if self.useillusion and smashbot_state.y > -5:
             # DI into the stage
             x = 0
             if smashbot_state.x < 0:

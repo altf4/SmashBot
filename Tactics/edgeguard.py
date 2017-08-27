@@ -62,8 +62,13 @@ class Edgeguard(Tactic):
 
         # Where will opponent end up when they're vulnerable?
 
-
+        onedge = smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
         opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
+
+        if onedge and globals.framedata.isattack(opponent_state.character, opponent_state.action):
+            self.chain = None
+            self.pickchain(Chains.DI, [0.5, 0.65])
+            return
 
         # Can we challenge their ledge?
         if opponent_state.invulnerability_left < 5:
@@ -83,10 +88,6 @@ class Edgeguard(Tactic):
 
 
         # Edgestall
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
-            self.chain = None
-            self.pickchain(Chains.DI, [0.5, 0.65])
-            return
 
         # Dash dance near the edge
         pivotpoint = opponent_state.x

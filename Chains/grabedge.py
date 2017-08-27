@@ -12,7 +12,7 @@ class Grabedge(Chain):
 
         # Where is the edge that we're going to?
         edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
-        if smashbot_state.x < 0:
+        if opponent_state.x < 0:
             edge_x = -edge_x
 
         # If we're on the edge, then we're done here, end the chain
