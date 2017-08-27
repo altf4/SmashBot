@@ -154,6 +154,7 @@ class Punish(Tactic):
 
         endposition = opponent_state.x
         isroll = globals.framedata.isroll(opponent_state.character, opponent_state.action)
+        slideoff = False
 
         # If we have the time....
         if framesneeded <= framesleft:
@@ -175,9 +176,12 @@ class Punish(Tactic):
                 endposition += globals.framedata.slidedistance(opponent_state, speed, framesleft)
 
                 # But don't go off the end of the stage
-                if opponent_state.action not in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP]:
-                    endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
-                    endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
+                if opponent_state.action in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP, Action.NEUTRAL_TECH]:
+                    if abs(endposition) > melee.stages.edgegroundposition(globals.gamestate.stage):
+                        slideoff = True
+                endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
+                endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
+
 
             # And we're in range...
             # Take our sliding into account
@@ -220,7 +224,7 @@ class Punish(Tactic):
                     height += speed
 
             distance = abs(endposition - smashbot_endposition)
-            if distance < 14.5 and facing and -5 < height < 8:
+            if not slideoff and distance < 14.5 and facing and -5 < height < 8:
                 # Do the upsmash
                 # NOTE: If we get here, we want to delete the chain and start over
                 #   Since the amount we need to charge may have changed
