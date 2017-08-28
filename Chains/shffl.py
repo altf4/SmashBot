@@ -42,7 +42,7 @@ class Shffl(Chain):
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             # Only do the L cancel near the end of the animation
-            if smashbot_state.action_frame > 13:
+            if smashbot_state.action_frame >= 12:
                 controller.press_button(Button.BUTTON_L)
             return
 
