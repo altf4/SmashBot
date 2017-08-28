@@ -20,7 +20,7 @@ class Infinite(Tactic):
         if character == Character.FOX:
             return 86
         if character == Character.SHEIK:
-            return 85
+            return 92
         if character == Character.PIKACHU:
             return 73
         if character == Character.PEACH:
@@ -38,11 +38,11 @@ class Infinite(Tactic):
         smashbot_state = globals.smashbot_state
         isroll = globals.framedata.isroll(opponent_state.character, opponent_state.action)
 
-        # Only infinite on difficulty 1 and 2
-        if globals.difficulty >= 3:
+        # Only infinite on difficulty 1, 2, and 3
+        if globals.difficulty > 3:
             return False
 
-        if opponent_state.action in [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+        if opponent_state.action in [Action.SHIELD_START, Action.SHIELD, \
                 Action.SHIELD_STUN, Action.SHIELD_REFLECT]:
             return False
 
@@ -84,8 +84,12 @@ class Infinite(Tactic):
         # This is off by one for hitstun
         framesleft -= 1
 
+        shinerange = 11.8
+        if smashbot_state.action == Action.DASHING:
+            shinerange = 9
+
         # Try to do the shine
-        if globals.gamestate.distance < 11.8:
+        if globals.gamestate.distance < shinerange:
             # emergency backup shine
             if framesleft == 1:
                 self.chain = None
@@ -97,8 +101,10 @@ class Infinite(Tactic):
             if abs(opponentspeed) > 0.01:
                 self.movingright = opponentspeed > 0
 
-            # We crossed them up!
-            if onright == self.movingright:
+            # We always want to try to shine our opponent towards the center of the stage
+            # If we are lined up right now, do the shine
+            if smashbot_state.x < opponent_state.x < 0 or \
+                    0 < opponent_state.x < smashbot_state.x:
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return

@@ -42,7 +42,7 @@ class Pressure(Tactic):
     # We can shield pressuring if...
     def canpressure():
         # Opponent must be shielding
-        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+        shieldactions = [Action.SHIELD_START, Action.SHIELD, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         sheilding = globals.opponent_state.action in shieldactions
 
