@@ -70,7 +70,11 @@ class Punish(Tactic):
         if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
                 Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
             # TODO: DO an actual lookup to see how many frames this is
-            return 5
+            return 5 - opponent_state.action_frame
+
+        # Opponent is in a B move
+        if globals.framedata.isbmove(opponent_state.character, opponent_state.action):
+            return globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
 
         return 1
 
@@ -165,8 +169,13 @@ class Punish(Tactic):
             if isroll:
                 endposition = globals.framedata.endrollposition(opponent_state, globals.gamestate.stage)
 
-                initialrollmovement = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["locomotion_x"]
-                facingchanged = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["facing_changed"]
+                initialrollmovement = 0
+                facingchanged = False
+                try:
+                    initialrollmovement = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["locomotion_x"]
+                    facingchanged = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["facing_changed"]
+                except KeyError:
+                     pass
                 backroll = opponent_state.action in [Action.ROLL_BACKWARD, Action.GROUND_ROLL_BACKWARD_UP, \
                     Action.GROUND_ROLL_BACKWARD_DOWN, Action.BACKWARD_TECH]
                 if not (opponent_state.facing ^ facingchanged ^ backroll):
