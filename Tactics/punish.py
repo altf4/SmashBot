@@ -70,7 +70,7 @@ class Punish(Tactic):
         if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
                 Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
             # TODO: DO an actual lookup to see how many frames this is
-            return 5 - opponent_state.action_frame
+            return 9 - (opponent_state.action_frame // 3)
 
         # Opponent is in a B move
         if globals.framedata.isbmove(opponent_state.character, opponent_state.action):
