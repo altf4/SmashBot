@@ -15,17 +15,17 @@ class Edgeguard(Tactic):
         if not globals.opponent_state.off_stage:
             return False
 
-        # We can now assume that we're off the stage...
+        # We can now assume that opponent is off the stage...
 
-        # If opponent is on stage
+        # If smashbot is on stage
         if not globals.smashbot_state.off_stage:
             return True
 
-        # If opponent is in hitstun, then recover
+        # If smashbot is in hitstun, then recover
         if globals.smashbot_state.off_stage and globals.smashbot_state.hitstun_frames_left > 0:
             return True
 
-        # If opponent is closer to the edge, recover
+        # If smashbot is closer to the edge, edgeguard
         if globals.smashbot_state.off_stage and (abs(globals.opponent_state.x) > abs(globals.smashbot_state.x)):
             return True
 
@@ -64,11 +64,16 @@ class Edgeguard(Tactic):
 
         # Special exception for Fox/Falco illusion
         #   Since it is dumb and technically a projectile
-        if opponent_state.character in [Character.FOX, Character.FALCO] \
-                and opponent_state.action in [Action.SWORD_DANCE_2_MID]:
-            self.chain = None
-            self.pickchain(Chains.DI, [0.5, 0.65])
-            return
+        if opponent_state.character in [Character.FOX, Character.FALCO]:
+            if opponent_state.action in [Action.SWORD_DANCE_2_MID]:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
+            if opponent_state.action in [Action.SWORD_DANCE_4_MID]:
+                #TODO: Make this a chain
+                self.chain = None
+                globals.controller.press_button(Button.BUTTON_L)
+                return
 
         # # Can we challenge their ledge?
         if not onedge and opponent_state.invulnerability_left < 5:
