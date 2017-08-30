@@ -106,10 +106,15 @@ class Grabedge(Chain):
 
         # Firefox to grab edge
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
-            self.interruptible = False
-            controller.press_button(Button.BUTTON_B)
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
-            return
+            if -15 < smashbot_state.y < -5:
+                self.interruptible = False
+                controller.press_button(Button.BUTTON_B)
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
+                return
+            else:
+                self.interruptible = False
+                controller.empty_input()
+                return
 
         # Pivot slide
         if smashbot_state.action == Action.TURNING and facinginwards and closetoedge:
