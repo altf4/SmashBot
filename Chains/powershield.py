@@ -19,7 +19,8 @@ class Powershield(Chain):
 
         # If we get to cooldown, let go
         attackstate = globals.framedata.attackstate_simple(globals.opponent_state)
-        if attackstate in [melee.enums.AttackState.COOLDOWN, melee.enums.AttackState.NOT_ATTACKING]:
+        if attackstate in [melee.enums.AttackState.COOLDOWN, melee.enums.AttackState.NOT_ATTACKING] \
+                and len(globals.gamestate.projectiles) == 0:
             self.interruptible = True
             controller.empty_input()
             return

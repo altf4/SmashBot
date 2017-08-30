@@ -10,8 +10,15 @@ class Defend(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
         projectiles = globals.gamestate.projectiles
+
         # Loop through each projectile
         for projectile in projectiles:
+            size = 10
+            if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDERJOLT_1:
+                size = 18
+            if projectile.subtype == melee.enums.ProjectileSubtype.NEEDLE_THROWN:
+                size = 12
+
             # Is this about to hit us in the next frame?
             proj_x, proj_y = projectile.x, projectile.y
             for i in range(0, 1):
@@ -23,8 +30,8 @@ class Defend(Tactic):
                 if smashbot_state.on_ground:
                     smashbot_y += 8
                 distance = math.sqrt((proj_x - smashbot_x)**2 + (proj_y - smashbot_y)**2)
-                # TODO: Make this distance dependent on the projectile subtype
-                if distance < 10:
+
+                if distance < size:
                     return True
         return False
 
@@ -64,6 +71,10 @@ class Defend(Tactic):
         #   If there is a projectile, just assume that's why we're here.
         #   TODO: maybe we should re-calculate if this is what we're defending
         if projectiles:
+            if smashbot_state.action == Action.EDGE_HANGING:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
             self.pickchain(Chains.Powershield)
             return
 
