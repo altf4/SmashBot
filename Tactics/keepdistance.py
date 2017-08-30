@@ -23,11 +23,15 @@ class KeepDistance(Tactic):
             bufferzone = 15
         if character == Character.PEACH:
             bufferzone = 20
+        if character == Character.ZELDA:
+            bufferzone = 12
+        if character == Character.SHEIK:
+            bufferzone = 18
         # If we're in the first two difficulty levels, just get in there
         if globals.difficulty > 2:
             bufferzone = 0
         # Stay a little further out if they're invulnerable
-        if globals.opponent_state.invulnerable:
+        if globals.opponent_state.invulnerability_left > 0:
             bufferzone += 20
         return bufferzone
 
