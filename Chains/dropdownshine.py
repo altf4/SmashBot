@@ -19,6 +19,10 @@ class Dropdownshine(Chain):
         if opponent_state.y > smashbot_state.y:
             return False
 
+        # Opponent must be moving slowly horizontally
+        if abs(opponent_state.speed_air_x_self) > 1.5:
+            return False
+
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
         frames_y = abs(opponent_state.y - smashbot_state.y) // 3.4
 

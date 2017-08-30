@@ -63,6 +63,13 @@ class Grabedge(Chain):
             controller.empty_input()
             return
 
+        # If we're in the shine, but too high, just wait
+        if smashbot_state.action in [Action.SWORD_DANCE_4_MID_AIR, Action.SWORD_DANCE_4_LOW_AIR] \
+                and -10 < smashbot_state.y and edgedistance < 10:
+            self.interruptible = False
+            controller.empty_input()
+            return
+
         # Fastfall, but only once
         if smashbot_state.action == Action.FALLING:
             self.interruptible = False
@@ -104,43 +111,49 @@ class Grabedge(Chain):
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
             return
 
-        self.interruptible = True
-
         # Pivot slide
         if smashbot_state.action == Action.TURNING and facinginwards and closetoedge:
+            self.interruptible = False
             controller.empty_input()
             return
 
         # Do the turn
         if smashbot_state.action == Action.DASHING and closetoedge:
+            self.interruptible = False
             controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
             return
 
         #If we're starting the turn around animation, keep pressing that way or
         #   else we'll get stuck in the slow turnaround
         if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
+            self.interruptible = True
             return
 
         #Dash back, since we're about to start running
         # #Action.FOX_DASH_FRAMES
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+            self.interruptible = True
             return
 
         #We can't dash IMMEDIATELY after landing. So just chill for a bit
         if smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 2:
+            self.interruptible = True
             controller.empty_input()
             return
 
         #Are we outside the given radius of dash dancing?
         if smashbot_state.x < edge_x:
+            self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
             return
 
         if smashbot_state.x > edge_x:
+            self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
             return
 
         #Keep running the direction we're going
+        self.interruptible = True
         controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
         return
