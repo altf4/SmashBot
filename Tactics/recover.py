@@ -65,7 +65,7 @@ class Recover(Tactic):
             self.chain.step()
             return
 
-        if globals.smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             self.pickchain(Chains.Edgedash)
             return
 
