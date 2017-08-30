@@ -1,6 +1,7 @@
 import melee
 import globals
 import Chains
+import math
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Chains.dropdownshine import Dropdownshine
@@ -9,24 +10,33 @@ class Edgeguard(Tactic):
 
     # This is exactly flipped from the recover logic
     def canedgeguard():
-        if not globals.smashbot_state.off_stage and globals.opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+        opponent_state = globals.opponent_state
+        smashbot_state = globals.smashbot_state
+
+        if not smashbot_state.off_stage and opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             return True
 
-        if not globals.opponent_state.off_stage:
+        if not opponent_state.off_stage:
             return False
 
         # We can now assume that opponent is off the stage...
 
         # If smashbot is on stage
-        if not globals.smashbot_state.off_stage:
+        if not smashbot_state.off_stage:
             return True
 
         # If smashbot is in hitstun, then recover
-        if globals.smashbot_state.off_stage and globals.smashbot_state.hitstun_frames_left > 0:
+        if smashbot_state.off_stage and smashbot_state.hitstun_frames_left > 0:
             return True
 
         # If smashbot is closer to the edge, edgeguard
-        if globals.smashbot_state.off_stage and (abs(globals.opponent_state.x) > abs(globals.smashbot_state.x)):
+        diff_x_opponent = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(opponent_state.x))
+        diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
+
+        opponent_dist = math.sqrt( opponent_state.y**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( smashbot_state.y**2 + (diff_x)**2 )
+
+        if smashbot_dist < opponent_dist:
             return True
 
         return False
@@ -101,6 +111,11 @@ class Edgeguard(Tactic):
         edgebuffer = 10
         pivotpoint = min(pivotpoint, edge - edgebuffer)
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
+
+        if smashbot_state.action == Action.EDGE_HANGING:
+            self.chain = None
+            self.pickchain(Chains.Nothing)
+            return
 
         self.chain = None
         self.pickchain(Chains.DashDance, [pivotpoint])
