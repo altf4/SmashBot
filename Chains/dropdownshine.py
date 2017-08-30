@@ -15,15 +15,16 @@ class Dropdownshine(Chain):
         if smashbot_state.action != Action.EDGE_HANGING:
             return False
 
-        # They must be below us and moving up
-        if opponent_state.y > smashbot_state.y and opponent_state.speed_y_self > 0:
+        # They must be below us
+        if opponent_state.y > smashbot_state.y:
             return False
 
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
         frames_y = abs(opponent_state.y - smashbot_state.y) // 3.4
 
         # Horizontal speed is 0.819625854, how long will it take to get to the opponent horizontally?
-        frames_x = abs(opponent_state.x - smashbot_state.x) // 0.819625854
+        #   But we won't be able to use the full horizontal speed. So half it
+        frames_x = abs(opponent_state.x - smashbot_state.x) // (0.819625854 / 2)
 
         # Vertical frames are set in stone, so we need to make sure that the horizontal need is smaller
         # We also need to have enough invulnerability

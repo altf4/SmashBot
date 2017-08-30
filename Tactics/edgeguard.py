@@ -1,7 +1,7 @@
 import melee
 import globals
 import Chains
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Chains.dropdownshine import Dropdownshine
 
@@ -44,34 +44,34 @@ class Edgeguard(Tactic):
             self.pickchain(Chains.Dropdownshine)
             return
 
+        if smashbot_state.action == Action.EDGE_CATCHING:
+            self.pickchain(Chains.Nothing)
+            return
+
         # How many frames will it take to get to our opponent right now?
-
-        # Can we armada shine?
-        #   To do this, let's assume that we have to hit the opponent in the cooldown of an attack
-        #   or in a laggy non-attack animation.
-        # This means we have to hit them in the window of time between the last hitbox frame (if present)
-        #   and the last unactionable frame of the action
-        start = 1
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
-            start = globals.framedata.lasthitboxframe(opponent_state.character, opponent_state.action)
-
-        end = globals.framedata.iasa(opponent_state.character, opponent_state.action)
-        # -1 iasa means that it's not applicable. Instead, use the last frame of the animation
-        if end == -1:
-            end = globals.framedata.iasa(opponent_state.character, opponent_state.action)
-
-        # Where will opponent end up when they're vulnerable?
-
         onedge = smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
         opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
-        if onedge and globals.framedata.isattack(opponent_state.character, opponent_state.action):
+        # Stand up if opponent attacks us
+        hitframe = globals.framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        framesleft = hitframe - opponent_state.action_frame
+        if hitframe != 0 and onedge and framesleft < 5:
+            # Unless the attack is a grab, then don't bother
+            if not globals.framedata.isgrab(opponent_state.character, opponent_state.action):
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
+
+        # Special exception for Fox/Falco illusion
+        #   Since it is dumb and technically a projectile
+        if opponent_state.character in [Character.FOX, Character.FALCO] \
+                and opponent_state.action in [Action.SWORD_DANCE_2_MID]:
             self.chain = None
             self.pickchain(Chains.DI, [0.5, 0.65])
             return
 
-        # Can we challenge their ledge?
-        if opponent_state.invulnerability_left < 5:
+        # # Can we challenge their ledge?
+        if not onedge and opponent_state.invulnerability_left < 5:
             self.pickchain(Chains.Grabedge)
             return
 
