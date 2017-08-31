@@ -78,11 +78,6 @@ class Defend(Tactic):
             self.pickchain(Chains.Powershield)
             return
 
-        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED, Action.GRABBED_WAIT_HIGH]
-        if (smashbot_state.action in grabbedactions) or (opponent_state.action == Action.GRAB_PULLING):
-            self.pickchain(Chains.Struggle)
-            return
-
         # Is the attack a grab? If so, spot dodge right away
         if opponent_state.action == Action.GRAB or \
             opponent_state.action == Action.GRAB_RUNNING:

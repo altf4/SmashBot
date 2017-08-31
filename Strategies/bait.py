@@ -11,6 +11,7 @@ from Tactics.mitigate import Mitigate
 from Tactics.edgeguard import Edgeguard
 from Tactics.infinite import Infinite
 from Tactics.celebrate import Celebrate
+from Tactics.wait import Wait
 
 class Bait(Strategy):
     def __str__(self):
@@ -33,24 +34,15 @@ class Bait(Strategy):
             self.picktactic(Tactics.Mitigate)
             return
 
-        # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
-        grabbedactions = [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, Action.GRAB_PUMMELED]
-        if smashbot_state.action in grabbedactions:
-            self.picktactic(Tactics.Defend)
-            return
-
         if self.tactic and not self.tactic.isinteruptible():
             self.tactic.step()
             return
 
-        # If we're in the cooldown for an attack, just do nothing.
-        if globals.framedata.attackstate_simple(smashbot_state) == melee.enums.AttackState.COOLDOWN or \
-                smashbot_state.action in [Action.EDGE_GETUP_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_ROLL_QUICK, \
-                Action.EDGE_ROLL_SLOW]:
-            # Make an exception for shine states, since we're still actionable for them
-            if smashbot_state.action not in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.DOWN_B_STUN]:
-                self.picktactic(Tactics.Wait)
-                return
+        # If we're stuck in a lag state, just do nothing. Trying an action might just
+        #   buffer an input we don't want
+        if Wait.shouldwait():
+            self.picktactic(Tactics.Wait)
+            return
 
         if Recover.needsrecovery():
             self.picktactic(Tactics.Recover)
