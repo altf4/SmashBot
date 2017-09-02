@@ -106,7 +106,9 @@ class Grabedge(Chain):
 
         # Firefox to grab edge
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
-            if -15 < smashbot_state.y < -5:
+            # Must be between 0 and -10
+            inxrange = -10 < (abs(edge_x) - abs(smashbot_state.x)) < 0
+            if -15 < smashbot_state.y < -5 and inxrange:
                 self.interruptible = False
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
