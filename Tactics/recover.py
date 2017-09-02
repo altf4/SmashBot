@@ -28,6 +28,11 @@ class Recover(Tactic):
 
         # We can now assume that we're off the stage...
 
+        # If opponent is dead
+        if opponent_state.action in [Action.DEAD_DOWN, Action.DEAD_RIGHT, Action.DEAD_LEFT, \
+                Action.DEAD_FLY, Action.DEAD_FLY_STAR, Action.DEAD_FLY_SPLATTER]:
+            return True
+
         # If opponent is on stage
         if not opponent_state.off_stage:
             return True
