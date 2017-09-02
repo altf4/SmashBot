@@ -2,7 +2,7 @@ import melee
 import globals
 import Chains
 import math
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 
 class Defend(Tactic):
@@ -10,6 +10,11 @@ class Defend(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
         projectiles = globals.gamestate.projectiles
+
+        # Ignore Fox lasers. They 'just' do damage. Nothing we actually care about
+        #   It's worse to put ourselves in stun just to prevent a few percent
+        if smashbot_state.character == Character.FOX:
+            return False
 
         # Loop through each projectile
         for projectile in projectiles:
