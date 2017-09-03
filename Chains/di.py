@@ -11,4 +11,5 @@ class DI(Chain):
     def step(self):
         controller = globals.controller
         self.interruptible = True
+        controller.release_button(Button.BUTTON_L)
         controller.tilt_analog(Button.BUTTON_MAIN, self.x, self.y)

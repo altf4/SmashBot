@@ -12,7 +12,7 @@ class Mitigate(Tactic):
     def needsmitigation():
         smashbot_state = globals.smashbot_state
 
-        if Action.DAMAGE_AIR_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
+        if Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             return True
         if smashbot_state.action == Action.TUMBLING:
             return True
@@ -66,7 +66,7 @@ class Mitigate(Tactic):
         # Tech if we need to
         #   Calculate when we will land
         if smashbot_state.y > -4 and not smashbot_state.on_ground and \
-                Action.DAMAGE_AIR_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
+                Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             framesuntillanding = 0
             speed = smashbot_state.speed_y_attack + smashbot_state.speed_y_self
             height = smashbot_state.y
@@ -86,7 +86,7 @@ class Mitigate(Tactic):
                 return
 
         # Regular DI
-        if Action.DAMAGE_AIR_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
+        if Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             # DI up and in if we're at high percent
             x = 0.5
             y = 0.5
