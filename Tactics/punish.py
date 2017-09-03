@@ -81,6 +81,13 @@ class Punish(Tactic):
             # TODO: DO an actual lookup to see how many frames this is
             return 9 - (opponent_state.action_frame // 3)
 
+        # Exception for Jigglypuff rollout
+        #   The action frames are weird for this action, and Jiggs is actionable during it in 1 frame
+        if opponent_state.character == Character.JIGGLYPUFF and \
+                opponent_state.action in [Action.SWORD_DANCE_1, Action.NEUTRAL_B_FULL_CHARGE_AIR, Action.SWORD_DANCE_4_LOW, \
+                Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_3_LOW]:
+            return 1
+
         # Opponent is in a B move
         if globals.framedata.isbmove(opponent_state.character, opponent_state.action):
             return globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
