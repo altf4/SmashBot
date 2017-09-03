@@ -2,7 +2,7 @@ import melee
 import globals
 import Chains
 from Tactics.tactic import Tactic
-from melee.enums import Character
+from melee.enums import Character, Action
 
 # Dash dance a just a little outside our opponont's range
 class KeepDistance(Tactic):
@@ -27,12 +27,20 @@ class KeepDistance(Tactic):
             bufferzone = 12
         if character == Character.SHEIK:
             bufferzone = 18
+        if character == Character.SAMUS:
+            bufferzone = 15
+
         # If we're in the first two difficulty levels, just get in there
         if globals.difficulty > 2:
             bufferzone = 0
         # Stay a little further out if they're invulnerable
         if globals.opponent_state.invulnerability_left > 0:
             bufferzone += 20
+
+        # If opponent is in a dead fall, just get in there
+        if globals.opponent_state.action == Action.DEAD_FALL:
+            bufferzone = 0
+
         return bufferzone
 
     def step(self):

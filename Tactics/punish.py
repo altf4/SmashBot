@@ -2,7 +2,7 @@ import melee
 import globals
 import Chains
 import math
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 
@@ -15,6 +15,15 @@ class Punish(Tactic):
         #   manually account for this
         if opponent_state.action == Action.STANDING:
             return 1
+
+        # Don't try to punish Samus knee_bend, because they will go into UP_B and it has invulnerability
+        if opponent_state.action == Action.KNEE_BEND and opponent_state.character == Character.SAMUS:
+            return 0
+
+        # Samus UP_B invulnerability
+        if opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
+                opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5:
+            return 0
 
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
