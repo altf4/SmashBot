@@ -25,6 +25,11 @@ class Punish(Tactic):
                 opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5:
             return 0
 
+        # Pikachu skull bash
+        if opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.NEUTRAL_B_ATTACKING] and \
+                opponent_state.character == Character.PIKACHU:
+            return 1
+
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?

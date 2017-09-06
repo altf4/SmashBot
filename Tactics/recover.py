@@ -48,10 +48,10 @@ class Recover(Tactic):
         diff_x_opponent = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(opponent_state.x))
         diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
 
-        opponent_dist = math.sqrt( opponent_state.y**2 + (diff_x_opponent)**2 )
-        smashbot_dist = math.sqrt( smashbot_state.y**2 + (diff_x)**2 )
+        opponent_dist = math.sqrt( (opponent_state.y+15)**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
 
-        if opponent_dist < smashbot_dist:
+        if opponent_dist < smashbot_dist and not onedge:
             return True
 
         return False
@@ -102,13 +102,13 @@ class Recover(Tactic):
             self.pickchain(Chains.DI, [x, 0.5])
             return
 
-        if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
-            self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])
-            return
-
         # If we can just do nothing and grab the edge, do that
         if -5 < smashbot_state.y and (diff_x < 10) and facinginwards and smashbot_state.speed_y_self < 0:
             self.pickchain(Chains.Nothing)
+            return
+
+        if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
+            self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])
             return
 
         # If we're ligned up, do the illusion

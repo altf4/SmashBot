@@ -50,6 +50,12 @@ class KeepDistance(Tactic):
         bufferzone = self.getbufferzone()
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
+        # if we have our opponent cornered, reduce the edgebuffer
+        edge = melee.stages.edgegroundposition(globals.gamestate.stage)
+        if opponent_state.x < smashbot_state.x < 0 or \
+                0 < smashbot_state.x < opponent_state.x:
+            edgebuffer = 10
+
         # Figure out which side we should dash dance on
         # (the side we're on)
         onright = opponent_state.x < smashbot_state.x
@@ -59,7 +65,6 @@ class KeepDistance(Tactic):
         pivotpoint = opponent_state.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
-        edge = melee.stages.edgegroundposition(globals.gamestate.stage)
         pivotpoint = min(pivotpoint, edge - edgebuffer)
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
 

@@ -19,6 +19,11 @@ class Dropdownshine(Chain):
         if opponent_state.y > smashbot_state.y:
             return False
 
+        # If opponent can grab the edge, don't go
+        #   -25 is really conservative. 15 is more likely
+        if -25 < opponent_state.y and opponent_state.speed_y_self < 0:
+            return False
+
         # Opponent must be moving slowly horizontally
         if abs(opponent_state.speed_air_x_self) > 1.5:
             return False
@@ -43,7 +48,7 @@ class Dropdownshine(Chain):
         opponent_state = globals.opponent_state
 
         # Do an emergency shine if we run out of invulnerability, then end the chain
-        if smashbot_state.invulnerability_left == 0:
+        if smashbot_state.invulnerability_left == 0 and smashbot_state.action != Action.EDGE_HANGING:
             self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             controller.press_button(Button.BUTTON_B)
@@ -58,7 +63,7 @@ class Dropdownshine(Chain):
         # Drop down with a fastfall
         if smashbot_state.action == Action.EDGE_HANGING:
             self.interruptible = False
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            controller.tilt_analog(melee.Button.BUTTON_C, int(not smashbot_state.facing), 0.5)
             return
 
         # Do the shine

@@ -5,6 +5,17 @@ from Chains.chain import Chain
 
 # Grab the edge
 class Grabedge(Chain):
+    def __init__(self, wavedash=True):
+        self.wavedash = wavedash
+
+        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+        if globals.opponent_state.x < 0:
+            edge_x = -edge_x
+        edgedistance = abs(edge_x - globals.smashbot_state.x)
+
+        if edgedistance > 15:
+            self.wavedash = False
+
     def step(self):
         controller = globals.controller
         smashbot_state = globals.smashbot_state
@@ -28,8 +39,8 @@ class Grabedge(Chain):
             return
 
         # If we're stuck wavedashing, just hang out and do nothing
-        if smashbot_state.action == Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
-            self.interruptible = True
+        if smashbot_state.action == Action.LANDING_SPECIAL:
+            self.interruptible = False
             controller.empty_input()
             return
 
@@ -46,8 +57,8 @@ class Grabedge(Chain):
                 return
 
         facinginwards = smashbot_state.facing == (smashbot_state.x < 0)
-        if not facinginwards and smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
-            facinginwards = True
+        if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
+            facinginwards = not facinginwards
 
         edgedistance = abs(edge_x - smashbot_state.x)
         turnspeed = abs(smashbot_state.speed_ground_x_self)
@@ -56,6 +67,26 @@ class Grabedge(Chain):
             turnspeed = (abs(smashbot_state.speed_ground_x_self) - 0.32) / 4
         slidedistance = globals.framedata.slidedistance(smashbot_state, turnspeed, 7)
         closetoedge = edgedistance < slidedistance
+
+        # Do a wavedash off
+        if self.wavedash and not smashbot_state.off_stage:
+            self.interruptible = False
+            if smashbot_state.action == Action.KNEE_BEND and smashbot_state.action_frame >= 3:
+                controller.press_button(Button.BUTTON_L)
+                controller.release_button(Button.BUTTON_Y)
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), 0.2)
+                return
+            if facinginwards:
+                if controller.prev.button[Button.BUTTON_Y]:
+                    controller.release_button(Button.BUTTON_Y)
+                    return
+                else:
+                    controller.press_button(Button.BUTTON_Y)
+                    return
+            else:
+                # Dash inwards to turn
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), 0.5)
+                return
 
         # This is actually shine turnaround
         if smashbot_state.action == Action.MARTH_COUNTER:
