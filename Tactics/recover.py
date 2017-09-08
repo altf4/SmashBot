@@ -103,9 +103,18 @@ class Recover(Tactic):
             return
 
         # If we can just do nothing and grab the edge, do that
-        if -5 < smashbot_state.y and (diff_x < 10) and facinginwards and smashbot_state.speed_y_self < 0:
-            self.pickchain(Chains.Nothing)
-            return
+        if -12 < smashbot_state.y and (diff_x < 10) and facinginwards and smashbot_state.speed_y_self < 0:
+            # If we are currently moving away from the stage, DI in
+            if (smashbot_state.speed_air_x_self > 0) == (smashbot_state.x > 0):
+                x = 0
+                if smashbot_state.x < 0:
+                    x = 1
+                self.chain = None
+                self.pickchain(Chains.DI, [x, 0.5])
+                return
+            else:
+                self.pickchain(Chains.Nothing)
+                return
 
         if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
             self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])

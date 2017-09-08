@@ -12,6 +12,9 @@ class Mitigate(Tactic):
     def needsmitigation():
         smashbot_state = globals.smashbot_state
 
+        if smashbot_state.hitstun_frames_left == 0:
+            return False
+
         if Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             return True
         if smashbot_state.action == Action.TUMBLING:

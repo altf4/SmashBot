@@ -68,11 +68,6 @@ class Bait(Strategy):
             self.picktactic(Tactics.Infinite)
             return
 
-        # Can we edge guard them?
-        if Edgeguard.canedgeguard():
-            self.picktactic(Tactics.Edgeguard)
-            return
-
         # If we can punish our opponent for a laggy move, let's do that
         if Punish.canpunish():
             self.picktactic(Tactics.Punish)
@@ -81,6 +76,11 @@ class Bait(Strategy):
         # Do we need to defend an attack?
         if Defend.needsdefense():
             self.picktactic(Tactics.Defend)
+            return
+
+        # Can we edge guard them?
+        if Edgeguard.canedgeguard():
+            self.picktactic(Tactics.Edgeguard)
             return
 
         # Can we shield pressure them?

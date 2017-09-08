@@ -30,6 +30,12 @@ class Punish(Tactic):
                 opponent_state.character == Character.PIKACHU:
             return 1
 
+        if opponent_state.character == Character.SHEIK:
+            if opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_1_AIR]:
+                return 17 - opponent_state.action_frame
+            if opponent_state.action in [Action.SWORD_DANCE_4_LOW, Action.SWORD_DANCE_2_HIGH_AIR] and opponent_state.action_frame <= 21:
+                return 0
+
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
@@ -108,6 +114,9 @@ class Punish(Tactic):
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if opponent_state.action in shieldactions:
+            return False
+
+        if globals.smashbot_state.off_stage:
             return False
 
         left = Punish.framesleft()

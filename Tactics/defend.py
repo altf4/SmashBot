@@ -54,8 +54,14 @@ class Defend(Tactic):
         if attackstate == melee.enums.AttackState.NOT_ATTACKING:
             return False
 
+        # We can't be grabbed while on the edge
+        if globals.framedata.isgrab(opponent_state.character, opponent_state.action) and \
+                smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            return False
+
         # Will we be hit by this attack if we stand still?
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        firstframe = framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
         if hitframe:
             return True
 
@@ -84,8 +90,7 @@ class Defend(Tactic):
             return
 
         # Is the attack a grab? If so, spot dodge right away
-        if opponent_state.action == Action.GRAB or \
-            opponent_state.action == Action.GRAB_RUNNING:
+        if globals.framedata.isgrab(opponent_state.character, opponent_state.action):
             self.pickchain(Chains.SpotDodge)
             return
 

@@ -45,6 +45,58 @@ class Edgeguard(Tactic):
 
         return False
 
+    def canrecoverhigh():
+        opponent_state = globals.opponent_state
+        smashbot_state = globals.smashbot_state
+
+        # Don't grab the edge if opponent is recovering high.
+        #   Let's define that as: If the opponent can get onto the stage (not edge)
+        #   with only a jump, without crossing the 0 Y line
+
+        # How long will it take for opponent to reach the edge horizontally?
+        frames_x = 0
+        gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
+        termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
+        mobility = globals.framedata.characterdata[opponent_state.character]["AirMobility"]
+        airspeed = globals.framedata.characterdata[opponent_state.character]["AirSpeed"]
+        initialdjspeed_y = globals.framedata.characterdata[opponent_state.character]["InitDJSpeed"]
+        initialdjspeed_x = globals.framedata.characterdata[opponent_state.character]["InitDJSpeed_x"]
+
+        speed_x = opponent_state.speed_air_x_self + opponent_state.speed_x_attack
+        speed_y = opponent_state.speed_y_self + opponent_state.speed_y_attack
+
+        x, y = opponent_state.x, opponent_state.y
+
+        if x > 0:
+            mobility = -mobility
+
+        # If they have a jump, assume they will use it
+        if opponent_state.jumps_left > 0:
+            speed_y = initialdjspeed_y
+            if x > 0:
+                speed_x = -initialdjspeed_x
+            else:
+                speed_x = initialdjspeed_x
+
+        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+
+        # Move opponent frame by frame back to the edge. Do they get past it? Or fall below?
+        while abs(x) > edge_x:
+            y += speed_y
+            speed_y -= gravity
+            speed_y = max(-termvelocity, speed_y)
+
+            x += speed_x
+            speed_x += mobility
+            speed_x = max(-airspeed, speed_x)
+            speed_x = min(airspeed, speed_x)
+
+        # If they are below 0, then opponent can't recover high with a jump
+        if y < 0:
+            return False
+
+        return True
+
     def upbheight():
         character = globals.opponent_state.character
         if character == Character.FOX:
@@ -156,7 +208,6 @@ class Edgeguard(Tactic):
             edgegrabframes_y = (opponent_state.y + 5) // fastfallspeed
         # Are they below?
         elif opponent_state.y < -18:
-            # TODO: Capture nuances of when they are in jump and not
             djapexframes = globals.framedata.getdjapexframes(opponent_state)
             djheight = globals.framedata.getdjheight(opponent_state)
             # Can they double-jump to grab the edge?
@@ -177,14 +228,23 @@ class Edgeguard(Tactic):
 
         edgegrabframes = max(edgegrabframes_x, edgegrabframes_y)
 
-        # TODO: Teleport exception here
-        #edgegrabframes = TELEPORT
-
+        # Teleport exceptions here
+        #   Some characters have "teleport" moves. Sheik, Zelda, Fox, Falco, etc...
+        #   Teleport moves have a startup, then you move at a set speed at any angle
+        #   In these cases, opponent COULD grab the edge much faster than in other situations
+        if opponent_state.character in [Character.SHEIK, Character.ZELDA, Character.FOX, Character.FALCO, \
+                Character.PIKACHU, Character.PICHU, Character.MEWTWO]:
+            if opponent_state.y > 0 and opponent_state.action != Action.DEAD_FALL:
+                edgegrabframes = 1
+            if opponent_state.character in [Character.PIKACHU, Character.PICHU]:
+                edgegrabframes = 1
         return edgegrabframes
 
     def step(self):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
+
+        recoverhigh = Edgeguard.canrecoverhigh()
 
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
@@ -300,17 +360,20 @@ class Edgeguard(Tactic):
                     self.pickchain(Chains.Edgestall)
                     return
 
-            # Shine them!
             #   We are in danger of being attacked!
             #   It's unsafe to be in shine range of opponent. We can't react to the attack!
-            if globals.gamestate.distance < 11.8 and smashbot_state.invulnerability_left == 0 and \
-                    opponent_state.character in [Character.FOX, Character.FALCO, Character.JIGGLYPUFF]:
-                if opponent_state.speed_y_self > 0 and globals.difficulty >= 3:
+            if globals.gamestate.distance < 11.8 and opponent_state.character in [Character.FOX, Character.FALCO, Character.JIGGLYPUFF]:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
+
+            # Shine them!
+            if globals.gamestate.distance < 11.8 and edgegrabframes > 2:
+                falconupbstart = opponent_state.character == Character.CPTFALCON and \
+                    opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 30
+                if opponent_state.speed_y_self > 0 or falconupb:
+                    #if smashbot_state.invulnerability_left == 0 or globals.difficulty >= 4:
                     self.pickchain(Chains.Dropdownshine)
-                    return
-                else:
-                    self.chain = None
-                    self.pickchain(Chains.DI, [0.5, 0.65])
                     return
 
             # Do nothing
@@ -320,18 +383,23 @@ class Edgeguard(Tactic):
 
         # We are on the stage
         else:
+            edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+            edgedistance = abs(edge_x - abs(globals.smashbot_state.x))
+
             # Can we challenge their ledge?
             framesleft = Punish.framesleft()
-            if not onedge and opponent_state.invulnerability_left < 5:
+            if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
                 if globals.difficulty >= 3 or framesleft > 10:
-                    self.pickchain(Chains.Grabedge)
+                    wavedash = True
+                    if globals.framedata.isattack(opponent_state.character, opponent_state.action):
+                        wavedash = False
+                    self.pickchain(Chains.Grabedge, [wavedash])
                     return
 
             # Dash dance near the edge
-            edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
             pivotpoint = opponent_state.x
             # Don't run off the stage though, adjust this back inwards a little if it's off
-            edgebuffer = 10
+            edgebuffer = 8
             pivotpoint = min(pivotpoint, edge_x - edgebuffer)
             pivotpoint = max(pivotpoint, (-edge_x) + edgebuffer)
 

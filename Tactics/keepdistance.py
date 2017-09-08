@@ -57,10 +57,15 @@ class KeepDistance(Tactic):
             edgebuffer = 10
 
         # Figure out which side we should dash dance on
-        # (the side we're on)
-        onright = opponent_state.x < smashbot_state.x
-        if not onright:
-            bufferzone *= -1
+        #   If opponent is in the air, go behind them
+        if not opponent_state.on_ground:
+            if not opponent_state.facing:
+                bufferzone *= -1
+        # If they're on the ground, stay on the side we're on
+        else:
+            onright = opponent_state.x < smashbot_state.x
+            if not onright:
+                bufferzone *= -1
 
         pivotpoint = opponent_state.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
