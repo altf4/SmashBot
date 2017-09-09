@@ -371,7 +371,7 @@ class Edgeguard(Tactic):
             if globals.gamestate.distance < 11.8 and edgegrabframes > 2:
                 falconupbstart = opponent_state.character == Character.CPTFALCON and \
                     opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 30
-                if opponent_state.speed_y_self > 0 or falconupb:
+                if opponent_state.speed_y_self > 0 or falconupbstart:
                     #if smashbot_state.invulnerability_left == 0 or globals.difficulty >= 4:
                     self.pickchain(Chains.Dropdownshine)
                     return
