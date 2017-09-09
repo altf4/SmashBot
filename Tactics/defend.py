@@ -18,6 +18,8 @@ class Defend(Tactic):
 
         # Loop through each projectile
         for projectile in projectiles:
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
+                continue
             size = 10
             if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDERJOLT_1:
                 size = 18
@@ -61,7 +63,6 @@ class Defend(Tactic):
 
         # Will we be hit by this attack if we stand still?
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
-        firstframe = framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
         if hitframe:
             return True
 
@@ -81,28 +82,33 @@ class Defend(Tactic):
         # Do we need to defend against a projectile?
         #   If there is a projectile, just assume that's why we're here.
         #   TODO: maybe we should re-calculate if this is what we're defending
-        if projectiles:
-            if smashbot_state.action == Action.EDGE_HANGING:
-                if opponent_state.character == Character.PEACH and \
-                        opponent_state.action in [Action.MARTH_COUNTER, Action.PARASOL_FALLING]:
-                    #TODO: Make this a chain
-                    self.chain = None
-                    globals.controller.press_button(Button.BUTTON_L)
-                    return
-                else:
-                    self.chain = None
-                    self.pickchain(Chains.DI, [0.5, 0.65])
-                    return
-            self.pickchain(Chains.Powershield)
-            return
-
-        # Is the attack a grab? If so, spot dodge right away
-        if globals.framedata.isgrab(opponent_state.character, opponent_state.action):
-            self.pickchain(Chains.SpotDodge)
-            return
+        if Defend.needsprojectiledefense():
+            for projectile in projectiles:
+                # Don't consider a grapple beam a projectile. It doesn't have a hitbox
+                if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
+                    continue
+                if smashbot_state.action == Action.EDGE_HANGING:
+                    if opponent_state.character == Character.PEACH and \
+                            opponent_state.action in [Action.MARTH_COUNTER, Action.PARASOL_FALLING]:
+                        #TODO: Make this a chain
+                        self.chain = None
+                        globals.controller.press_button(Button.BUTTON_L)
+                        return
+                    else:
+                        self.chain = None
+                        self.pickchain(Chains.DI, [0.5, 0.65])
+                        return
+                self.pickchain(Chains.Powershield)
+                return
 
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
+
+        # Is the attack a grab? If so, spot dodge right away
+        if globals.framedata.isgrab(opponent_state.character, opponent_state.action):
+            if opponent_state.character != Character.SAMUS or framesuntilhit <= 2:
+                self.pickchain(Chains.SpotDodge)
+                return
 
         if globals.logger:
             globals.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
