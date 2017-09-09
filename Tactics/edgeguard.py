@@ -201,23 +201,23 @@ class Edgeguard(Tactic):
         #   This is the shortest possible time opponent could get into position
         edgegrabframes_y = 1000
         # Are they already in place?
-        if -5 > opponent_state.y > -18:
+        if -5 > opponent_state.y > -20:
             edgegrabframes_y = 0
         # Are they above?
         elif opponent_state.y > -5:
             edgegrabframes_y = (opponent_state.y + 5) // fastfallspeed
         # Are they below?
-        elif opponent_state.y < -18:
+        elif opponent_state.y < -20:
             djapexframes = globals.framedata.getdjapexframes(opponent_state)
             djheight = globals.framedata.getdjheight(opponent_state)
             # Can they double-jump to grab the edge?
-            if -5 > opponent_state.y + djheight > -18:
+            if -5 > opponent_state.y + djheight > -20:
                 edgegrabframes_y = djapexframes
             elif opponent_state.y + djheight > -5:
                 # If the jump puts them too high, then we have to wait for them to fall after the jump
                 fallframes = (opponent_state.y + djheight + 5) // fastfallspeed
                 edgegrabframes_y = djapexframes + fallframes
-            elif opponent_state.y + djheight < -18:
+            elif opponent_state.y + djheight < -20:
                 # If the jump puts them too low, then they have to UP-B. How long will that take?
                 upbframes = Edgeguard.upbapexframes()
                 edgegrabframes_y = upbframes
@@ -307,7 +307,7 @@ class Edgeguard(Tactic):
 
         # How heigh can they go with a jump?
         potentialheight = djheight + opponent_state.y
-        if potentialheight < -18:
+        if potentialheight < -20:
             mustupb = True
 
         # Now consider UP-B
@@ -324,9 +324,9 @@ class Edgeguard(Tactic):
 
         if potentialheight > 0:
             landonstage = True
-        if potentialheight > -18:
+        if potentialheight > -20:
             grabedge = True
-        if potentialheight < -18:
+        if potentialheight < -20:
             mustupb = True
             canrecover = False
 
@@ -368,10 +368,10 @@ class Edgeguard(Tactic):
                 return
 
             # Shine them!
-            if globals.gamestate.distance < 11.8 and edgegrabframes > 2:
+            if globals.gamestate.distance < 11.8:
                 falconupbstart = opponent_state.character == Character.CPTFALCON and \
                     opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 30
-                if opponent_state.speed_y_self > 0 or falconupbstart:
+                if (edgegrabframes > 2 and opponent_state.speed_y_self > 0) or falconupbstart:
                     #if smashbot_state.invulnerability_left == 0 or globals.difficulty >= 4:
                     self.pickchain(Chains.Dropdownshine)
                     return
