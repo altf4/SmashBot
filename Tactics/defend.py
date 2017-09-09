@@ -113,17 +113,18 @@ class Defend(Tactic):
         if globals.logger:
             globals.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
 
-        # If the attack has exactly one hitbox, then try shine clanking to defend
-        if framedata.hitboxcount(opponent_state.character, opponent_state.action) == 1:
-            # It must be the first frame of the attack
-            firstframe = framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
-            if hitframe == firstframe:
-                # For the time being, let's restrict this to ground attacks only
-                if opponent_state.on_ground:
-                    if (framesuntilhit == 2 and smashbot_state.action == Action.DASHING) or \
-                            (framesuntilhit == 1 and smashbot_state.action == Action.TURNING):
-                        self.pickchain(Chains.Waveshine)
-                        return
+        # Don't shine clank on the most optimal difficulty
+        if globals.difficulty >= 2:
+            # If the attack has exactly one hitbox, then try shine clanking to defend
+            if framedata.hitboxcount(opponent_state.character, opponent_state.action) == 1:
+                # It must be the first frame of the attack
+                if hitframe == framedata.firsthitboxframe(opponent_state.character, opponent_state.action):
+                    # Grounded attacks only
+                    if opponent_state.on_ground:
+                        if (framesuntilhit == 2 and smashbot_state.action == Action.DASHING) or \
+                                (framesuntilhit == 1 and smashbot_state.action == Action.TURNING):
+                            self.pickchain(Chains.Waveshine)
+                            return
 
         # Are we in the powershield window?
         if framesuntilhit <= 2:
@@ -134,7 +135,15 @@ class Defend(Tactic):
             hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
             self.pickchain(Chains.Powershield, [hold])
         else:
-            bufferzone = 35
+
+            onfront = (opponent_state.x < smashbot_state.x) == opponent_state.facing
+            # 12 starting buffer for Fox's character model size
+            bufferzone = 12
+            if onfront:
+                bufferzone += framedata.getrange_forward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
+            else:
+                bufferzone += framedata.getrange_backward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
+
             pivotpoint = opponent_state.x
             # Dash to a point away from the opponent, out of range
             if opponent_state.x < smashbot_state.x:
