@@ -83,9 +83,16 @@ class Defend(Tactic):
         #   TODO: maybe we should re-calculate if this is what we're defending
         if projectiles:
             if smashbot_state.action == Action.EDGE_HANGING:
-                self.chain = None
-                self.pickchain(Chains.DI, [0.5, 0.65])
-                return
+                if opponent_state.character == Character.PEACH and \
+                        opponent_state.action in [Action.MARTH_COUNTER, Action.PARASOL_FALLING]:
+                    #TODO: Make this a chain
+                    self.chain = None
+                    globals.controller.press_button(Button.BUTTON_L)
+                    return
+                else:
+                    self.chain = None
+                    self.pickchain(Chains.DI, [0.5, 0.65])
+                    return
             self.pickchain(Chains.Powershield)
             return
 
