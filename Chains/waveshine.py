@@ -30,6 +30,11 @@ class Waveshine(Chain):
             controller.empty_input()
             return
 
+        # Shine clank! We should shine again if we're in range
+        if opponent_state.hitstun_frames_left == 0 and smashbot_state.action == Action.SWORD_DANCE_2_MID_AIR and \
+                globals.gamestate.distance < 11.8:
+            self.hasshined = False
+
         # Do the shine if we can
         if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine):
             self.interruptible = False
