@@ -25,6 +25,10 @@ class Punish(Tactic):
                 opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5:
             return 0
 
+        # Samus morph ball
+        if opponent_state.character == Character.SAMUS and opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_HIGH]:
+            return 1
+
         # Pikachu skull bash
         if opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.NEUTRAL_B_ATTACKING] and \
                 opponent_state.character == Character.PIKACHU:
