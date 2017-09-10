@@ -7,6 +7,7 @@ class DashDance(Chain):
     def __init__(self, pivot, radius=0):
         self.pivotpoint = pivot
         self.radius = radius
+        self.interruptible = True
 
     def step(self):
         gamestate = globals.gamestate
@@ -14,10 +15,12 @@ class DashDance(Chain):
         smashbot_state = globals.smashbot_state
 
         #TODO: Moonwalk protection
+        if smashbot_state.moonwalkwarning and controller.prev.main_stick[0] != 0.5:
+            controller.empty_input()
+            return;
 
         # If we're in spotdodge or shield, do nothing
         if smashbot_state.action in [Action.SPOTDODGE, Action.SHIELD_RELEASE]:
-            self.interruptible = True
             controller.empty_input()
             return;
 
