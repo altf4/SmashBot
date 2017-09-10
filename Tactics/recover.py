@@ -41,7 +41,7 @@ class Recover(Tactic):
         if opponent_state.off_stage and opponent_state.hitstun_frames_left > 0 and not onedge:
             return True
 
-        if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -20:
+        if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -30:
             return True
 
         # If opponent is closer to the edge, recover

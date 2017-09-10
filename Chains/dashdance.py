@@ -1,6 +1,7 @@
 import melee
 import globals
 from Chains.chain import Chain
+from melee.enums import Action, Button
 
 class DashDance(Chain):
     def __init__(self, pivot, radius=0):
@@ -14,41 +15,41 @@ class DashDance(Chain):
 
         #TODO: Moonwalk protection
 
-        # If we're in spotdodge, do nothing
-        if smashbot_state.action == melee.Action.SPOTDODGE:
+        # If we're in spotdodge or shield, do nothing
+        if smashbot_state.action in [Action.SPOTDODGE, Action.SHIELD_RELEASE]:
             self.interruptible = True
             controller.empty_input()
             return;
 
         # If we're stuck wavedashing, just hang out and do nothing
-        if smashbot_state.action == melee.Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
+        if smashbot_state.action == Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
             controller.empty_input()
             return;
 
         #If we're walking, stop for a frame
         #Also, if we're shielding, don't try to dash. We will accidentally roll
-        if smashbot_state.action == melee.Action.WALK_SLOW or \
-            smashbot_state.action == melee.Action.WALK_MIDDLE or \
-            smashbot_state.action == melee.Action.WALK_FAST or \
-            smashbot_state.action == melee.Action.SHIELD_START or \
-            smashbot_state.action == melee.Action.SHIELD_REFLECT or \
-            smashbot_state.action == melee.Action.SHIELD:
+        if smashbot_state.action == Action.WALK_SLOW or \
+            smashbot_state.action == Action.WALK_MIDDLE or \
+            smashbot_state.action == Action.WALK_FAST or \
+            smashbot_state.action == Action.SHIELD_START or \
+            smashbot_state.action == Action.SHIELD_REFLECT or \
+            smashbot_state.action == Action.SHIELD:
                 controller.empty_input()
                 return;
 
         #If we're starting the turn around animation, keep pressing that way or
         #   else we'll get stuck in the slow turnaround
-        if smashbot_state.action == melee.Action.TURNING and smashbot_state.action_frame == 1:
+        if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
             return;
 
         #Dash back, since we're about to start running
-        # #melee.Action.FOX_DASH_FRAMES
-        if smashbot_state.action == melee.Action.DASHING and smashbot_state.action_frame >= 11:
+        # #Action.FOX_DASH_FRAMES
+        if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
                 return;
 
         #We can't dash IMMEDIATELY after landing. So just chill for a bit
-        if (smashbot_state.action == melee.Action.LANDING and smashbot_state.action_frame < 2) or \
+        if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 2) or \
             not smashbot_state.on_ground:
                 controller.empty_input();
                 return;

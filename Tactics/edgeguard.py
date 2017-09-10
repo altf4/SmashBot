@@ -201,23 +201,23 @@ class Edgeguard(Tactic):
         #   This is the shortest possible time opponent could get into position
         edgegrabframes_y = 1000
         # Are they already in place?
-        if -5 > opponent_state.y > -20:
+        if -5 > opponent_state.y > -23:
             edgegrabframes_y = 0
         # Are they above?
         elif opponent_state.y > -5:
             edgegrabframes_y = (opponent_state.y + 5) // fastfallspeed
         # Are they below?
-        elif opponent_state.y < -20:
+        elif opponent_state.y < -23:
             djapexframes = globals.framedata.getdjapexframes(opponent_state)
             djheight = globals.framedata.getdjheight(opponent_state)
             # Can they double-jump to grab the edge?
-            if -5 > opponent_state.y + djheight > -20:
+            if -5 > opponent_state.y + djheight > -23:
                 edgegrabframes_y = djapexframes
             elif opponent_state.y + djheight > -5:
                 # If the jump puts them too high, then we have to wait for them to fall after the jump
                 fallframes = (opponent_state.y + djheight + 5) // fastfallspeed
                 edgegrabframes_y = djapexframes + fallframes
-            elif opponent_state.y + djheight < -20:
+            elif opponent_state.y + djheight < -23:
                 # If the jump puts them too low, then they have to UP-B. How long will that take?
                 upbframes = Edgeguard.upbapexframes()
                 edgegrabframes_y = upbframes
@@ -307,7 +307,7 @@ class Edgeguard(Tactic):
 
         # How heigh can they go with a jump?
         potentialheight = djheight + opponent_state.y
-        if potentialheight < -20:
+        if potentialheight < -23:
             mustupb = True
 
         # Now consider UP-B
@@ -324,12 +324,11 @@ class Edgeguard(Tactic):
 
         if potentialheight > 0:
             landonstage = True
-        if potentialheight > -20:
+        if potentialheight > -23:
             grabedge = True
-        if potentialheight < -20:
+        if potentialheight < -23:
             mustupb = True
             canrecover = False
-
 
         # Split the logic into two:
         #   A) We are on the edge
