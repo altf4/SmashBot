@@ -104,6 +104,12 @@ class Recover(Tactic):
 
         # If we can just do nothing and grab the edge, do that
         if -12 < smashbot_state.y and (diff_x < 10) and facinginwards and smashbot_state.speed_y_self < 0:
+            # Do a Fastfall if we're not already
+            if smashbot_state.action == Action.FALLING and smashbot_state.speed_y_self > -3.3:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0])
+                return
+
             # If we are currently moving away from the stage, DI in
             if (smashbot_state.speed_air_x_self > 0) == (smashbot_state.x > 0):
                 x = 0

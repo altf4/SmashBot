@@ -398,7 +398,7 @@ class Edgeguard(Tactic):
             # Dash dance near the edge
             pivotpoint = opponent_state.x
             # Don't run off the stage though, adjust this back inwards a little if it's off
-            edgebuffer = 8
+            edgebuffer = 5
             pivotpoint = min(pivotpoint, edge_x - edgebuffer)
             pivotpoint = max(pivotpoint, (-edge_x) + edgebuffer)
 
