@@ -45,6 +45,11 @@ class Punish(Tactic):
             if opponent_state.action in [Action.SWORD_DANCE_4_LOW, Action.SWORD_DANCE_2_HIGH_AIR] and opponent_state.action_frame <= 21:
                 return 0
 
+        # Shine wait
+        if opponent_state.character in [Character.FOX, Character.FALCO]:
+            if opponent_state.action in [Action.SWORD_DANCE_2_MID_AIR, Action.SWORD_DANCE_3_HIGH_AIR, Action.SWORD_DANCE_3_LOW_AIR]:
+                return 3
+
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
@@ -297,11 +302,23 @@ class Punish(Tactic):
         if smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
             framesneeded = 4
         foxshinerange = 11.8
-        if globals.gamestate.distance < foxshinerange and (framesneeded <= framesleft):
-            # Also, don't shine someone in the middle of a roll
-            if (not isroll) or (opponent_state.action_frame < 3):
+        if globals.gamestate.distance < foxshinerange:
+            if framesneeded <= framesleft:
+                # Also, don't shine someone in the middle of a roll
+                if (not isroll) or (opponent_state.action_frame < 3):
+                    self.chain = None
+                    self.pickchain(Chains.Waveshine)
+                    return
+            # We're in range, but don't have enough time. Let's try turning around to do a pivot.
+            else:
                 self.chain = None
-                self.pickchain(Chains.Waveshine)
+                # Pick a point right behind us
+                pivotpoint = smashbot_state.x
+                dashbuffer = 5
+                if smashbot_state.facing:
+                    dashbuffer = -dashbuffer
+                pivotpoint += dashbuffer
+                self.pickchain(Chains.DashDance, [pivotpoint])
                 return
 
         # Kill the existing chain and start a new one
