@@ -59,7 +59,9 @@ class KeepDistance(Tactic):
         # Figure out which side we should dash dance on
         #   If opponent is in the air, go behind them
         if not opponent_state.on_ground:
-            if not opponent_state.facing:
+            if bufferzone == 0:
+                bufferzone = 10
+            if opponent_state.facing:
                 bufferzone *= -1
         # If they're on the ground, stay on the side we're on
         else:
