@@ -62,6 +62,10 @@ class Edgeguard(Tactic):
         initialdjspeed_y = globals.framedata.characterdata[opponent_state.character]["InitDJSpeed"]
         initialdjspeed_x = globals.framedata.characterdata[opponent_state.character]["InitDJSpeed_x"]
 
+        # Marth has side-b, which effectively decreases his gravity for this calculation
+        if opponent_state.character == Character.MARTH:
+            gravity = gravity / 2
+
         speed_x = opponent_state.speed_air_x_self + opponent_state.speed_x_attack
         speed_y = opponent_state.speed_y_self + opponent_state.speed_y_attack
 
