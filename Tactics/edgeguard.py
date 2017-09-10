@@ -49,6 +49,9 @@ class Edgeguard(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
 
+        if opponent_state.character == Character.JIGGLYPUFF:
+            return True
+
         # Don't grab the edge if opponent is recovering high.
         #   Let's define that as: If the opponent can get onto the stage (not edge)
         #   with only a jump, without crossing the 0 Y line

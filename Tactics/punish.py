@@ -30,6 +30,11 @@ class Punish(Tactic):
                 opponent_state.character == Character.PIKACHU:
             return 1
 
+        # Jigglypuff jumps
+        if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in \
+                [Action.LASER_GUN_PULL, Action.NEUTRAL_B_CHARGING, Action.NEUTRAL_B_ATTACKING, Action.NEUTRAL_B_FULL_CHARGE, Action.WAIT_ITEM]:
+            return 1
+
         if opponent_state.character == Character.SHEIK:
             if opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_1_AIR]:
                 return 17 - opponent_state.action_frame
