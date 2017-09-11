@@ -20,6 +20,10 @@ class Defend(Tactic):
         for projectile in projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
                 continue
+            # Missles and needles that aren't moving are actually already exploded. Ignore them
+            if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN] and \
+                    -0.01 < projectile.x_speed < 0.01:
+                continue
             size = 10
             if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDERJOLT_1:
                 size = 18
