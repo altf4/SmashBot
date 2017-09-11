@@ -132,8 +132,14 @@ class Grabedge(Chain):
         # Jump out of shine
         if smashbot_state.action == Action.DOWN_B_AIR and facinginwards:
             self.interruptible = False
-            controller.press_button(Button.BUTTON_Y)
-            return
+            controller.release_button(Button.BUTTON_B)
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.release_button(Button.BUTTON_Y)
+                return
+            else:
+                controller.press_button(Button.BUTTON_Y)
+                return
 
         # Firefox to grab edge
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
@@ -168,7 +174,6 @@ class Grabedge(Chain):
             return
 
         #Dash back, since we're about to start running
-        # #Action.FOX_DASH_FRAMES
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
             self.interruptible = True

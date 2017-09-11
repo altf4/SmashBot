@@ -63,6 +63,9 @@ class Defend(Tactic):
 
         # Will we be hit by this attack if we stand still?
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        # Only defend on the edge if the hit is about to get us
+        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING] and hitframe > 2:
+            return False
         if hitframe:
             return True
 

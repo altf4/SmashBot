@@ -1,6 +1,6 @@
 import melee
 import globals
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 # Dropdownshine
@@ -35,9 +35,14 @@ class Dropdownshine(Chain):
         #   But we won't be able to use the full horizontal speed. So half it
         frames_x = abs(opponent_state.x - smashbot_state.x) // (0.819625854 / 2)
 
+        # If opponent is in a FireFox, we have to get there before they take off
+        framesleft = globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+        latefirefox = opponent_state.character in [Character.FOX, Character.FALCO] and \
+            opponent_state.action == Action.SWORD_DANCE_3_LOW and (smashbot_state.invulnerability_left < framesleft)
+
         # Vertical frames are set in stone, so we need to make sure that the horizontal need is smaller
         # We also need to have enough invulnerability
-        if (frames_x <= frames_y) and (smashbot_state.invulnerability_left >= frames_y):
+        if (frames_x <= frames_y) and (smashbot_state.invulnerability_left >= frames_y) and not latefirefox:
             return True
 
         return False

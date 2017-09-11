@@ -37,12 +37,13 @@ class Edgeguard(Tactic):
         diff_x_opponent = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(opponent_state.x))
         diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
 
-        opponent_dist = math.sqrt( opponent_state.y**2 + (diff_x_opponent)**2 )
-        smashbot_dist = math.sqrt( smashbot_state.y**2 + (diff_x)**2 )
+        opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
-        if smashbot_dist < opponent_dist:
+        opponent_dist = math.sqrt( (opponent_state.y+15)**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
+
+        if smashbot_dist < opponent_dist and not opponentonedge:
             return True
-
         return False
 
     def canrecoverhigh():
@@ -68,6 +69,9 @@ class Edgeguard(Tactic):
         # Marth has side-b, which effectively decreases his gravity for this calculation
         if opponent_state.character == Character.MARTH:
             gravity = gravity / 2
+        # Samus has bomb jumps, which gives her almost infinite horizontal recovery
+        if opponent_state.character == Character.MARTH:
+            gravity = gravity / 4
 
         speed_x = opponent_state.speed_air_x_self + opponent_state.speed_x_attack
         speed_y = opponent_state.speed_y_self + opponent_state.speed_y_attack
@@ -106,9 +110,21 @@ class Edgeguard(Tactic):
 
     def upbheight():
         character = globals.opponent_state.character
+        opponent_state = globals.opponent_state
+
         if character == Character.FOX:
+            # If they are in the teleport section, predict how much more they have to go
+            if opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_1_AIR]:
+                c = math.sqrt(opponent_state.speed_y_self**2 + opponent_state.speed_air_x_self**2)
+                height = (opponent_state.speed_y_self / c) * 81.5
+                return height
             return 84.55
         if character == Character.FALCO:
+            # If they are in the teleport section, predict how much more they have to go
+            if opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_1_AIR]:
+                c = math.sqrt(opponent_state.speed_y_self**2 + opponent_state.speed_air_x_self**2)
+                height = (opponent_state.speed_y_self / c) * 61.5
+                return height
             return 62.4
         if character == Character.CPTFALCON:
             return 37.62
@@ -198,7 +214,7 @@ class Edgeguard(Tactic):
         #   Distance to the snap point of the edge
         opponent_state = globals.opponent_state
         edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
-        edgedistance = abs(opponent_state.x) - (edge_x + 10)
+        edgedistance = abs(opponent_state.x) - (edge_x + 15)
         # Assume opponent can move at their "max" speed
         airhorizspeed = globals.framedata.characterdata[opponent_state.character]["AirSpeed"]
         edgegrabframes_x = edgedistance // airhorizspeed
@@ -235,6 +251,18 @@ class Edgeguard(Tactic):
 
         edgegrabframes = max(edgegrabframes_x, edgegrabframes_y)
 
+        facinginwards = opponent_state.facing == (opponent_state.x < 0)
+        firefox = opponent_state.character in [Character.FOX, Character.FALCO] and \
+            opponent_state.action == Action.SWORD_DANCE_3_LOW and facinginwards
+        inteleport = opponent_state.character in [Character.FOX, Character.FALCO] and \
+            opponent_state.action == Action.SWORD_DANCE_4_MID
+
+
+        falconupbstart = opponent_state.character == Character.CPTFALCON and \
+            opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 44
+        if falconupbstart:
+            edgegrabframes = max(44 - opponent_state.action_frame, 0)
+
         # Teleport exceptions here
         #   Some characters have "teleport" moves. Sheik, Zelda, Fox, Falco, etc...
         #   Teleport moves have a startup, then you move at a set speed at any angle
@@ -243,6 +271,19 @@ class Edgeguard(Tactic):
                 Character.PIKACHU, Character.PICHU, Character.MEWTWO]:
             if opponent_state.y > 0 and opponent_state.action != Action.DEAD_FALL:
                 edgegrabframes = 1
+                if firefox:
+                    edgegrabframes = max(15 - opponent_state.action_frame, 0)
+            # If in place to grab edge,
+            if (-5 > opponent_state.y > -23) and firefox:
+                edgegrabframes = max(15 - opponent_state.action_frame, 0)
+            # If opponent is IN the teleport phase, then it matters whether they're moving up or down
+            if inteleport:
+                if opponent_state.speed_y_self > 0:
+                    edgegrabframes = globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+                else:
+                    edgegrabframes = 0
+
+            # Pichu and Pikachu get two teleports, so just always consider them active to grab the edge
             if opponent_state.character in [Character.PIKACHU, Character.PICHU]:
                 edgegrabframes = 1
         return edgegrabframes
@@ -275,7 +316,7 @@ class Edgeguard(Tactic):
 
         hitframe = globals.framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
         framesleft = hitframe - opponent_state.action_frame
-        if proj_incoming or (hitframe != 0 and onedge and framesleft < 5):
+        if proj_incoming or (hitframe != 0 and onedge and framesleft < 5 and smashbot_state.invulnerability_left < 2):
             # Unless the attack is a grab, then don't bother
             if not globals.framedata.isgrab(opponent_state.character, opponent_state.action):
                 if Edgeguard.isupb():
@@ -294,11 +335,6 @@ class Edgeguard(Tactic):
             if opponent_state.action in [Action.SWORD_DANCE_2_MID]:
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
-                return
-            if opponent_state.action in [Action.SWORD_DANCE_4_MID]:
-                #TODO: Make this a chain
-                self.chain = None
-                globals.controller.press_button(Button.BUTTON_L)
                 return
 
         # What recovery options does opponent have?
@@ -329,18 +365,24 @@ class Edgeguard(Tactic):
         else:
             potentialheight += Edgeguard.upbheight()
 
-        if potentialheight > 0:
+        # Cpt Falcon's up-b causes him to distort his model by a crazy amount. Giving him
+        #   the ability to get on the stage easier. Adjust for this
+        adjustedheight = potentialheight
+        if opponent_state.character == Character.CPTFALCON and Edgeguard.isupb():
+            adjustedheight += 12
+
+        # Adjust upwards a little to have some wiggle room
+        if adjustedheight > -5:
             landonstage = True
         if potentialheight > -23:
             grabedge = True
-        if potentialheight < -23:
+        if potentialheight < -30:
             mustupb = True
             canrecover = False
 
         # Split the logic into two:
         #   A) We are on the edge
         #   B) We are on the stage
-
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             # If opponent can't recover, then just get onto the stage!
             if not canrecover:
@@ -349,38 +391,53 @@ class Edgeguard(Tactic):
                 globals.controller.press_button(Button.BUTTON_L)
                 return
 
+            # Don't roll up too early for Falcon
+            falconupearly = opponent_state.character == Character.CPTFALCON and \
+                opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 12
+
             # Roll up to edgehog
-            if Edgeguard.isupb() and potentialheight < 0 and opponent_state.character == Character.MARTH:
+            if Edgeguard.isupb() and not landonstage and not falconupearly:
                 #TODO: Make this a chain
                 self.chain = None
                 globals.controller.press_button(Button.BUTTON_L)
                 return
 
-            isillusion = opponent_state.action in [Action.SWORD_DANCE_2_HIGH, Action.SWORD_DANCE_2_MID] and \
-                opponent_state.character in [Character.FOX, Character.FALCO]
 
             # Edgestall
-            #   We must be on the first frame, or else it's dangerous
-            if not isillusion and smashbot_state.action == Action.EDGE_HANGING and smashbot_state.invulnerability_left >= 17:
+            # For Fox and Falco, we have a different edgestall strategy. Only edgestall if they start a FireFox
+            if opponent_state.character in [Character.FOX, Character.FALCO]:
+                # Are they in the start of a firefox?
+                # But make sure they can't grab the edge in the middle of it
+                edgedistance = abs(opponent_state.x) - (melee.stages.edgegroundposition(globals.gamestate.stage) + 15)
+                inrange = (-5 > opponent_state.y > -23) and (edgedistance < 15)
+                if opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 5 and not inrange:
+                    self.pickchain(Chains.Edgestall)
+                    return
+            # We must be on the first frame, or else it's dangerous
+            elif smashbot_state.action == Action.EDGE_HANGING and smashbot_state.action_frame == 1:
                 if edgegrabframes > 29:
                     self.pickchain(Chains.Edgestall)
                     return
 
-            #   We are in danger of being attacked!
+            #  We are in danger of being attacked!
             #   It's unsafe to be in shine range of opponent. We can't react to the attack!
-            if globals.gamestate.distance < 11.8 and opponent_state.character in [Character.FOX, Character.FALCO, Character.JIGGLYPUFF]:
+            if globals.gamestate.distance < 11.8 and opponent_state.character in [Character.FOX, Character.FALCO, Character.JIGGLYPUFF] and \
+                    smashbot_state.invulnerability_left <= 1:
+
+                # If we can, challenge their shine at the edge
+                if globals.difficulty >= 3 and edgegrabframes > 2:
+                    self.pickchain(Chains.Dropdownshine)
+                    return
+
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
 
-            # Shine them!
-            if globals.gamestate.distance < 11.8:
-                falconupbstart = opponent_state.character == Character.CPTFALCON and \
-                    opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 30
-                if (edgegrabframes > 2 and opponent_state.speed_y_self > 0) or falconupbstart:
-                    #if smashbot_state.invulnerability_left == 0 or globals.difficulty >= 4:
-                    self.pickchain(Chains.Dropdownshine)
-                    return
+            # Shine them, as long as they aren't attacking right now
+            framesleft = Punish.framesleft()
+            if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and framesleft > 2:
+                self.pickchain(Chains.Dropdownshine)
+                return
 
             # Do nothing
             self.chain = None

@@ -63,6 +63,8 @@ class Firefox(Chain):
 
         # We need to jump out of our shine
         if smashbot_state.action in [Action.DOWN_B_AIR, Action.DOWN_B_STUN]:
+            controller.release_button(Button.BUTTON_B)
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             if controller.prev.button[Button.BUTTON_Y]:
                 controller.release_button(Button.BUTTON_Y)
             else:
