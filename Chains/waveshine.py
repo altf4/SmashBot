@@ -56,7 +56,7 @@ class Waveshine(Chain):
             controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
             return;
 
-        isInShineStart = smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
+        isInShineStart = smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         isinshield = smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD]
 
         # Jump out of shield
@@ -82,7 +82,6 @@ class Waveshine(Chain):
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
 
         # Airdodge back down into the stage
-        #TODO: Avoid going off the edge
         if jcshine or smashbot_state.action in jumping:
             self.interruptible = False
             controller.press_button(Button.BUTTON_L)
@@ -92,6 +91,14 @@ class Waveshine(Chain):
             onleft = smashbot_state.x < opponent_state.x
             if abs(opponentspeed) < 0.01:
                 direction = onleft
+
+            # Unless we're RIGHT on top of the edge. In which case the only safe wavedash is back on the stage
+            edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+            if globals.opponent_state.x < 0:
+                edge_x = -edge_x
+            edgedistance = abs(edge_x - globals.smashbot_state.x)
+            if edgedistance < 0.5:
+                direction = smashbot_state.x < 0
 
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = (self.distance / 2) + .5
@@ -106,5 +113,9 @@ class Waveshine(Chain):
             controller.empty_input()
             return
 
-        self.interruptible = True
+        if smashbot_state.action in [Action.SWORD_DANCE_4_MID_AIR, Action.SWORD_DANCE_4_LOW_AIR]:
+            self.interruptible = False
+        else:
+            self.interruptible = True
+
         controller.empty_input()

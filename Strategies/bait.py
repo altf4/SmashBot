@@ -93,7 +93,7 @@ class Bait(Strategy):
 
         # If opponent is landing from an attack, and we're sheilding, retreat!
         if opponent_state.action in [Action.DAIR_LANDING, Action.NAIR_LANDING, Action.FAIR_LANDING, \
-                Action.UAIR_LANDING, Action.BAIR_LANDING] and smashbot_state.action in shieldactions:
+                Action.UAIR_LANDING, Action.BAIR_LANDING, Action.LANDING] and smashbot_state.action in shieldactions:
             self.picktactic(Tactics.Retreat)
             return
 

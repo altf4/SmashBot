@@ -18,11 +18,13 @@ class Defend(Tactic):
 
         # Loop through each projectile
         for projectile in projectiles:
-            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM and opponent_state.on_ground:
+                continue
+            if projectile.subtype == melee.enums.ProjectileSubtype.SHEIK_SMOKE:
                 continue
             # Missles and needles that aren't moving are actually already exploded. Ignore them
-            if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN] and \
-                    -0.01 < projectile.x_speed < 0.01:
+            if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN, \
+                    melee.enums.ProjectileSubtype.TURNIP] and (-0.01 < projectile.x_speed < 0.01):
                 continue
             size = 10
             if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDERJOLT_1:
@@ -31,6 +33,12 @@ class Defend(Tactic):
                 size = 12
             if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDER:
                 size = 20
+            if projectile.subtype == melee.enums.ProjectileSubtype.TURNIP:
+                size = 12
+            # Your hitbox is super distorted when edge hanging. Give ourselves more leeway here
+            if smashbot_state.action == Action.EDGE_HANGING:
+                size *= 2
+
             # Is this about to hit us in the next frame?
             proj_x, proj_y = projectile.x, projectile.y
             for i in range(0, 1):

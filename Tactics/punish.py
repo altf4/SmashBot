@@ -307,7 +307,13 @@ class Punish(Tactic):
                 # Also, don't shine someone in the middle of a roll
                 if (not isroll) or (opponent_state.action_frame < 3):
                     self.chain = None
-                    self.pickchain(Chains.Waveshine)
+                    # If we are facing towards the edge, don't wavedash off of it
+                    #   Reduce the wavedash length
+                    x = 1
+                    # If we are really close to the edge, wavedash straight down
+                    if melee.stages.edgegroundposition(globals.gamestate.stage) - abs(smashbot_state.x) < 3:
+                        x = 0
+                    self.pickchain(Chains.Waveshine, [x])
                     return
             # We're in range, but don't have enough time. Let's try turning around to do a pivot.
             else:

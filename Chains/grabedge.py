@@ -15,6 +15,8 @@ class Grabedge(Chain):
 
         if edgedistance > 15:
             self.wavedash = False
+        if edgedistance < 2:
+            self.wavedash = False
 
     def step(self):
         controller = globals.controller
