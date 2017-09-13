@@ -19,14 +19,14 @@ class Edgestall(Chain):
         # If we are able to let go of the edge, do it
         if smashbot_state.action == Action.EDGE_HANGING:
             # If we already pressed back last frame, let go
-            if controller.prev.main_stick != (0.5, 0.5):
+            if controller.prev.c_stick != (0.5, 0.5):
                 controller.empty_input()
                 return
             x = 1
             if smashbot_state.x < 0:
                 x = 0
             self.interruptible = False
-            controller.tilt_analog(Button.BUTTON_MAIN, x, 0.5)
+            controller.tilt_analog(Button.BUTTON_C, x, 0.5)
             return
 
         # Once we're falling, UP-B
