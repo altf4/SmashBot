@@ -29,7 +29,8 @@ class Defend(Tactic):
                 size = 18
             if projectile.subtype == melee.enums.ProjectileSubtype.NEEDLE_THROWN:
                 size = 12
-
+            if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDER:
+                size = 20
             # Is this about to hit us in the next frame?
             proj_x, proj_y = projectile.x, projectile.y
             for i in range(0, 1):

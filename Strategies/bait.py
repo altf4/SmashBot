@@ -88,13 +88,22 @@ class Bait(Strategy):
             self.picktactic(Tactics.Pressure)
             return
 
-        # Is opponent shielding?
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+
+        # If opponent is landing from an attack, and we're sheilding, retreat!
+        if opponent_state.action in [Action.DAIR_LANDING, Action.NAIR_LANDING, Action.FAIR_LANDING, \
+                Action.UAIR_LANDING, Action.BAIR_LANDING] and smashbot_state.action in shieldactions:
+            self.picktactic(Tactics.Retreat)
+            return
+
         # Is opponent starting a jump?
-        earlyjumpactions = [Action.KNEE_BEND, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]
-        if (opponent_state.action in shieldactions or opponent_state.action in earlyjumpactions) \
-                and opponent_state.invulnerability_left <= 0:
+        jumping = opponent_state.action == Action.KNEE_BEND
+        if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
+                opponent_state.speed_y_self > 0:
+            jumping = True
+
+        if jumping and opponent_state.invulnerability_left <= 0:
             self.picktactic(Tactics.Approach)
             return
 

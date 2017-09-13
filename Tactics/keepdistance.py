@@ -69,6 +69,7 @@ class KeepDistance(Tactic):
             if not onright:
                 bufferzone *= -1
 
+        edgebuffer = 10
         pivotpoint = opponent_state.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 

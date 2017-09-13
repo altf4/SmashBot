@@ -10,3 +10,4 @@ from Tactics.mitigate import Mitigate
 from Tactics.edgeguard import Edgeguard
 from Tactics.infinite import Infinite
 from Tactics.celebrate import Celebrate
+from Tactics.retreat import Retreat

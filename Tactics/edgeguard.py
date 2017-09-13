@@ -402,7 +402,6 @@ class Edgeguard(Tactic):
                 globals.controller.press_button(Button.BUTTON_L)
                 return
 
-
             # Edgestall
             # For Fox and Falco, we have a different edgestall strategy. Only edgestall if they start a FireFox
             if opponent_state.character in [Character.FOX, Character.FALCO]:
@@ -415,7 +414,7 @@ class Edgeguard(Tactic):
                     return
             # We must be on the first frame, or else it's dangerous
             elif smashbot_state.action == Action.EDGE_HANGING and smashbot_state.action_frame == 1:
-                if edgegrabframes > 29:
+                if edgegrabframes > 29 and smashbot_state.invulnerability_left >= 29:
                     self.pickchain(Chains.Edgestall)
                     return
 
@@ -432,10 +431,11 @@ class Edgeguard(Tactic):
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
+            framesleft = Punish.framesleft()
 
             # Shine them, as long as they aren't attacking right now
-            framesleft = Punish.framesleft()
-            if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and framesleft > 2:
+            frameadvantage = framesleft > 2 or smashbot_state.invulnerability_left > 2
+            if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage:
                 self.pickchain(Chains.Dropdownshine)
                 return
 

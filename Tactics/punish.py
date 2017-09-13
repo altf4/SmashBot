@@ -29,8 +29,8 @@ class Punish(Tactic):
         if opponent_state.character == Character.SAMUS and opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_HIGH]:
             return 1
 
-        # Pikachu skull bash
-        if opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.NEUTRAL_B_ATTACKING] and \
+        # Pikachu skull bash, thunder
+        if opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.NEUTRAL_B_ATTACKING, Action.SWORD_DANCE_2_MID_AIR, Action.SWORD_DANCE_2_HIGH_AIR] and \
                 opponent_state.character == Character.PIKACHU:
             return 1
 

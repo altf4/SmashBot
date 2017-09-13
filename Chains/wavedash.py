@@ -8,8 +8,9 @@ class Wavedash(Chain):
     # Distance argument is a multiplier to how far we'll wavedash
     # 0 is straight in place
     # 1 is max distance
-    def __init__(self, distance=1):
+    def __init__(self, distance=1, towards=True):
         self.distance = distance
+        self.towards = towards
 
     def step(self):
         controller = globals.controller
@@ -61,11 +62,10 @@ class Wavedash(Chain):
         if jumpcancel or smashbot_state.action in jumping:
             self.interruptible = False
             controller.press_button(Button.BUTTON_L)
-            # Always wavedash toward opponent
             onleft = smashbot_state.x < opponent_state.x
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = (self.distance / 2) + .5
-            if not onleft:
+            if onleft != self.towards:
                 x = -x
             controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
             return
