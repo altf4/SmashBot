@@ -196,7 +196,7 @@ class Edgeguard(Tactic):
         if character == Character.JIGGLYPUFF:
             return False
         if character == Character.PEACH:
-            if action in [Action.SWORD_DANCE_3_LOW_AIR, Action.PARASOL_FALLING]:
+            if action in [Action.SWORD_DANCE_3_LOW_AIR, Action.PARASOL_FALLING, Action.MARTH_COUNTER]:
                 return True
         if character == Character.ZELDA:
             if action in [Action.SWORD_DANCE_3_HIGH, Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW]:
