@@ -1,7 +1,7 @@
 import melee
 import Chains
 import globals
-from melee.enums import Action
+from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Celebrate(Tactic):
@@ -17,6 +17,10 @@ class Celebrate(Tactic):
             return True
 
         if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -20:
+            return True
+
+        if opponent_state.action == Action.PARASOL_FALLING and opponent_state.character == Character.PEACH and \
+                opponent_state.y < -30:
             return True
 
         return False
