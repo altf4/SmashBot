@@ -1,6 +1,7 @@
 import melee
 import globals
 import Tactics
+import random
 from melee.enums import Action, Button
 from Strategies.strategy import Strategy
 from Tactics.punish import Punish
@@ -14,6 +15,9 @@ from Tactics.celebrate import Celebrate
 from Tactics.wait import Wait
 
 class Bait(Strategy):
+    def __init__(self):
+        self.approach = False
+
     def __str__(self):
         string = "Bait"
 
@@ -29,6 +33,10 @@ class Bait(Strategy):
     def step(self):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
+
+        # If we have stopped approaching, reset the state
+        if type(self.tactic) != Tactics.Approach:
+            self.approach = False
 
         if Mitigate.needsmitigation():
             self.picktactic(Tactics.Mitigate)
@@ -103,7 +111,11 @@ class Bait(Strategy):
                 opponent_state.speed_y_self > 0:
             jumping = True
 
-        if jumping and opponent_state.invulnerability_left <= 0:
+        # Randomly approach some times rather than keeping distance
+        if smashbot_state.action == Action.TURNING and random.randint(0, 40) == 0:
+            self.approach = True
+
+        if (jumping and opponent_state.invulnerability_left <= 0) or self.approach:
             self.picktactic(Tactics.Approach)
             return
 

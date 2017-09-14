@@ -48,7 +48,8 @@ class Infinite(Tactic):
 
         # Should we try a waveshine infinite?
         #   They need to have high friction and not fall down
-        if opponent_state.action in [Action.STANDING, Action.TURNING, Action.DASHING, Action.RUNNING]:
+        if opponent_state.action in [Action.STANDING, Action.TURNING, Action.DASHING, Action.RUNNING, \
+                Action.WALK_SLOW, Action.WALK_MIDDLE, Action.WALK_FAST]:
             return False
 
         framesleft = Punish.framesleft()
