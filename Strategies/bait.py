@@ -105,6 +105,11 @@ class Bait(Strategy):
             self.picktactic(Tactics.Retreat)
             return
 
+        # If opponent is falling, and we're in shield, retreat
+        if opponent_state.speed_y_self < 0 and not opponent_state.on_ground and smashbot_state.action in shieldactions:
+            self.picktactic(Tactics.Retreat)
+            return
+
         # Is opponent starting a jump?
         jumping = opponent_state.action == Action.KNEE_BEND
         if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
