@@ -289,7 +289,8 @@ class Punish(Tactic):
                 else:
                     # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
                     #   This shouldn't happen often, but can if we're pushed away after powershield
-                    if framesleft < 11 and distance > 9:
+                    offedge = melee.stages.edgegroundposition(globals.gamestate.stage) < abs(endposition)
+                    if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
             # If we're not in attack range, and can't run, then maybe we can wavedash in
