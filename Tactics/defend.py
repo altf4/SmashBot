@@ -11,6 +11,9 @@ class Defend(Tactic):
         smashbot_state = globals.smashbot_state
         projectiles = globals.gamestate.projectiles
 
+        if smashbot_state.invulnerability_left > 2:
+            return False
+
         # Ignore Fox lasers. They 'just' do damage. Nothing we actually care about
         #   It's worse to put ourselves in stun just to prevent a few percent
         if opponent_state.character == Character.FOX:
@@ -60,6 +63,9 @@ class Defend(Tactic):
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
         framedata = globals.framedata
+
+        if smashbot_state.invulnerability_left > 2:
+            return False
 
         # What state of the attack is the opponent in?
         # Windup / Attacking / Cooldown / Not Attacking
