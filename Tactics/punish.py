@@ -5,6 +5,7 @@ import math
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
+from Chains.shffl import SHFFL_DIRECTION
 
 class Punish(Tactic):
     # How many frames do we have to work with for the punish
@@ -277,13 +278,20 @@ class Punish(Tactic):
                     height += speed
 
             distance = abs(endposition - smashbot_endposition)
-            if not slideoff and distance < 14.5 and facing and -5 < height < 8:
-                # Do the upsmash
-                # NOTE: If we get here, we want to delete the chain and start over
-                #   Since the amount we need to charge may have changed
-                self.chain = None
-                self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])
-                return
+            if not slideoff and distance < 14.5 and -5 < height < 8:
+                if facing:
+                    # Do the upsmash
+                    # NOTE: If we get here, we want to delete the chain and start over
+                    #   Since the amount we need to charge may have changed
+                    self.chain = None
+                    self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])
+                    return
+                else:
+                    # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
+                    #   This shouldn't happen often, but can if we're pushed away after powershield
+                    if framesleft < 11 and distance > 9:
+                        self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
+                        return
             # If we're not in attack range, and can't run, then maybe we can wavedash in
             #   Now we need more time for the wavedash. 10 frames of lag, and 3 jumping
             framesneeded = 13

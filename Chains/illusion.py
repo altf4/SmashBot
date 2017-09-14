@@ -51,9 +51,12 @@ class Illusion(Chain):
         if smashbot_state.action == Action.SWORD_DANCE_2_MID:
             if smashbot_state.action_frame == 1 and self.length == SHORTEN.SHORT:
                 controller.press_button(Button.BUTTON_B)
+                return
             if smashbot_state.action_frame == 3 and self.length == SHORTEN.MID_SHORT:
                 controller.press_button(Button.BUTTON_B)
+                return
             if smashbot_state.action_frame == 4 and self.length == SHORTEN.MID:
                 controller.press_button(Button.BUTTON_B)
+                return
 
         controller.empty_input()

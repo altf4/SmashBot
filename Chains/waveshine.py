@@ -100,6 +100,10 @@ class Waveshine(Chain):
             if edgedistance < 0.5:
                 direction = smashbot_state.x < 0
 
+            # If we're facing the edge, it's not safe to wavedash off the edge. Adjust the distance down
+            if smashbot_state.facing == smashbot_state.x > 0:
+                distance = max(edgedistance / 15, 1)
+
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = (self.distance / 2) + .5
             if not direction:

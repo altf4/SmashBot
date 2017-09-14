@@ -56,6 +56,17 @@ class Infinite(Tactic):
         # This is off by one for hitstun
         framesleft -= 1
 
+        # Give up the infinite if we're in our last dashing frame, and are getting close to the edge
+        #   We are at risk of running off the edge when this happens
+        if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
+            if (smashbot_state.speed_ground_x_self > 0) == (smashbot_state.x > 0):
+                edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+                if globals.opponent_state.x < 0:
+                    edge_x = -edge_x
+                edgedistance = abs(edge_x - globals.smashbot_state.x)
+                if edgedistance < 16:
+                    return False
+
         # If opponent is attacking, don't infinite
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             return False
@@ -106,6 +117,12 @@ class Infinite(Tactic):
             # If we are lined up right now, do the shine
             if smashbot_state.x < opponent_state.x < 0 or \
                     0 < opponent_state.x < smashbot_state.x:
+                self.chain = None
+                self.pickchain(Chains.Waveshine)
+                return
+
+            # If we are running away from our opponent, just shine now
+            if (smashbot_state.speed_ground_x_self > 0) == onright:
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return

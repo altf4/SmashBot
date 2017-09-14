@@ -12,7 +12,10 @@ class SHFFL_DIRECTION(Enum):
     NEUTRAL = 4
 
 class Shffl(Chain):
-    def step(self, direction=SHFFL_DIRECTION.DOWN):
+    def __init__(self, direction=SHFFL_DIRECTION.DOWN):
+        self.direction = direction
+
+    def step(self):
         smashbot_state = globals.smashbot_state
         opponent_state = globals.opponent_state
         controller = globals.controller
@@ -23,7 +26,7 @@ class Shffl(Chain):
             controller.release_button(Button.BUTTON_Y);
             jumpdirection = 1
             if opponent_state.x < smashbot_state.x:
-                jumpdirection = -1
+                jumpdirection = 0
             controller.tilt_analog(Button.BUTTON_MAIN, jumpdirection, .5)
             return
 
@@ -40,7 +43,17 @@ class Shffl(Chain):
         # If we're falling, then press down hard to do a fast fall, and press L to L cancel
         if smashbot_state.speed_y_self < 0:
             self.interruptible = False
-            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
+            # Don't jump right off the stage like an idiot
+            #   If we're close to the edge, angle back in
+            x = 0.5
+            edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+            if globals.opponent_state.x < 0:
+                edge_x = -edge_x
+            edgedistance = abs(edge_x - globals.smashbot_state.x)
+            if edgedistance < 15:
+                x = int(smashbot_state.x < 0)
+
+            controller.tilt_analog(Button.BUTTON_MAIN, x, 0)
             # Only do the L cancel near the end of the animation
             if smashbot_state.action_frame >= 12:
                 controller.press_button(Button.BUTTON_L)
@@ -53,20 +66,32 @@ class Shffl(Chain):
                 controller.tilt_analog(Button.BUTTON_C, .5, .5)
                 return
 
-            if direction == SHFFL_DIRECTION.UP:
+            if self.direction == SHFFL_DIRECTION.UP:
                 controller.tilt_analog(Button.BUTTON_C, .5, 1)
-            if direction == SHFFL_DIRECTION.DOWN:
+            if self.direction == SHFFL_DIRECTION.DOWN:
                 controller.tilt_analog(Button.BUTTON_C, .5, 0)
-            if direction == SHFFL_DIRECTION.FORWARD:
+            if self.direction == SHFFL_DIRECTION.FORWARD:
                 controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.facing), .5)
-            if direction == SHFFL_DIRECTION.BACK:
+            if self.direction == SHFFL_DIRECTION.BACK:
                 controller.tilt_analog(Button.BUTTON_C, int(not smashbot_state.facing), .5)
-            if direction == SHFFL_DIRECTION.NEUTRAL:
+            if self.direction == SHFFL_DIRECTION.NEUTRAL:
                 controller.press_button(Button.BUTTON_A)
                 controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)
             return
         elif smashbot_state.speed_y_self > 0:
-            controller.empty_input()
+            # Don't jump right off the stage like an idiot
+            #   If we're close to the edge, angle back in
+            x = 0.5
+            edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+            if globals.opponent_state.x < 0:
+                edge_x = -edge_x
+            edgedistance = abs(edge_x - globals.smashbot_state.x)
+            if edgedistance < 15:
+                x = int(smashbot_state.x < 0)
+
+            controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
+            controller.tilt_analog(Button.BUTTON_C, .5, .5)
+            controller.release_button(Button.BUTTON_L)
             return
 
         self.interruptible = True

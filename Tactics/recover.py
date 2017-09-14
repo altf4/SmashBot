@@ -6,6 +6,7 @@ import math
 from melee.enums import Action
 from Tactics.tactic import Tactic
 from Chains.firefox import FIREFOX
+from Chains.illusion import SHORTEN
 
 class Recover(Tactic):
     # Do we need to recover?
@@ -129,7 +130,15 @@ class Recover(Tactic):
         # If we're ligned up, do the illusion
         #   88 is a little longer than the illusion max length
         if self.useillusion and (-15 < smashbot_state.y < -5) and (diff_x < 88):
-            self.pickchain(Chains.Illusion)
+            length = SHORTEN.LONG
+            if diff_x < 50:
+                length = SHORTEN.MID
+            if diff_x < 40:
+                length = SHORTEN.MID_SHORT
+            if diff_x < 20:
+                length = SHORTEN.SHORT
+
+            self.pickchain(Chains.Illusion, [length])
             return
 
         # First jump back to the stage if we're low
