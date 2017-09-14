@@ -82,6 +82,10 @@ controller.connect()
 
 strategy = Bait()
 
+supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
+    melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
+    melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH]
+
 #Main loop
 while True:
     #"step" to the next frame
@@ -94,7 +98,13 @@ while True:
             globals.difficulty = int(args.difficulty)
         else:
             globals.difficulty = globals.smashbot_state.stock
-        strategy.step()
+
+        if gamestate.stage != melee.enums.Stage.FINAL_DESTINATION:
+            melee.techskill.multishine(ai_state=globals.smashbot_state, controller=controller)
+        elif globals.opponent_state.character not in supportedcharacters:
+            melee.techskill.multishine(ai_state=globals.smashbot_state, controller=controller)
+        else:
+            strategy.step()
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
