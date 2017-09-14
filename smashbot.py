@@ -104,7 +104,15 @@ while True:
         elif globals.opponent_state.character not in supportedcharacters:
             melee.techskill.multishine(ai_state=globals.smashbot_state, controller=controller)
         else:
-            strategy.step()
+            try:
+                strategy.step()
+            except Exception as error:
+                # Do nothing in case of error thrown!
+                controller.empty_input()
+                if log:
+                    log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+                strategy = Bait()
+
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
         melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
