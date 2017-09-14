@@ -148,6 +148,7 @@ class Defend(Tactic):
                             self.pickchain(Chains.Waveshine)
                             return
 
+        onfront = (opponent_state.x < smashbot_state.x) == opponent_state.facing
         # Are we in the powershield window?
         if framesuntilhit <= 2:
             if smashbot_state.action == Action.EDGE_HANGING:
@@ -157,8 +158,6 @@ class Defend(Tactic):
             hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
             self.pickchain(Chains.Powershield, [hold])
         else:
-
-            onfront = (opponent_state.x < smashbot_state.x) == opponent_state.facing
             # 12 starting buffer for Fox's character model size
             bufferzone = 12
             if onfront:

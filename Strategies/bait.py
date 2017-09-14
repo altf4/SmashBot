@@ -13,6 +13,7 @@ from Tactics.edgeguard import Edgeguard
 from Tactics.infinite import Infinite
 from Tactics.celebrate import Celebrate
 from Tactics.wait import Wait
+from Tactics.retreat import Retreat
 
 class Bait(Strategy):
     def __init__(self):
@@ -96,17 +97,7 @@ class Bait(Strategy):
             self.picktactic(Tactics.Pressure)
             return
 
-        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
-            Action.SHIELD_STUN, Action.SHIELD_REFLECT]
-
-        # If opponent is landing from an attack, and we're sheilding, retreat!
-        if opponent_state.action in [Action.DAIR_LANDING, Action.NAIR_LANDING, Action.FAIR_LANDING, \
-                Action.UAIR_LANDING, Action.BAIR_LANDING, Action.LANDING] and smashbot_state.action in shieldactions:
-            self.picktactic(Tactics.Retreat)
-            return
-
-        # If opponent is falling, and we're in shield, retreat
-        if opponent_state.speed_y_self < 0 and not opponent_state.on_ground and smashbot_state.action in shieldactions:
+        if Retreat.shouldretreat():
             self.picktactic(Tactics.Retreat)
             return
 
