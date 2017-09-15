@@ -23,7 +23,7 @@ class Defend(Tactic):
         for projectile in projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM and opponent_state.on_ground:
                 continue
-            if projectile.subtype == melee.enums.ProjectileSubtype.SHEIK_SMOKE:
+            if projectile.subtype in [melee.enums.ProjectileSubtype.SHEIK_SMOKE, melee.enums.ProjectileSubtype.SHEIK_CHAIN ]:
                 continue
             # Missles and needles that aren't moving are actually already exploded. Ignore them
             if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN, \
@@ -65,6 +65,10 @@ class Defend(Tactic):
         framedata = globals.framedata
 
         if smashbot_state.invulnerability_left > 2:
+            return False
+
+        # Ignore the chain
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             return False
 
         # What state of the attack is the opponent in?

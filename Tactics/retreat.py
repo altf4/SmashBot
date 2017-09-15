@@ -1,7 +1,7 @@
 import melee
 import globals
 import Chains
-from melee.enums import Action
+from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Retreat(Tactic):
@@ -14,6 +14,15 @@ class Retreat(Tactic):
 
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+
+        winning = smashbot_state.stock > opponent_state.stock
+        if smashbot_state.stock == opponent_state.stock and smashbot_state.percent < opponent_state.percent:
+            winning = False
+
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+            # If we're ahead, retreat from the chain
+            if winning:
+                return True
 
         # If opponent is landing from an attack, and we're sheilding, retreat!
         if opponent_state.action in [Action.DAIR_LANDING, Action.NAIR_LANDING, Action.FAIR_LANDING, \
@@ -43,6 +52,8 @@ class Retreat(Tactic):
             return
 
         bufferzone = 30
+        if globals.opponent_state.character == Character.SHEIK and globals.opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+            bufferzone = 55
         onright = globals.opponent_state.x < globals.smashbot_state.x
         if not onright:
             bufferzone *= -1

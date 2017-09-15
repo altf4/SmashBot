@@ -54,6 +54,9 @@ class Punish(Tactic):
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
             return 1
 
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+            return 1
+
         # Is opponent attacking?
         if globals.framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
