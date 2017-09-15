@@ -2,6 +2,7 @@ import melee
 import globals
 import Chains
 import math
+import random
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Tactics.punish import Punish
@@ -449,10 +450,16 @@ class Edgeguard(Tactic):
             edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
             edgedistance = abs(edge_x - abs(globals.smashbot_state.x))
 
+            randomgrab = False
+            if random.randint(0, 20) == 0:
+                randomgrab = True
+            if globals.difficulty == 4:
+                randomgrab = True
+                
             # Can we challenge their ledge?
             framesleft = Punish.framesleft()
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
-                if globals.difficulty >= 3 or framesleft > 10:
+                if randomgrab or framesleft > 10:
                     wavedash = True
                     if globals.framedata.isattack(opponent_state.character, opponent_state.action):
                         wavedash = False
