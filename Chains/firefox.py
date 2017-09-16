@@ -18,6 +18,10 @@ class Firefox(Chain):
         else:
             self.direction = direction
 
+        diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(globals.smashbot_state.x))
+        if diff_x > 50:
+            self.direction = FIREFOX(random.randint(1, 2))
+
     def getangle(self):
         smashbot_state = globals.smashbot_state
 
