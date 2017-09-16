@@ -1,5 +1,6 @@
 import melee
 import globals
+import random
 from Chains.chain import Chain
 from melee.enums import Action, Button
 
@@ -18,6 +19,18 @@ class DashDance(Chain):
         if smashbot_state.moonwalkwarning and controller.prev.main_stick[0] != 0.5:
             controller.empty_input()
             return;
+
+        if smashbot_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
+            roll = random.randint(0, 3)
+            if roll <= 1:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
+                return
+            elif roll == 2:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, 0.5)
+                return
+            else:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, 0.5)
+                return
 
         # If we're in spotdodge or shield, do nothing
         if smashbot_state.action in [Action.SPOTDODGE, Action.SHIELD_RELEASE]:
