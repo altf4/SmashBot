@@ -140,6 +140,10 @@ class Punish(Tactic):
         if globals.smashbot_state.off_stage:
             return False
 
+        firefox = opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.character in [Character.FOX, Character.FALCO]
+        if firefox and opponent_state.y > 15:
+            return False
+
         left = Punish.framesleft()
         # Will our opponent be invulnerable for the entire punishable window?
         if left <= opponent_state.invulnerability_left:

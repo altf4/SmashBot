@@ -24,6 +24,12 @@ class Retreat(Tactic):
             if winning:
                 return True
 
+        # FireFox is different
+        firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] \
+            and opponent_state.character in [Character.FOX, Character.FALCO]
+        if firefox:
+            return True
+
         # If opponent is landing from an attack, and we're sheilding, retreat!
         if opponent_state.action in [Action.DAIR_LANDING, Action.NAIR_LANDING, Action.FAIR_LANDING, \
                 Action.UAIR_LANDING, Action.BAIR_LANDING, Action.LANDING] and smashbot_state.action in shieldactions:
