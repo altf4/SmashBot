@@ -27,7 +27,7 @@ class Punish(Tactic):
             return 0
 
         # Samus morph ball
-        if opponent_state.character == Character.SAMUS and opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_HIGH]:
+        if opponent_state.character == Character.SAMUS and opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_HIGH, Action.NEUTRAL_B_CHARGING]:
             return 1
 
         # Pikachu skull bash, thunder

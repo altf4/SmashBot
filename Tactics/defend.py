@@ -29,6 +29,10 @@ class Defend(Tactic):
             if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN, \
                     melee.enums.ProjectileSubtype.TURNIP] and (-0.01 < projectile.x_speed < 0.01):
                 continue
+
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB and (-0.01 < projectile.y_speed < 0.01):
+                continue
+
             size = 10
             if projectile.subtype == melee.enums.ProjectileSubtype.PIKACHU_THUNDERJOLT_1:
                 size = 18
@@ -53,7 +57,6 @@ class Defend(Tactic):
                 if smashbot_state.on_ground:
                     smashbot_y += 8
                 distance = math.sqrt((proj_x - smashbot_x)**2 + (proj_y - smashbot_y)**2)
-
                 if distance < size:
                     return True
         return False

@@ -315,9 +315,12 @@ class Edgeguard(Tactic):
         # Stand up if opponent attacks us
         proj_incoming = Defend.needsprojectiledefense() and smashbot_state.invulnerability_left <= 2
 
+        samusgrapple = opponent_state.character == Character.SAMUS and opponent_state.action == Action.SWORD_DANCE_4_LOW and \
+            -25 < opponent_state.y < 0 and smashbot_state.invulnerability_left <= 2
+
         hitframe = globals.framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
         framesleft = hitframe - opponent_state.action_frame
-        if proj_incoming or (hitframe != 0 and onedge and framesleft < 5 and smashbot_state.invulnerability_left < 2):
+        if proj_incoming or samusgrapple or (hitframe != 0 and onedge and framesleft < 5 and smashbot_state.invulnerability_left < 2):
             # Unless the attack is a grab, then don't bother
             if not globals.framedata.isgrab(opponent_state.character, opponent_state.action):
                 if Edgeguard.isupb():
@@ -434,9 +437,13 @@ class Edgeguard(Tactic):
                 return
             framesleft = Punish.framesleft()
 
+            # Samus UP_B invulnerability
+            samusupbinvuln = opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
+                    opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5
+
             # Shine them, as long as they aren't attacking right now
             frameadvantage = framesleft > 2 or smashbot_state.invulnerability_left > 2
-            if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage:
+            if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage and not samusupbinvuln:
                 self.pickchain(Chains.Dropdownshine)
                 return
 
@@ -455,7 +462,7 @@ class Edgeguard(Tactic):
                 randomgrab = True
             if globals.difficulty == 4:
                 randomgrab = True
-                
+
             # Can we challenge their ledge?
             framesleft = Punish.framesleft()
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
