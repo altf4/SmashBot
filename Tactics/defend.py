@@ -71,6 +71,16 @@ class Defend(Tactic):
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             return False
 
+        # FireFox is different
+        firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
+        if firefox:
+            # Assume they're heading at us, shield in time
+            speed = 2.2
+            if opponent_state.character == Character.FOX:
+                speed = 3.8
+            if (globals.gamestate.distance - 12) / speed < 3:
+                return True
+
         # What state of the attack is the opponent in?
         # Windup / Attacking / Cooldown / Not Attacking
         attackstate = framedata.attackstate_simple(opponent_state)
@@ -129,6 +139,17 @@ class Defend(Tactic):
 
         hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
+
+        # FireFox is different
+        firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
+
+        if firefox:
+            # Assume they're heading at us, shield in time
+            speed = 2.2
+            if opponent_state.character == Character.FOX:
+                speed = 3.8
+            if (globals.gamestate.distance - 12) / speed < 3:
+                framesuntilhit = 0
 
         # Is the attack a grab? If so, spot dodge right away
         if globals.framedata.isgrab(opponent_state.character, opponent_state.action):

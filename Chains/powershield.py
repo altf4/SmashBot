@@ -1,6 +1,6 @@
 import melee
 import globals
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 class Powershield(Chain):
@@ -10,6 +10,7 @@ class Powershield(Chain):
     def step(self):
         controller = globals.controller
         smashbot_state = globals.smashbot_state
+        opponent_state = globals.opponent_state
 
         # Don't try to shield in the air
         if not smashbot_state.on_ground:
@@ -17,10 +18,13 @@ class Powershield(Chain):
             controller.empty_input()
             return
 
+        # FireFox is different
+        firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
+
         # If we get to cooldown, let go
         attackstate = globals.framedata.attackstate_simple(globals.opponent_state)
         if attackstate in [melee.enums.AttackState.COOLDOWN, melee.enums.AttackState.NOT_ATTACKING] \
-                and len(globals.gamestate.projectiles) == 0:
+                and len(globals.gamestate.projectiles) == 0 and not firefox:
             self.interruptible = True
             controller.empty_input()
             return
