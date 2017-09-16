@@ -51,17 +51,24 @@ class Mitigate(Tactic):
             x = 0.5
             y = 0.5
             if bool(globals.gamestate.frame % 2):
-                if smashbot_state.percent > 60:
+                # If we're off the stage, DI up and in
+                if smashbot_state.off_stage:
                     y = 1
                     x = 0
                     if smashbot_state.x < 0:
                         x = 1
-                # If at low damage, DI away
                 else:
-                    y = 0.5
-                    x = 1
-                    if smashbot_state.x < 0:
+                    if smashbot_state.percent > 60:
+                        y = 1
                         x = 0
+                        if smashbot_state.x < 0:
+                            x = 1
+                    # If at low damage, DI away
+                    else:
+                        y = 0.5
+                        x = 1
+                        if smashbot_state.x < 0:
+                            x = 0
             self.chain = None
             self.pickchain(Chains.DI, [x, y])
             return
