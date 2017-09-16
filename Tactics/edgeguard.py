@@ -47,6 +47,65 @@ class Edgeguard(Tactic):
             return True
         return False
 
+    def illusionhighframes():
+        opponent_state = globals.opponent_state
+
+        inillusion =  opponent_state.character in [Character.FOX, Character.FALCO] and \
+            opponent_state.action in [Action.SWORD_DANCE_2_HIGH, Action.SWORD_DANCE_2_MID] and (0 < opponent_state.y < 30)
+        if not inillusion:
+            return 999
+        if not (-2 < opponent_state.y < 25):
+            return 999
+
+        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+        if opponent_state.x < 0:
+            edge_x = -edge_x
+
+        speed = 16.5
+        if opponent_state.character == Character.FOX:
+            speed = 18.72
+
+        if opponent_state.x > 0:
+            speed = -speed
+
+        x = opponent_state.x
+        frames = 0
+        for i in range(1, 3):
+            x += speed
+            if abs(edge_x - x) < 10:
+                frames = i
+
+        if frames == 0:
+            return 999
+
+        # Plus the windup frames
+        if opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+            frames += globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame + 1
+
+        return frames
+
+    # Is opponent trying to firefox above the stage?
+    def firefoxhighframes():
+        opponent_state = globals.opponent_state
+
+        firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
+        if not firefox:
+            return 999
+
+        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+        if opponent_state.x < 0:
+            edge_x = -edge_x
+
+        x, y = opponent_state.x, opponent_state.y
+        # Project their trajectory. Does it reach right above the edge? When will it?
+        for i in range(globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame):
+            x += opponent_state.speed_air_x_self
+            y+= opponent_state.speed_y_self
+            if abs(edge_x - x) < 10 and 0 < y < 25:
+                return i
+
+        return 999
+
     def canrecoverhigh():
         opponent_state = globals.opponent_state
         smashbot_state = globals.smashbot_state
@@ -445,6 +504,16 @@ class Edgeguard(Tactic):
             frameadvantage = framesleft > 2 or smashbot_state.invulnerability_left > 2
             if globals.gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage and not samusupbinvuln:
                 self.pickchain(Chains.Dropdownshine)
+                return
+
+            # Illusion high
+            if Edgeguard.illusionhighframes() <= 5:
+                if smashbot_state.invulnerability_left > 7:
+                    self.pickchain(Chains.Edgebair)
+                    return
+
+            if Edgeguard.firefoxhighframes() <= 5:
+                self.pickchain(Chains.Edgebair)
                 return
 
             # Do nothing
