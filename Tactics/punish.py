@@ -272,10 +272,11 @@ class Punish(Tactic):
 
             # Get height of opponent at the targeted frame
             height = opponent_state.y
+            firefox = opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.character in [Character.FOX, Character.FALCO]
             speed = opponent_state.speed_y_attack
             gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
             termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
-            if not opponent_state.on_ground:
+            if not opponent_state.on_ground and not firefox:
                 # Loop through each frame and count the distances
                 for i in range(framesleft):
                     speed -= gravity
