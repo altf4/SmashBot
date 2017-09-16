@@ -12,20 +12,22 @@ class Mitigate(Tactic):
     def needsmitigation():
         smashbot_state = globals.smashbot_state
 
+        # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
+        if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
+                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH]:
+            return True
+
+        # Thrown action
+        if smashbot_state.action in [Action.THROWN_FORWARD, Action.THROWN_BACK, \
+                Action.THROWN_UP, Action.THROWN_DOWN, Action.THROWN_DOWN_2]:
+            return True
+
         if smashbot_state.hitstun_frames_left == 0:
             return False
 
         if Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             return True
         if smashbot_state.action == Action.TUMBLING:
-            return True
-        # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
-        if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
-                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH]:
-            return True
-        # Thrown action
-        if smashbot_state.action in [Action.THROWN_FORWARD, Action.THROWN_BACK, \
-                Action.THROWN_UP, Action.THROWN_DOWN, Action.THROWN_DOWN_2]:
             return True
 
         return False
