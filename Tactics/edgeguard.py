@@ -280,6 +280,10 @@ class Edgeguard(Tactic):
         edgegrabframes_x = edgedistance // airhorizspeed
         fastfallspeed = globals.framedata.characterdata[opponent_state.character]["FastFallSpeed"]
 
+        # Samus can grapple, making all the math below wrong
+        if opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.character == Character.SAMUS:
+            return 1
+
         # Can opponent get to the vertical snap position in time?
         #   This is the shortest possible time opponent could get into position
         edgegrabframes_y = 1000
