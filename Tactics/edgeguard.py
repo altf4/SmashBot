@@ -130,7 +130,7 @@ class Edgeguard(Tactic):
         if opponent_state.character == Character.MARTH:
             gravity = gravity / 2
         # Samus has bomb jumps, which gives her almost infinite horizontal recovery
-        if opponent_state.character == Character.MARTH:
+        if opponent_state.character == Character.SAMUS:
             gravity = gravity / 4
 
         speed_x = opponent_state.speed_air_x_self + opponent_state.speed_x_attack
