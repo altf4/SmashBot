@@ -1,5 +1,4 @@
 import melee
-import globals
 import random
 from Chains.chain import Chain
 from melee.enums import Action, Button
@@ -11,9 +10,9 @@ class DashDance(Chain):
         self.interruptible = True
 
     def step(self):
-        gamestate = globals.gamestate
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
+        gamestate = self.gamestate
+        controller = self.controller
+        smashbot_state = self.smashbot_state
 
         #TODO: Moonwalk protection
         if smashbot_state.moonwalkwarning and controller.prev.main_stick[0] != 0.5:

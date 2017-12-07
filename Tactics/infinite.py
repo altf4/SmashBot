@@ -1,5 +1,4 @@
 import melee
-import globals
 import Chains
 from melee.enums import Action
 from Tactics.tactic import Tactic
@@ -8,11 +7,12 @@ from Tactics.punish import Punish
 from melee.enums import Character
 
 class Infinite(Tactic):
-    def __init__(self):
-        self.movingright = globals.opponent_state.speed_x_attack + globals.opponent_state.speed_ground_x_self > 0
+    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
+        self.movingright = self.opponent_state.speed_x_attack + self.opponent_state.speed_ground_x_self > 0
 
-    def killpercent():
-        character = globals.opponent_state.character
+    def killpercent(opponent_state):
+        character = opponent_state.character
         if character == Character.CPTFALCON:
             return 113
         if character == Character.FALCO:
@@ -33,13 +33,11 @@ class Infinite(Tactic):
             return 55
         return 120
 
-    def caninfinite():
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-        isroll = globals.framedata.isroll(opponent_state.character, opponent_state.action)
+    def caninfinite(smashbot_state, opponent_state, gamestate, framedata, difficulty):
+        isroll = framedata.isroll(opponent_state.character, opponent_state.action)
 
         # Only infinite on difficulty 1, 2, and 3
-        if globals.difficulty > 3:
+        if difficulty > 3:
             return False
 
         if opponent_state.action in [Action.SHIELD_START, Action.SHIELD, \
@@ -52,7 +50,7 @@ class Infinite(Tactic):
                 Action.WALK_SLOW, Action.WALK_MIDDLE, Action.WALK_FAST]:
             return False
 
-        framesleft = Punish.framesleft()
+        framesleft = Punish.framesleft(opponent_state, framedata)
         # This is off by one for hitstun
         framesleft -= 1
 
@@ -60,39 +58,39 @@ class Infinite(Tactic):
         #   We are at risk of running off the edge when this happens
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
             if (smashbot_state.speed_ground_x_self > 0) == (smashbot_state.x > 0):
-                edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
-                if globals.opponent_state.x < 0:
+                edge_x = melee.stages.edgegroundposition(gamestate.stage)
+                if opponent_state.x < 0:
                     edge_x = -edge_x
-                edgedistance = abs(edge_x - globals.smashbot_state.x)
+                edgedistance = abs(edge_x - smashbot_state.x)
                 if edgedistance < 16:
                     return False
 
         # If opponent is attacking, don't infinite
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
+        if framedata.isattack(opponent_state.character, opponent_state.action):
             return False
 
         # If opponent is going to slide to the edge, then we have to stop
-        endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
-        if abs(endposition)+5 > melee.stages.edgegroundposition(globals.gamestate.stage):
+        endposition = opponent_state.x + framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
+        if abs(endposition)+5 > melee.stages.edgegroundposition(gamestate.stage):
             return False
 
-        if globals.framedata.characterdata[opponent_state.character]["Friction"] >= 0.06 and \
+        if framedata.characterdata[opponent_state.character]["Friction"] >= 0.06 and \
                 opponent_state.hitstun_frames_left > 1 and not isroll and opponent_state.on_ground \
-                and opponent_state.percent < Infinite.killpercent():
+                and opponent_state.percent < Infinite.killpercent(opponent_state):
             return True
 
         return False
 
     def step(self):
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
+        opponent_state = self.opponent_state
+        smashbot_state = self.smashbot_state
 
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step()
             return
 
-        framesleft = Punish.framesleft()
+        framesleft = Punish.framesleft(self.opponent_state, self.framedata)
         # This is off by one for hitstun
         framesleft -= 1
 
@@ -101,7 +99,7 @@ class Infinite(Tactic):
             shinerange = 9
 
         # Try to do the shine
-        if globals.gamestate.distance < shinerange:
+        if self.gamestate.distance < shinerange:
             # emergency backup shine
             if framesleft == 1:
                 self.chain = None

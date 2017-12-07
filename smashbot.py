@@ -4,9 +4,7 @@ import argparse
 import signal
 import sys
 
-from Strategies.bait import Bait
-
-import globals
+from esagent import ESAgent
 
 def check_port(value):
     ivalue = int(value)
@@ -14,8 +12,6 @@ def check_port(value):
          raise argparse.ArgumentTypeError("%s is an invalid controller port. \
          Must be 1, 2, 3, or 4." % value)
     return ivalue
-
-chain = None
 
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--port', '-p', type=check_port,
@@ -53,11 +49,11 @@ if args.live:
 dolphin = melee.dolphin.Dolphin(ai_port=args.port, opponent_port=args.opponent,
     opponent_type=opponent_type, logger=log)
 
-#initialize our global objects
-globals.init(dolphin, args.port, args.opponent)
+#initialize our agent
+agent = ESAgent(dolphin, args.port, args.opponent)
 
-gamestate = globals.gamestate
-controller = globals.controller
+gamestate = agent.gamestate
+controller = agent.controller
 
 def signal_handler(signal, frame):
     dolphin.terminate()
@@ -80,8 +76,6 @@ if not args.nodolphin:
 #   dolphin will hang waiting for input and never receive it
 controller.connect()
 
-strategy = Bait()
-
 supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
     melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH]
@@ -93,25 +87,24 @@ while True:
 
     #What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        #The strategy "step" will cascade all the way down the objective hierarchy
+        #The agent's "step" will cascade all the way down the objective hierarchy
         if args.difficulty:
-            globals.difficulty = int(args.difficulty)
+            agent.difficulty = int(args.difficulty)
         else:
-            globals.difficulty = globals.smashbot_state.stock
+            agent.difficulty = agent.smashbot_state.stock
 
         if gamestate.stage != melee.enums.Stage.FINAL_DESTINATION:
-            melee.techskill.multishine(ai_state=globals.smashbot_state, controller=controller)
-        elif globals.opponent_state.character not in supportedcharacters:
-            melee.techskill.multishine(ai_state=globals.smashbot_state, controller=controller)
+            melee.techskill.multishine(ai_state=agent.smashbot_state, controller=controller)
+        elif agent.opponent_state.character not in supportedcharacters:
+            melee.techskill.multishine(ai_state=agent.smashbot_state, controller=controller)
         else:
-            try:
-                strategy.step()
-            except Exception as error:
-                # Do nothing in case of error thrown!
-                controller.empty_input()
-                if log:
-                    log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
-                strategy = Bait()
+            # try:
+            agent.act()
+            # except Exception as error:
+            #     # Do nothing in case of error thrown!
+            #     controller.empty_input()
+            #     if log:
+            #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
 
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
@@ -128,6 +121,6 @@ while True:
     controller.flush()
 
     if log:
-        log.log("Notes", "Goals: " + str(strategy), concat=True)
+        log.log("Notes", "Goals: " + str(agent.strategy), concat=True)
         log.logframe(gamestate)
         log.writeframe()

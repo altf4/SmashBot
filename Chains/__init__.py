@@ -20,6 +20,5 @@ from Chains.edgestall import Edgestall
 from Chains.grabedge import Grabedge
 from Chains.dropdownshine import Dropdownshine
 from Chains.tech import Tech
-from Chains.armadashine import ArmadaShine
 from Chains.roll import Roll
 from Chains.edgebair import Edgebair

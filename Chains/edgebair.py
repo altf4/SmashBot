@@ -1,14 +1,13 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
 # Edgebair
 class Edgebair(Chain):
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # If we just grabbed the edge, wait
         if smashbot_state.action == Action.EDGE_CATCHING:
@@ -59,7 +58,7 @@ class Edgebair(Chain):
             return
 
         # Once we're airborn, do an attack
-        if not globals.framedata.isattack(smashbot_state.character, smashbot_state.action):
+        if not self.framedata.isattack(smashbot_state.character, smashbot_state.action):
             # If the C stick wasn't set to middle, then
             if controller.prev.c_stick != (.5, .5):
                 controller.tilt_analog(Button.BUTTON_C, .5, .5)

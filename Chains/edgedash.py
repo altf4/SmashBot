@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
@@ -10,9 +9,9 @@ class Edgedash(Chain):
         self.letgoframe = 0
 
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # If we just grabbed the edge, just wait
         if smashbot_state.action == Action.EDGE_CATCHING:
@@ -63,7 +62,7 @@ class Edgedash(Chain):
             if smashbot_state.x < 0:
                 x = 0
             self.interruptible = False
-            self.letgoframe = globals.gamestate.frame
+            self.letgoframe = self.gamestate.frame
             controller.tilt_analog(Button.BUTTON_C, x, 0.5)
             return
 
@@ -77,7 +76,7 @@ class Edgedash(Chain):
         # Jumping, stay in the chain and DI in
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
             # Airdodge back into the stage
-            if globals.gamestate.frame - self.letgoframe >= 4:
+            if self.gamestate.frame - self.letgoframe >= 4:
                 x = 0
                 if smashbot_state.x < 0:
                     x = 1

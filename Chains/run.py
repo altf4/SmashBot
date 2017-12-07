@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
@@ -8,7 +7,7 @@ class Run(Chain):
         self.rundirection = rundirection
 
     def step(self):
-        controller = globals.controller
+        controller = self.controller
         # Run in the specified direction
         x = 0
         if self.rundirection:

@@ -1,13 +1,12 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
 class Roll(Chain):
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # Don't try to spot dodge in the air
         if not smashbot_state.on_ground:

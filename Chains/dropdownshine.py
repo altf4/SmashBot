@@ -1,16 +1,11 @@
 import melee
-import globals
 from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 # Dropdownshine
 class Dropdownshine(Chain):
     # To be checked once at the start of the chain
-    def inrange():
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
-
+    def inrange(smashbot_state, opponent_state, framedata):
         # We must be edge hanging
         if smashbot_state.action != Action.EDGE_HANGING:
             return False
@@ -36,7 +31,7 @@ class Dropdownshine(Chain):
         frames_x = abs(opponent_state.x - smashbot_state.x) // (0.819625854 / 2)
 
         # If opponent is in a FireFox, we have to get there before they take off
-        framesleft = globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+        framesleft = framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
         latefirefox = opponent_state.character in [Character.FOX, Character.FALCO] and \
             opponent_state.action == Action.SWORD_DANCE_3_LOW and (smashbot_state.invulnerability_left < framesleft)
 
@@ -48,9 +43,9 @@ class Dropdownshine(Chain):
         return False
 
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # Do an emergency shine if we run out of invulnerability, then end the chain
         if smashbot_state.invulnerability_left == 0 and smashbot_state.action != Action.EDGE_HANGING:
@@ -72,7 +67,7 @@ class Dropdownshine(Chain):
             return
 
         # Do the shine
-        if globals.gamestate.distance < 11.8:
+        if self.gamestate.distance < 11.8:
             self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             controller.press_button(Button.BUTTON_B)

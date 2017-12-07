@@ -1,14 +1,10 @@
 import melee
 import Chains
-import globals
 from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Celebrate(Tactic):
-    def deservescelebration():
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-
+    def deservescelebration(smashbot_state, opponent_state):
         if smashbot_state.off_stage:
             return False
 
@@ -26,8 +22,8 @@ class Celebrate(Tactic):
         return False
 
     def step(self):
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
+        opponent_state = self.opponent_state
+        smashbot_state = self.smashbot_state
 
         if smashbot_state.action == Action.EDGE_HANGING:
             self.chain = None

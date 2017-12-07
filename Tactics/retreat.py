@@ -1,14 +1,10 @@
 import melee
-import globals
 import Chains
 from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Retreat(Tactic):
-    def shouldretreat():
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-
+    def shouldretreat(smashbot_state, opponent_state):
         if smashbot_state.invulnerability_left > 1:
             return False
 
@@ -50,7 +46,7 @@ class Retreat(Tactic):
             self.chain.step()
             return
 
-        needswavedash = globals.smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
+        needswavedash = self.smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
             Action.DOWN_B_GROUND_START, Action.LANDING_SPECIAL, Action.SHIELD, Action.SHIELD_START, \
             Action.SHIELD_RELEASE, Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if needswavedash:
@@ -58,17 +54,17 @@ class Retreat(Tactic):
             return
 
         bufferzone = 30
-        if globals.opponent_state.character == Character.SHEIK and globals.opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+        if self.opponent_state.character == Character.SHEIK and self.opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             bufferzone = 55
-        onright = globals.opponent_state.x < globals.smashbot_state.x
+        onright = self.opponent_state.x < self.smashbot_state.x
         if not onright:
             bufferzone *= -1
 
-        pivotpoint = globals.opponent_state.x + bufferzone
+        pivotpoint = self.opponent_state.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
         edgebuffer = 30
-        edge = melee.stages.edgegroundposition(globals.gamestate.stage) - edgebuffer
+        edge = melee.stages.edgegroundposition(self.gamestate.stage) - edgebuffer
         # If we are about to pivot near the edge, just grab the edge instead
         if abs(pivotpoint) > edge:
             self.pickchain(Chains.Grabedge)

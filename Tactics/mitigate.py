@@ -1,17 +1,15 @@
 import melee
-import globals
 import Chains
 import random
 from melee.enums import Action, Button
 from Tactics.tactic import Tactic
 
 class Mitigate(Tactic):
-    def __init__(self):
+    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
         self.randomdi = random.randint(0, 1)
 
-    def needsmitigation():
-        smashbot_state = globals.smashbot_state
-
+    def needsmitigation(smashbot_state):
         # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
                 Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH]:
@@ -38,8 +36,8 @@ class Mitigate(Tactic):
             self.chain.step()
             return
 
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # Did we get grabbed?
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
@@ -52,7 +50,7 @@ class Mitigate(Tactic):
             # Alternate each frame
             x = 0.5
             y = 0.5
-            if bool(globals.gamestate.frame % 2):
+            if bool(self.gamestate.frame % 2):
                 # If we're off the stage, DI up and in
                 if smashbot_state.off_stage:
                     y = 1
@@ -82,8 +80,8 @@ class Mitigate(Tactic):
             framesuntillanding = 0
             speed = smashbot_state.speed_y_attack + smashbot_state.speed_y_self
             height = smashbot_state.y
-            gravity = globals.framedata.characterdata[smashbot_state.character]["Gravity"]
-            termvelocity = globals.framedata.characterdata[smashbot_state.character]["TerminalVelocity"]
+            gravity = self.framedata.characterdata[smashbot_state.character]["Gravity"]
+            termvelocity = self.framedata.characterdata[smashbot_state.character]["TerminalVelocity"]
             while height > 0:
                 height += speed
                 speed -= gravity
@@ -117,7 +115,7 @@ class Mitigate(Tactic):
             self.pickchain(Chains.DI, [x, y])
             return
         if smashbot_state.action == Action.TUMBLING:
-            x = globals.gamestate.frame % 2
+            x = self.gamestate.frame % 2
             self.chain = None
             self.pickchain(Chains.DI, [x, 0.5])
             return

@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
@@ -9,7 +8,7 @@ class DI(Chain):
         self.y = y
 
     def step(self):
-        controller = globals.controller
+        controller = self.controller
         self.interruptible = True
         controller.release_button(Button.BUTTON_L)
         controller.tilt_analog(Button.BUTTON_MAIN, self.x, self.y)

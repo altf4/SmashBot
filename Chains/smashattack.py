@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 from enum import Enum
@@ -16,8 +15,8 @@ class SmashAttack(Chain):
         self.frames_charged = 0
 
     def step(self):
-        smashbot_state = globals.smashbot_state
-        controller = globals.controller
+        smashbot_state = self.smashbot_state
+        controller = self.controller
 
         if smashbot_state.action == Action.LANDING_SPECIAL:
             self.interruptible = True

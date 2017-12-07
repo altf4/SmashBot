@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
@@ -8,23 +7,24 @@ class Grabedge(Chain):
     def __init__(self, wavedash=True):
         self.wavedash = wavedash
 
-        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
-        if globals.opponent_state.x < 0:
-            edge_x = -edge_x
-        edgedistance = abs(edge_x - globals.smashbot_state.x)
+    def step(self):
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
+        # Moved this here from constructor.
+        #   It should be fine, but let's keep an eye out for if this breaks
+        edge_x = melee.stages.edgegroundposition(self.gamestate.stage)
+        if self.opponent_state.x < 0:
+            edge_x = -edge_x
+        edgedistance = abs(edge_x - self.smashbot_state.x)
         if edgedistance > 15:
             self.wavedash = False
         if edgedistance < 2:
             self.wavedash = False
 
-    def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
-
         # Where is the edge that we're going to?
-        edge_x = melee.stages.edgegroundposition(globals.gamestate.stage)
+        edge_x = melee.stages.edgegroundposition(self.gamestate.stage)
         if opponent_state.x < 0:
             edge_x = -edge_x
 
@@ -67,7 +67,7 @@ class Grabedge(Chain):
         # If we turn right now, what will our speed be?
         if smashbot_state.action == Action.DASHING:
             turnspeed = (abs(smashbot_state.speed_ground_x_self) - 0.32) / 4
-        slidedistance = globals.framedata.slidedistance(smashbot_state, turnspeed, 7)
+        slidedistance = self.framedata.slidedistance(smashbot_state, turnspeed, 7)
         closetoedge = edgedistance < slidedistance
 
         # Do a wavedash off
@@ -108,7 +108,7 @@ class Grabedge(Chain):
             self.interruptible = False
 
             # Should we shine?
-            canhit = globals.gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
+            canhit = self.gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
             if (smashbot_state.y < -15) or canhit:
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)

@@ -1,12 +1,11 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
 class SpotDodge(Chain):
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
 
         # Don't try to spot dodge in the air
         if not smashbot_state.on_ground:

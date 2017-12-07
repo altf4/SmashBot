@@ -1,5 +1,4 @@
 import melee
-import globals
 import random
 from melee.enums import Action, Button
 from Chains.chain import Chain
@@ -18,19 +17,15 @@ class Firefox(Chain):
         else:
             self.direction = direction
 
-        diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(globals.smashbot_state.x))
-        if diff_x > 50:
-            self.direction = FIREFOX(random.randint(1, 2))
-
     def getangle(self):
-        smashbot_state = globals.smashbot_state
+        smashbot_state = self.smashbot_state
 
         x = 0
         if smashbot_state.x < 0:
             x = 1
 
         # The point we grab the edge at is a little below the stage
-        diff_x = abs(melee.stages.edgeposition(globals.gamestate.stage) - abs(smashbot_state.x))
+        diff_x = abs(melee.stages.edgeposition(self.gamestate.stage) - abs(smashbot_state.x))
         diff_y = abs(smashbot_state.y + 5)
         larger_magnitude = max(diff_x, diff_y)
 
@@ -50,8 +45,8 @@ class Firefox(Chain):
         return x, y
 
     def step(self):
-        smashbot_state = globals.smashbot_state
-        controller = globals.controller
+        smashbot_state = self.smashbot_state
+        controller = self.controller
 
         # We're done here if...
         if smashbot_state.on_ground or smashbot_state.action in [Action.EDGE_CATCHING, Action.EDGE_HANGING]:
@@ -82,8 +77,9 @@ class Firefox(Chain):
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:
             self.interruptible = False
+            diff_x = abs(melee.stages.edgeposition(self.gamestate.stage) - abs(smashbot_state.x))
 
-            if self.direction == FIREFOX.HIGH:
+            if self.direction == FIREFOX.HIGH and diff_x < 50:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
             if self.direction == FIREFOX.MEDIUM and smashbot_state.y > -10:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, .5)

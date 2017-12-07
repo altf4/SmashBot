@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 from enum import Enum
@@ -15,8 +14,8 @@ class Illusion(Chain):
         self.length = length
 
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
 
         # Yea, the names are wrong here, deal with it. Maybe I'll fix it sometime
 

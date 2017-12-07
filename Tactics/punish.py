@@ -1,5 +1,4 @@
 import melee
-import globals
 import Chains
 import math
 from melee.enums import Action, Button, Character
@@ -9,9 +8,7 @@ from Chains.shffl import SHFFL_DIRECTION
 
 class Punish(Tactic):
     # How many frames do we have to work with for the punish
-    def framesleft():
-        opponent_state = globals.opponent_state
-
+    def framesleft(opponent_state, framedata):
         # For some dumb reason, the game shows the standing animation as having a large hitstun
         #   manually account for this
         if opponent_state.action == Action.STANDING:
@@ -58,10 +55,10 @@ class Punish(Tactic):
             return 1
 
         # Is opponent attacking?
-        if globals.framedata.isattack(opponent_state.character, opponent_state.action):
+        if framedata.isattack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
             # Windup / Attacking / Cooldown
-            attackstate = globals.framedata.attackstate_simple(opponent_state)
+            attackstate = framedata.attackstate_simple(opponent_state)
             if attackstate == melee.enums.AttackState.WINDUP:
                 # Don't try to punish opponent in windup when they're invulnerable
                 if opponent_state.invulnerability_left > 0:
@@ -69,15 +66,15 @@ class Punish(Tactic):
                 # Don't try to punish standup attack windup
                 if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
                     return 0
-                frame = globals.framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
+                frame = framedata.firsthitboxframe(opponent_state.character, opponent_state.action)
                 return max(0, frame - opponent_state.action_frame - 1)
             if attackstate == melee.enums.AttackState.ATTACKING:
                 return 0
             if attackstate == melee.enums.AttackState.COOLDOWN:
-                frame = globals.framedata.iasa(opponent_state.character, opponent_state.action)
+                frame = framedata.iasa(opponent_state.character, opponent_state.action)
                 return max(0, frame - opponent_state.action_frame)
-        if globals.framedata.isroll(opponent_state.character, opponent_state.action):
-            frame = globals.framedata.lastrollframe(opponent_state.character, opponent_state.action)
+        if framedata.isroll(opponent_state.character, opponent_state.action):
+            frame = framedata.lastrollframe(opponent_state.character, opponent_state.action)
             return max(0, frame - opponent_state.action_frame)
 
         # Opponent is in hitstun
@@ -92,8 +89,8 @@ class Punish(Tactic):
                 # When will they land?
                 speed = opponent_state.speed_y_attack + opponent_state.speed_y_self
                 height = opponent_state.y
-                gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
-                termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
+                gravity = framedata.characterdata[opponent_state.character]["Gravity"]
+                termvelocity = framedata.characterdata[opponent_state.character]["TerminalVelocity"]
                 count = 0
                 while height > 0:
                     height += speed
@@ -121,30 +118,28 @@ class Punish(Tactic):
             return 1
 
         # Opponent is in a B move
-        if globals.framedata.isbmove(opponent_state.character, opponent_state.action):
-            return globals.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+        if framedata.isbmove(opponent_state.character, opponent_state.action):
+            return framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
 
         return 1
 
     # Static function that returns whether we have enough time to run in and punish,
     # given the current gamestate. Either a shine or upsmash
-    def canpunish():
-        opponent_state = globals.opponent_state
-
+    def canpunish(smashbot_state, opponent_state, gamestate, framedata):
         # Can't punish opponent in shield
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if opponent_state.action in shieldactions:
             return False
 
-        if globals.smashbot_state.off_stage:
+        if smashbot_state.off_stage:
             return False
 
         firefox = opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.character in [Character.FOX, Character.FALCO]
         if firefox and opponent_state.y > 15:
             return False
 
-        left = Punish.framesleft()
+        left = Punish.framesleft(opponent_state, framedata)
         # Will our opponent be invulnerable for the entire punishable window?
         if left <= opponent_state.invulnerability_left:
             return False
@@ -152,7 +147,7 @@ class Punish(Tactic):
         if left < 1:
             return False
 
-        if globals.framedata.isroll(opponent_state.character, opponent_state.action):
+        if framedata.isroll(opponent_state.character, opponent_state.action):
             return True
 
         # Can we shine right now without any movement?
@@ -162,9 +157,9 @@ class Punish(Tactic):
 
         #TODO: Wrap the shine range into a helper
         foxshinerange = 11.8
-        inshinerange = globals.gamestate.distance < foxshinerange
+        inshinerange = gamestate.distance < foxshinerange
 
-        if inshinerange and globals.smashbot_state.action in shineablestates:
+        if inshinerange and smashbot_state.action in shineablestates:
             return True
 
         #TODO: Wrap this up into a helper
@@ -174,13 +169,13 @@ class Punish(Tactic):
         # We can only run for framesleft-1 frames, since we have to spend at least one attacking
         potentialrundistance = (left-1) * foxrunspeed
 
-        if globals.gamestate.distance - potentialrundistance < foxshinerange:
+        if gamestate.distance - potentialrundistance < foxshinerange:
             return True
         return False
 
     def step(self):
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step()
@@ -192,9 +187,9 @@ class Punish(Tactic):
             return
 
         # Can we charge an upsmash right now?
-        framesleft = Punish.framesleft()
-        if globals.logger:
-            globals.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
+        framesleft = Punish.framesleft(self.opponent_state, self.framedata)
+        if self.logger:
+            self.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
 
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
@@ -212,23 +207,23 @@ class Punish(Tactic):
             framesneeded += 3
 
         endposition = opponent_state.x
-        isroll = globals.framedata.isroll(opponent_state.character, opponent_state.action)
+        isroll = self.framedata.isroll(opponent_state.character, opponent_state.action)
         slideoff = False
 
         # If we have the time....
         if framesneeded <= framesleft:
             # Calculate where the opponent will end up
             if opponent_state.hitstun_frames_left > 0:
-                endposition = opponent_state.x + globals.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
+                endposition = opponent_state.x + self.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
 
             if isroll:
-                endposition = globals.framedata.endrollposition(opponent_state, globals.gamestate.stage)
+                endposition = self.framedata.endrollposition(opponent_state, self.gamestate.stage)
 
                 initialrollmovement = 0
                 facingchanged = False
                 try:
-                    initialrollmovement = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["locomotion_x"]
-                    facingchanged = globals.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["facing_changed"]
+                    initialrollmovement = self.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["locomotion_x"]
+                    facingchanged = self.framedata.framedata[opponent_state.character][opponent_state.action][opponent_state.action_frame]["facing_changed"]
                 except KeyError:
                      pass
                 backroll = opponent_state.action in [Action.ROLL_BACKWARD, Action.GROUND_ROLL_BACKWARD_UP, \
@@ -237,19 +232,19 @@ class Punish(Tactic):
                     initialrollmovement = -initialrollmovement
 
                 speed = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self - initialrollmovement
-                endposition += globals.framedata.slidedistance(opponent_state, speed, framesleft)
+                endposition += self.framedata.slidedistance(opponent_state, speed, framesleft)
 
                 # But don't go off the end of the stage
                 if opponent_state.action in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP, Action.NEUTRAL_TECH]:
-                    if abs(endposition) > melee.stages.edgegroundposition(globals.gamestate.stage):
+                    if abs(endposition) > melee.stages.edgegroundposition(self.gamestate.stage):
                         slideoff = True
-                endposition = max(endposition, -melee.stages.edgegroundposition(globals.gamestate.stage))
-                endposition = min(endposition, melee.stages.edgegroundposition(globals.gamestate.stage))
+                endposition = max(endposition, -melee.stages.edgegroundposition(self.gamestate.stage))
+                endposition = min(endposition, melee.stages.edgegroundposition(self.gamestate.stage))
 
 
             # And we're in range...
             # Take our sliding into account
-            slidedistance = globals.framedata.slidedistance(smashbot_state, smashbot_state.speed_ground_x_self, framesleft)
+            slidedistance = self.framedata.slidedistance(smashbot_state, smashbot_state.speed_ground_x_self, framesleft)
             smashbot_endposition = slidedistance + smashbot_state.x
 
             # Do we have to consider character pushing?
@@ -265,9 +260,9 @@ class Punish(Tactic):
                 else:
                     smashbot_endposition += 4.8
 
-            if globals.logger:
-                globals.logger.log("Notes", "endposition: " + str(endposition) + " ", concat=True)
-                globals.logger.log("Notes", "smashbot_endposition: " + str(smashbot_endposition) + " ", concat=True)
+            if self.logger:
+                self.logger.log("Notes", "endposition: " + str(endposition) + " ", concat=True)
+                self.logger.log("Notes", "smashbot_endposition: " + str(smashbot_endposition) + " ", concat=True)
 
             facing = smashbot_state.facing == (smashbot_endposition < endposition)
             # Remember that if we're turning, the attack will come out the opposite way
@@ -278,8 +273,8 @@ class Punish(Tactic):
             height = opponent_state.y
             firefox = opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.character in [Character.FOX, Character.FALCO]
             speed = opponent_state.speed_y_attack
-            gravity = globals.framedata.characterdata[opponent_state.character]["Gravity"]
-            termvelocity = globals.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
+            gravity = self.framedata.characterdata[opponent_state.character]["Gravity"]
+            termvelocity = self.framedata.characterdata[opponent_state.character]["TerminalVelocity"]
             if not opponent_state.on_ground and not firefox:
                 # Loop through each frame and count the distances
                 for i in range(framesleft):
@@ -300,7 +295,7 @@ class Punish(Tactic):
                 else:
                     # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
                     #   This shouldn't happen often, but can if we're pushed away after powershield
-                    offedge = melee.stages.edgegroundposition(globals.gamestate.stage) < abs(endposition)
+                    offedge = melee.stages.edgegroundposition(self.gamestate.stage) < abs(endposition)
                     if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
@@ -322,7 +317,7 @@ class Punish(Tactic):
         if smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
             framesneeded = 4
         foxshinerange = 11.8
-        if globals.gamestate.distance < foxshinerange:
+        if self.gamestate.distance < foxshinerange:
             if framesneeded <= framesleft:
                 # Also, don't shine someone in the middle of a roll
                 if (not isroll) or (opponent_state.action_frame < 3):
@@ -331,7 +326,7 @@ class Punish(Tactic):
                     #   Reduce the wavedash length
                     x = 1
                     # If we are really close to the edge, wavedash straight down
-                    if melee.stages.edgegroundposition(globals.gamestate.stage) - abs(smashbot_state.x) < 3:
+                    if melee.stages.edgegroundposition(self.gamestate.stage) - abs(smashbot_state.x) < 3:
                         x = 0
                     self.pickchain(Chains.Waveshine, [x])
                     return

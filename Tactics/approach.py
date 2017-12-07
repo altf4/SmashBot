@@ -1,5 +1,4 @@
 import melee
-import globals
 import Chains
 from melee.enums import Action, Button
 from Tactics.tactic import Tactic
@@ -11,7 +10,7 @@ class Approach(Tactic):
             self.chain.step()
             return
 
-        needswavedash = globals.smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
+        needswavedash = self.smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
             Action.DOWN_B_GROUND_START, Action.LANDING_SPECIAL, Action.SHIELD, Action.SHIELD_START, \
             Action.SHIELD_RELEASE, Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if needswavedash:
@@ -19,4 +18,4 @@ class Approach(Tactic):
             return
 
         self.chain = None
-        self.pickchain(Chains.DashDance, [globals.opponent_state.x])
+        self.pickchain(Chains.DashDance, [self.opponent_state.x])

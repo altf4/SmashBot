@@ -1,16 +1,11 @@
 import melee
-import globals
 import Chains
 import math
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 
 class Defend(Tactic):
-    def needsprojectiledefense():
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-        projectiles = globals.gamestate.projectiles
-
+    def needsprojectiledefense(smashbot_state, opponent_state, gamestate):
         if smashbot_state.invulnerability_left > 2:
             return False
 
@@ -20,7 +15,7 @@ class Defend(Tactic):
             return False
 
         # Loop through each projectile
-        for projectile in projectiles:
+        for projectile in gamestate.projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM and opponent_state.on_ground:
                 continue
             if projectile.subtype in [melee.enums.ProjectileSubtype.SHEIK_SMOKE, melee.enums.ProjectileSubtype.SHEIK_CHAIN ]:
@@ -61,12 +56,8 @@ class Defend(Tactic):
                     return True
         return False
 
-    def needsdefense():
+    def needsdefense(smashbot_state, opponent_state, gamestate, framedata):
         # Is opponent attacking?
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-        framedata = globals.framedata
-
         if smashbot_state.invulnerability_left > 2:
             return False
 
@@ -81,7 +72,7 @@ class Defend(Tactic):
             speed = 2.2
             if opponent_state.character == Character.FOX:
                 speed = 3.8
-            if (globals.gamestate.distance - 12) / speed < 3:
+            if (gamestate.distance - 12) / speed < 3:
                 return True
 
         # What state of the attack is the opponent in?
@@ -93,12 +84,12 @@ class Defend(Tactic):
             return False
 
         # We can't be grabbed while on the edge
-        if globals.framedata.isgrab(opponent_state.character, opponent_state.action) and \
+        if framedata.isgrab(opponent_state.character, opponent_state.action) and \
                 smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             return False
 
         # Will we be hit by this attack if we stand still?
-        hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        hitframe = framedata.inrange(opponent_state, smashbot_state, gamestate.stage)
         # Only defend on the edge if the hit is about to get us
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING] and hitframe > 2:
             return False
@@ -113,15 +104,15 @@ class Defend(Tactic):
             self.chain.step()
             return
 
-        opponent_state = globals.opponent_state
-        smashbot_state = globals.smashbot_state
-        projectiles = globals.gamestate.projectiles
-        framedata = globals.framedata
+        opponent_state = self.opponent_state
+        smashbot_state = self.smashbot_state
+        projectiles = self.gamestate.projectiles
+        framedata = self.framedata
 
         # Do we need to defend against a projectile?
         #   If there is a projectile, just assume that's why we're here.
         #   TODO: maybe we should re-calculate if this is what we're defending
-        if Defend.needsprojectiledefense():
+        if Defend.needsprojectiledefense(self.smashbot_state, self.opponent_state, self.gamestate):
             for projectile in projectiles:
                 # Don't consider a grapple beam a projectile. It doesn't have a hitbox
                 if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
@@ -131,7 +122,7 @@ class Defend(Tactic):
                             opponent_state.action in [Action.MARTH_COUNTER, Action.PARASOL_FALLING]:
                         #TODO: Make this a chain
                         self.chain = None
-                        globals.controller.press_button(Button.BUTTON_L)
+                        self.controller.press_button(Button.BUTTON_L)
                         return
                     else:
                         self.chain = None
@@ -140,7 +131,7 @@ class Defend(Tactic):
                 self.pickchain(Chains.Powershield)
                 return
 
-        hitframe = framedata.inrange(opponent_state, smashbot_state, globals.gamestate.stage)
+        hitframe = framedata.inrange(opponent_state, smashbot_state, self.gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
 
         # FireFox is different
@@ -151,20 +142,20 @@ class Defend(Tactic):
             speed = 2.2
             if opponent_state.character == Character.FOX:
                 speed = 3.8
-            if (globals.gamestate.distance - 12) / speed < 3:
+            if (self.gamestate.distance - 12) / speed < 3:
                 framesuntilhit = 0
 
         # Is the attack a grab? If so, spot dodge right away
-        if globals.framedata.isgrab(opponent_state.character, opponent_state.action):
+        if self.framedata.isgrab(opponent_state.character, opponent_state.action):
             if opponent_state.character != Character.SAMUS or framesuntilhit <= 2:
                 self.pickchain(Chains.SpotDodge)
                 return
 
-        if globals.logger:
-            globals.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
+        if self.logger:
+            self.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
 
         # Don't shine clank on the most optimal difficulty
-        if globals.difficulty >= 2:
+        if self.difficulty >= 2:
             # If the attack has exactly one hitbox, then try shine clanking to defend
             if framedata.hitboxcount(opponent_state.character, opponent_state.action) == 1:
                 # It must be the first frame of the attack
@@ -199,10 +190,10 @@ class Defend(Tactic):
                 # Dash right
                 pivotpoint += bufferzone
                 # But don't run off the edge
-                pivotpoint = min(melee.stages.edgegroundposition(globals.gamestate.stage)-5, pivotpoint)
+                pivotpoint = min(melee.stages.edgegroundposition(self.gamestate.stage)-5, pivotpoint)
             else:
                 # Dash Left
                 pivotpoint -= bufferzone
                 # But don't run off the edge
-                pivotpoint = max(-melee.stages.edgegroundposition(globals.gamestate.stage) + 5, pivotpoint)
+                pivotpoint = max(-melee.stages.edgegroundposition(self.gamestate.stage) + 5, pivotpoint)
             self.pickchain(Chains.DashDance, [pivotpoint])

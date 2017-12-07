@@ -1,14 +1,13 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
 # Edgestall
 class Edgestall(Chain):
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
-        opponent_state = globals.opponent_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
+        opponent_state = self.opponent_state
 
         # If we just grabbed the edge, wait
         if smashbot_state.action == Action.EDGE_CATCHING:

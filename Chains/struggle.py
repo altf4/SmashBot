@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Button
 from Chains.chain import Chain
 
@@ -7,10 +6,10 @@ from Chains.chain import Chain
 class Struggle(Chain):
     def step(self):
         # Just naively press and release every button every other frame
-        controller = globals.controller
+        controller = self.controller
 
         # Press every button
-        if globals.gamestate.frame % 2:
+        if self.gamestate.frame % 2:
             controller.press_button(Button.BUTTON_A);
             controller.press_button(Button.BUTTON_B);
             controller.press_button(Button.BUTTON_X);
@@ -28,15 +27,15 @@ class Struggle(Chain):
             controller.release_button(Button.BUTTON_R);
             controller.release_button(Button.BUTTON_Z);
 
-        if (globals.gamestate.frame % 4) == 0:
+        if (self.gamestate.frame % 4) == 0:
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             controller.tilt_analog(Button.BUTTON_C, .5, 0)
-        if (globals.gamestate.frame % 4) == 1:
+        if (self.gamestate.frame % 4) == 1:
             controller.tilt_analog(Button.BUTTON_MAIN, 1, .5)
             controller.tilt_analog(Button.BUTTON_C, 1, .5)
-        if (globals.gamestate.frame % 4) == 2:
+        if (self.gamestate.frame % 4) == 2:
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 1)
             controller.tilt_analog(Button.BUTTON_C, .5, 1)
-        if (globals.gamestate.frame % 4) == 3:
+        if (self.gamestate.frame % 4) == 3:
             controller.tilt_analog(Button.BUTTON_MAIN, 0, .5)
             controller.tilt_analog(Button.BUTTON_C, 0, .5)

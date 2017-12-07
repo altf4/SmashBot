@@ -1,5 +1,4 @@
 import melee
-import globals
 from melee.enums import Action, Button
 from Chains.chain import Chain
 from enum import Enum
@@ -16,8 +15,8 @@ class GrabAndThrow(Chain):
         self.direction = direction
 
     def step(self):
-        controller = globals.controller
-        smashbot_state = globals.smashbot_state
+        controller = self.controller
+        smashbot_state = self.smashbot_state
 
         self.interruptible = False
 
