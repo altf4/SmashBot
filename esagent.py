@@ -7,8 +7,8 @@ This is the "manually programmed" TAS-looking agent.
 Only plays Fox on FD.
 """
 class ESAgent():
-    def __init__(self, dolphin, smashbot_port, opponent_port):
-        self.gamestate = melee.gamestate.GameState(dolphin)
+    def __init__(self, dolphin, gamestate, smashbot_port, opponent_port):
+        self.gamestate = gamestate
         self.controller = melee.controller.Controller(port=smashbot_port, dolphin=dolphin)
         self.smashbot_state = self.gamestate.player[smashbot_port]
         self.opponent_state = self.gamestate.player[opponent_port]

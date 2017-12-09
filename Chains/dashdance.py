@@ -17,7 +17,11 @@ class DashDance(Chain):
         #TODO: Moonwalk protection
         if smashbot_state.moonwalkwarning and controller.prev.main_stick[0] != 0.5:
             controller.empty_input()
-            return;
+            return
+
+        if smashbot_state.action == Action.ON_HALO_WAIT:
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            return
 
         if smashbot_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
             roll = random.randint(0, 3)
