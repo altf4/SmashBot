@@ -38,17 +38,17 @@ class GrabAndThrow(Chain):
         # If we need to jump cancel, do it
         jcstates = [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         if (smashbot_state.action in jcstates) and smashbot_state.action_frame >= 3:
-            controller.press_button(Button.BUTTON_Y);
-            controller.release_button(Button.BUTTON_Z);
+            controller.press_button(Button.BUTTON_Y)
+            controller.release_button(Button.BUTTON_Z)
             return
 
         # Grab on knee bend
         if smashbot_state.action == Action.KNEE_BEND:
             # Let go of Z if we already had it pressed
             if controller.prev.button[Button.BUTTON_Z]:
-                controller.release_button(Button.BUTTON_Z);
+                controller.release_button(Button.BUTTON_Z)
                 return
-            controller.press_button(Button.BUTTON_Z);
+            controller.press_button(Button.BUTTON_Z)
             return
 
         # Do the throw
@@ -67,6 +67,6 @@ class GrabAndThrow(Chain):
         # Do the grab
         # Let go of Z if we already had it pressed
         if controller.prev.button[Button.BUTTON_Z]:
-            controller.release_button(Button.BUTTON_Z);
+            controller.release_button(Button.BUTTON_Z)
             return
-        controller.press_button(Button.BUTTON_Z);
+        controller.press_button(Button.BUTTON_Z)

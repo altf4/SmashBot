@@ -66,7 +66,7 @@ class Wavedash(Chain):
             x = (self.distance / 2) + .5
             if onleft != self.towards:
                 x = -x
-            controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
+            controller.tilt_analog(Button.BUTTON_MAIN, x, .2)
             return
 
         # If we're sliding and have shined, then we're all done here

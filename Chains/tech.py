@@ -29,15 +29,15 @@ class Tech(Chain):
             return
 
         if self.direction == TECH_DIRECTION.TECH_IN_PLACE:
-            controller.press_button(Button.BUTTON_L);
+            controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)
             return
         elif self.direction == TECH_DIRECTION.TECH_FORWARD:
-            controller.press_button(Button.BUTTON_L);
+            controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.facing), .5)
             return
         elif self.direction == TECH_DIRECTION.TECH_BACK:
-            controller.press_button(Button.BUTTON_L);
+            controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
             return
 

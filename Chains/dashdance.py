@@ -38,12 +38,12 @@ class DashDance(Chain):
         # If we're in spotdodge or shield, do nothing
         if smashbot_state.action in [Action.SPOTDODGE, Action.SHIELD_RELEASE]:
             controller.empty_input()
-            return;
+            return
 
         # If we're stuck wavedashing, just hang out and do nothing
         if smashbot_state.action == Action.LANDING_SPECIAL and smashbot_state.action_frame < 28:
             controller.empty_input()
-            return;
+            return
 
         #If we're walking, stop for a frame
         #Also, if we're shielding, don't try to dash. We will accidentally roll
@@ -54,24 +54,24 @@ class DashDance(Chain):
             smashbot_state.action == Action.SHIELD_REFLECT or \
             smashbot_state.action == Action.SHIELD:
                 controller.empty_input()
-                return;
+                return
 
         #If we're starting the turn around animation, keep pressing that way or
         #   else we'll get stuck in the slow turnaround
         if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
-            return;
+            return
 
         #Dash back, since we're about to start running
         # #Action.FOX_DASH_FRAMES
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
-                controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
-                return;
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+                return
 
         #We can't dash IMMEDIATELY after landing. So just chill for a bit
         if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 2) or \
             not smashbot_state.on_ground:
-                controller.empty_input();
-                return;
+                controller.empty_input()
+                return
 
         #Don't run off the stage
         if abs(smashbot_state.x) > \
@@ -79,18 +79,18 @@ class DashDance(Chain):
                 x = 0
                 if smashbot_state.x < 0:
                     x = 1
-                controller.tilt_analog(melee.Button.BUTTON_MAIN, x, .5);
-                return;
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, x, .5)
+                return
 
         #Are we outside the given radius of dash dancing?
         if smashbot_state.x < self.pivotpoint - self.radius:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5);
-            return;
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
+            return
 
         if smashbot_state.x > self.pivotpoint + self.radius:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5);
-            return;
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
+            return
 
         #Keep running the direction we're going
-        controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
-        return;
+        controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+        return

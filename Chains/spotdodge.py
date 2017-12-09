@@ -16,7 +16,7 @@ class SpotDodge(Chain):
         # If we're shielding, do the spot dodge
         if smashbot_state.action == Action.SHIELD_REFLECT:
             self.interruptible = False
-            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0);
+            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             return
 
         # Let go once we're in the spotdodge
@@ -32,5 +32,5 @@ class SpotDodge(Chain):
             return
 
         self.interruptible = False
-        controller.press_button(Button.BUTTON_L);
-        controller.tilt_analog(Button.BUTTON_MAIN, .5, .5);
+        controller.press_button(Button.BUTTON_L)
+        controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)

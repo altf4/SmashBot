@@ -37,8 +37,8 @@ class Waveshine(Chain):
         # Do the shine if we can
         if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine):
             self.interruptible = False
-            controller.press_button(Button.BUTTON_B);
-            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0);
+            controller.press_button(Button.BUTTON_B)
+            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             self.hasshined = True
             return
 
@@ -51,9 +51,9 @@ class Waveshine(Chain):
         if smashbot_state.action == Action.DASHING:
             # Turn around
             self.interruptible = True
-            controller.release_button(Button.BUTTON_B);
-            controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5);
-            return;
+            controller.release_button(Button.BUTTON_B)
+            controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+            return
 
         isInShineStart = smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         isinshield = smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD]
@@ -107,7 +107,7 @@ class Waveshine(Chain):
             x = (self.distance / 2) + .5
             if not direction:
                 x = -x
-            controller.tilt_analog(Button.BUTTON_MAIN, x, .2);
+            controller.tilt_analog(Button.BUTTON_MAIN, x, .2)
             return
 
         # If we're sliding and have shined, then we're all done here

@@ -33,7 +33,7 @@ class Powershield(Chain):
         if self.hold:
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
-            controller.press_button(Button.BUTTON_L);
+            controller.press_button(Button.BUTTON_L)
             return
 
         # We're done if we are in shield release
@@ -61,7 +61,7 @@ class Powershield(Chain):
 
         if not isshielding:
             self.interruptible = False
-            controller.press_button(Button.BUTTON_L);
+            controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             return
 

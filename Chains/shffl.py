@@ -22,7 +22,7 @@ class Shffl(Chain):
         # If we're in knee bend, let go of jump. But move toward opponent
         if smashbot_state.action == Action.KNEE_BEND:
             self.interruptible = False
-            controller.release_button(Button.BUTTON_Y);
+            controller.release_button(Button.BUTTON_Y)
             jumpdirection = 1
             if opponent_state.x < smashbot_state.x:
                 jumpdirection = 0
