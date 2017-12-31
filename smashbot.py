@@ -4,9 +4,9 @@ import argparse
 import signal
 import sys
 import pylab
-
+import time
 from esagent import ESAgent
-from a2cagent import A2CAgent
+from a2cagent import A2CAgent, Observation
 
 def check_port(value):
     ivalue = int(value)
@@ -120,7 +120,7 @@ while True:
         if args.learning:
 
             # Batch up the experience we just learned for training later
-            current_state = gamestate.tolist()
+            current_state = Observation(gamestate.tolist())
 
             current_score = agent1.getscore()
             reward = current_score - prev_score
@@ -138,7 +138,7 @@ while True:
             prev_action = agent1.act()
 
             # Remember the previous state
-            prev_state = gamestate.tolist()
+            prev_state = Observation(gamestate.tolist())
             prev_score = agent1.getscore()
 
         else:
@@ -170,8 +170,8 @@ while True:
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
 
-        if agent1.opponent_state.controller_status != melee.enums.ControllerStatus.CONTROLLER_CPU \
-                or agent1.opponent_state.character != melee.enums.Character.CPTFALCON:
+        if args.learning and (agent1.opponent_state.controller_status != melee.enums.ControllerStatus.CONTROLLER_CPU \
+                or agent1.opponent_state.character != melee.enums.Character.CPTFALCON):
             melee.menuhelper.changecontrollerstatus(controller=agent1.controller,
                                                     gamestate=gamestate,
                                                     targetport=args.opponent,
