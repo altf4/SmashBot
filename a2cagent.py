@@ -3,17 +3,19 @@ import numpy as np
 import random
 import gym
 import pylab
+from pathlib import Path
 from PIL import Image
 from collections import deque
-from keras.models import Sequential, Model
+
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, Activation, Input, Add, Dropout, Conv2D, Concatenate, Flatten, MaxPooling2D
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard
 
-import time
-
 stage_sprite = np.array(Image.open("sprites/final_destination.png")).reshape((328,500,1))
-character_sprite = np.array(Image.open("sprites/character.png")).reshape((14,8,1))
+character_sprite = np.array(Image.open("sprites/character.png"))
+character_sprite[character_sprite == 0] = 1
+character_sprite[character_sprite == 255] = 0
 
 """
 Helpful wrapper class for actions taken by the A2C agent
@@ -150,9 +152,9 @@ class Observation():
         #
         # # Next, draw on the characters
         smashbot_x = gamestate_array[2] + 246 # x
-        smashbot_y = self.height - (gamestate_array[3] + 188 + 4) # y
+        smashbot_y = self.height - (gamestate_array[3] + 188 + 14) # y
         opponent_x = gamestate_array[16+2] + 246 # x
-        opponent_y = self.height - (gamestate_array[16+3] + 188 + 4) # y
+        opponent_y = self.height - (gamestate_array[16+3] + 188 + 14) # y
         #
         # n = [3]
         # character_sprite = [ [n,n,n,n,n,[0],[0],[0]],
@@ -175,6 +177,13 @@ class Observation():
             smashbot_sprite = np.flip(character_sprite, 1)
         if not bool(gamestate_array[13+6]): # facing
             opponent_sprite = np.flip(character_sprite, 1)
+        # Change the values of the two character sprites
+        smashbot_sprite[smashbot_sprite > 0] = 1
+        smashbot_sprite[smashbot_sprite > 2] = 0
+        opponent_sprite[opponent_sprite > 0] = 2
+        opponent_sprite[opponent_sprite > 2] = 0
+        smashbot_sprite = smashbot_sprite.reshape((14,8,1))
+        opponent_sprite = opponent_sprite.reshape((14,8,1))
 
         # Draw on the sprites
         x = int(smashbot_x)
@@ -186,8 +195,44 @@ class Observation():
 
         # Add them all togethers
         self.screen = np.sum([self.screen, stage_sprite], axis=0, dtype=np.uint8)
-        # img = Image.fromarray(self.screen)
-        # img.show()
+
+    def __str__(self):
+        """
+        Get a string representation of the rest of the gamestate other than the screen
+        """
+        retstring = "smashbot x: " + str(self.gamestate_array[2]) + "\n"
+        retstring += "smashbot y: " + str(self.gamestate_array[3]) + "\n"
+        retstring += "smashbot action: " + str(melee.enums.Action(self.gamestate_array[7])) + "\n"
+
+        retstring += "opponent x: " + str(self.gamestate_array[16+2]) + "\n"
+        retstring += "opponent y: " + str(self.gamestate_array[16+3]) + "\n"
+        retstring += "opponent action: " + str(melee.enums.Action(self.gamestate_array[16+7])) + "\n"
+        return retstring
+
+    def getscreenimage(self):
+        """
+        Returns an image object that represents the current screen state
+            Converted to RGB
+            Useful for debugging, it's a good visualization
+        """
+        # Make a RGB copy of the screen array
+        rgbscreen = np.zeros((328,500,3), dtype=np.uint8)
+
+        # Paint on the stage
+        for y, column in enumerate(self.screen):
+            for x, pixel in enumerate(column):
+                if pixel[0] == 255:
+                    rgbscreen[y][x] = [255, 255, 255]
+                if pixel[0] == 1:
+                    rgbscreen[y][x] = [0, 255, 0]
+                if pixel[0] == 2:
+                    rgbscreen[y][x] = [255, 0, 0]
+
+        # Colorize the different elements for easier viewing
+        image = Image.fromarray(rgbscreen, mode='RGB')
+        #image = Image.open(screen, mode='RGB')
+
+        return image
 
     def getfeatures(self):
         """
@@ -231,7 +276,7 @@ class Observation():
 A2C (Advantage Actor-Critic) agent
 """
 class A2CAgent():
-    def __init__(self, dolphin, gamestate, smashbot_port, opponent_port, tensorboard=True):
+    def __init__(self, dolphin, gamestate, smashbot_port, opponent_port, load=True, tensorboard=True):
         self.gamestate = gamestate
         self.controller = melee.controller.Controller(port=smashbot_port, dolphin=dolphin)
         self.smashbot_state = self.gamestate.player[smashbot_port]
@@ -319,6 +364,13 @@ class A2CAgent():
         self.critic_model.compile(optimizer=Adam(lr=self.critic_learning_rate), loss='mse')
         print(self.critic_model.summary())
 
+        if load:
+            if Path("Logs/actor_model.h5").is_file() and Path("Logs/critic_model.h5").is_file():
+                self.load()
+                print("Loaded model from file.")
+            else:
+                print("Couln't load model files. They don't exist?")
+
     def train(self):
         """
         Train the deep q-learning network.
@@ -404,8 +456,8 @@ class A2CAgent():
         Ask the next action from the agent
         """
         # Get actions from the actor model
-        npstate = Observation(self.gamestate.tolist())
-        screen, action, misc = npstate.getfeatures()
+        state = Observation(self.gamestate.tolist())
+        screen, action, misc = state.getfeatures()
         button_output, stick_x_output, stick_y_output = self.actor_model.predict([screen, action, misc])
 
         action = Action(np.argmax(button_output),
@@ -425,6 +477,15 @@ class A2CAgent():
 
         # Return the result
         return action
+
+    def value(self):
+        """
+        Get the expected value given the current gamestate
+        """
+        state = Observation(self.gamestate.tolist())
+        screen, action, misc = state.getfeatures()
+        value = self.critic_model.predict([screen, action, misc])
+        return value[0][0]
 
     def getstate(self):
         """
@@ -456,6 +517,13 @@ class A2CAgent():
     def getscore(self):
         p1score = self.smashbot_state.stock - ((self.smashbot_state.percent)/999)**(1./3.)
         p2score = self.opponent_state.stock - ((self.opponent_state.percent)/999)**(1./3.)
+
+        # Has the match ended?
+        if self.smashbot_state.stock == 0:
+            return -4
+        if self.opponent_state.stock == 0:
+            return 4
+
         return p1score - p2score
 
     def save(self):
@@ -463,5 +531,5 @@ class A2CAgent():
         self.critic_model.save('Logs/critic_model.h5')
 
     def load(self):
-        self.actor_model.load('Logs/actor_model.h5')
-        self.critic_model.load('Logs/critic_model.h5')
+        self.actor_model = load_model('Logs/actor_model.h5')
+        self.critic_model = load_model('Logs/critic_model.h5')

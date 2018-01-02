@@ -61,7 +61,7 @@ agent1 = None
 agent2 = None
 
 if args.learning:
-    agent1 = A2CAgent(dolphin, gamestate, args.port, args.opponent)
+    agent1 = A2CAgent(dolphin, gamestate, args.port, args.opponent, load=True)
 else:
     agent1 = ESAgent(dolphin, gamestate, args.port, args.opponent)
 
@@ -109,6 +109,7 @@ prev_score = 0
 scores = []
 episodes = []
 episode = 0
+done = False
 
 #Main loop
 while True:
@@ -117,7 +118,7 @@ while True:
 
     #What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        if args.learning:
+        if args.learning and not done:
 
             # Batch up the experience we just learned for training later
             current_state = Observation(gamestate.tolist())
@@ -125,7 +126,7 @@ while True:
             current_score = agent1.getscore()
             reward = current_score - prev_score
 
-            done = current_score >= 4
+            done = abs(current_score) >= 4
 
             if prev_action and prev_state:
                 agent1.batchexperience(prev_state, prev_action, reward, current_state, done)
@@ -139,7 +140,8 @@ while True:
 
             # Remember the previous state
             prev_state = Observation(gamestate.tolist())
-            prev_score = agent1.getscore()
+            if not done:
+                prev_score = agent1.getscore()
 
         else:
             #The agent's "step" will cascade all the way down the objective hierarchy
@@ -196,6 +198,7 @@ while True:
                                                 start=False)
     #If we're at the postgame scores screen, spam START
     elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
+        done = False
         # Just do this once during the postgame
         if args.learning and gamestate.frame == 10:
             scores.append(prev_score)
