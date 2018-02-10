@@ -36,10 +36,6 @@ class Infinite(Tactic):
     def caninfinite(smashbot_state, opponent_state, gamestate, framedata, difficulty):
         isroll = framedata.isroll(opponent_state.character, opponent_state.action)
 
-        # Only infinite on difficulty 1, 2, and 3
-        if difficulty > 3:
-            return False
-
         if opponent_state.action in [Action.SHIELD_START, Action.SHIELD, \
                 Action.SHIELD_STUN, Action.SHIELD_REFLECT]:
             return False

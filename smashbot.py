@@ -127,7 +127,7 @@ while True:
                                         opponent_port=args.opponent,
                                         controller=agent1.controller,
                                         swag=True,
-                                        start=True)
+                                        start=False)
         if agent2:
             melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
                                             gamestate=gamestate,
