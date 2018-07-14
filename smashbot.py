@@ -105,8 +105,6 @@ while True:
         if gamestate.stage != melee.enums.Stage.FINAL_DESTINATION:
             melee.techskill.multishine(ai_state=agent1.smashbot_state, controller=agent1.controller)
         elif agent1.opponent_state.character not in supportedcharacters:
-            print(agent1.smashbot_state.x, agent1.smashbot_state.y)
-            print(agent2.smashbot_state.x, agent2.smashbot_state.y)
             melee.techskill.multishine(ai_state=agent1.smashbot_state, controller=agent1.controller)
         else:
             try:
