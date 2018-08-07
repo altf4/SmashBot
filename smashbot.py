@@ -1,8 +1,9 @@
 #!/usr/bin/python3
-import melee
 import argparse
 import signal
 import sys
+
+import melee
 
 from esagent import ESAgent
 
