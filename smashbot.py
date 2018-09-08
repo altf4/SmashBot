@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-import melee
 import argparse
+import os
 import signal
 import sys
+
+import melee
 
 from esagent import ESAgent
 
@@ -12,6 +14,31 @@ def check_port(value):
          raise argparse.ArgumentTypeError("%s is an invalid controller port. \
          Must be 1, 2, 3, or 4." % value)
     return ivalue
+
+def is_dir(dirname):
+    """Checks if a path is an actual directory"""
+    if not os.path.isdir(dirname):
+        msg = "{0} is not a directory".format(dirname)
+        raise argparse.ArgumentTypeError(msg)
+    else:
+        return dirname
+
+def is_executable(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    msg = "{0} is not a directory".format(program)
+    raise argparse.ArgumentTypeError(msg)
 
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--port', '-p', type=check_port,
@@ -29,6 +56,10 @@ parser.add_argument('--difficulty', '-i', type=int,
                     help='Manually specify difficulty level of SmashBot')
 parser.add_argument('--nodolphin', '-n', action='store_true',
                     help='Don\'t run dolphin, (it is already running))')
+parser.add_argument('--dolphinexecutable', '-e', type=is_executable,
+                    help='Manually specify Dolphin executable')
+parser.add_argument('--configdir', '-c', type=is_dir,
+                    help='Manually specify the Dolphin config directory to use')
 
 args = parser.parse_args()
 
@@ -71,7 +102,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 #Run dolphin and render the output
 if not args.nodolphin:
-    dolphin.run(render=True)
+    dolphin.run(render=True, dolphin_executable_path=args.dolphinexecutable, dolphin_config_path=args.configdir)
 
 #Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
