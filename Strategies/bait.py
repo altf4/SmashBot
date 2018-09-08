@@ -100,7 +100,7 @@ class Bait(Strategy):
             self.picktactic(Tactics.Pressure)
             return
 
-        if Retreat.shouldretreat(self.smashbot_state, self.opponent_state):
+        if Retreat.shouldretreat(self.smashbot_state, self.opponent_state, self.gamestate):
             self.picktactic(Tactics.Retreat)
             return
 

@@ -4,7 +4,7 @@ from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Retreat(Tactic):
-    def shouldretreat(smashbot_state, opponent_state):
+    def shouldretreat(smashbot_state, opponent_state, gamestate):
         if smashbot_state.invulnerability_left > 1:
             return False
 
@@ -35,6 +35,12 @@ class Retreat(Tactic):
         if opponent_state.speed_y_self < 0 and not opponent_state.on_ground and smashbot_state.action in shieldactions:
             return True
 
+        # If there's a Samus bomb between us and opponent
+        for projectile in gamestate.projectiles:
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
+                if smashbot_state.x < projectile.x < opponent_state.x or smashbot_state.x > projectile.x > opponent_state.x:
+                    return True
+
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
             return True
 
@@ -56,6 +62,16 @@ class Retreat(Tactic):
         bufferzone = 30
         if self.opponent_state.character == Character.SHEIK and self.opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             bufferzone = 55
+
+        # Samus bomb?
+        samus_bomb = False
+        for projectile in self.gamestate.projectiles:
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
+                if self.smashbot_state.x < projectile.x < self.opponent_state.x or self.smashbot_state.x > projectile.x > self.opponent_state.x:
+                    samus_bomb = True
+        if samus_bomb:
+            bufferzone = 60
+
         onright = self.opponent_state.x < self.smashbot_state.x
         if not onright:
             bufferzone *= -1
