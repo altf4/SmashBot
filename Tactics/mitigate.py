@@ -46,7 +46,7 @@ class Mitigate(Tactic):
             return
 
         # Smash DI
-        if smashbot_state.hitlag_frames_left > 0:
+        if smashbot_state.hitlag > 0:
             # Alternate each frame
             x = 0.5
             y = 0.5
