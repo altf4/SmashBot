@@ -31,13 +31,13 @@
 
     **Chains** are the lowest level of objective that consists of a "chain" of button presses that Smashers will recognize, such as Wavedash, Jump-canceled Upsmash, etc...
 
-5. **Can I play SmashBot on a regular Gamecube or hacked Wii?**
+5. **Can I play SmashBot on a regular GameCube or hacked Wii?**
 
-    For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator) But I do want to get it running on actual Gamecube/Wii hardware. If you'd like to help with this, let me know!
+    For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator)
 
 6. **What Operating Systems does it play on?**
 
-    SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. If you'd like there to be Windows support, feel free to take a look at the Issues section here on Github.
+    SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. If you'd like there to be Windows support, feel free to take a look at the Issues section here on GitHub.
 
 7. **I found a bug. How can I help?**
 
@@ -50,20 +50,22 @@
 `sudo pip3 install melee`.
 
 2. Install the Dolphin version here:
-https://github.com/altf4/dolphin/tree/memorywatcher-rebased
-This contains an important update to allow Dolphin to be able to read projectile information from Melee. Unfortunately, you'll have to build this from source until they accept my Pull Request:
-https://github.com/dolphin-emu/dolphin/pull/4407
+https://github.com/altf4/dolphin/
+This contains some important code not included in mainline dolphin that lets
+ libmelee read projectiles. Without it, you can't really play the full game. At this
+ point, it's unlikely that it'll ever be included into mainline dolphin, which
+ is unfortunate.
 
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 
 4. If you want to play interactively with or against your AI, you'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI
 
-5. If you're using a GameCube Adapter, make sure to install the drivers / confugure the udev rules, as described here:
+5. If you're using a GameCube Adapter, make sure to install the drivers / configure the udev rules, as described here:
 https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 
-6. Apply the latest `Melee Netplay Community Settings` Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. (Long story) You will need to enable cheat codes in Dolphin by choosing `Config->General Tab->Enable Cheats` Then right click on the Melee game at the Dolphin home screen and go to `Properties->Gecko Codes` to find the Gecko Code list.
+6. Apply the latest `Melee Netplay Community Settings` Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. ([Long story](https://youtu.be/_0Z_oN_CZyA?t=1734)) You will need to enable cheat codes in Dolphin by choosing `Config->General Tab->Enable Cheats` Then right click on the Melee game at the Dolphin home screen and go to `Properties->Gecko Codes` to find the Gecko Code list.
 
-7. Apply `Press Y to toggle frozen stages` Gecko Code. If you want to play on Pokemon Stadium, use the frozen version.
+7. Apply `Press Y to toggle frozen stages` Gecko Code. If you want to play on Pokemon Stadium, use the frozen version. Other Gecko codes might mess SmashBot up though, so don't enable too many other ones.
 
 8. Run `smashbot.py`
 
