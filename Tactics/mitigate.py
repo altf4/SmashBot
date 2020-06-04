@@ -5,9 +5,9 @@ from melee.enums import Action, Button
 from Tactics.tactic import Tactic
 
 class Mitigate(Tactic):
-    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
-        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
-        self.randomdi = random.randint(0, 1)
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
+        self.random_di = random.randint(0, 1)
 
     def needsmitigation(smashbot_state):
         # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
@@ -30,14 +30,13 @@ class Mitigate(Tactic):
 
         return False
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
-
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
 
         # Did we get grabbed?
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
@@ -50,7 +49,7 @@ class Mitigate(Tactic):
             # Alternate each frame
             x = 0.5
             y = 0.5
-            if bool(self.gamestate.frame % 2):
+            if bool(gamestate.frame % 2):
                 # If we're off the stage, DI up and in
                 if smashbot_state.off_stage:
                     y = 1
@@ -115,11 +114,11 @@ class Mitigate(Tactic):
             self.pickchain(Chains.DI, [x, y])
             return
         if smashbot_state.action == Action.TUMBLING:
-            x = self.gamestate.frame % 2
+            x = gamestate.frame % 2
             self.chain = None
             self.pickchain(Chains.DI, [x, 0.5])
             return
 
         # DI randomly as a fallback
-        self.pickchain(Chains.DI, [self.randomdi, 0.5])
+        self.pickchain(Chains.DI, [self.random_di, 0.5])
         return

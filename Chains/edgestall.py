@@ -4,10 +4,8 @@ from Chains.chain import Chain
 
 # Edgestall
 class Edgestall(Chain):
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
 
         # If we just grabbed the edge, wait
         if smashbot_state.action == Action.EDGE_CATCHING:

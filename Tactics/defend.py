@@ -98,21 +98,20 @@ class Defend(Tactic):
 
         return False
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
-        opponent_state = self.opponent_state
-        smashbot_state = self.smashbot_state
-        projectiles = self.gamestate.projectiles
+        projectiles = gamestate.projectiles
         framedata = self.framedata
 
         # Do we need to defend against a projectile?
         #   If there is a projectile, just assume that's why we're here.
         #   TODO: maybe we should re-calculate if this is what we're defending
-        if Defend.needsprojectiledefense(self.smashbot_state, self.opponent_state, self.gamestate):
+        if Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate):
             for projectile in projectiles:
                 # Don't consider a grapple beam a projectile. It doesn't have a hitbox
                 if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_GRAPPLE_BEAM:
@@ -131,7 +130,7 @@ class Defend(Tactic):
                 self.pickchain(Chains.Powershield)
                 return
 
-        hitframe = framedata.inrange(opponent_state, smashbot_state, self.gamestate.stage)
+        hitframe = framedata.inrange(opponent_state, smashbot_state, gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
 
         # FireFox is different
@@ -142,7 +141,7 @@ class Defend(Tactic):
             speed = 2.2
             if opponent_state.character == Character.FOX:
                 speed = 3.8
-            if (self.gamestate.distance - 12) / speed < 3:
+            if (gamestate.distance - 12) / speed < 3:
                 framesuntilhit = 0
 
         # Is the attack a grab? If so, spot dodge right away
@@ -190,10 +189,10 @@ class Defend(Tactic):
                 # Dash right
                 pivotpoint += bufferzone
                 # But don't run off the edge
-                pivotpoint = min(melee.stages.edgegroundposition(self.gamestate.stage)-5, pivotpoint)
+                pivotpoint = min(melee.stages.edgegroundposition(gamestate.stage)-5, pivotpoint)
             else:
                 # Dash Left
                 pivotpoint -= bufferzone
                 # But don't run off the edge
-                pivotpoint = max(-melee.stages.edgegroundposition(self.gamestate.stage) + 5, pivotpoint)
+                pivotpoint = max(-melee.stages.edgegroundposition(gamestate.stage) + 5, pivotpoint)
             self.pickchain(Chains.DashDance, [pivotpoint])

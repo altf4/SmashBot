@@ -5,8 +5,8 @@ from melee.enums import Character, Action
 
 # Dash dance a just a little outside our opponont's range
 class KeepDistance(Tactic):
-    def getbufferzone(self):
-        character = self.opponent_state.character
+    def _getbufferzone(self, opponent_state):
+        character = opponent_state.character
         bufferzone = 30
         if character == Character.FOX:
             bufferzone = 18
@@ -33,24 +33,23 @@ class KeepDistance(Tactic):
         if self.difficulty > 2:
             bufferzone = 0
         # Stay a little further out if they're invulnerable
-        if self.opponent_state.invulnerability_left > 0:
+        if opponent_state.invulnerability_left > 0:
             bufferzone += 20
 
         # If opponent is in a dead fall, just get in there
-        if self.opponent_state.action == Action.DEAD_FALL:
+        if opponent_state.action == Action.DEAD_FALL:
             bufferzone = 0
 
         return bufferzone
 
-    def step(self):
-        opponent_state = self.opponent_state
-        smashbot_state = self.smashbot_state
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
 
-        bufferzone = self.getbufferzone()
+        bufferzone = self._getbufferzone(opponent_state)
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
         # if we have our opponent cornered, reduce the edgebuffer
-        edge = melee.stages.edgegroundposition(self.gamestate.stage)
+        edge = melee.stages.edgegroundposition(gamestate.stage)
         if opponent_state.x < smashbot_state.x < 0 or \
                 0 < smashbot_state.x < opponent_state.x:
             edgebuffer = 10

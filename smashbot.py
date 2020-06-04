@@ -3,6 +3,7 @@ import argparse
 import os
 import signal
 import sys
+import time
 
 import melee
 
@@ -23,23 +24,6 @@ def is_dir(dirname):
     else:
         return dirname
 
-def is_executable(program):
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    msg = "{0} is not a directory".format(program)
-    raise argparse.ArgumentTypeError(msg)
-
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--port', '-p', type=check_port,
                     help='The controller port your AI will play on',
@@ -56,10 +40,12 @@ parser.add_argument('--difficulty', '-i', type=int,
                     help='Manually specify difficulty level of SmashBot')
 parser.add_argument('--nodolphin', '-n', action='store_true',
                     help='Don\'t run dolphin, (it is already running))')
-parser.add_argument('--dolphinexecutable', '-e', type=is_executable,
+parser.add_argument('--dolphinexecutable', '-e', type=is_dir,
                     help='Manually specify Dolphin executable')
 parser.add_argument('--configdir', '-c', type=is_dir,
                     help='Manually specify the Dolphin config directory to use')
+parser.add_argument('--address', '-a', default="",
+                    help='IP address of Slippi/Wii')
 
 args = parser.parse_args()
 
@@ -75,22 +61,30 @@ opponent_type = melee.enums.ControllerType.STANDARD
 if not args.bot:
     opponent_type = melee.enums.ControllerType.GCN_ADAPTER
 
-#Create our Dolphin object. This will be the primary object that we will interface with
-dolphin = melee.dolphin.Dolphin(ai_port=args.port,
+#Create our console object. This will be the primary object that we will interface with
+console = melee.console.Console(ai_port=args.port,
+                                is_dolphin=True,
                                 opponent_port=args.opponent,
                                 opponent_type=opponent_type,
+                                dolphin_executable_path=args.dolphinexecutable,
                                 logger=log)
 
-gamestate = melee.gamestate.GameState(dolphin)
+# If not set by the user, this will be an empty string, which will trigger
+#   an autodiscover process
+console.slippi_address = args.address
+
+controller_one = melee.controller.Controller(port=args.port, console=console)
+controller_two = None
 
 #initialize our agent
-agent1 = ESAgent(dolphin, gamestate, args.port, args.opponent)
+agent1 = ESAgent(console, args.port, args.opponent, controller_one)
 agent2 = None
 if args.bot:
-    agent2 = ESAgent(dolphin, gamestate, args.opponent, args.port)
+    controller_two = melee.controller.Controller(port=args.opponent, console=console)
+    agent2 = ESAgent(console, args.opponent, args.port, controller_two)
 
 def signal_handler(signal, frame):
-    dolphin.terminate()
+    console.stop()
     if args.debug:
         log.writelog()
         print("") #because the ^C will be on the terminal
@@ -102,15 +96,25 @@ signal.signal(signal.SIGINT, signal_handler)
 
 #Run dolphin and render the output
 if not args.nodolphin:
-    dolphin.run(render=True, dolphin_executable_path=args.dolphinexecutable, dolphin_config_path=args.configdir)
+    console.run()
+    time.sleep(1)
+
+
+# Connect to the console
+print("Connecting to console...")
+if not console.connect():
+    print("ERROR: Failed to connect to the console.")
+    print("\tIf you're trying to autodiscover, local firewall settings can " +
+        "get in the way. Try specifying the address manually.")
+    sys.exit(-1)
 
 #Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
 #   NOTE: If you're loading a movie file, don't connect the controller,
 #   dolphin will hang waiting for input and never receive it
-agent1.controller.connect()
-if agent2:
-    agent2.controller.connect()
+controller_one.connect()
+if controller_two:
+    controller_two.connect()
 
 supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
@@ -119,7 +123,7 @@ supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFAL
 #Main loop
 while True:
     #"step" to the next frame
-    gamestate.step()
+    gamestate = console.step()
 
     #What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
@@ -129,24 +133,30 @@ while True:
             if agent2:
                 agent2.difficulty = int(args.difficulty)
         else:
-            agent1.difficulty = agent1.smashbot_state.stock
+            agent1.difficulty = gamestate.player[agent1.smashbot_port].stock
             if agent2:
-                agent2.difficulty = agent2.smashbot_state.stock
+                agent2.difficulty = gamestate.player[agent2.smashbot_port].stock
 
         if gamestate.stage != melee.enums.Stage.FINAL_DESTINATION:
-            melee.techskill.multishine(ai_state=agent1.smashbot_state, controller=agent1.controller)
-        elif agent1.opponent_state.character not in supportedcharacters:
-            melee.techskill.multishine(ai_state=agent1.smashbot_state, controller=agent1.controller)
+            melee.techskill.multishine(ai_state=gamestate.player[agent1.smashbot_port],
+                                       controller=agent1.controller)
+        elif gamestate.player[agent1.smashbot_port].character not in supportedcharacters:
+            melee.techskill.multishine(ai_state=gamestate.player[agent1.smashbot_port],
+                                       controller=agent1.controller)
         else:
-            try:
-                agent1.act()
-                if agent2:
-                    agent2.act()
-            except Exception as error:
-                # Do nothing in case of error thrown!
-                controller.empty_input()
-                if log:
-                    log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+            # try:
+            agent1.act(gamestate)
+            if agent2:
+                agent2.act(gamestate)
+            # except Exception as error:
+            #     # Do nothing in case of error thrown!
+            #     agent1.controller.empty_input()
+            #     if agent2:
+            #         agent2.controller.empty_input()
+            #     if log:
+            #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+            #     else:
+            #         print("WARNING: Exception thrown: ", error)
 
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:

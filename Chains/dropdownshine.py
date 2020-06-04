@@ -42,11 +42,7 @@ class Dropdownshine(Chain):
 
         return False
 
-    def step(self):
-        controller = self.controller
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
-
+    def step(self, gamestate, smashbot_state, opponent_state):
         # Do an emergency shine if we run out of invulnerability, then end the chain
         if smashbot_state.invulnerability_left == 0 and smashbot_state.action != Action.EDGE_HANGING:
             self.interruptible = True
@@ -67,7 +63,7 @@ class Dropdownshine(Chain):
             return
 
         # Do the shine
-        if self.gamestate.distance < 11.8:
+        if gamestate.distance < 11.8:
             self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             controller.press_button(Button.BUTTON_B)

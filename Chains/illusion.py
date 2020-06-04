@@ -13,9 +13,8 @@ class Illusion(Chain):
     def __init__(self, length=SHORTEN.LONG):
         self.length = length
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
 
         # Yea, the names are wrong here, deal with it. Maybe I'll fix it sometime
 

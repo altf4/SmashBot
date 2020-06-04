@@ -46,13 +46,11 @@
 
 ## Setup Steps:
 
-1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. It's in pip. On most OS's, the command will look like:
-`sudo pip3 install melee`.
+1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. For now, you'll need to install the latest version on GitHub (not in pip). That means download the code here:
+https://github.com/altf4/libmelee/tree/slipstream and copy the `melee` folder directly into the SmahBot code directory. (Adjacent to this Readme.md)
 
-2. Install the Dolphin version here:
-https://github.com/altf4/dolphin/tree/memorywatcher-rebased
-This contains an important update to allow Dolphin to be able to read projectile information from Melee. Unfortunately, you'll have to build this from source until they accept my Pull Request:
-https://github.com/dolphin-emu/dolphin/pull/4407
+2. Build the Dolphin (Ishiiruka) version here. Install it if you like, it's not necessary though.
+https://github.com/altf4/Ishiiruka/tree/beta
 
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 
@@ -61,10 +59,14 @@ https://github.com/dolphin-emu/dolphin/pull/4407
 5. If you're using a GameCube Adapter, make sure to install the drivers / confugure the udev rules, as described here:
 https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 
-6. Apply the latest `Melee Netplay Community Settings` Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. (Long story) You will need to enable cheat codes in Dolphin by choosing `Config->General Tab->Enable Cheats` Then right click on the Melee game at the Dolphin home screen and go to `Properties->Gecko Codes` to find the Gecko Code list.
+6. Apply (at least) the following Gecko Codes in `Properties->Gecko Codes`:
+ - `Faster Melee Netplay Settings`
+ - `Normal Lag Reduction`
+ - `Slippi Recording`
 
-7. Apply `Press Y to toggle frozen stages` Gecko Code. If you want to play on Pokemon Stadium, use the frozen version.
 
-8. Run `smashbot.py`
+7. Run `smashbot.py`
 
-9. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
+8. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
+
+9. If you did not "install" Ishiiruka, then specify the location where the executable is with the `-e` flag. `smashbot.py -e PATH_TO_DOLPHIN_EXE`. (Not the actual exe itself, just the directory where it is)

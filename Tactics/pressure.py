@@ -7,8 +7,8 @@ from Chains.grabandthrow import THROW_DIRECTION
 
 # Shield pressure
 class Pressure(Tactic):
-    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
-        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
         # Pick a random max number of shines
         self.shinemax = random.randint(0, 8)
         self.shinecount = 0
@@ -17,10 +17,10 @@ class Pressure(Tactic):
         self.shffl = False
         self.dashdance = False
 
-        # Remove the dash dance from the random pool if we're in a spot where it would be bad
         dashchance = 2
-        if self.smashbot_state.action not in [Action.STANDING, Action.TURNING, Action.DASHING]:
-            dashchance = 0
+        # TODO Remove the dash dance from the random pool if we're in a spot where it would be bad
+        # if self.smashbot_state.action not in [Action.STANDING, Action.TURNING, Action.DASHING]:
+        #     dashchance = 0
 
         # What sort of shield pressure should this be? Pick one at random
         rand = random.choice([1]*5 + [2]*3 + [3]*dashchance)
@@ -54,20 +54,19 @@ class Pressure(Tactic):
 
         return sheilding and inrange
 
-    def step(self):
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
 
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
         if self.dashdance:
             self.chain = None
             # Don't try to dashdance if we know we can't
             if smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
-                distance = max(self.gamestate.distance / 20, 1)
+                distance = max(gamestate.distance / 20, 1)
                 self.pickchain(Chains.Wavedash, [distance])
                 return
             self.pickchain(Chains.DashDance, [opponent_state.x])
@@ -85,7 +84,7 @@ class Pressure(Tactic):
         candash = smashbot_state.action in [Action.DASHING, Action.TURNING, Action.RUNNING, \
             Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
 
-        inshinerange = self.gamestate.distance < 11.80-3
+        inshinerange = gamestate.distance < 11.80-3
         # Where will opponent end up, after sliding is accounted for? (at the end of our grab)
         endposition = opponent_state.x + self.framedata.slidedistance(opponent_state, opponent_state.speed_ground_x_self, 7)
         ourendposition = smashbot_state.x + self.framedata.slidedistance(smashbot_state, smashbot_state.speed_ground_x_self, 7)

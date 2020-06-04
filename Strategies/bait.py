@@ -15,11 +15,8 @@ from Tactics.wait import Wait
 from Tactics.retreat import Retreat
 
 class Bait(Strategy):
-    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
+    def __init__(self, logger, controller, framedata, difficulty):
         self.approach = False
-        self.gamestate = gamestate
-        self.smashbot_state = smashbot_state
-        self.opponent_state = opponent_state
         self.logger = logger
         self.controller = controller
         self.framedata = framedata
@@ -37,30 +34,32 @@ class Bait(Strategy):
         string += str(type(self.tactic.chain))
         return string
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+
         # If we have stopped approaching, reset the state
         if type(self.tactic) != Tactics.Approach:
             self.approach = False
 
-        if Mitigate.needsmitigation(self.smashbot_state):
+        if Mitigate.needsmitigation(smashbot_state):
             self.picktactic(Tactics.Mitigate)
             return
 
         if self.tactic and not self.tactic.isinteruptible():
-            self.tactic.step()
+            self.tactic.step(gamestate, smashbot_state, opponent_state)
             return
 
         # If we're stuck in a lag state, just do nothing. Trying an action might just
         #   buffer an input we don't want
-        if Wait.shouldwait(self.smashbot_state, self.framedata):
+        if Wait.shouldwait(smashbot_state, self.framedata):
             self.picktactic(Tactics.Wait)
             return
 
-        if Recover.needsrecovery(self.smashbot_state, self.opponent_state, self.gamestate):
+        if Recover.needsrecovery(smashbot_state, opponent_state, gamestate):
             self.picktactic(Tactics.Recover)
             return
 
-        if Celebrate.deservescelebration(self.smashbot_state, self.opponent_state):
+        if Celebrate.deservescelebration(smashbot_state, opponent_state):
             self.picktactic(Tactics.Celebrate)
             return
 
@@ -71,50 +70,50 @@ class Bait(Strategy):
             self.picktactic(Tactics.KeepDistance)
             return
 
-        if Defend.needsprojectiledefense(self.smashbot_state, self.opponent_state, self.gamestate):
+        if Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate):
             self.picktactic(Tactics.Defend)
             return
 
         # If we can infinite our opponent, do that!
-        if Infinite.caninfinite(self.smashbot_state, self.opponent_state, self.gamestate, self.framedata, self.difficulty):
+        if Infinite.caninfinite(smashbot_state, opponent_state, gamestate, self.framedata, self.difficulty):
             self.picktactic(Tactics.Infinite)
             return
 
         # If we can punish our opponent for a laggy move, let's do that
-        if Punish.canpunish(self.smashbot_state, self.opponent_state, self.gamestate, self.framedata):
+        if Punish.canpunish(smashbot_state, opponent_state, gamestate, self.framedata):
             self.picktactic(Tactics.Punish)
             return
 
         # Do we need to defend an attack?
-        if Defend.needsdefense(self.smashbot_state, self.opponent_state, self.gamestate, self.framedata):
+        if Defend.needsdefense(smashbot_state, opponent_state, gamestate, self.framedata):
             self.picktactic(Tactics.Defend)
             return
 
         # Can we edge guard them?
-        if Edgeguard.canedgeguard(self.smashbot_state, self.opponent_state, self.gamestate):
+        if Edgeguard.canedgeguard(smashbot_state, opponent_state, gamestate):
             self.picktactic(Tactics.Edgeguard)
             return
 
         # Can we shield pressure them?
-        if Pressure.canpressure(self.opponent_state, self.gamestate):
+        if Pressure.canpressure(opponent_state, gamestate):
             self.picktactic(Tactics.Pressure)
             return
 
-        if Retreat.shouldretreat(self.smashbot_state, self.opponent_state, self.gamestate):
+        if Retreat.shouldretreat(smashbot_state, opponent_state, gamestate):
             self.picktactic(Tactics.Retreat)
             return
 
         # Is opponent starting a jump?
-        jumping = self.opponent_state.action == Action.KNEE_BEND
-        if self.opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
-                self.opponent_state.speed_y_self > 0:
+        jumping = opponent_state.action == Action.KNEE_BEND
+        if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
+                opponent_state.speed_y_self > 0:
             jumping = True
 
         # Randomly approach some times rather than keeping distance
-        if self.smashbot_state.action == Action.TURNING and random.randint(0, 40) == 0:
+        if smashbot_state.action == Action.TURNING and random.randint(0, 40) == 0:
             self.approach = True
 
-        if (jumping and self.opponent_state.invulnerability_left <= 0) or self.approach:
+        if (jumping and opponent_state.invulnerability_left <= 0) or self.approach:
             self.picktactic(Tactics.Approach)
             return
 

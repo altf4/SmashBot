@@ -20,6 +20,8 @@ class Wait(Tactic):
 
         return False
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+        
         self.pickchain(Chains.Nothing)
         return

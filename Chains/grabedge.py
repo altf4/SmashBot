@@ -7,24 +7,22 @@ class Grabedge(Chain):
     def __init__(self, wavedash=True):
         self.wavedash = wavedash
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
 
         # Moved this here from constructor.
         #   It should be fine, but let's keep an eye out for if this breaks
-        edge_x = melee.stages.edgegroundposition(self.gamestate.stage)
-        if self.opponent_state.x < 0:
+        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        if opponent_state.x < 0:
             edge_x = -edge_x
-        edgedistance = abs(edge_x - self.smashbot_state.x)
+        edgedistance = abs(edge_x - smashbot_state.x)
         if edgedistance > 15:
             self.wavedash = False
         if edgedistance < 2:
             self.wavedash = False
 
         # Where is the edge that we're going to?
-        edge_x = melee.stages.edgegroundposition(self.gamestate.stage)
+        edge_x = melee.stages.edgegroundposition(gamestate.stage)
         if opponent_state.x < 0:
             edge_x = -edge_x
 
@@ -108,7 +106,7 @@ class Grabedge(Chain):
             self.interruptible = False
 
             # Should we shine?
-            canhit = self.gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
+            canhit = gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
             if (smashbot_state.y < -15) or canhit:
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)

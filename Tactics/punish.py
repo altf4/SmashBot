@@ -173,12 +173,12 @@ class Punish(Tactic):
             return True
         return False
 
-    def step(self):
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
         # TODO: This should be all inactionalbe animations, actually
@@ -187,7 +187,7 @@ class Punish(Tactic):
             return
 
         # Can we charge an upsmash right now?
-        framesleft = Punish.framesleft(self.opponent_state, self.framedata)
+        framesleft = Punish.framesleft(opponent_state, self.framedata)
         if self.logger:
             self.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
 
@@ -217,7 +217,7 @@ class Punish(Tactic):
                 endposition = opponent_state.x + self.framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
 
             if isroll:
-                endposition = self.framedata.endrollposition(opponent_state, self.gamestate.stage)
+                endposition = self.framedata.endrollposition(opponent_state, gamestate.stage)
 
                 initialrollmovement = 0
                 facingchanged = False
@@ -236,10 +236,10 @@ class Punish(Tactic):
 
                 # But don't go off the end of the stage
                 if opponent_state.action in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP, Action.NEUTRAL_TECH]:
-                    if abs(endposition) > melee.stages.edgegroundposition(self.gamestate.stage):
+                    if abs(endposition) > melee.stages.edgegroundposition(gamestate.stage):
                         slideoff = True
-                endposition = max(endposition, -melee.stages.edgegroundposition(self.gamestate.stage))
-                endposition = min(endposition, melee.stages.edgegroundposition(self.gamestate.stage))
+                endposition = max(endposition, -melee.stages.edgegroundposition(gamestate.stage))
+                endposition = min(endposition, melee.stages.edgegroundposition(gamestate.stage))
 
 
             # And we're in range...
@@ -295,7 +295,7 @@ class Punish(Tactic):
                 else:
                     # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
                     #   This shouldn't happen often, but can if we're pushed away after powershield
-                    offedge = melee.stages.edgegroundposition(self.gamestate.stage) < abs(endposition)
+                    offedge = melee.stages.edgegroundposition(gamestate.stage) < abs(endposition)
                     if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
@@ -317,7 +317,7 @@ class Punish(Tactic):
         if smashbot_state.action in [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]:
             framesneeded = 4
         foxshinerange = 11.8
-        if self.gamestate.distance < foxshinerange:
+        if gamestate.distance < foxshinerange:
             if framesneeded <= framesleft:
                 # Also, don't shine someone in the middle of a roll
                 if (not isroll) or (opponent_state.action_frame < 3):
@@ -326,7 +326,7 @@ class Punish(Tactic):
                     #   Reduce the wavedash length
                     x = 1
                     # If we are really close to the edge, wavedash straight down
-                    if melee.stages.edgegroundposition(self.gamestate.stage) - abs(smashbot_state.x) < 3:
+                    if melee.stages.edgegroundposition(gamestate.stage) - abs(smashbot_state.x) < 3:
                         x = 0
                     self.pickchain(Chains.Waveshine, [x])
                     return

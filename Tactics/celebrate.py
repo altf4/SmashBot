@@ -21,10 +21,8 @@ class Celebrate(Tactic):
 
         return False
 
-    def step(self):
-        opponent_state = self.opponent_state
-        smashbot_state = self.smashbot_state
-
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
         if smashbot_state.action == Action.EDGE_HANGING:
             self.chain = None
             self.pickchain(Chains.DI, [0.5, 0.65])

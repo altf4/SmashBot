@@ -18,9 +18,8 @@ class Tech(Chain):
         else:
             self.direction = direction
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
 
         # If we're on the ground, we're done here
         if smashbot_state.on_ground:

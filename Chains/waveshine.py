@@ -11,10 +11,8 @@ class Waveshine(Chain):
         self.hasshined = False
         self.distance = distance
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
 
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
@@ -31,7 +29,7 @@ class Waveshine(Chain):
 
         # Shine clank! We should shine again if we're in range
         if opponent_state.hitstun_frames_left == 0 and smashbot_state.action == Action.SWORD_DANCE_2_MID_AIR and \
-                self.gamestate.distance < 11.8:
+                gamestate.distance < 11.8:
             self.hasshined = False
 
         # Do the shine if we can
@@ -85,17 +83,17 @@ class Waveshine(Chain):
             self.interruptible = False
             controller.press_button(Button.BUTTON_L)
             # Always wavedash the direction opponent is moving
-            opponentspeed = self.opponent_state.speed_x_attack + self.opponent_state.speed_ground_x_self
+            opponentspeed = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self
             direction = opponentspeed > 0
             onleft = smashbot_state.x < opponent_state.x
             if abs(opponentspeed) < 0.01:
                 direction = onleft
 
             # Unless we're RIGHT on top of the edge. In which case the only safe wavedash is back on the stage
-            edge_x = melee.stages.edgegroundposition(self.gamestate.stage)
-            if self.opponent_state.x < 0:
+            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            if opponent_state.x < 0:
                 edge_x = -edge_x
-            edgedistance = abs(edge_x - self.smashbot_state.x)
+            edgedistance = abs(edge_x - smashbot_state.x)
             if edgedistance < 0.5:
                 direction = smashbot_state.x < 0
 

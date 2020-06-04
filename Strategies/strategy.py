@@ -6,14 +6,11 @@ class Strategy:
 
     def picktactic(self, tactic):
         if type(self.tactic) != tactic:
-            self.tactic = tactic(self.gamestate,
-                                self.smashbot_state,
-                                self.opponent_state,
-                                self.logger,
+            self.tactic = tactic(self.logger,
                                 self.controller,
                                 self.framedata,
                                 self.difficulty
             )
-        self.tactic.step()
+        self.tactic.step(self._propagate[0], self._propagate[1], self._propagate[2])
 
-    def step(self): ...
+    def step(self, gamestate, smashbot_state, opponent_state): ...
