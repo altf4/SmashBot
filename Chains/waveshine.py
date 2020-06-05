@@ -101,11 +101,11 @@ class Waveshine(Chain):
             if smashbot_state.facing == smashbot_state.x > 0:
                 distance = max(edgedistance / 15, 1)
 
-            # Normalize distance from (0->1) to (0.5 -> 1)
-            x = (self.distance / 2) + .5
+            # Normalize distance from (0->1) to (-0.5 -> 0.5)
+            delta = (self.distance / 2) # 0->0.5
             if not direction:
-                x = -x
-            controller.tilt_analog(Button.BUTTON_MAIN, x, .2)
+                delta = -delta
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .2)
             return
 
         # If we're sliding and have shined, then we're all done here
