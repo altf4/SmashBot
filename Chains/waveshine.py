@@ -28,7 +28,8 @@ class Waveshine(Chain):
             return
 
         # Shine clank! We should shine again if we're in range
-        if opponent_state.hitstun_frames_left == 0 and smashbot_state.action == Action.SWORD_DANCE_2_MID_AIR and \
+        if not opponent_state.hitlag and opponent_state.hitstun_frames_left == 0 and \
+                smashbot_state.action == Action.SWORD_DANCE_2_MID_AIR and \
                 gamestate.distance < 11.8:
             self.hasshined = False
 
