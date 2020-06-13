@@ -47,7 +47,7 @@
 ## Setup Steps:
 
 1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. For now, you'll need to install the latest version on GitHub (not in pip). That means download the code here:
-https://github.com/altf4/libmelee/tree/slipstream and copy the `melee` folder directly into the SmahBot code directory. (Adjacent to this Readme.md)
+https://github.com/altf4/libmelee/ and copy the `melee` folder directly into the SmahBot code directory. (Adjacent to this Readme.md)
 
 2. Build the Dolphin (Ishiiruka) version here. Install it if you like, it's not necessary though.
 https://github.com/altf4/Ishiiruka/tree/beta
