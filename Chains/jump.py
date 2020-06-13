@@ -6,7 +6,7 @@ class Jump(Chain):
     def __init__(self, x=0.5):
         self.x = x
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
         self.interruptible = True
 

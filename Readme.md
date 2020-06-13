@@ -7,21 +7,13 @@
 
     Fox, of course!
 
-2. **It looks like there was a big code change, what's up with that?**
-
-    This is a complete rewrite, this time in Python! The first version of SmashBot was extremely kludgey, and I knew that it was going to be impractical to extend that code to become anything more than it already was.
-
-    This time around, SmashBot was written from the ground up to be opponent-agnostic (so that we can fight other characters than Marth) and to be generally cleaner.
-
-    As part of that, all the low-level plumbing functions behind interfacing with Dolphin and doing Melee related lookups has been moved over to a separate project called `libmelee`. (https://github.com/altf4/libmelee) This makes it easier than ever before to make your very own Melee AI! Go check it out.
-
-3. **Does SmashBot cheat?**
+2. **Does SmashBot cheat?**
 
     The short answer is: No.
 
     The long answer is that SmashBot only interfaces with the game by pressing buttons on a virtual controller. There isn't anything it does that you **couldn't** do in principle. It just so happens, however, that a computer is much faster and more reliable than you, so it's able to do things that a human realistically can't.
 
-4. **How is SmashBot designed?**
+3. **How is SmashBot designed?**
 
     SmashBot makes decisions on a tiered hierarchy of objectives: Strategies, Tactics, and Chains. Each objective inspects the current game state and decides which lower level objective will be best to achieve it.
 
@@ -35,9 +27,9 @@
 
     For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator)
 
-6. **What Operating Systems does it play on?**
+5. **What Operating Systems does it play on?**
 
-    SmashBot runs on Linux/OSX currently. Under the hood, we use a named pipe input system to Dolphin, which is *nix only. If you'd like there to be Windows support, feel free to take a look at the Issues section here on GitHub.
+    SmashBot runs on Linux, OSX, and Windows!
 
 7. **I found a bug. How can I help?**
 
@@ -46,15 +38,11 @@
 
 ## Setup Steps:
 
-1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. It's in pip. On most OS's, the command will look like:
-`sudo pip3 install melee`.
+1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. For now, you'll need to install the latest version on GitHub (not in pip). That means download the code here:
+https://github.com/altf4/libmelee/ and copy the `melee` folder directly into the SmahBot code directory. (Adjacent to this Readme.md)
 
-2. Install the Dolphin version here:
-https://github.com/altf4/dolphin/
-This contains some important code not included in mainline dolphin that lets
- libmelee read projectiles. Without it, you can't really play the full game. At this
- point, it's unlikely that it'll ever be included into mainline dolphin, which
- is unfortunate.
+2. Build the Dolphin (Ishiiruka) version here. Install it if you like, it's not necessary though.
+https://github.com/altf4/Ishiiruka/tree/beta
 
 3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 
@@ -63,10 +51,17 @@ This contains some important code not included in mainline dolphin that lets
 5. If you're using a GameCube Adapter, make sure to install the drivers / configure the udev rules, as described here:
 https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 
-6. Apply the latest `Melee Netplay Community Settings` Gecko Code. It's available by default in Dolphin 5.0. SmashBot will NOT work properly without this. ([Long story](https://youtu.be/_0Z_oN_CZyA?t=1734)) You will need to enable cheat codes in Dolphin by choosing `Config->General Tab->Enable Cheats` Then right click on the Melee game at the Dolphin home screen and go to `Properties->Gecko Codes` to find the Gecko Code list.
+6. Install the latest Slippi Gecko Codes. You can find them here: https://github.com/project-slippi/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
 
-7. Apply `Press Y to toggle frozen stages` Gecko Code. If you want to play on Pokemon Stadium, use the frozen version. Other Gecko codes might mess SmashBot up though, so don't enable too many other ones.
+6. Apply (at least) the following Gecko Codes in `Properties->Gecko Codes`:
+ - `Faster Melee Netplay Settings`
+ - `Normal Lag Reduction`
+ - `Slippi Recording`
 
-8. Run `smashbot.py`
+7. Run `smashbot.py`
 
-9. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
+8. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
+
+9. If you did not "install" Ishiiruka, then specify the location where the executable is with the `-e` flag. `smashbot.py -e PATH_TO_DOLPHIN_EXE`. (Not the actual exe itself, just the directory where it is)
+
+10. NOTE: For now, SmashBot cannot pick its own character. (It cannot 'see' the menus) So you'll need to pick Fox for it, and the stage. We're working on this!

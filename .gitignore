@@ -6,3 +6,6 @@ smashbot
 Logs/*
 *.pyc
 *.model
+
+# Ignore local libmelee
+melee

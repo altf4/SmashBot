@@ -11,10 +11,8 @@ class Wavedash(Chain):
         self.distance = distance
         self.towards = towards
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
 
         # If we're in shield stun, just wait
         if smashbot_state.action == Action.SHIELD_STUN:

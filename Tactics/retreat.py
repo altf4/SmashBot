@@ -46,13 +46,15 @@ class Retreat(Tactic):
 
         return False
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
-        needswavedash = self.smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
+        needswavedash = smashbot_state.action in [Action.DOWN_B_GROUND, Action.DOWN_B_STUN, \
             Action.DOWN_B_GROUND_START, Action.LANDING_SPECIAL, Action.SHIELD, Action.SHIELD_START, \
             Action.SHIELD_RELEASE, Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if needswavedash:
@@ -60,27 +62,27 @@ class Retreat(Tactic):
             return
 
         bufferzone = 30
-        if self.opponent_state.character == Character.SHEIK and self.opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             bufferzone = 55
 
         # Samus bomb?
         samus_bomb = False
-        for projectile in self.gamestate.projectiles:
+        for projectile in gamestate.projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
-                if self.smashbot_state.x < projectile.x < self.opponent_state.x or self.smashbot_state.x > projectile.x > self.opponent_state.x:
+                if smashbot_state.x < projectile.x < opponent_state.x or smashbot_state.x > projectile.x > opponent_state.x:
                     samus_bomb = True
         if samus_bomb:
             bufferzone = 60
 
-        onright = self.opponent_state.x < self.smashbot_state.x
+        onright = opponent_state.x < smashbot_state.x
         if not onright:
             bufferzone *= -1
 
-        pivotpoint = self.opponent_state.x + bufferzone
+        pivotpoint = opponent_state.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
         edgebuffer = 30
-        edge = melee.stages.edgegroundposition(self.gamestate.stage) - edgebuffer
+        edge = melee.stages.edgegroundposition(gamestate.stage) - edgebuffer
         # If we are about to pivot near the edge, just grab the edge instead
         if abs(pivotpoint) > edge:
             self.pickchain(Chains.Grabedge)

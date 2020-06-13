@@ -14,8 +14,7 @@ class SmashAttack(Chain):
         self.direction = direction
         self.frames_charged = 0
 
-    def step(self):
-        smashbot_state = self.smashbot_state
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
         if smashbot_state.action == Action.LANDING_SPECIAL:

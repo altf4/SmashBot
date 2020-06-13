@@ -7,9 +7,8 @@ from Tactics.punish import Punish
 from melee.enums import Character
 
 class Infinite(Tactic):
-    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
-        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
-        self.movingright = self.opponent_state.speed_x_attack + self.opponent_state.speed_ground_x_self > 0
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
 
     def killpercent(opponent_state):
         character = opponent_state.character
@@ -77,16 +76,18 @@ class Infinite(Tactic):
 
         return False
 
-    def step(self):
-        opponent_state = self.opponent_state
-        smashbot_state = self.smashbot_state
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
+
+        # TODO Should this only be set once per instance?
+        self.movingright = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self > 0
 
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
-        framesleft = Punish.framesleft(self.opponent_state, self.framedata)
+        framesleft = Punish.framesleft(opponent_state, self.framedata)
         # This is off by one for hitstun
         framesleft -= 1
 
@@ -95,7 +96,7 @@ class Infinite(Tactic):
             shinerange = 9
 
         # Try to do the shine
-        if self.gamestate.distance < shinerange:
+        if gamestate.distance < shinerange:
             # emergency backup shine
             if framesleft == 1:
                 self.chain = None

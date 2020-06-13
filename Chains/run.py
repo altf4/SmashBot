@@ -6,7 +6,7 @@ class Run(Chain):
     def __init__(self, rundirection):
         self.rundirection = rundirection
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
         # Run in the specified direction
         x = 0

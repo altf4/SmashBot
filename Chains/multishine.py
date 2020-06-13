@@ -3,8 +3,7 @@ from melee.enums import Action, Button
 from Chains.chain import Chain
 
 class Multishine(Chain):
-    def step(self):
-        smashbot_state = self.smashbot_state
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
         #If standing or turning, shine

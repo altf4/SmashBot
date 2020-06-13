@@ -53,19 +53,18 @@ class Recover(Tactic):
 
         return False
 
-    def __init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty):
-        Tactic.__init__(self, gamestate, smashbot_state, opponent_state, logger, controller, framedata, difficulty)
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
         # We need to decide how we want to recover
         self.useillusion = bool(random.randint(0, 1))
 
 
-    def step(self):
-        smashbot_state = self.smashbot_state
-        opponent_state = self.opponent_state
+    def step(self, gamestate, smashbot_state, opponent_state):
+        self._propagate  = (gamestate, smashbot_state, opponent_state)
 
         # If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
-            self.chain.step()
+            self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
@@ -76,7 +75,7 @@ class Recover(Tactic):
         if smashbot_state.y < -15 and smashbot_state.jumps_left == 0 and smashbot_state.speed_y_self < 0:
             self.useillusion = False
 
-        diff_x = abs(melee.stages.edgeposition(self.gamestate.stage) - abs(smashbot_state.x))
+        diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
 
         # If we can just grab the edge with a firefox, do that
         facinginwards = smashbot_state.facing == (smashbot_state.x < 0)

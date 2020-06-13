@@ -7,7 +7,7 @@ class DI(Chain):
         self.x = x
         self.y = y
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
         self.interruptible = True
         controller.release_button(Button.BUTTON_L)

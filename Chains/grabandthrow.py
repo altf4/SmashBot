@@ -14,9 +14,8 @@ class GrabAndThrow(Chain):
     def __init__(self, direction=THROW_DIRECTION.DOWN):
         self.direction = direction
 
-    def step(self):
+    def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-        smashbot_state = self.smashbot_state
 
         self.interruptible = False
 
