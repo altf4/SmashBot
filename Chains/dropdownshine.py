@@ -43,6 +43,7 @@ class Dropdownshine(Chain):
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
+        controller = self.controller
         # Do an emergency shine if we run out of invulnerability, then end the chain
         if smashbot_state.invulnerability_left == 0 and smashbot_state.action != Action.EDGE_HANGING:
             self.interruptible = True

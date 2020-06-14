@@ -294,7 +294,7 @@ class Edgeguard(Tactic):
                 edgegrabframes_y = djapexframes + fallframes
             elif opponent_state.y + djheight < -23:
                 # If the jump puts them too low, then they have to UP-B. How long will that take?
-                upbframes = self.upbapexframes()
+                upbframes = self.upbapexframes(opponent_state)
                 edgegrabframes_y = upbframes
                 # How many falling frames do they need?
                 fallframes = (opponent_state.y + upbframes + 5) // fastfallspeed
