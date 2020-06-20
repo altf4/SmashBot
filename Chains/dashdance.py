@@ -71,7 +71,7 @@ class DashDance(Chain):
 
         #Don't run off the stage
         if abs(smashbot_state.x) > \
-            melee.stages.edgegroundposition(gamestate.stage) - 6.6:#(3 * FOX_DASH_SPEED):
+            melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - 6.6:#(3 * FOX_DASH_SPEED):
                 x = 0
                 if smashbot_state.x < 0:
                     x = 1

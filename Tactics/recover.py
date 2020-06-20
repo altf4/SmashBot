@@ -42,8 +42,8 @@ class Recover(Tactic):
             return True
 
         # If opponent is closer to the edge, recover
-        diff_x_opponent = abs(melee.stages.edgeposition(gamestate.stage) - abs(opponent_state.x))
-        diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
+        diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.x))
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
         opponent_dist = math.sqrt( (opponent_state.y+15)**2 + (diff_x_opponent)**2 )
         smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
@@ -75,7 +75,7 @@ class Recover(Tactic):
         if smashbot_state.y < -15 and smashbot_state.jumps_left == 0 and smashbot_state.speed_y_self < 0:
             self.useillusion = False
 
-        diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
         # If we can just grab the edge with a firefox, do that
         facinginwards = smashbot_state.facing == (smashbot_state.x < 0)

@@ -53,7 +53,7 @@ class Infinite(Tactic):
         #   We are at risk of running off the edge when this happens
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
             if (smashbot_state.speed_ground_x_self > 0) == (smashbot_state.x > 0):
-                edge_x = melee.stages.edgegroundposition(gamestate.stage)
+                edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
                 if opponent_state.x < 0:
                     edge_x = -edge_x
                 edgedistance = abs(edge_x - smashbot_state.x)
@@ -66,7 +66,7 @@ class Infinite(Tactic):
 
         # If opponent is going to slide to the edge, then we have to stop
         endposition = opponent_state.x + framedata.slidedistance(opponent_state, opponent_state.speed_x_attack, framesleft)
-        if abs(endposition)+5 > melee.stages.edgegroundposition(gamestate.stage):
+        if abs(endposition)+5 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
             return False
 
         if framedata.characterdata[opponent_state.character]["Friction"] >= 0.06 and \

@@ -23,7 +23,7 @@ class Firefox(Chain):
             x = 1
 
         # The point we grab the edge at is a little below the stage
-        diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
         diff_y = abs(smashbot_state.y + 5)
         larger_magnitude = max(diff_x, diff_y)
 
@@ -74,7 +74,7 @@ class Firefox(Chain):
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:
             self.interruptible = False
-            diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
+            diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
             if self.direction == FIREFOX.HIGH and diff_x < 50:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, 1)

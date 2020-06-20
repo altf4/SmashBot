@@ -67,11 +67,8 @@ console = melee.console.Console(ai_port=args.port,
                                 opponent_port=args.opponent,
                                 opponent_type=opponent_type,
                                 dolphin_executable_path=args.dolphinexecutable,
+                                slippi_address=args.address,
                                 logger=log)
-
-# If not set by the user, this will be an empty string, which will trigger
-#   an autodiscover process
-console.slippi_address = args.address
 
 controller_one = melee.controller.Controller(port=args.port, console=console)
 controller_two = None

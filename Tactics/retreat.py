@@ -82,7 +82,7 @@ class Retreat(Tactic):
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
         edgebuffer = 30
-        edge = melee.stages.edgegroundposition(gamestate.stage) - edgebuffer
+        edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - edgebuffer
         # If we are about to pivot near the edge, just grab the edge instead
         if abs(pivotpoint) > edge:
             self.pickchain(Chains.Grabedge)

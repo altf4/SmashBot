@@ -32,8 +32,8 @@ class Edgeguard(Tactic):
             return True
 
         # If smashbot is closer to the edge, edgeguard
-        diff_x_opponent = abs(melee.stages.edgeposition(gamestate.stage) - abs(opponent_state.x))
-        diff_x = abs(melee.stages.edgeposition(gamestate.stage) - abs(smashbot_state.x))
+        diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.x))
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
         opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
@@ -52,7 +52,7 @@ class Edgeguard(Tactic):
         if not (-2 < opponent_state.y < 25):
             return 999
 
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         if opponent_state.x < 0:
             edge_x = -edge_x
 
@@ -85,7 +85,7 @@ class Edgeguard(Tactic):
         if not firefox:
             return 999
 
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         if opponent_state.x < 0:
             edge_x = -edge_x
 
@@ -139,7 +139,7 @@ class Edgeguard(Tactic):
             else:
                 speed_x = initialdjspeed_x
 
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
 
         # Move opponent frame by frame back to the edge. Do they get past it? Or fall below?
         while abs(x) > edge_x:
@@ -261,7 +261,7 @@ class Edgeguard(Tactic):
     def snaptoedgeframes(self, gamestate, opponent_state):
         # How long will it take opponent to grab the edge?
         #   Distance to the snap point of the edge
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         edgedistance = abs(opponent_state.x) - (edge_x + 15)
         # Assume opponent can move at their "max" speed
         airhorizspeed = self.framedata.characterdata[opponent_state.character]["AirSpeed"]
@@ -461,7 +461,7 @@ class Edgeguard(Tactic):
             if opponent_state.character in [Character.FOX, Character.FALCO]:
                 # Are they in the start of a firefox?
                 # But make sure they can't grab the edge in the middle of it
-                edgedistance = abs(opponent_state.x) - (melee.stages.edgegroundposition(gamestate.stage) + 15)
+                edgedistance = abs(opponent_state.x) - (melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 15)
                 inrange = (-5 > opponent_state.y > -23) and (edgedistance < 15)
                 if opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 5 and not inrange:
                     self.pickchain(Chains.Edgestall)
@@ -514,7 +514,7 @@ class Edgeguard(Tactic):
 
         # We are on the stage
         else:
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             edgedistance = abs(edge_x - abs(smashbot_state.x))
 
             randomgrab = False

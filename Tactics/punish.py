@@ -236,10 +236,10 @@ class Punish(Tactic):
 
                 # But don't go off the end of the stage
                 if opponent_state.action in [Action.TECH_MISS_DOWN, Action.TECH_MISS_UP, Action.NEUTRAL_TECH]:
-                    if abs(endposition) > melee.stages.edgegroundposition(gamestate.stage):
+                    if abs(endposition) > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
                         slideoff = True
-                endposition = max(endposition, -melee.stages.edgegroundposition(gamestate.stage))
-                endposition = min(endposition, melee.stages.edgegroundposition(gamestate.stage))
+                endposition = max(endposition, -melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
+                endposition = min(endposition, melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
 
 
             # And we're in range...
@@ -295,7 +295,7 @@ class Punish(Tactic):
                 else:
                     # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
                     #   This shouldn't happen often, but can if we're pushed away after powershield
-                    offedge = melee.stages.edgegroundposition(gamestate.stage) < abs(endposition)
+                    offedge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] < abs(endposition)
                     if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
@@ -326,7 +326,7 @@ class Punish(Tactic):
                     #   Reduce the wavedash length
                     x = 1
                     # If we are really close to the edge, wavedash straight down
-                    if melee.stages.edgegroundposition(gamestate.stage) - abs(smashbot_state.x) < 3:
+                    if melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 3:
                         x = 0
                     self.pickchain(Chains.Waveshine, [x])
                     return

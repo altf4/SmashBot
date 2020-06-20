@@ -12,7 +12,7 @@ class Grabedge(Chain):
 
         # Moved this here from constructor.
         #   It should be fine, but let's keep an eye out for if this breaks
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         if opponent_state.x < 0:
             edge_x = -edge_x
         edgedistance = abs(edge_x - smashbot_state.x)
@@ -22,7 +22,7 @@ class Grabedge(Chain):
             self.wavedash = False
 
         # Where is the edge that we're going to?
-        edge_x = melee.stages.edgegroundposition(gamestate.stage)
+        edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         if opponent_state.x < 0:
             edge_x = -edge_x
 

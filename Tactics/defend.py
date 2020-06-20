@@ -189,10 +189,10 @@ class Defend(Tactic):
                 # Dash right
                 pivotpoint += bufferzone
                 # But don't run off the edge
-                pivotpoint = min(melee.stages.edgegroundposition(gamestate.stage)-5, pivotpoint)
+                pivotpoint = min(melee.stages.EDGE_GROUND_POSITION[gamestate.stage]-5, pivotpoint)
             else:
                 # Dash Left
                 pivotpoint -= bufferzone
                 # But don't run off the edge
-                pivotpoint = max(-melee.stages.edgegroundposition(gamestate.stage) + 5, pivotpoint)
+                pivotpoint = max(-melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 5, pivotpoint)
             self.pickchain(Chains.DashDance, [pivotpoint])

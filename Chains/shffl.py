@@ -43,7 +43,7 @@ class Shffl(Chain):
             # Don't jump right off the stage like an idiot
             #   If we're close to the edge, angle back in
             x = 0.5
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)
@@ -79,7 +79,7 @@ class Shffl(Chain):
             # Don't jump right off the stage like an idiot
             #   If we're close to the edge, angle back in
             x = 0.5
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)

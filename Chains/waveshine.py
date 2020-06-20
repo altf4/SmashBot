@@ -91,7 +91,7 @@ class Waveshine(Chain):
                 direction = onleft
 
             # Unless we're RIGHT on top of the edge. In which case the only safe wavedash is back on the stage
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)
