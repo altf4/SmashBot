@@ -22,7 +22,7 @@ class Multishine(Chain):
                 return
             if smashbot_state.action_frame == 2:
                 self.interruptible = False
-                controller.empty_input()
+                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.facing), .5) #hold forward for advancing JC shine
                 return
             if smashbot_state.action_frame == 1:
                 self.interruptible = True
@@ -39,6 +39,7 @@ class Multishine(Chain):
             self.interruptible = False
             return
 
+        #jcstates = [Action.DOWN_B_GROUND, Action.DASHING, Action.RUNNING]
         if smashbot_state.action == Action.DOWN_B_GROUND:
             controller.press_button(Button.BUTTON_Y)
             self.interruptible = False
