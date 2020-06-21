@@ -106,7 +106,7 @@ class Waveshine(Chain):
             delta = (self.distance / 2) # 0->0.5
             if not direction:
                 delta = -delta
-            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .2)
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .35) #near perfect WD angle
             return
 
         # If we're sliding and have shined, then we're all done here
