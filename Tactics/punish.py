@@ -266,7 +266,8 @@ class Punish(Tactic):
 
             facing = smashbot_state.facing == (smashbot_endposition < endposition)
             # Remember that if we're turning, the attack will come out the opposite way
-            if smashbot_state.action == Action.TURNING:
+            # On f1 of smashturn, smashbot hasn't changed directions yet. On/after frame 2, it has. Tilt turn may be a problem.
+            if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
                 facing = not facing
 
             # Get height of opponent at the targeted frame
