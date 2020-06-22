@@ -31,7 +31,7 @@ class Dropdownshine(Chain):
         frames_x = abs(opponent_state.x - smashbot_state.x) // (0.819625854 / 2)
 
         # If opponent is in a FireFox, we have to get there before they take off
-        framesleft = framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+        framesleft = framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame
         latefirefox = opponent_state.character in [Character.FOX, Character.FALCO] and \
             opponent_state.action == Action.SWORD_DANCE_3_LOW and (smashbot_state.invulnerability_left < framesleft)
 

@@ -65,7 +65,7 @@ class Grabedge(Chain):
         # If we turn right now, what will our speed be?
         if smashbot_state.action == Action.DASHING:
             turnspeed = (abs(smashbot_state.speed_ground_x_self) - 0.32) / 4
-        slidedistance = self.framedata.slidedistance(smashbot_state, turnspeed, 7)
+        slidedistance = self.framedata.slide_distance(smashbot_state, turnspeed, 7)
         closetoedge = edgedistance < slidedistance
 
         # Do a wavedash off

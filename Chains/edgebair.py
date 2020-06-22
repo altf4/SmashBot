@@ -56,7 +56,7 @@ class Edgebair(Chain):
             return
 
         # Once we're airborn, do an attack
-        if not self.framedata.isattack(smashbot_state.character, smashbot_state.action):
+        if not self.framedata.is_attack(smashbot_state.character, smashbot_state.action):
             # If the C stick wasn't set to middle, then
             if controller.prev.c_stick != (.5, .5):
                 controller.tilt_analog(Button.BUTTON_C, .5, .5)

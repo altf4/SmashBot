@@ -75,7 +75,7 @@ class Edgeguard(Tactic):
 
         # Plus the windup frames
         if opponent_state.action == Action.SWORD_DANCE_2_HIGH:
-            frames += self.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame + 1
+            frames += self.framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame + 1
 
         return frames
 
@@ -91,7 +91,7 @@ class Edgeguard(Tactic):
 
         x, y = opponent_state.x, opponent_state.y
         # Project their trajectory. Does it reach right above the edge? When will it?
-        for i in range(self.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame):
+        for i in range(self.framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame):
             x += opponent_state.speed_air_x_self
             y+= opponent_state.speed_y_self
             if abs(edge_x - x) < 10 and 0 < y < 25:
@@ -283,8 +283,8 @@ class Edgeguard(Tactic):
             edgegrabframes_y = (opponent_state.y + 5) // fastfallspeed
         # Are they below?
         elif opponent_state.y < -23:
-            djapexframes = self.framedata.getdjapexframes(opponent_state)
-            djheight = self.framedata.getdjheight(opponent_state)
+            djapexframes = self.framedata.frames_until_dj_apex(opponent_state)
+            djheight = self.framedata.dj_height(opponent_state)
             # Can they double-jump to grab the edge?
             if -5 > opponent_state.y + djheight > -23:
                 edgegrabframes_y = djapexframes
@@ -331,7 +331,7 @@ class Edgeguard(Tactic):
             # If opponent is IN the teleport phase, then it matters whether they're moving up or down
             if inteleport:
                 if opponent_state.speed_y_self > 0:
-                    edgegrabframes = self.framedata.lastframe(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+                    edgegrabframes = self.framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame
                 else:
                     edgegrabframes = 0
 
@@ -368,11 +368,11 @@ class Edgeguard(Tactic):
         samusgrapple = opponent_state.character == Character.SAMUS and opponent_state.action == Action.SWORD_DANCE_4_LOW and \
             -25 < opponent_state.y < 0 and smashbot_state.invulnerability_left <= 2
 
-        hitframe = self.framedata.inrange(opponent_state, smashbot_state, gamestate.stage)
+        hitframe = self.framedata.in_range(opponent_state, smashbot_state, gamestate.stage)
         framesleft = hitframe - opponent_state.action_frame
         if proj_incoming or samusgrapple or (hitframe != 0 and onedge and framesleft < 5 and smashbot_state.invulnerability_left < 2):
             # Unless the attack is a grab, then don't bother
-            if not self.framedata.isgrab(opponent_state.character, opponent_state.action):
+            if not self.framedata.is_grab(opponent_state.character, opponent_state.action):
                 if self.isupb(opponent_state):
                     #TODO: Make this a chain
                     self.chain = None
@@ -398,7 +398,7 @@ class Edgeguard(Tactic):
         mustupb = False
         canrecover = True
 
-        djheight = self.framedata.getdjheight(opponent_state)
+        djheight = self.framedata.dj_height(opponent_state)
 
         edgegrabframes = self.snaptoedgeframes(gamestate, opponent_state)
 
@@ -528,7 +528,7 @@ class Edgeguard(Tactic):
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
                 if randomgrab or framesleft > 10:
                     wavedash = True
-                    if self.framedata.isattack(opponent_state.character, opponent_state.action):
+                    if self.framedata.is_attack(opponent_state.character, opponent_state.action):
                         wavedash = False
                     self.pickchain(Chains.Grabedge, [wavedash])
                     return
