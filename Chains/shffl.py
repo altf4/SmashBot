@@ -43,7 +43,7 @@ class Shffl(Chain):
             # Don't jump right off the stage like an idiot
             #   If we're close to the edge, angle back in
             x = 0.5
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)
@@ -57,7 +57,7 @@ class Shffl(Chain):
             return
 
         # Once we're airborn, do an attack
-        if not self.framedata.isattack(smashbot_state.character, smashbot_state.action):
+        if not self.framedata.is_attack(smashbot_state.character, smashbot_state.action):
             # If the C stick wasn't set to middle, then
             if controller.prev.c_stick != (.5, .5):
                 controller.tilt_analog(Button.BUTTON_C, .5, .5)
@@ -79,7 +79,7 @@ class Shffl(Chain):
             # Don't jump right off the stage like an idiot
             #   If we're close to the edge, angle back in
             x = 0.5
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)

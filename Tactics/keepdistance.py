@@ -49,7 +49,7 @@ class KeepDistance(Tactic):
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
         # if we have our opponent cornered, reduce the edgebuffer
-        edge = melee.stages.edgegroundposition(gamestate.stage)
+        edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         if opponent_state.x < smashbot_state.x < 0 or \
                 0 < smashbot_state.x < opponent_state.x:
             edgebuffer = 10

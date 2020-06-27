@@ -91,7 +91,7 @@ class Waveshine(Chain):
                 direction = onleft
 
             # Unless we're RIGHT on top of the edge. In which case the only safe wavedash is back on the stage
-            edge_x = melee.stages.edgegroundposition(gamestate.stage)
+            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
             if opponent_state.x < 0:
                 edge_x = -edge_x
             edgedistance = abs(edge_x - smashbot_state.x)
@@ -106,7 +106,7 @@ class Waveshine(Chain):
             delta = (self.distance / 2) # 0->0.5
             if not direction:
                 delta = -delta
-            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .2)
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .35) #near perfect WD angle
             return
 
         # If we're sliding and have shined, then we're all done here

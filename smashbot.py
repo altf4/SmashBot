@@ -12,8 +12,8 @@ from esagent import ESAgent
 def check_port(value):
     ivalue = int(value)
     if ivalue < 1 or ivalue > 4:
-         raise argparse.ArgumentTypeError("%s is an invalid controller port. \
-         Must be 1, 2, 3, or 4." % value)
+        raise argparse.ArgumentTypeError("%s is an invalid controller port. \
+        Must be 1, 2, 3, or 4." % value)
     return ivalue
 
 def is_dir(dirname):
@@ -67,11 +67,8 @@ console = melee.console.Console(ai_port=args.port,
                                 opponent_port=args.opponent,
                                 opponent_type=opponent_type,
                                 dolphin_executable_path=args.dolphinexecutable,
+                                slippi_address=args.address,
                                 logger=log)
-
-# If not set by the user, this will be an empty string, which will trigger
-#   an autodiscover process
-console.slippi_address = args.address
 
 controller_one = melee.controller.Controller(port=args.port, console=console)
 controller_two = None
@@ -105,7 +102,7 @@ print("Connecting to console...")
 if not console.connect():
     print("ERROR: Failed to connect to the console.")
     print("\tIf you're trying to autodiscover, local firewall settings can " +
-        "get in the way. Try specifying the address manually.")
+          "get in the way. Try specifying the address manually.")
     sys.exit(-1)
 
 #Plug our controller in
@@ -160,33 +157,33 @@ while True:
 
     #If we're at the character select screen, choose our character
     elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
-        melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
-                                        gamestate=gamestate,
-                                        port=args.port,
-                                        opponent_port=args.opponent,
-                                        controller=agent1.controller,
-                                        swag=True,
-                                        start=False)
+        melee.menuhelper.choose_character(character=melee.enums.Character.FOX,
+                                          gamestate=gamestate,
+                                          port=args.port,
+                                          opponent_port=args.opponent,
+                                          controller=agent1.controller,
+                                          swag=True,
+                                          start=False)
         if agent2:
-            melee.menuhelper.choosecharacter(character=melee.enums.Character.FOX,
-                                            gamestate=gamestate,
-                                            port=args.opponent,
-                                            opponent_port=args.port,
-                                            controller=agent2.controller,
-                                            swag=True,
-                                            start=False)
+            melee.menuhelper.choose_character(character=melee.enums.Character.FOX,
+                                              gamestate=gamestate,
+                                              port=args.opponent,
+                                              opponent_port=args.port,
+                                              controller=agent2.controller,
+                                              swag=True,
+                                              start=False)
     #If we're at the postgame scores screen, spam START
     elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
-        melee.menuhelper.skippostgame(controller=agent1.controller)
+        melee.menuhelper.skip_postgame(controller=agent1.controller)
         if agent2:
-            melee.menuhelper.skippostgame(controller=agent2.controller)
+            melee.menuhelper.skip_postgame(controller=agent2.controller)
     #If we're at the stage select screen, choose a stage
     elif gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
         if agent2:
             agent2.controller.empty_input()
-        melee.menuhelper.choosestage(stage=melee.enums.Stage.FINAL_DESTINATION,
-                                    gamestate=gamestate,
-                                    controller=agent1.controller)
+        melee.menuhelper.choose_stage(stage=melee.enums.Stage.FINAL_DESTINATION,
+                                      gamestate=gamestate,
+                                      controller=agent1.controller)
     #Flush any button presses queued up
     agent1.controller.flush()
     if agent2:

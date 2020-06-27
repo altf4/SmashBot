@@ -77,19 +77,19 @@ class Defend(Tactic):
 
         # What state of the attack is the opponent in?
         # Windup / Attacking / Cooldown / Not Attacking
-        attackstate = framedata.attackstate_simple(opponent_state)
+        attackstate = framedata.attack_state(opponent_state)
         if attackstate == melee.enums.AttackState.COOLDOWN:
             return False
         if attackstate == melee.enums.AttackState.NOT_ATTACKING:
             return False
 
         # We can't be grabbed while on the edge
-        if framedata.isgrab(opponent_state.character, opponent_state.action) and \
+        if framedata.is_grab(opponent_state.character, opponent_state.action) and \
                 smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             return False
 
         # Will we be hit by this attack if we stand still?
-        hitframe = framedata.inrange(opponent_state, smashbot_state, gamestate.stage)
+        hitframe = framedata.in_range(opponent_state, smashbot_state, gamestate.stage)
         # Only defend on the edge if the hit is about to get us
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING] and hitframe > 2:
             return False
@@ -130,7 +130,7 @@ class Defend(Tactic):
                 self.pickchain(Chains.Powershield)
                 return
 
-        hitframe = framedata.inrange(opponent_state, smashbot_state, gamestate.stage)
+        hitframe = framedata.in_range(opponent_state, smashbot_state, gamestate.stage)
         framesuntilhit = hitframe - opponent_state.action_frame
 
         # FireFox is different
@@ -145,7 +145,7 @@ class Defend(Tactic):
                 framesuntilhit = 0
 
         # Is the attack a grab? If so, spot dodge right away
-        if self.framedata.isgrab(opponent_state.character, opponent_state.action):
+        if self.framedata.is_grab(opponent_state.character, opponent_state.action):
             if opponent_state.character != Character.SAMUS or framesuntilhit <= 2:
                 self.pickchain(Chains.SpotDodge)
                 return
@@ -156,9 +156,9 @@ class Defend(Tactic):
         # Don't shine clank on the most optimal difficulty
         if self.difficulty >= 2:
             # If the attack has exactly one hitbox, then try shine clanking to defend
-            if framedata.hitboxcount(opponent_state.character, opponent_state.action) == 1:
+            if framedata.hitbox_count(opponent_state.character, opponent_state.action) == 1:
                 # It must be the first frame of the attack
-                if hitframe == framedata.firsthitboxframe(opponent_state.character, opponent_state.action):
+                if hitframe == framedata.first_hitbox_frame(opponent_state.character, opponent_state.action):
                     # Grounded attacks only
                     if opponent_state.on_ground:
                         if (framesuntilhit == 2 and smashbot_state.action == Action.DASHING) or \
@@ -173,15 +173,15 @@ class Defend(Tactic):
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
-            hold = framedata.hitboxcount(opponent_state.character, opponent_state.action) > 1
+            hold = framedata.hitbox_count(opponent_state.character, opponent_state.action) > 1
             self.pickchain(Chains.Powershield, [hold])
         else:
             # 12 starting buffer for Fox's character model size
             bufferzone = 12
             if onfront:
-                bufferzone += framedata.getrange_forward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
+                bufferzone += framedata.range_forward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
             else:
-                bufferzone += framedata.getrange_backward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
+                bufferzone += framedata.range_backward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
 
             pivotpoint = opponent_state.x
             # Dash to a point away from the opponent, out of range
@@ -189,10 +189,10 @@ class Defend(Tactic):
                 # Dash right
                 pivotpoint += bufferzone
                 # But don't run off the edge
-                pivotpoint = min(melee.stages.edgegroundposition(gamestate.stage)-5, pivotpoint)
+                pivotpoint = min(melee.stages.EDGE_GROUND_POSITION[gamestate.stage]-5, pivotpoint)
             else:
                 # Dash Left
                 pivotpoint -= bufferzone
                 # But don't run off the edge
-                pivotpoint = max(-melee.stages.edgegroundposition(gamestate.stage) + 5, pivotpoint)
+                pivotpoint = max(-melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 5, pivotpoint)
             self.pickchain(Chains.DashDance, [pivotpoint])

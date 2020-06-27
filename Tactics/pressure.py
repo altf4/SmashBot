@@ -86,8 +86,8 @@ class Pressure(Tactic):
 
         inshinerange = gamestate.distance < 11.80-3
         # Where will opponent end up, after sliding is accounted for? (at the end of our grab)
-        endposition = opponent_state.x + self.framedata.slidedistance(opponent_state, opponent_state.speed_ground_x_self, 7)
-        ourendposition = smashbot_state.x + self.framedata.slidedistance(smashbot_state, smashbot_state.speed_ground_x_self, 7)
+        endposition = opponent_state.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_ground_x_self, 7)
+        ourendposition = smashbot_state.x + self.framedata.slide_distance(smashbot_state, smashbot_state.speed_ground_x_self, 7)
         ingrabrange = abs(endposition - ourendposition) < 13.5
 
         # If we're out of range, and CAN dash, then let's just dash in no matter
