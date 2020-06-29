@@ -6,7 +6,7 @@ from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Chains.shffl import SHFFL_DIRECTION
 
-class Punish(Tactic): #remove this comment, we're testing git
+class Punish(Tactic):
     # How many frames do we have to work with for the punish
     def framesleft(opponent_state, framedata):
         # For some dumb reason, the game shows the standing animation as having a large hitstun
