@@ -77,7 +77,7 @@ class Defend(Tactic):
 
         # What state of the attack is the opponent in?
         # Windup / Attacking / Cooldown / Not Attacking
-        attackstate = framedata.attack_state(opponent_state)
+        attackstate = framedata.attack_state(opponent_state.character, opponent_state.action, opponent_state.action_frame)
         if attackstate == melee.enums.AttackState.COOLDOWN:
             return False
         if attackstate == melee.enums.AttackState.NOT_ATTACKING:

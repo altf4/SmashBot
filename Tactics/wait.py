@@ -10,7 +10,7 @@ class Wait(Tactic):
             return False
 
         # If we're in the cooldown for an attack, just do nothing.
-        if framedata.attack_state(smashbot_state) == melee.enums.AttackState.COOLDOWN:
+        if framedata.attack_state(smashbot_state.character, smashbot_state.action, smashbot_state.action_frame) == melee.enums.AttackState.COOLDOWN:
             return True
 
         if smashbot_state.action in [Action.BACKWARD_TECH, Action.NEUTRAL_TECH, Action.FORWARD_TECH, \
