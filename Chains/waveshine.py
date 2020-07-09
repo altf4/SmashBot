@@ -16,7 +16,7 @@ class Waveshine(Chain):
 
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
-            Action.RUNNING]
+            Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START, Action.CROUCH_END] # Added last 3 because Smashbot would do nothing if Chains.Waveshine was called during them
 
         jcshine = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
         lastdashframe = (smashbot_state.action == Action.DASHING) and (smashbot_state.action_frame == 12)
@@ -52,13 +52,21 @@ class Waveshine(Chain):
             self.interruptible = True
             controller.release_button(Button.BUTTON_B)
             controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+            #controller.press_button(Button.BUTTON_Y) #attempt JC shine instead of pivot shine
+            return
+
+        # In the off-chance waveshine.py gets called during GRAB_WAIT, down-throw
+        if smashbot_state.action == Action.GRAB_WAIT:
+            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
+            if self.controller.prev.main_stick[1] == 0:
+                controller.empty_input()
             return
 
         isInShineStart = smashbot_state.action in [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
-        isinshield = smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD]
+        needsJC = smashbot_state.action in [Action.SHIELD_RELEASE, Action.SHIELD, Action.TURNING_RUN] #Added TURNING_RUN in case waveshine gets called during that animation
 
-        # Jump out of shield
-        if isinshield:
+        # Jump out of shield, turning run, or tilt turn
+        if needsJC or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)): #
             if controller.prev.button[Button.BUTTON_Y]:
                 controller.empty_input()
                 return
@@ -106,11 +114,11 @@ class Waveshine(Chain):
             delta = (self.distance / 2) # 0->0.5
             if not direction:
                 delta = -delta
-            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .35) #near perfect WD angle
+            controller.tilt_analog(Button.BUTTON_MAIN, 0.5 + delta, .35)
             return
 
         # If we're sliding and have shined, then we're all done here
-        if smashbot_state.action == Action.LANDING_SPECIAL and self.hasshined:
+        if smashbot_state.action == Action.LANDING_SPECIAL: #removed and self.hasshined
             self.interruptible = True
             controller.empty_input()
             return

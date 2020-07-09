@@ -15,6 +15,17 @@ class DashDance(Chain):
             self.controller.empty_input()
             return
 
+        # Causes an empty_input if hitting left did not cause Smashbot to be TURNING or DASHING left, i.e. if Smashbot attempts a dashback during frames 1-3 of initial dash forward.
+        if (self.controller.prev.main_stick[0] == 1) and (smashbot_state.action == Action.DASHING and not smashbot_state.facing):
+            self.controller.empty_input()
+            return
+
+        # Causes an empty_input if hitting left did not cause Smashbot to be TURNING or DASHING left, i.e. if Smashbot attempts a dashback during frames 1-3 of initial dash forward.
+        if (self.controller.prev.main_stick[0] == 0) and (smashbot_state.action == Action.DASHING and smashbot_state.facing):
+            self.controller.empty_input()
+            return
+
+
         if smashbot_state.action == Action.ON_HALO_WAIT:
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
@@ -63,8 +74,38 @@ class DashDance(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                 return
 
+        #Hit down to run cancel if you enter Action.RUNNING, continue holding down if in CROUCH_START
+        # #Action.FOX_DASH_FRAMES
+        if smashbot_state.action == Action.RUNNING or smashbot_state.action == Action.RUN_BRAKE or smashbot_state.action == Action.CROUCH_START:
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+                return
+
+        #We can't dashback while in CROUCH_END. We can, however, dash forward.
+        if smashbot_state.action == Action.CROUCH_END:
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), 0)
+                return
+
+        #We need to input a jump to wavedash out of these states if dash/run gets called while in one of these states, or else we get stuck
+        jcstates = [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.TURNING_RUN]
+        if (smashbot_state.action in jcstates) or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)): #Also detects accidental tilt turns & decides to wavedash
+                self.controller.press_button(Button.BUTTON_Y)
+                return
+
+        # Airdodge for the wavedash
+        jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
+        jumpcancel = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
+        if jumpcancel or smashbot_state.action in jumping:
+            self.controller.press_button(Button.BUTTON_L)
+            onleft = smashbot_state.x < opponent_state.x
+            # Normalize distance from (0->1) to (0.5 -> 1)
+            x = 1
+            if onleft != False:
+                x = -x
+            self.controller.tilt_analog(Button.BUTTON_MAIN, x, 0.35)
+            return
+
         #We can't dash IMMEDIATELY after landing. So just chill for a bit
-        if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 2) or \
+        if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 4) or \
             not smashbot_state.on_ground:
                 self.controller.empty_input()
                 return
@@ -87,6 +128,6 @@ class DashDance(Chain):
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
             return
 
-        #Keep running the direction we're going
+        #Dash away if within a given radius
         self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
         return
