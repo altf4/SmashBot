@@ -46,6 +46,8 @@ parser.add_argument('--configdir', '-c', type=is_dir,
                     help='Manually specify the Dolphin config directory to use')
 parser.add_argument('--address', '-a', default="",
                     help='IP address of Slippi/Wii')
+parser.add_argument('--connect_code', '-t', default="",
+                    help='Direct connect code to connect to in Slippi Online')
 
 args = parser.parse_args()
 
@@ -104,6 +106,7 @@ if not console.connect():
     print("\tIf you're trying to autodiscover, local firewall settings can " +
           "get in the way. Try specifying the address manually.")
     sys.exit(-1)
+print("Connected")
 
 #Plug our controller in
 #   Due to how named pipes work, this has to come AFTER running dolphin
@@ -134,10 +137,7 @@ while True:
             if agent2:
                 agent2.difficulty = gamestate.player[agent2.smashbot_port].stock
 
-        if gamestate.stage != melee.enums.Stage.FINAL_DESTINATION:
-            melee.techskill.multishine(ai_state=gamestate.player[agent1.smashbot_port],
-                                       controller=agent1.controller)
-        elif gamestate.player[agent1.smashbot_port].character not in supportedcharacters:
+        if gamestate.player[agent1.smashbot_port].character not in supportedcharacters:
             melee.techskill.multishine(ai_state=gamestate.player[agent1.smashbot_port],
                                        controller=agent1.controller)
         else:
@@ -154,36 +154,16 @@ while True:
             #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
             #     else:
             #         print("WARNING: Exception thrown: ", error)
+    else:
+        melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
+                                                        controller_one,
+                                                        args.port,
+                                                        melee.enums.Character.FOX,
+                                                        melee.enums.Stage.FINAL_DESTINATION,
+                                                        args.connect_code,
+                                                        autostart=False,
+                                                        swag=True)
 
-    #If we're at the character select screen, choose our character
-    elif gamestate.menu_state == melee.enums.Menu.CHARACTER_SELECT:
-        melee.menuhelper.choose_character(character=melee.enums.Character.FOX,
-                                          gamestate=gamestate,
-                                          port=args.port,
-                                          opponent_port=args.opponent,
-                                          controller=agent1.controller,
-                                          swag=True,
-                                          start=False)
-        if agent2:
-            melee.menuhelper.choose_character(character=melee.enums.Character.FOX,
-                                              gamestate=gamestate,
-                                              port=args.opponent,
-                                              opponent_port=args.port,
-                                              controller=agent2.controller,
-                                              swag=True,
-                                              start=False)
-    #If we're at the postgame scores screen, spam START
-    elif gamestate.menu_state == melee.enums.Menu.POSTGAME_SCORES:
-        melee.menuhelper.skip_postgame(controller=agent1.controller)
-        if agent2:
-            melee.menuhelper.skip_postgame(controller=agent2.controller)
-    #If we're at the stage select screen, choose a stage
-    elif gamestate.menu_state == melee.enums.Menu.STAGE_SELECT:
-        if agent2:
-            agent2.controller.empty_input()
-        melee.menuhelper.choose_stage(stage=melee.enums.Stage.FINAL_DESTINATION,
-                                      gamestate=gamestate,
-                                      controller=agent1.controller)
     #Flush any button presses queued up
     agent1.controller.flush()
     if agent2:
