@@ -38,27 +38,22 @@
 
 ## Setup Steps:
 
-1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. For now, you'll need to install the latest version on GitHub (not in pip). That means download the code here:
-https://github.com/altf4/libmelee/ and copy the `melee` folder directly into the SmahBot code directory. (Adjacent to this Readme.md)
+1. Install libmelee, a Python 3 API for interacting with Dolphin and Melee. `pip3 install melee`
+Also make sure to stay updated on libmelee with `pip3 install --upgrade melee`
 
-2. Install some Python dependencies. `pip3 install -r requirements.txt`
+2. Build the Dolphin (Ishiiruka) version here. https://github.com/altf4/Ishiiruka/tree/gamma
 
-3. Build the Dolphin (Ishiiruka) version here. Install it if you like, it's not necessary though.
-https://github.com/altf4/Ishiiruka/tree/gamma
+3. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
 
-4. Make sure you're running Melee v1.02 NTSC. Other versions will not work.
+4. If you want to play interactively with or against your AI, you'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI
 
-5. If you want to play interactively with or against your AI, you'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI
-
-6. If you're using a GameCube Adapter, make sure to install the drivers / configure the udev rules, as described here:
+5. If you're using a GameCube Adapter, make sure to install the drivers / configure the udev rules, as described here:
 https://wiki.dolphin-emu.org/index.php?title=How_to_use_the_Official_GameCube_Controller_Adapter_for_Wii_U_in_Dolphin
 
-7. Install come custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
+6. Install come custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
 
-8. Make sure you have all the `Required` and `Recommended` Gecko Codes enabled.
+7. Make sure you have all the `Required` and `Recommended` Gecko Codes enabled.
 
-9. Run `smashbot.py`
+8. Run `smashbot.py -e PATH_TO_DOLPHIN_EXE` (Not the actual exe itself, just the directory where it is)
 
-10. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
-
-11. If you did not "install" Ishiiruka, then specify the location where the executable is with the `-e` flag. `smashbot.py -e PATH_TO_DOLPHIN_EXE`. (Not the actual exe itself, just the directory where it is)
+9. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
