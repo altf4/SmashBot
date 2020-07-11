@@ -164,11 +164,6 @@ while True:
                                                         autostart=False,
                                                         swag=True)
 
-    #Flush any button presses queued up
-    agent1.controller.flush()
-    if agent2:
-        agent2.controller.flush()
-
     if log:
         log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
         log.logframe(gamestate)
