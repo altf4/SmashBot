@@ -142,6 +142,13 @@ while True:
                                        controller=agent1.controller)
         else:
             # try:
+            discovered_port = melee.gamestate.port_detector(gamestate, agent1.controller, melee.enums.Character.FOX)
+            agent1.smashbot_port = discovered_port
+            if agent1.smashbot_port == 1:
+                agent1.opponent_port = 2
+            else:
+                agent1.opponent_port = 1
+
             agent1.act(gamestate)
             if agent2:
                 agent2.act(gamestate)
