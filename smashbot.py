@@ -64,22 +64,20 @@ if not args.bot:
     opponent_type = melee.enums.ControllerType.GCN_ADAPTER
 
 #Create our console object. This will be the primary object that we will interface with
-console = melee.console.Console(ai_port=args.port,
-                                is_dolphin=True,
-                                opponent_port=args.opponent,
-                                opponent_type=opponent_type,
-                                dolphin_executable_path=args.dolphinexecutable,
+console = melee.console.Console(path=args.dolphinexecutable,
                                 slippi_address=args.address,
                                 logger=log)
 
-controller_one = melee.controller.Controller(port=args.port, console=console)
-controller_two = None
+controller_one = melee.controller.Controller(console=console, port=args.port)
+controller_two = melee.controller.Controller(console=console,
+                                             port=args.opponent,
+                                             type=opponent_type)
 
 #initialize our agent
 agent1 = ESAgent(console, args.port, args.opponent, controller_one)
 agent2 = None
 if args.bot:
-    controller_two = melee.controller.Controller(port=args.opponent, console=console)
+    controller_two = melee.controller.Controller(console=console, port=args.opponent)
     agent2 = ESAgent(console, args.opponent, args.port, controller_two)
 
 def signal_handler(signal, frame):
@@ -108,13 +106,9 @@ if not console.connect():
     sys.exit(-1)
 print("Connected")
 
-#Plug our controller in
-#   Due to how named pipes work, this has to come AFTER running dolphin
-#   NOTE: If you're loading a movie file, don't connect the controller,
-#   dolphin will hang waiting for input and never receive it
+# Plug our controller in
 controller_one.connect()
-if controller_two:
-    controller_two.connect()
+controller_two.connect()
 
 supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
