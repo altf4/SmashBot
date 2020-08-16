@@ -22,3 +22,4 @@ from Chains.dropdownshine import Dropdownshine
 from Chains.tech import Tech
 from Chains.roll import Roll
 from Chains.edgebair import Edgebair
+from Chains.boardsideplatform import BoardSidePlatform
