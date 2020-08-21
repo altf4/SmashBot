@@ -2,12 +2,11 @@ import melee
 import math
 from Strategies.bait import Bait
 
-"""
-Expert system agent for SmashBot.
-This is the "manually programmed" TAS-looking agent.
-Only plays Fox on FD.
-"""
 class ESAgent():
+    """
+    Expert system agent for SmashBot.
+    This is the "manually programmed" TAS-looking agent.
+    """
     def __init__(self, dolphin, smashbot_port, opponent_port, controller):
         self.smashbot_port = smashbot_port
         self.opponent_port = opponent_port
