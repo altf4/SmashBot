@@ -335,7 +335,8 @@ class Punish(Tactic):
                     # Additionally, if the opponent is going to get sent offstage by the shine, wavedash down
                     if abs(endposition)+20 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
                         x = 0
-                    self.pickchain(Chains.Waveshine, [x])
+                    if framesleft in range(1,5):
+                        self.pickchain(Chains.Waveshine, [x])
                     return
             # We're in range, but don't have enough time. Let's try turning around to do a pivot.
             else:
