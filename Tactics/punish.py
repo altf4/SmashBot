@@ -332,6 +332,9 @@ class Punish(Tactic):
                     # If we are really close to the edge, wavedash straight down
                     if melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 3:
                         x = 0
+                    # Additionally, if the opponent is going to get sent offstage by the shine, wavedash down
+                    if abs(endposition)+20 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
+                        x = 0
                     self.pickchain(Chains.Waveshine, [x])
                     return
             # We're in range, but don't have enough time. Let's try turning around to do a pivot.
