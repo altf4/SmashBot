@@ -74,7 +74,12 @@ controller_two = melee.controller.Controller(console=console,
                                              type=opponent_type)
 
 #initialize our agent
-agent1 = ESAgent(console, args.port, args.opponent, controller_one, args.difficulty)
+difficulty = 0
+if args.difficulty is None:
+    difficulty = 4
+else:
+    difficulty = args.difficulty
+agent1 = ESAgent(console, args.port, args.opponent, controller_one, difficulty)
 agent2 = None
 if args.bot:
     controller_two = melee.controller.Controller(console=console, port=args.opponent)
