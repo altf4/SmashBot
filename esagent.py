@@ -7,13 +7,13 @@ class ESAgent():
     Expert system agent for SmashBot.
     This is the "manually programmed" TAS-looking agent.
     """
-    def __init__(self, dolphin, smashbot_port, opponent_port, controller):
+    def __init__(self, dolphin, smashbot_port, opponent_port, controller, difficulty=4):
         self.smashbot_port = smashbot_port
         self.opponent_port = opponent_port
         self.controller = controller
         self.framedata = melee.framedata.FrameData()
         self.logger = dolphin.logger
-        self.difficulty = 4
+        self.difficulty = difficulty
         self.strategy = Bait(self.logger,
                             self.controller,
                             self.framedata,
