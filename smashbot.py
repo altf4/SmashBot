@@ -44,10 +44,21 @@ parser.add_argument('--dolphinexecutable', '-e', type=is_dir,
                     help='Manually specify Dolphin executable')
 parser.add_argument('--configdir', '-c', type=is_dir,
                     help='Manually specify the Dolphin config directory to use')
-parser.add_argument('--address', '-a', default="127.0.0.1",
+parser.add_argument('--address', '-a', default="",
                     help='IP address of Slippi/Wii')
 parser.add_argument('--connect_code', '-t', default="",
                     help='Direct connect code to connect to in Slippi Online')
+parser.add_argument('--stage', '-s', default="FD",
+                    help='Specify which stage to select')
+
+stagedict = {
+"FD": melee.enums.Stage.FINAL_DESTINATION,
+"BF": melee.enums.Stage.BATTLEFIELD,
+"YS": melee.enums.Stage.YOSHIS_STORY,
+"FOD": melee.enums.Stage.FOUNTAIN_OF_DREAMS,
+"DL": melee.enums.Stage.DREAMLAND,
+"PS": melee.enums.Stage.POKEMON_STADIUM
+}
 
 args = parser.parse_args()
 
@@ -74,12 +85,7 @@ controller_two = melee.controller.Controller(console=console,
                                              type=opponent_type)
 
 #initialize our agent
-difficulty = 0
-if args.difficulty is None:
-    difficulty = 4
-else:
-    difficulty = args.difficulty
-agent1 = ESAgent(console, args.port, args.opponent, controller_one, difficulty)
+agent1 = ESAgent(console, args.port, args.opponent, controller_one)
 agent2 = None
 if args.bot:
     controller_two = melee.controller.Controller(console=console, port=args.opponent)
@@ -165,7 +171,7 @@ while True:
                                                         controller_one,
                                                         args.port,
                                                         melee.enums.Character.FOX,
-                                                        melee.enums.Stage.FINAL_DESTINATION,
+                                                        stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
                                                         args.connect_code,
                                                         autostart=False,
                                                         swag=True)
