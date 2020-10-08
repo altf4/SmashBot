@@ -52,6 +52,12 @@ class DashDance(Chain):
             self.controller.empty_input()
             return
 
+        # Smashbot normally acts on frame 10 (stored as frame 28) of LANDING_SPECIAL. However, this can prevent him from teetering the ledge when wavedashing forward towards it.
+        edgedistance = abs(smashbot_state.x) - melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
+        if smashbot_state.action == Action.LANDING_SPECIAL and smashbot_state.action_frame == 28 and edgedistance < 2:
+            self.controller.empty_input()
+            return
+
         #If we're walking, stop for a frame
         #Also, if we're shielding, don't try to dash. We will accidentally roll
         if smashbot_state.action == Action.WALK_SLOW or \
@@ -74,9 +80,9 @@ class DashDance(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                 return
 
-        #Hit down to run cancel if you enter Action.RUNNING, continue holding down if in CROUCH_START
+        # Continue holding down if you enter RUN_BRAKE or CROUCH_START. Removed Action.RUNNING from these action states because that was causing down inputs which disrupted waveshine combos.
         # #Action.FOX_DASH_FRAMES
-        if smashbot_state.action == Action.RUNNING or smashbot_state.action == Action.RUN_BRAKE or smashbot_state.action == Action.CROUCH_START:
+        if smashbot_state.action in [Action.RUN_BRAKE, Action.CROUCH_START]:
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
                 return
 
@@ -90,6 +96,17 @@ class DashDance(Chain):
         if (smashbot_state.action in jcstates) or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)): #Also detects accidental tilt turns & decides to wavedash
                 self.controller.press_button(Button.BUTTON_Y)
                 return
+
+        #If the past action didn't work because Smashbot tried to press Y on a bad frame and continues holding Y, he needs to let go of Y and try again
+        if self.controller.prev.button[Button.BUTTON_Y] and smashbot_state.action in jcstates:
+            self.controller.release_button(Button.BUTTON_Y)
+            self.controller.press_button(Button.BUTTON_X)
+            return
+
+        #If the past action didn't work because Smashbot tried to press Y on a bad frame and continues holding Y, he should let go of X
+        if self.controller.prev.button[Button.BUTTON_X] and smashbot_state.action in jcstates:
+            self.controller.release_button(Button.BUTTON_X)
+            return
 
         # Airdodge for the wavedash
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
