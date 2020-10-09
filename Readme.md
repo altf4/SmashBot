@@ -8,6 +8,7 @@
     Fox, of course!
 
 2. **Does SmashBot work with Slippi?**
+
     It does! To run SmashBot, you can just use your regular Slippi Dolphin install.
 
 3. **Does SmashBot cheat?**
