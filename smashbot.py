@@ -44,7 +44,7 @@ parser.add_argument('--dolphinexecutable', '-e', type=is_dir,
                     help='Manually specify Dolphin executable')
 parser.add_argument('--configdir', '-c', type=is_dir,
                     help='Manually specify the Dolphin config directory to use')
-parser.add_argument('--address', '-a', default="",
+parser.add_argument('--address', '-a', default="127.0.0.1",
                     help='IP address of Slippi/Wii')
 parser.add_argument('--connect_code', '-t', default="",
                     help='Direct connect code to connect to in Slippi Online')
@@ -52,12 +52,12 @@ parser.add_argument('--stage', '-s', default="FD",
                     help='Specify which stage to select')
 
 stagedict = {
-"FD": melee.enums.Stage.FINAL_DESTINATION,
-"BF": melee.enums.Stage.BATTLEFIELD,
-"YS": melee.enums.Stage.YOSHIS_STORY,
-"FOD": melee.enums.Stage.FOUNTAIN_OF_DREAMS,
-"DL": melee.enums.Stage.DREAMLAND,
-"PS": melee.enums.Stage.POKEMON_STADIUM
+    "FD": melee.enums.Stage.FINAL_DESTINATION,
+    "BF": melee.enums.Stage.BATTLEFIELD,
+    "YS": melee.enums.Stage.YOSHIS_STORY,
+    "FOD": melee.enums.Stage.FOUNTAIN_OF_DREAMS,
+    "DL": melee.enums.Stage.DREAMLAND,
+    "PS": melee.enums.Stage.POKEMON_STADIUM
 }
 
 args = parser.parse_args()
@@ -66,15 +66,15 @@ log = None
 if args.debug:
     log = melee.logger.Logger()
 
-#Options here are:
-#   GCN_ADAPTER will use your WiiU adapter for live human-controlled play
-#   UNPLUGGED is pretty obvious what it means
-#   STANDARD is a named pipe input (bot)
+# Options here are:
+#    GCN_ADAPTER will use your WiiU adapter for live human-controlled play
+#    UNPLUGGED is pretty obvious what it means
+#    STANDARD is a named pipe input (bot)
 opponent_type = melee.enums.ControllerType.STANDARD
 if not args.bot:
     opponent_type = melee.enums.ControllerType.GCN_ADAPTER
 
-#Create our console object. This will be the primary object that we will interface with
+# Create our console object. This will be the primary object that we will interface with
 console = melee.console.Console(path=args.dolphinexecutable,
                                 slippi_address=args.address,
                                 logger=log)
@@ -84,7 +84,7 @@ controller_two = melee.controller.Controller(console=console,
                                              port=args.opponent,
                                              type=opponent_type)
 
-#initialize our agent
+# initialize our agent
 agent1 = ESAgent(console, args.port, args.opponent, controller_one)
 agent2 = None
 if args.bot:
@@ -95,14 +95,14 @@ def signal_handler(signal, frame):
     console.stop()
     if args.debug:
         log.writelog()
-        print("") #because the ^C will be on the terminal
+        print("") # because the ^C will be on the terminal
         print("Log file created: " + log.filename)
     print("Shutting down cleanly...")
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 
-#Run dolphin and render the output
+# Run dolphin and render the output
 if not args.nodolphin:
     console.run()
     time.sleep(1)
@@ -125,14 +125,14 @@ supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFAL
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
     melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH]
 
-#Main loop
+# Main loop
 while True:
-    #"step" to the next frame
+    # "step" to the next frame
     gamestate = console.step()
 
-    #What menu are we in?
+    # What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        #The agent's "step" will cascade all the way down the objective hierarchy
+        # The agent's "step" will cascade all the way down the objective hierarchy
         if args.difficulty:
             agent1.difficulty = int(args.difficulty)
             if agent2:
