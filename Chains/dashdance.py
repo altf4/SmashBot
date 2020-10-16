@@ -52,6 +52,12 @@ class DashDance(Chain):
             self.controller.empty_input()
             return
 
+        # Smashbot normally acts on frame 10 (stored as frame 28) of LANDING_SPECIAL. However, this can prevent him from teetering the ledge when wavedashing forward towards it.
+        edgedistance = abs(smashbot_state.x) - melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
+        if smashbot_state.action == Action.LANDING_SPECIAL and smashbot_state.action_frame == 28 and edgedistance < 2:
+            self.controller.empty_input()
+            return
+
         #If we're walking, stop for a frame
         #Also, if we're shielding, don't try to dash. We will accidentally roll
         if smashbot_state.action == Action.WALK_SLOW or \
@@ -74,9 +80,9 @@ class DashDance(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                 return
 
-        #Hit down to run cancel if you enter Action.RUNNING, continue holding down if in CROUCH_START
+        # Continue holding down if you enter RUN_BRAKE or CROUCH_START. Removed Action.RUNNING from these action states because that was causing down inputs which disrupted waveshine combos.
         # #Action.FOX_DASH_FRAMES
-        if smashbot_state.action == Action.RUNNING or smashbot_state.action == Action.RUN_BRAKE or smashbot_state.action == Action.CROUCH_START:
+        if smashbot_state.action in [Action.RUN_BRAKE, Action.CROUCH_START]:
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
                 return
 
@@ -85,11 +91,25 @@ class DashDance(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), 0)
                 return
 
-        #We need to input a jump to wavedash out of these states if dash/run gets called while in one of these states, or else we get stuck
-        jcstates = [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.TURNING_RUN]
-        if (smashbot_state.action in jcstates) or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)): #Also detects accidental tilt turns & decides to wavedash
+        # Do nothing during the first 2 frames of DOWN_B_GROUND_START
+        cantjcyet = smashbot_state == Action.DOWN_B_GROUND_START and smashbot_state.action_frame < 3
+        if cantjcyet:
+            self.controller.empty_input()
+            return
+
+        # We need to input a jump to wavedash out of these states if dash/run gets called while in one of these states, or else we get stuck
+        jcstates = smashbot_state.action in [Action.TURNING_RUN] or smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame == 3
+        if jcstates or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)): #Also detects accidental tilt turns & decides to wavedash
+            self.controller.press_button(Button.BUTTON_Y)
+            return
+
+        # Sometimes, we find ourselves getting past frame 3 of DOWN_B_GROUND_START and/or entering DOWN_B_GROUND. The old inputs would cause Smashbot to keep inputting Y and get stuck in shine.
+        stuckinshine = (smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame > 3) or smashbot_state.action == Action.DOWN_B_GROUND
+        if stuckinshine:
+            if bool(gamestate.frame % 2):
                 self.controller.press_button(Button.BUTTON_Y)
-                return
+            else:
+                self.controller.release_button(Button.BUTTON_Y)
 
         # Airdodge for the wavedash
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]
