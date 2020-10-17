@@ -53,14 +53,14 @@ class Infinite(Tactic):
 
         # Give up the infinite if we're in our last dashing frame, and are getting close to the edge
         #  We are at risk of running off the edge when this happens
-        #if (smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11):
-        if (smashbot_state.speed_ground_x_self > 0) == (smashbot_state.x > 0):
-            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            if opponent_state.x < 0:
-                edge_x = -edge_x
-            edgedistance = abs(edge_x - smashbot_state.x)
-            if edgedistance < 42: #increased from 16 due to Smashbot still wavedashing offstage even when he waveshines at an edgedistance of 25
-                return False
+        if (smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11):
+            if (smashbot_state.speed_ground_x_self > 0) == (smashbot_state.x > 0):
+                edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
+                if opponent_state.x < 0:
+                    edge_x = -edge_x
+                edgedistance = abs(edge_x - smashbot_state.x)
+                if edgedistance < 42: #increased from 16 due to Smashbot still wavedashing offstage even when he waveshines at an edgedistance of 25
+                    return False
 
         # If opponent is attacking, don't infinite
         if framedata.is_attack(opponent_state.character, opponent_state.action):
