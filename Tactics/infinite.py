@@ -81,9 +81,6 @@ class Infinite(Tactic):
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
 
-        # TODO Should this only be set once per instance?
-        self.movingright = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self > 0
-
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
             self.chain.step(gamestate, smashbot_state, opponent_state)
@@ -109,16 +106,10 @@ class Infinite(Tactic):
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return
-            onright = opponent_state.x < smashbot_state.x
-            opponentspeed = opponent_state.speed_x_attack + opponent_state.speed_ground_x_self
-            # If opponent isn't moving, then just try to shine back towards the middle
-            if abs(opponentspeed) > 0.01:
-                self.movingright = opponentspeed > 0
 
             # We always want to try to shine our opponent towards the center of the stage
             # If we are lined up right now, do the shine
-            if smashbot_state.x < opponent_state.x < 0 or \
-                    0 < opponent_state.x < smashbot_state.x:
+            if (smashbot_state.x < opponent_state.x < 0) or (0 < opponent_state.x < smashbot_state.x):
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return
@@ -130,6 +121,7 @@ class Infinite(Tactic):
                 return
 
             # If we are running away from our opponent, just shine now
+            onright = opponent_state.x < smashbot_state.x
             if (smashbot_state.speed_ground_x_self > 0) == onright:
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
@@ -141,5 +133,6 @@ class Infinite(Tactic):
 
         dontrun = smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]
         if not dontrun:
-            self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x]) #old parameter of [opponent_state.speed_x_attack > 0] made smashbot run AWAY from the opponent's endposition due to their current velocity
+            # old parameter of [opponent_state.speed_x_attack > 0] made smashbot run AWAY from the opponent's endposition due to their current velocity
+            self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
         return
