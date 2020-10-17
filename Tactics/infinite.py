@@ -133,6 +133,5 @@ class Infinite(Tactic):
 
         dontrun = smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]
         if not dontrun:
-            # old parameter of [opponent_state.speed_x_attack > 0] made smashbot run AWAY from the opponent's endposition due to their current velocity
-            self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
+            self.pickchain(Chains.Run, [opponent_state.speed_x_attack > 0])
         return
