@@ -114,12 +114,6 @@ class Infinite(Tactic):
                 self.pickchain(Chains.Waveshine)
                 return
 
-            # There can be an issue with shining "towards" center if smashbot/opponent are on opposite sides of x = 0
-            if abs(smashbot_state.x) < 10 and abs(opponent_state.x) < 10:
-                self.chain = None
-                self.pickchain(Chains.Waveshine)
-                return
-
             # If we are running away from our opponent, just shine now
             onright = opponent_state.x < smashbot_state.x
             if (smashbot_state.speed_ground_x_self > 0) == onright:
