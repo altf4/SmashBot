@@ -137,7 +137,7 @@ class Infinite(Tactic):
             self.pickchain(Chains.Nothing)
             return
 
-        if not smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]:
+        if not (smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]):
             self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
             return
         return
