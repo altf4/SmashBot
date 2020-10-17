@@ -116,7 +116,7 @@ class Punish(Tactic):
         if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
                 Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
             # TODO: DO an actual lookup to see how many frames this is
-            return 9 - (opponent_state.action_frame // 3)
+            return 8 - (opponent_state.action_frame // 3)
 
         # Exception for Jigglypuff rollout
         #   The action frames are weird for this action, and Jiggs is actionable during it in 1 frame
@@ -184,19 +184,6 @@ class Punish(Tactic):
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
 
-        #If we can't interrupt the chain, just continue it
-        if self.chain != None and not self.chain.interruptible:
-            self.chain.step(gamestate, smashbot_state, opponent_state)
-            return
-
-        # TODO: May be missing some relevant inactionable states
-        inactionablestates = [Action.THROW_DOWN, Action.THROW_UP, Action.THROW_FORWARD, Action.THROW_BACK, Action.UAIR_LANDING, Action.FAIR_LANDING, \
-                Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING, Action.UPTILT, Action.DOWNTILT, Action.UPSMASH, \
-                Action.DOWNSMASH, Action.FSMASH_MID, Action.FTILT_MID, Action.FTILT_LOW, Action.FTILT_HIGH]
-        if smashbot_state.action in inactionablestates:
-            self.pickchain(Chains.Nothing)
-            return
-
         # Can we charge an upsmash right now?
         framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
 
@@ -210,6 +197,19 @@ class Punish(Tactic):
             self.logger.log("Notes", "initial endposition: " + str(endposition) + " ", concat=True)
             self.logger.log("Notes", "initial smashbot_endposition: " + str(smashbot_endposition) + " ", concat=True)
             self.logger.log("Notes", "distance: " + str(gamestate.distance) + " ", concat=True)
+
+        #If we can't interrupt the chain, just continue it
+        if self.chain != None and not self.chain.interruptible:
+            self.chain.step(gamestate, smashbot_state, opponent_state)
+            return
+
+        # TODO: May be missing some relevant inactionable states
+        inactionablestates = [Action.THROW_DOWN, Action.THROW_UP, Action.THROW_FORWARD, Action.THROW_BACK, Action.UAIR_LANDING, Action.FAIR_LANDING, \
+                Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING, Action.UPTILT, Action.DOWNTILT, Action.UPSMASH, \
+                Action.DOWNSMASH, Action.FSMASH_MID, Action.FTILT_MID, Action.FTILT_LOW, Action.FTILT_HIGH]
+        if smashbot_state.action in inactionablestates:
+            self.pickchain(Chains.Nothing)
+            return
 
         powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength == 60)
         opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
@@ -229,12 +229,24 @@ class Punish(Tactic):
                 self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                 return
 
+        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
+            Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+        # JC Shine OOS if possible/necessary
+        if framesleft in range(4,8):
+            """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return"""
+            if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return
+            if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return
+
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
         # 3 if in shield, shine, or dash/running
         framesneeded = 7
-        shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
-            Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         shineactions = [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         runningactions = [Action.DASHING, Action.RUNNING]
         if smashbot_state.action in shieldactions:
@@ -244,6 +256,7 @@ class Punish(Tactic):
         if smashbot_state.action in runningactions:
             framesneeded += 1
 
+        endposition = opponent_state.x
         isroll = self.framedata.is_roll(opponent_state.character, opponent_state.action)
         slideoff = False
 
@@ -337,17 +350,9 @@ class Punish(Tactic):
                     if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
-
-            # Shine OOS if possible/necessary
-            """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return"""
-            if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return
-            if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return
+                    else:
+                        self.pickchain(Chains.Waveshine)
+                        return
 
             # If we're not in attack range, and can't run, then maybe we can wavedash in
             #   Now we need more time for the wavedash. 10 frames of lag, and 3 jumping
