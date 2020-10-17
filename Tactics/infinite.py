@@ -105,7 +105,7 @@ class Infinite(Tactic):
         # Try to do the shine
         if gamestate.distance < shinerange and not edgetooclose:
             # emergency backup shine
-            if framesleft in range(1,3): #changed from framesleft == 1 so he has a slightly larger window to shine:
+            if framesleft == 1:
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return
