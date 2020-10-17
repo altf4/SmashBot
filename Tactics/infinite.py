@@ -132,10 +132,5 @@ class Infinite(Tactic):
             return
 
         if not smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]:
-            # In general, we want to run the direction the opponent is moving
-            #   Unless we're out of range and on the opposite side.
-            if gamestate.distance > shinerange and ((smashbot_state.x < opponent_state.x < 0) or (0 < opponent_state.x < smashbot_state.x)):
-                self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
-            else:
-                self.pickchain(Chains.Run, [opponent_state.speed_x_attack > 0])
+            self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
         return
