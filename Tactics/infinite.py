@@ -63,7 +63,7 @@ class Infinite(Tactic):
                 if opponent_state.x < 0:
                     edge_x = -edge_x
                 edgedistance = abs(edge_x - smashbot_state.x)
-                if edgedistance < 42: #increased from 16 due to Smashbot still wavedashing offstage even when he waveshines at an edgedistance of 25
+                if edgedistance < 16:
                     return False
 
         # If opponent is attacking, don't infinite
@@ -102,13 +102,19 @@ class Infinite(Tactic):
 
         # If we shine too close to the edge while accelerating horizontally, we can slide offstage and get into trouble
         distance_from_edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x)
-        edgetooclose = (smashbot_state.action == Action.EDGE_TEETERING_START or distance_from_edge < 5) \
-            or (smashbot_state.action in [Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START] and distance_from_edge < 10.5)
+        edgetooclose = smashbot_state.action == Action.EDGE_TEETERING_START or distance_from_edge < 5
 
         # Try to do the shine
         if gamestate.distance < shinerange and not edgetooclose:
-            # emergency backup shine
+            # Emergency backup shine. If we don't shine now, they'll get out of the combo
             if framesleft == 1:
+                self.chain = None
+                self.pickchain(Chains.Waveshine)
+                return
+
+            # Cut the run short and just shine now. Don't wait for the cross-up
+            #   This is here to prevent running too close to the edge and sliding off
+            if smashbot_state.action in [Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START] and distance_from_edge < 16:
                 self.chain = None
                 self.pickchain(Chains.Waveshine)
                 return
@@ -133,4 +139,5 @@ class Infinite(Tactic):
 
         if not smashbot_state.action == Action.DOWN_B_GROUND_START and smashbot_state.action_frame in [1,2]:
             self.pickchain(Chains.Run, [opponent_state.x > smashbot_state.x])
+            return
         return
