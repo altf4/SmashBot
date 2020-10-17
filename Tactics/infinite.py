@@ -97,7 +97,9 @@ class Infinite(Tactic):
             shinerange = 9.5
 
         # If we shine too close to the edge while accelerating horizontally, we can slide offstage and get into trouble
-        edgetooclose = (smashbot_state.action == Action.EDGE_TEETERING_START or melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 5) or (smashbot_state.action in [Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START] and melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 10.5)
+        distance_from_edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x)
+        edgetooclose = (smashbot_state.action == Action.EDGE_TEETERING_START or distance_from_edge < 5) \
+            or (smashbot_state.action in [Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START] and distance_from_edge < 10.5)
 
         # Try to do the shine
         if gamestate.distance < shinerange and not edgetooclose:
