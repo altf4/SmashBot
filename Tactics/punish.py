@@ -5,10 +5,11 @@ from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Chains.shffl import SHFFL_DIRECTION
+from Chains.shieldaction import SHIELD_ACTION
 
 class Punish(Tactic):
     # How many frames do we have to work with for the punish
-    def framesleft(opponent_state, framedata):
+    def framesleft(opponent_state, framedata, smashbot_state):
         # For some dumb reason, the game shows the standing animation as having a large hitstun
         #   manually account for this
         if opponent_state.action == Action.STANDING:
@@ -68,7 +69,14 @@ class Punish(Tactic):
                     return 0
                 frame = framedata.first_hitbox_frame(opponent_state.character, opponent_state.action)
                 return max(0, frame - opponent_state.action_frame - 1)
-            if attackstate == melee.enums.AttackState.ATTACKING:
+            if attackstate == melee.enums.AttackState.ATTACKING and smashbot_state.action == Action.SHIELD_RELEASE:
+                if opponent_state.action in [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]:
+                    return 9
+                elif opponent_state.character == Character.PEACH and opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.WAIT_ITEM, Action.NEUTRAL_B_ATTACKING, Action.NEUTRAL_B_CHARGING, Action.NEUTRAL_B_FULL_CHARGE_AIR]:
+                    return 6
+                else:
+                    return framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+            if attackstate == melee.enums.AttackState.ATTACKING and smashbot_state.action != Action.SHIELD_RELEASE:
                 return 0
             if attackstate == melee.enums.AttackState.COOLDOWN:
                 frame = framedata.iasa(opponent_state.character, opponent_state.action)
@@ -139,7 +147,7 @@ class Punish(Tactic):
         if firefox and opponent_state.y > 15:
             return False
 
-        left = Punish.framesleft(opponent_state, framedata)
+        left = Punish.framesleft(opponent_state, framedata, smashbot_state)
         # Will our opponent be invulnerable for the entire punishable window?
         if left <= opponent_state.invulnerability_left:
             return False
@@ -190,9 +198,36 @@ class Punish(Tactic):
             return
 
         # Can we charge an upsmash right now?
-        framesleft = Punish.framesleft(opponent_state, self.framedata)
+        framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
+
+        #Initialize these so we can log them too
+        endposition = opponent_state.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_x_attack, framesleft)
+        slidedistance = self.framedata.slide_distance(smashbot_state, smashbot_state.speed_ground_x_self, framesleft)
+        smashbot_endposition = slidedistance + smashbot_state.x
+
         if self.logger:
             self.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
+            self.logger.log("Notes", "initial endposition: " + str(endposition) + " ", concat=True)
+            self.logger.log("Notes", "initial smashbot_endposition: " + str(smashbot_endposition) + " ", concat=True)
+            self.logger.log("Notes", "distance: " + str(gamestate.distance) + " ", concat=True)
+
+        powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength == 60)
+        opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
+        opponentonright = opponent_state.x > smashbot_state.x
+        if powershieldrelease: #attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
+            """if abs(smashbot_state.x - opponent_state.x) <= 16 and opponent_state.y <= 12.5 and not (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
+                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                return
+            if abs(smashbot_state.x - opponent_state.x) <= 11 and opponent_state.y <= 12.5 and (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
+                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                return
+                #self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])"""
+            if gamestate.distance <= 14.5 and not (opponentxvelocity > 0) == opponentonright:
+                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                return
+            if gamestate.distance <= 13 and (opponentxvelocity > 0) == opponentonright:
+                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                return
 
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
@@ -203,13 +238,12 @@ class Punish(Tactic):
         shineactions = [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         runningactions = [Action.DASHING, Action.RUNNING]
         if smashbot_state.action in shieldactions:
-            framesneeded += 3
+            framesneeded += 1
         if smashbot_state.action in shineactions:
-            framesneeded += 3
+            framesneeded += 1
         if smashbot_state.action in runningactions:
-            framesneeded += 3
+            framesneeded += 1
 
-        endposition = opponent_state.x
         isroll = self.framedata.is_roll(opponent_state.character, opponent_state.action)
         slideoff = False
 
@@ -303,6 +337,18 @@ class Punish(Tactic):
                     if framesleft < 11 and distance > 9 and not offedge:
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
                         return
+
+            # Shine OOS if possible/necessary
+            """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return"""
+            if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return
+            if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                self.pickchain(Chains.Waveshine)
+                return
+
             # If we're not in attack range, and can't run, then maybe we can wavedash in
             #   Now we need more time for the wavedash. 10 frames of lag, and 3 jumping
             framesneeded = 13

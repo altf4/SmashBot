@@ -23,3 +23,4 @@ from Chains.tech import Tech
 from Chains.roll import Roll
 from Chains.edgebair import Edgebair
 from Chains.boardsideplatform import BoardSidePlatform
+from Chains.shieldaction import ShieldAction
