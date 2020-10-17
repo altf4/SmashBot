@@ -41,6 +41,10 @@ class Infinite(Tactic):
                 Action.SHIELD_STUN, Action.SHIELD_REFLECT]:
             return False
 
+        # Don't try to infinite if we're on a platform
+        if smashbot_state.y > 2:
+            return False
+
         # Should we try a waveshine infinite?
         #   They need to have high friction and not fall down
         if opponent_state.action in [Action.STANDING, Action.TURNING, Action.DASHING, Action.RUNNING, \
