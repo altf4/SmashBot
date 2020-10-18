@@ -51,7 +51,7 @@ class Bait(Strategy):
 
         # If we're stuck in a lag state, just do nothing. Trying an action might just
         #   buffer an input we don't want
-        if Wait.shouldwait(smashbot_state, self.framedata):
+        if Wait.shouldwait(gamestate, smashbot_state, opponent_state, self.framedata):
             self.picktactic(Tactics.Wait)
             return
 
