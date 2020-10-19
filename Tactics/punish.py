@@ -71,7 +71,7 @@ class Punish(Tactic):
                 return max(0, frame - opponent_state.action_frame - 1)
             if attackstate == melee.enums.AttackState.ATTACKING and smashbot_state.action == Action.SHIELD_RELEASE:
                 if opponent_state.action in [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]:
-                    return 9
+                    return 7
                 elif opponent_state.character == Character.PEACH and opponent_state.action in [Action.NEUTRAL_B_FULL_CHARGE, Action.WAIT_ITEM, Action.NEUTRAL_B_ATTACKING, Action.NEUTRAL_B_CHARGING, Action.NEUTRAL_B_FULL_CHARGE_AIR]:
                     return 6
                 else:
@@ -213,6 +213,7 @@ class Punish(Tactic):
 
         powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength == 60)
         opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
+        opponentyvelocity = (opponent_state.speed_y_attack + opponent_state.speed_y_self)
         opponentonright = opponent_state.x > smashbot_state.x
         if powershieldrelease: #attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
             """if abs(smashbot_state.x - opponent_state.x) <= 16 and opponent_state.y <= 12.5 and not (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
@@ -222,26 +223,46 @@ class Punish(Tactic):
                 self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                 return
                 #self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])"""
-            if gamestate.distance <= 14.5 and not (opponentxvelocity > 0) == opponentonright:
-                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
-                return
-            if gamestate.distance <= 13 and (opponentxvelocity > 0) == opponentonright:
-                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
-                return
+            if opponent_state.y >= 11.5:
+                if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 6:
+                    self.pickchain(Chains.Wavedash)
+                    return
+                else:
+                    self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                    return
+            else:
+                if gamestate.distance <= 14 and not (opponentxvelocity > 0) == opponentonright:
+                    self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                    return
+                elif gamestate.distance <= 13 and (opponentxvelocity > 0) == opponentonright:
+                    self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
+                    return
+                else:
+                    self.pickchain(Chains.Wavedash)
+                    return
 
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
+
         # JC Shine OOS if possible/necessary
         if framesleft in range(4,8):
-            """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return"""
-            if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return
-            if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
-                self.pickchain(Chains.Waveshine)
-                return
+            if opponent_state.y >= 11.5:
+                if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 5:
+                    self.pickchain(Chains.Wavedash)
+                    return
+                else:
+                    self.pickchain(Chains.Waveshine)
+                    return
+            else:
+                """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
+                    self.pickchain(Chains.Waveshine)
+                    return"""
+                if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                    self.pickchain(Chains.Waveshine)
+                    return
+                if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                    self.pickchain(Chains.Waveshine)
+                    return
 
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
