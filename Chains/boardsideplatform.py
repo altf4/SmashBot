@@ -48,8 +48,16 @@ class BoardSidePlatform(Chain):
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
+        # If we see the opponent jump, they cannot protect themselves from uair.
+        # Does not look for KNEE_BEND because Smashbot needs to discern between SH and FH
+        if shineable and opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
+            self.controller.press_button(melee.Button.BUTTON_A)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
+            return
+
         # Waveland down
-        if smashbot_state.ecb_bottom[1] + smashbot_state.y > platform_height:
+        aerials = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
+        if smashbot_state.ecb_bottom[1] + smashbot_state.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
@@ -74,6 +82,14 @@ class BoardSidePlatform(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
                 return
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), .5)
+            return
+        # Mash analog L presses to L-cancel if Smashbot is throwing out an aerial
+        elif not smashbot_state.on_ground and smashbot_state.action in aerials:
+            self.interruptible = False
+            if gamestate.frame % 2 == 0:
+                self.controller.press_shoulder(Button.BUTTON_L, 1)
+            else:
+                self.controller.press_shoulder(Button.BUTTON_L, 0)
             return
         else:
             self.controller.empty_input()
