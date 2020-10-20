@@ -4,6 +4,7 @@ import os
 import signal
 import sys
 import time
+import random
 
 import melee
 
@@ -125,6 +126,8 @@ supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFAL
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
     melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH]
 
+costume = 0
+
 # Main loop
 while True:
     # "step" to the next frame
@@ -147,7 +150,10 @@ while True:
                                        controller=agent1.controller)
         else:
             # try:
-            discovered_port = melee.gamestate.port_detector(gamestate, agent1.controller, melee.enums.Character.FOX)
+            discovered_port = melee.gamestate.port_detector(gamestate, melee.enums.Character.FOX, costume)
+            # Let's just assume SmashBot is on port 1 when this happens
+            if discovered_port == 0:
+                discovered_port = 1
             agent1.smashbot_port = discovered_port
             if agent1.smashbot_port == 1:
                 agent1.opponent_port = 2
@@ -167,13 +173,15 @@ while True:
             #     else:
             #         print("WARNING: Exception thrown: ", error)
     else:
+        costume = random.randint(0, 4)
         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
                                                         controller_one,
                                                         args.port,
                                                         melee.enums.Character.FOX,
                                                         stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
                                                         args.connect_code,
-                                                        autostart=False,
+                                                        costume=costume,
+                                                        autostart=args.connect_code!="",
                                                         swag=True)
 
     if log:
