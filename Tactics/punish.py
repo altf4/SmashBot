@@ -428,6 +428,13 @@ class Punish(Tactic):
         if smashbot_state.action == Action.DASHING:
             foxshinerange = 9.5
 
+        # If we're teetering, and opponent is off stage, hit'm
+        opponent_pushing = (gamestate.distance < 8) and abs(smashbot_state.x) > abs(opponent_state.x)
+        if smashbot_state.action == Action.EDGE_TEETERING_START and not opponent_pushing:
+            # Little baby wavedash
+            self.pickchain(Chains.Waveshine, [0.2])
+            return
+
         edgetooclose = (smashbot_state.action == Action.EDGE_TEETERING_START or melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 5) or (smashbot_state.action in [Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START] and melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.x) < 10.5)
         if gamestate.distance < foxshinerange and not edgetooclose:
             if framesneeded <= framesleft:
