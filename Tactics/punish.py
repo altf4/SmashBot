@@ -186,17 +186,12 @@ class Punish(Tactic):
 
         # Can we charge an upsmash right now?
         framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
-
-        #Initialize these so we can log them too
         endposition = opponent_state.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_x_attack, framesleft)
         slidedistance = self.framedata.slide_distance(smashbot_state, smashbot_state.speed_ground_x_self, framesleft)
         smashbot_endposition = slidedistance + smashbot_state.x
 
         if self.logger:
             self.logger.log("Notes", "framesleft: " + str(framesleft) + " ", concat=True)
-            self.logger.log("Notes", "initial endposition: " + str(endposition) + " ", concat=True)
-            self.logger.log("Notes", "initial smashbot_endposition: " + str(smashbot_endposition) + " ", concat=True)
-            self.logger.log("Notes", "distance: " + str(gamestate.distance) + " ", concat=True)
 
         #If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
@@ -217,15 +212,8 @@ class Punish(Tactic):
         opponentyvelocity = (opponent_state.speed_y_attack + opponent_state.speed_y_self)
         opponentonright = opponent_state.x > smashbot_state.x
 
-        if powershieldrelease and framesleft >= 1:
-            """if abs(smashbot_state.x - opponent_state.x) <= 16 and opponent_state.y <= 12.5 and not (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
-                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
-                return
-            if abs(smashbot_state.x - opponent_state.x) <= 11 and opponent_state.y <= 12.5 and (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
-                self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
-                return
-                #self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])"""
-            # Sometimes shine OOS will miss because the oppponent is still rising with an aerial. Peach's float is particularly problematic.
+        if powershieldrelease:
+            # Sometimes shine OOS will miss because the oppponent is still rising with an aerial. Peach's float can be hard to shine OOS.
             if opponent_state.y >= 11.5:
                 # If the opponent is above a certain height and still rising, or outside of a small x range, don't shine, just WD.
                 if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 6:
@@ -263,10 +251,7 @@ class Punish(Tactic):
                     self.pickchain(Chains.Waveshine)
                     return
             else:
-                """if smashbot_state.action in shieldactions and abs(smashbot_state.x - opponent_state.x) < 16 and opponent_state.y < 15 and framesleft >= 4:
-                    self.pickchain(Chains.Waveshine)
-                    return"""
-                if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                if smashbot_state.action in shieldactions and gamestate.distance <= 12.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
                     self.pickchain(Chains.Waveshine)
                     return
                 if smashbot_state.action in shieldactions and gamestate.distance <= 11.5 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
@@ -386,7 +371,7 @@ class Punish(Tactic):
                         self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])
                     return
                 else:
-                    if abs(smashbot_state.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.x) < abs(smashbot_state.x) and distance < 9.9:
+                    if abs(smashbot_state.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.x) < abs(smashbot_state.x) and gamestate.distance < 9.9:
                         self.pickchain(Chains.Waveshine, [x])
                     else:
                     # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
@@ -400,7 +385,7 @@ class Punish(Tactic):
                             return
                         # If we are running away from our opponent, just shine now
                         onright = opponent_state.x < smashbot_state.x
-                        if (smashbot_state.speed_ground_x_self > 0) == onright and abs(opponent_state.x - smashbot_state.x) <= 9.5:
+                        if (smashbot_state.speed_ground_x_self > 0) == onright and gamestate.distance <= 9.5:
                             self.pickchain(Chains.Waveshine, [x])
                             return
                     return
@@ -456,7 +441,7 @@ class Punish(Tactic):
                         x = 0
                     # If we are running away from our opponent, just shine now
                     onright = opponent_state.x < smashbot_state.x
-                    if (smashbot_state.speed_ground_x_self > 0) == onright and abs(opponent_state.x - smashbot_state.x) <= 9.5:
+                    if (smashbot_state.speed_ground_x_self > 0) == onright and abs(gamestate.distance) <= 9.5:
                         self.pickchain(Chains.Waveshine, [x])
                         return
                     if framesleft in range(1,7):
