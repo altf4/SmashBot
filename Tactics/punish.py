@@ -211,11 +211,13 @@ class Punish(Tactic):
             self.pickchain(Chains.Nothing)
             return
 
+        # Attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
         powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength == 60)
         opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
         opponentyvelocity = (opponent_state.speed_y_attack + opponent_state.speed_y_self)
         opponentonright = opponent_state.x > smashbot_state.x
-        if powershieldrelease: #attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
+
+        if powershieldrelease and framesleft >= 1:
             """if abs(smashbot_state.x - opponent_state.x) <= 16 and opponent_state.y <= 12.5 and not (opponentxvelocity > 0) == opponentonright and gamestate.distance <= 12.5:
                 self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                 return
@@ -223,17 +225,23 @@ class Punish(Tactic):
                 self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                 return
                 #self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])"""
+            # Sometimes shine OOS will miss because the oppponent is still rising with an aerial. Peach's float is particularly problematic.
             if opponent_state.y >= 11.5:
+                # If the opponent is above a certain height and still rising, or outside of a small x range, don't shine, just WD.
                 if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 6:
                     self.pickchain(Chains.Wavedash)
                     return
+                # Shine otherwise (i.e. if they're above a certain height but falling towards us or in a certain x range)
                 else:
                     self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                     return
+            # If the opponent is closer to the ground
             else:
+                # PS shine if the opponent is drifting towards us
                 if gamestate.distance <= 14 and not (opponentxvelocity > 0) == opponentonright:
                     self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                     return
+                # PS shine if the opponent is drifting away from us
                 elif gamestate.distance <= 13 and (opponentxvelocity > 0) == opponentonright:
                     self.pickchain(Chains.ShieldAction, [SHIELD_ACTION.PSSHINE])
                     return
@@ -246,7 +254,8 @@ class Punish(Tactic):
 
         # JC Shine OOS if possible/necessary
         if framesleft in range(4,8):
-            if opponent_state.y >= 11.5:
+            # Numbers are adjusted from PS shine to be more conservative due to longer startup.
+            if opponent_state.y >= 11:
                 if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 5:
                     self.pickchain(Chains.Wavedash)
                     return
@@ -260,7 +269,7 @@ class Punish(Tactic):
                 if smashbot_state.action in shieldactions and gamestate.distance <= 13.2 and not (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
                     self.pickchain(Chains.Waveshine)
                     return
-                if smashbot_state.action in shieldactions and gamestate.distance <= 12 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
+                if smashbot_state.action in shieldactions and gamestate.distance <= 11.5 and (opponentxvelocity > 0) == opponentonright and framesleft >= 4:
                     self.pickchain(Chains.Waveshine)
                     return
 
