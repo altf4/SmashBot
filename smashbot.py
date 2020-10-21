@@ -37,7 +37,7 @@ parser.add_argument('--bot', '-b',
                     default=False)
 parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode. Creates a CSV of all game state')
-parser.add_argument('--difficulty', '-i', type=int,
+parser.add_argument('--difficulty', '-i', type=int, default=-1,
                     help='Manually specify difficulty level of SmashBot')
 parser.add_argument('--nodolphin', '-n', action='store_true',
                     help='Don\'t run dolphin, (it is already running))')
@@ -78,6 +78,7 @@ if not args.bot:
 # Create our console object. This will be the primary object that we will interface with
 console = melee.console.Console(path=args.dolphinexecutable,
                                 slippi_address=args.address,
+                                online_delay=2,
                                 logger=log)
 
 controller_one = melee.controller.Controller(console=console, port=args.port)
@@ -86,11 +87,11 @@ controller_two = melee.controller.Controller(console=console,
                                              type=opponent_type)
 
 # initialize our agent
-agent1 = ESAgent(console, args.port, args.opponent, controller_one)
+agent1 = ESAgent(console, args.port, args.opponent, controller_one, args.difficulty)
 agent2 = None
 if args.bot:
     controller_two = melee.controller.Controller(console=console, port=args.opponent)
-    agent2 = ESAgent(console, args.opponent, args.port, controller_two)
+    agent2 = ESAgent(console, args.opponent, args.port, controller_two, args.difficulty)
 
 def signal_handler(signal, frame):
     console.stop()
@@ -135,16 +136,6 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        # The agent's "step" will cascade all the way down the objective hierarchy
-        if args.difficulty:
-            agent1.difficulty = int(args.difficulty)
-            if agent2:
-                agent2.difficulty = int(args.difficulty)
-        else:
-            agent1.difficulty = gamestate.player[agent1.smashbot_port].stock
-            if agent2:
-                agent2.difficulty = gamestate.player[agent2.smashbot_port].stock
-
         # try:
         discovered_port = melee.gamestate.port_detector(gamestate, melee.enums.Character.FOX, costume)
         # Let's just assume SmashBot is on port 1 when this happens
