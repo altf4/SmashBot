@@ -13,6 +13,7 @@ class Recover(Tactic):
         onedge = smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
         opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
+        # If the opponent is on-stage, and Smashbot is on-edge, Smashbot needs to ledgedash
         if not opponent_state.off_stage and onedge:
             return True
 
@@ -49,6 +50,10 @@ class Recover(Tactic):
         smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
 
         if opponent_dist < smashbot_dist and not onedge:
+            return True
+
+        # If opponent is ON the edge, recover
+        if opponentonedge and not onedge:
             return True
 
         return False
