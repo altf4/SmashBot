@@ -20,10 +20,11 @@ class ESAgent():
                             self.difficulty)
 
     def act(self, gamestate):
-        # TODO Move this to libmelee
-        xdist = gamestate.player[self.smashbot_port].x - gamestate.player[self.opponent_port].x
-        ydist = gamestate.player[self.smashbot_port].y - gamestate.player[self.opponent_port].y
-        gamestate.distance = math.sqrt( (xdist**2) + (ydist**2) )
+        knownprojectiles = []
+        for projectile in gamestate.projectiles:
+            if projectile.subtype != melee.enums.ProjectileSubtype.UNKNOWN_PROJECTILE:
+                knownprojectiles.append(projectile)
+        gamestate.projectiles = knownprojectiles
 
         self.strategy.step(gamestate,
                            gamestate.player[self.smashbot_port],
