@@ -20,6 +20,12 @@ class ESAgent():
                             self.difficulty)
 
     def act(self, gamestate):
+        knownprojectiles = []
+        for projectile in gamestate.projectiles:
+            if projectile.subtype != melee.enums.ProjectileSubtype.UNKNOWN_PROJECTILE:
+                newlist.append(projectile)
+        gamestate.projectiles = knownprojectiles
+
         self.strategy.step(gamestate,
                            gamestate.player[self.smashbot_port],
                            gamestate.player[self.opponent_port])
