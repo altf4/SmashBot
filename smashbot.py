@@ -153,6 +153,8 @@ while True:
             discovered_port = melee.gamestate.port_detector(gamestate, melee.enums.Character.FOX, costume)
             # Let's just assume SmashBot is on port 1 when this happens
             if discovered_port == 0:
+                # If the discovered port was unsure, reroll our costume
+                costume = random.randint(0, 4)
                 discovered_port = 1
             agent1.smashbot_port = discovered_port
             if agent1.smashbot_port == 1:
@@ -173,7 +175,6 @@ while True:
             #     else:
             #         print("WARNING: Exception thrown: ", error)
     else:
-        costume = random.randint(0, 4)
         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
                                                         controller_one,
                                                         args.port,
