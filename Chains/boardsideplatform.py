@@ -48,19 +48,35 @@ class BoardSidePlatform(Chain):
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
-        # If we see the opponent jump, they cannot protect themselves from uair.
-        # Does not look for KNEE_BEND because Smashbot needs to discern between SH and FH
-        if shineable and opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
-            self.controller.press_button(melee.Button.BUTTON_A)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
-            return
-
         # Waveland down
         aerials = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
         if smashbot_state.ecb_bottom[1] + smashbot_state.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            return
+
+        # Don't jump into Peach's dsmash or SH early dair spam
+        if shineable and opponent_state.action in [Action.DOWNSMASH, Action.DAIR]:
+            self.interruptible = True
+            self.controller.press_button(melee.Button.BUTTON_L)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            return
+
+        # If we see the opponent jump, they cannot protect themselves from uair.
+        # Does not look for KNEE_BEND because Smashbot needs to discern between SH and FH
+        y_afternineframes = opponent_state.y
+        gravity = self.framedata.characterdata[opponent_state.character]["Gravity"]
+        y_speed = opponent_state.speed_y_self
+        for i in range(1,10):
+            y_afternineframes += y_speed
+            y_speed -= gravity
+
+
+        aerialsminusdair = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR]
+        if shineable and (opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] or opponent_state.action in aerialsminusdair) and y_afternineframes < 50:
+            self.controller.press_button(melee.Button.BUTTON_A)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
             return
 
         # Last resort, just dash at the center of the platform
