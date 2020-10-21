@@ -23,7 +23,7 @@ class ESAgent():
         knownprojectiles = []
         for projectile in gamestate.projectiles:
             if projectile.subtype != melee.enums.ProjectileSubtype.UNKNOWN_PROJECTILE:
-                newlist.append(projectile)
+                knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 
         self.strategy.step(gamestate,
