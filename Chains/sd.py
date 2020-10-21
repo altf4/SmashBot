@@ -4,7 +4,7 @@ from Chains.chain import Chain
 
 class SD(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
-        self.interruptible = False
+        self.interruptible = True
 
         if smashbot_state.action in [Action.FALLING, Action.ON_HALO_WAIT]:
             self.controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
