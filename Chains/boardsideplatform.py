@@ -57,7 +57,8 @@ class BoardSidePlatform(Chain):
             return
 
         # Don't jump into Peach's dsmash or SH early dair spam
-        if shineable and opponent_state.action in [Action.DOWNSMASH, Action.DAIR]:
+        dsmashactive = opponent_state.action == Action.DOWNSMASH and opponent_state.action_frame <= 22
+        if shineable and (opponent_state.action == Action.DAIR or dsmashactive):
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
