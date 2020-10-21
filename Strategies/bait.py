@@ -13,6 +13,7 @@ from Tactics.infinite import Infinite
 from Tactics.celebrate import Celebrate
 from Tactics.wait import Wait
 from Tactics.retreat import Retreat
+from Tactics.selfdestruct import SelfDestruct
 
 class Bait(Strategy):
     def __init__(self, logger, controller, framedata, difficulty):
@@ -36,6 +37,10 @@ class Bait(Strategy):
 
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
+
+        if SelfDestruct.shouldsd(gamestate, smashbot_state, opponent_state):
+            self.picktactic(Tactics.SelfDestruct)
+            return
 
         # If we have stopped approaching, reset the state
         if type(self.tactic) != Tactics.Approach:
