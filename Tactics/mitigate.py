@@ -3,6 +3,7 @@ import Chains
 import random
 from melee.enums import Action, Button
 from Tactics.tactic import Tactic
+from melee.enums import Character
 
 class Mitigate(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):
@@ -49,6 +50,10 @@ class Mitigate(Tactic):
             # Alternate each frame
             x = 0.5
             y = 0.5
+            cx = 0.5
+            cy = 0.5
+            if not (opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH):
+                cy = 0
             if bool(gamestate.frame % 2):
                 # If we're off the stage, DI up and in
                 if smashbot_state.off_stage:
@@ -69,7 +74,7 @@ class Mitigate(Tactic):
                         if smashbot_state.x < 0:
                             x = 0
             self.chain = None
-            self.pickchain(Chains.DI, [x, y])
+            self.pickchain(Chains.DI, [x, y, cx, cy])
             return
 
         # Tech if we need to
