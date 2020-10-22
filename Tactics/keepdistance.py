@@ -2,6 +2,7 @@ import melee
 import Chains
 from Tactics.tactic import Tactic
 from melee.enums import Character, Action
+from Chains.firefox import FIREFOX
 
 # Dash dance a just a little outside our opponont's range
 class KeepDistance(Tactic):
@@ -83,3 +84,6 @@ class KeepDistance(Tactic):
         self.chain = None
         if not smashbot_state.off_stage:
             self.pickchain(Chains.DashDance, [pivotpoint])
+        # If for whatever reason keepdistance gets called while Smashbot is recovering, it will do an emergency Firefox
+        else:
+            self.pickchain(Chains.Firefox)

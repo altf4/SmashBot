@@ -9,14 +9,15 @@ class FIREFOX(Enum):
     EDGE = 1
     MEDIUM = 2
     RANDOM = 3
+    # Added SAFERANDOM option so Smashbot wouldn't random a straight horizontal upB and SD below the stage
     SAFERANDOM = 4
 
 class Firefox(Chain):
     def __init__(self, direction=FIREFOX.RANDOM):
         if direction == FIREFOX.RANDOM:
-            self.direction = FIREFOX(random.randint(0, 3))
-        elif direction == FIREFOX.SAFERANDOM:
             self.direction = FIREFOX(random.randint(0, 2))
+        elif direction == FIREFOX.SAFERANDOM:
+            self.direction = FIREFOX(random.randint(0, 1))
         else:
             self.direction = direction
 
@@ -79,8 +80,11 @@ class Firefox(Chain):
             self.interruptible = False
             diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
-            if self.direction == FIREFOX.HIGH and diff_x < 10:
-                controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
+            if self.direction == FIREFOX.HIGH:
+                if diff_x > 20:
+                    controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
+                else:
+                    controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 1)
             if self.direction == FIREFOX.MEDIUM and smashbot_state.y > -10:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
             if self.direction == FIREFOX.EDGE:
