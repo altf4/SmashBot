@@ -47,8 +47,9 @@ class Recover(Tactic):
         diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.x))
         diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
 
-        opponent_dist = math.sqrt( (opponent_state.y+15)**2 + (diff_x_opponent)**2 )
-        smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
+        # Using (opponent_state.y + 15)**2 was causing a keepdistance/dashdance bug.
+        opponent_dist = math.sqrt( (opponent_state.y)**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( (smashbot_state.y)**2 + (diff_x)**2 )
 
         if opponent_dist < smashbot_dist and not onedge:
             return True
@@ -163,10 +164,26 @@ class Recover(Tactic):
             self.pickchain(Chains.Illusion, [length])
             return
 
+        # Is the opponent going offstage to edgeguard us?
+        opponent_edgedistance = abs(opponent_state.x) - abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
+        opponentxvelocity = opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self
+        opponentmovingtoedge = (opponent_edgedistance < 20) and (opponentxvelocity > 0 == opponent_state.x > 0)
+        opponentgoingoffstage = opponent_state.action in [Action.FALLING, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD, Action.LANDING_SPECIAL,\
+        Action.DASHING, Action.WALK_MIDDLE, Action.WALK_FAST, Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
+
+        x_canairdodge = abs(smashbot_state.x) - 18 <= abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
+        y_canairdodge = smashbot_state.y + 18 >= -6
+        x = 0
+        if smashbot_state.x < 0:
+            x = 1
+        if x_canairdodge and y_canairdodge and opponentgoingoffstage:
+            self.pickchain(Chains.Airdodge, [x, 1])
+            return
+
         # First jump back to the stage if we're low
         # Fox can at least DJ from y = -55.43 and still sweetspot grab the ledge.
         # For reference, if Fox inputs a DJ at y = -58.83, he will NOT sweetspot grab the ledge.
-        if smashbot_state.jumps_left > 0 and smashbot_state.y < -52:
+        if (smashbot_state.jumps_left > 0 and smashbot_state.y < -52) or opponentgoingoffstage or opponentmovingtoedge:
             self.pickchain(Chains.Jump)
             return
 
