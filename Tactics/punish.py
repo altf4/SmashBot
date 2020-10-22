@@ -241,7 +241,7 @@ class Punish(Tactic):
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
 
         # JC Shine OOS if possible/necessary
-        if framesleft in range(4,8):
+        if 4 <= framesleft <= 7:
             # Numbers are adjusted from PS shine to be more conservative due to longer startup.
             if opponent_state.y >= 11:
                 if opponentyvelocity >= 0 or abs(opponent_state.x - smashbot_state.x) > 5:
@@ -260,7 +260,7 @@ class Punish(Tactic):
 
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
-        # 3 if in shield, shine, or dash/running
+        # 1 if in shield, shine, or dash/running
         framesneeded = 7
         shineactions = [Action.DOWN_B_STUN, Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND]
         runningactions = [Action.DASHING, Action.RUNNING]
@@ -444,7 +444,7 @@ class Punish(Tactic):
                     if (smashbot_state.speed_ground_x_self > 0) == onright and abs(gamestate.distance) <= 9.5:
                         self.pickchain(Chains.Waveshine, [x])
                         return
-                    if framesleft in range(1,7):
+                    if framesleft <= 6:
                         self.pickchain(Chains.Waveshine, [x])
                         return
             # We're in range, but don't have enough time. Let's try turning around to do a pivot.
