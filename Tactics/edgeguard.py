@@ -485,7 +485,7 @@ class Edgeguard(Tactic):
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
-            framesleft = Punish.framesleft(opponent_state, self.framedata)
+            framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
 
             # Samus UP_B invulnerability
             samusupbinvuln = opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
@@ -524,7 +524,7 @@ class Edgeguard(Tactic):
                 randomgrab = True
 
             # Can we challenge their ledge?
-            framesleft = Punish.framesleft(opponent_state, self.framedata)
+            framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
                 if randomgrab or framesleft > 10:
                     wavedash = True
