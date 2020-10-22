@@ -54,6 +54,9 @@ class Recover(Tactic):
         if opponent_dist < smashbot_dist and not onedge:
             return True
 
+        if smashbot_dist >= 92:
+            return True
+
         # If opponent is ON the edge, recover
         if opponentonedge and not onedge:
             return True
@@ -130,7 +133,7 @@ class Recover(Tactic):
                 self.pickchain(Chains.Nothing)
                 return
 
-        # Illusion grabs ledge faster than firefox does.
+        """# Illusion grabs ledge faster than firefox does.
         # This can come in handy after Marth jabs Fox out of his recovery. Fox can just fall to the appropriate height & grab ledge with illusion.
         if (-16.4 < smashbot_state.y < -5) and (10 < diff_x < 88) and not opponentonedge:
             length = SHORTEN.LONG
@@ -142,17 +145,17 @@ class Recover(Tactic):
                 length = SHORTEN.SHORT
 
             self.pickchain(Chains.Illusion, [length])
-            return
+            return"""
 
         # If we illusion at this range when the opponent is holding ledge, Smashbot dies.
         # Firefox instead if the opponent is grabbing edge. Opponent has to get up or get burned.
         if (-16.4 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards and opponentonedge:
-            self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])
+            self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
             return
 
         # If we're lined up, do the illusion
         #   88 is a little longer than the illusion max length
-        if self.useillusion and (-16.4 < smashbot_state.y < -5) and (10 < diff_x < 88):
+        if self.useillusion and (-16.4 < smashbot_state.y < -5) and (10 < diff_x < 88) and not opponentonedge:
             length = SHORTEN.LONG
             if diff_x < 50:
                 length = SHORTEN.MID
@@ -173,17 +176,19 @@ class Recover(Tactic):
 
         x_canairdodge = abs(smashbot_state.x) - 18 <= abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
         y_canairdodge = smashbot_state.y + 18 >= -6
+        airdodge_randomizer = random.randint(0, 4) == 1
         x = 0
         if smashbot_state.x < 0:
             x = 1
-        if x_canairdodge and y_canairdodge and opponentgoingoffstage:
+        if x_canairdodge and y_canairdodge and (opponentgoingoffstage or airdodge_randomizer):
             self.pickchain(Chains.Airdodge, [x, 1])
             return
 
         # First jump back to the stage if we're low
         # Fox can at least DJ from y = -55.43 and still sweetspot grab the ledge.
         # For reference, if Fox inputs a DJ at y = -58.83, he will NOT sweetspot grab the ledge.
-        if (smashbot_state.jumps_left > 0 and smashbot_state.y < -52) or opponentgoingoffstage or opponentmovingtoedge:
+        jump_randomizer = random.randint(0, 4) == 1
+        if smashbot_state.jumps_left > 0 and (smashbot_state.y < -52 or opponentgoingoffstage or opponentmovingtoedge or jump_randomizer):
             self.pickchain(Chains.Jump)
             return
 
@@ -199,8 +204,18 @@ class Recover(Tactic):
 
         # Don't firefox if we're super high up, wait a little to come down
         if smashbot_state.speed_y_self < 0 and smashbot_state.y < -60:
-            self.pickchain(Chains.Firefox)
+            self.pickchain(Chains.Firefox, [FIREFOX.SAFERANDOM])
             return
+
+        randomhighrecovery = smashbot_state.y > 0 and random.randint(0, 4) == 1
+        if randomhighrecovery:
+            if bool(random.randint(0, 1)):
+                self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
+            else:
+                self.pickchain(Chains.Illusion, [SHORTEN.LONG])
+            return
+
+
 
         # DI into the stage
         # NEEDS ADJUSTMENT FOR BF
