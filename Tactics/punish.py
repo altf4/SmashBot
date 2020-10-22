@@ -207,7 +207,7 @@ class Punish(Tactic):
             return
 
         # Attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
-        powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength == 60)
+        powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength >= 59.9)
         opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
         opponentyvelocity = (opponent_state.speed_y_attack + opponent_state.speed_y_self)
         opponentonright = opponent_state.x > smashbot_state.x
