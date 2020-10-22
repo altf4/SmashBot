@@ -117,6 +117,7 @@ class Recover(Tactic):
                 return
 
             # If we are currently moving away from the stage, DI in
+            # MIGHT NEED ADJUSTMENT FOR BF, MIGHT NOT
             if (smashbot_state.speed_air_x_self > 0) == (smashbot_state.x > 0):
                 x = 0
                 if smashbot_state.x < 0:
@@ -130,14 +131,13 @@ class Recover(Tactic):
 
         # Illusion grabs ledge faster than firefox does.
         # This can come in handy after Marth jabs Fox out of his recovery. Fox can just fall to the appropriate height & grab ledge with illusion.
-        # Smashbot can input a sideB at y = -13.87 on Battlefield and miss the ledge, even with a shorten to avoid getting Battlefielded.
-        if (-13 < smashbot_state.y < -5) and (diff_x < 88) and not opponentonedge:
+        if (-16.4 < smashbot_state.y < -5) and (10 < diff_x < 88) and not opponentonedge:
             length = SHORTEN.LONG
             if diff_x < 50:
                 length = SHORTEN.MID
             if diff_x < 40:
                 length = SHORTEN.MID_SHORT
-            if diff_x < 20:
+            if diff_x < 31:
                 length = SHORTEN.SHORT
 
             self.pickchain(Chains.Illusion, [length])
@@ -145,19 +145,19 @@ class Recover(Tactic):
 
         # If we illusion at this range when the opponent is holding ledge, Smashbot dies.
         # Firefox instead if the opponent is grabbing edge. Opponent has to get up or get burned.
-        if (-15 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards:
+        if (-16.4 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards and opponentonedge:
             self.pickchain(Chains.Firefox, [FIREFOX.MEDIUM])
             return
 
         # If we're lined up, do the illusion
         #   88 is a little longer than the illusion max length
-        if self.useillusion and (-13 < smashbot_state.y < -5) and (diff_x < 88):
+        if self.useillusion and (-16.4 < smashbot_state.y < -5) and (10 < diff_x < 88):
             length = SHORTEN.LONG
             if diff_x < 50:
                 length = SHORTEN.MID
             if diff_x < 40:
                 length = SHORTEN.MID_SHORT
-            if diff_x < 20:
+            if diff_x < 31:
                 length = SHORTEN.SHORT
 
             self.pickchain(Chains.Illusion, [length])
@@ -166,7 +166,7 @@ class Recover(Tactic):
         # First jump back to the stage if we're low
         # Fox can at least DJ from y = -55.43 and still sweetspot grab the ledge.
         # For reference, if Fox inputs a DJ at y = -58.83, he will NOT sweetspot grab the ledge.
-        if smashbot_state.jumps_left > 0 and smashbot_state.y < -55:
+        if smashbot_state.jumps_left > 0 and smashbot_state.y < -52:
             self.pickchain(Chains.Jump)
             return
 
@@ -181,13 +181,16 @@ class Recover(Tactic):
             return
 
         # Don't firefox if we're super high up, wait a little to come down
-        if smashbot_state.speed_y_self < 0 and smashbot_state.y < 30:
+        if smashbot_state.speed_y_self < 0 and smashbot_state.y < -60:
             self.pickchain(Chains.Firefox)
             return
 
         # DI into the stage
-        x = 0
-        if smashbot_state.x < 0:
-            x = 1
-        self.chain = None
-        self.pickchain(Chains.DI, [x, 0.5])
+        # NEEDS ADJUSTMENT FOR BF
+        battlefielded = (smashbot_state.x < melee.stages.EDGE_POSITION[gamestate.stage] + 13) and gamestate.stage == melee.enums.Stage.BATTLEFIELD
+        if not battlefielded:
+            x = 0
+            if smashbot_state.x < 0:
+                x = 1
+            self.chain = None
+            self.pickchain(Chains.DI, [x, 0.5])
