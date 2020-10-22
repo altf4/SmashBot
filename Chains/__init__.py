@@ -24,4 +24,5 @@ from Chains.roll import Roll
 from Chains.edgebair import Edgebair
 from Chains.boardsideplatform import BoardSidePlatform
 from Chains.sd import SD
+from Chains.shieldaction import ShieldAction
 from Chains.airdodge import Airdodge

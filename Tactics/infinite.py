@@ -51,7 +51,7 @@ class Infinite(Tactic):
                 Action.WALK_SLOW, Action.WALK_MIDDLE, Action.WALK_FAST]:
             return False
 
-        framesleft = Punish.framesleft(opponent_state, framedata)
+        framesleft = Punish.framesleft(opponent_state, framedata, smashbot_state)
         # This is off by one for hitstun
         framesleft -= 1
 
@@ -90,7 +90,7 @@ class Infinite(Tactic):
             self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
-        framesleft = Punish.framesleft(opponent_state, self.framedata)
+        framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
         # This is off by one for hitstun
         framesleft -= 1
 
