@@ -258,6 +258,13 @@ class Punish(Tactic):
                     self.pickchain(Chains.Waveshine)
                     return
 
+        if framesleft <= 10:
+            # If opponent is on a side platform and we're not
+            on_main_platform = smashbot_state.y < 1 and smashbot_state.on_ground
+            if opponent_state.y > 1 and opponent_state.on_ground and on_main_platform and gamestate.stage != melee.enums.Stage.FOUNTAIN_OF_DREAMS:
+                self.pickchain(Chains.BoardSidePlatform, [opponent_state.x > 0])
+                return
+
         # How many frames do we need for an upsmash?
         # It's 7 frames normally, plus some transition frames
         # 1 if in shield, shine, or dash/running
