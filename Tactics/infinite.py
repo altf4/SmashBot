@@ -42,7 +42,7 @@ class Infinite(Tactic):
             return False
 
         # Don't try to infinite if we're on a platform
-        if smashbot_state.y > 2:
+        if smashbot_state.y > 2 or opponent_state.y:
             return False
 
         # Should we try a waveshine infinite?
