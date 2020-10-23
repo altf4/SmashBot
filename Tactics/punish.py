@@ -15,6 +15,11 @@ class Punish(Tactic):
         if opponent_state.action == Action.STANDING:
             return 1
 
+        # Opponent's shield is broken, opponent is resting Puff.
+        restingpuff = opponent_state.character == Character.JIGGLYPUFF and opponent_state.action == Action.MARTH_COUNTER
+        if restingpuff or opponent_state.action in [Action.SHIELD_BREAK_FLY, Action.SHIELD_BREAK_DOWN_U, Action.SHIELD_BREAK_STAND_U, Action.SHIELD_BREAK_TEETER]:
+            return 150
+
         # Don't try to punish Samus knee_bend, because they will go into UP_B and it has invulnerability
         if opponent_state.action == Action.KNEE_BEND and opponent_state.character == Character.SAMUS:
             return 0
@@ -134,6 +139,11 @@ class Punish(Tactic):
     # Static function that returns whether we have enough time to run in and punish,
     # given the current gamestate. Either a shine or upsmash
     def canpunish(smashbot_state, opponent_state, gamestate, framedata):
+
+        restingpuff = opponent_state.character == Character.JIGGLYPUFF and opponent_state.action == Action.MARTH_COUNTER
+        if restingpuff or opponent_state.action == Action.SHIELD_BREAK_TEETER:
+            return True
+
         # Can't punish opponent in shield
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
