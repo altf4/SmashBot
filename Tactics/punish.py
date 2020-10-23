@@ -17,7 +17,7 @@ class Punish(Tactic):
 
         # Opponent's shield is broken, opponent is resting Puff.
         restingpuff = opponent_state.character == Character.JIGGLYPUFF and opponent_state.action == Action.MARTH_COUNTER
-        if restingpuff or opponent_state.action in [Action.SHIELD_BREAK_FLY, Action.SHIELD_BREAK_DOWN_U, Action.SHIELD_BREAK_STAND_U, Action.SHIELD_BREAK_TEETER]:
+        if restingpuff or opponent_state.action in [Action.SHIELD_BREAK_DOWN_U, Action.SHIELD_BREAK_STAND_U, Action.SHIELD_BREAK_TEETER]:
             return 150
 
         # Don't try to punish Samus knee_bend, because they will go into UP_B and it has invulnerability
@@ -141,8 +141,12 @@ class Punish(Tactic):
     def canpunish(smashbot_state, opponent_state, gamestate, framedata):
 
         restingpuff = opponent_state.character == Character.JIGGLYPUFF and opponent_state.action == Action.MARTH_COUNTER
-        if restingpuff or opponent_state.action == Action.SHIELD_BREAK_TEETER:
+        if restingpuff or opponent_state.action in [Action.SHIELD_BREAK_DOWN_U, Action.SHIELD_BREAK_STAND_U, Action.SHIELD_BREAK_TEETER]:
             return True
+
+        # Wait until the other shieldbreak animations to punish, sometimes Smashbot usmashes too early
+        if opponent_state.action == Action.SHIELD_BREAK_FLY:
+            return False
 
         # Can't punish opponent in shield
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
