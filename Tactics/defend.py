@@ -153,19 +153,6 @@ class Defend(Tactic):
         if self.logger:
             self.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
 
-        # Don't shine clank on the most optimal difficulty
-        if self.difficulty >= 2:
-            # If the attack has exactly one hitbox, then try shine clanking to defend
-            if framedata.hitbox_count(opponent_state.character, opponent_state.action) == 1:
-                # It must be the first frame of the attack
-                if hitframe == framedata.first_hitbox_frame(opponent_state.character, opponent_state.action):
-                    # Grounded attacks only
-                    if opponent_state.on_ground:
-                        if (framesuntilhit == 2 and smashbot_state.action == Action.DASHING) or \
-                                (framesuntilhit == 1 and smashbot_state.action == Action.TURNING):
-                            self.pickchain(Chains.Waveshine)
-                            return
-
         onfront = (opponent_state.x < smashbot_state.x) == opponent_state.facing
         # Are we in the powershield window?
         if framesuntilhit <= 2:

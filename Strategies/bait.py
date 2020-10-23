@@ -38,7 +38,7 @@ class Bait(Strategy):
 
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
-
+        
         # -1 means auto-adjust difficulty based on stocks remaining
         if self.set_difficulty == -1:
             self.difficulty = smashbot_state.stock
