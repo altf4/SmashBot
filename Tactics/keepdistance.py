@@ -2,6 +2,7 @@ import melee
 import Chains
 from Tactics.tactic import Tactic
 from melee.enums import Character, Action
+from Chains.firefox import FIREFOX
 
 # Dash dance a just a little outside our opponont's range
 class KeepDistance(Tactic):
@@ -45,6 +46,13 @@ class KeepDistance(Tactic):
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
 
+        for projectile in gamestate.projectiles:
+            if self.logger:
+                self.logger.log("Notes", "proj_x: " + str(projectile.x) + " ", concat=True)
+                self.logger.log("Notes", "proj_y: " + str(projectile.y) + " ", concat=True)
+                self.logger.log("Notes", "proj_x_speed: " + str(projectile.x_speed) + " ", concat=True)
+                self.logger.log("Notes", "proj_y_speed: " + str(projectile.y_speed) + " ", concat=True)
+
         bufferzone = self._getbufferzone(opponent_state)
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
@@ -74,4 +82,8 @@ class KeepDistance(Tactic):
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
 
         self.chain = None
-        self.pickchain(Chains.DashDance, [pivotpoint])
+        if not smashbot_state.off_stage:
+            self.pickchain(Chains.DashDance, [pivotpoint])
+        # If for whatever reason keepdistance gets called while Smashbot is recovering, it will do an emergency Firefox
+        else:
+            self.pickchain(Chains.Firefox)
