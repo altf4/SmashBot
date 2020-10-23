@@ -54,7 +54,7 @@ class Recover(Tactic):
         if opponent_dist < smashbot_dist and not onedge:
             return True
 
-        if smashbot_dist >= 100:
+        if smashbot_dist >= 125:
             return True
 
         # If opponent is ON the edge, recover
@@ -114,7 +114,7 @@ class Recover(Tactic):
 
         # If we can just do nothing and grab the edge, do that
         # Action.SWORD_DANCE_1_AIR is Fox's initial freefall after his upB finishes launching.
-        # Fox can ledgegrab from behind in this animation, but fastfalling helps him get the window.
+        # Fox can ledgegrab from behind in this animation, but he oftentimes needs to fastfall to hit the window.
         if -12 < smashbot_state.y and (diff_x < 10) and (facinginwards or smashbot_state.action == Action.SWORD_DANCE_1_AIR) and smashbot_state.speed_y_self < 0:
             # Do a Fastfall if we're not already
             if smashbot_state.action == Action.FALLING and smashbot_state.speed_y_self > -3.3:
@@ -137,7 +137,11 @@ class Recover(Tactic):
         # If we illusion at this range when the opponent is holding ledge, Smashbot dies.
         # Firefox instead if the opponent is grabbing edge. Opponent has to get up or get burned.
         if (-16.4 < smashbot_state.y < -5) and (diff_x < 10) and facinginwards and opponentonedge:
-            self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
+            if gamestate.stage == melee.enums.Stage.BATTLEFIELD:
+                # If Smashbot does a random or horizontal sideB here, he pretty reliably SDs on Battlefield
+                self.pickchain(Chains.Firefox, [FIREFOX.EDGE])
+            else:
+                self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
             return
 
         # If we're lined up, do the illusion
@@ -163,11 +167,11 @@ class Recover(Tactic):
 
         x_canairdodge = abs(smashbot_state.x) - 18 <= abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
         y_canairdodge = smashbot_state.y + 18 >= -6
+        # airdodge_randomizer not currently in use
         airdodge_randomizer = random.randint(0, 4) == 1
         x = 0
         if smashbot_state.x < 0:
             x = 1
-        #if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge or airdodge_randomizer):
         if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge):
             self.pickchain(Chains.Airdodge, [x, 1])
             return
@@ -205,8 +209,6 @@ class Recover(Tactic):
             else:
                 self.pickchain(Chains.Illusion, [SHORTEN.LONG])
             return
-
-
 
         # DI into the stage
         battlefielded = (smashbot_state.x < melee.stages.EDGE_POSITION[gamestate.stage] + 13) and gamestate.stage == melee.enums.Stage.BATTLEFIELD and smashbot_state.y < 0
