@@ -47,9 +47,9 @@ Also make sure to stay updated on libmelee with `pip3 install --upgrade melee`
 
 2. Install and configure Slippi, just like you would for rollback netplay. Full instructions here: https://slippi.gg
 
-3. If you want to play interactively with or against your AI, you'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI. Or alternatively the HitBox adapter works well too: https://www.hitboxarcade.com/products/gamecube-controller-adapter
+3. You'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI. Or alternatively the HitBox adapter works well too: https://www.hitboxarcade.com/products/gamecube-controller-adapter
 
-4. Install come custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
+4. Install some custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
 
 5. Make sure you have all the `Required` and `Recommended` Gecko Codes enabled.
 
