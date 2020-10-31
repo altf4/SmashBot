@@ -3,8 +3,6 @@ import argparse
 import os
 import signal
 import sys
-import time
-import random
 
 import melee
 
@@ -39,16 +37,8 @@ parser.add_argument('--debug', '-d', action='store_true',
                     help='Debug mode. Creates a CSV of all game state')
 parser.add_argument('--difficulty', '-i', type=int, default=-1,
                     help='Manually specify difficulty level of SmashBot')
-parser.add_argument('--nodolphin', '-n', action='store_true',
-                    help='Don\'t run dolphin, (it is already running))')
 parser.add_argument('--dolphinexecutable', '-e', type=is_dir,
                     help='Manually specify Dolphin executable')
-parser.add_argument('--configdir', '-c', type=is_dir,
-                    help='Manually specify the Dolphin config directory to use')
-parser.add_argument('--address', '-a', default="127.0.0.1",
-                    help='IP address of Slippi/Wii')
-parser.add_argument('--connect_code', '-t', default="",
-                    help='Direct connect code to connect to in Slippi Online')
 parser.add_argument('--stage', '-s', default="FD",
                     help='Specify which stage to select')
 
@@ -77,8 +67,6 @@ if not args.bot:
 
 # Create our console object. This will be the primary object that we will interface with
 console = melee.console.Console(path=args.dolphinexecutable,
-                                slippi_address=args.address,
-                                online_delay=2,
                                 logger=log)
 
 controller_one = melee.controller.Controller(console=console, port=args.port)
@@ -104,11 +92,8 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-# Run dolphin and render the output
-if not args.nodolphin:
-    console.run()
-    time.sleep(1)
-
+# Run dolphin
+console.run()
 
 # Connect to the console
 print("Connecting to console...")
@@ -127,8 +112,6 @@ supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFAL
     melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
     melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH]
 
-costume = 0
-
 # Main loop
 while True:
     # "step" to the next frame
@@ -136,40 +119,26 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        # try:
-        discovered_port = melee.gamestate.port_detector(gamestate, melee.enums.Character.FOX, costume)
-        # Let's just assume SmashBot is on port 1 when this happens
-        if discovered_port == 0:
-            # If the discovered port was unsure, reroll our costume
-            costume = random.randint(0, 4)
-            discovered_port = 1
-        agent1.smashbot_port = discovered_port
-        if agent1.smashbot_port == 1:
-            agent1.opponent_port = 2
-        else:
-            agent1.opponent_port = 1
-
-        agent1.act(gamestate)
-        if agent2:
-            agent2.act(gamestate)
-        # except Exception as error:
-        #     # Do nothing in case of error thrown!
-        #     agent1.controller.empty_input()
-        #     if agent2:
-        #         agent2.controller.empty_input()
-        #     if log:
-        #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
-        #     else:
-        #         print("WARNING: Exception thrown: ", error)
+        try:
+            agent1.act(gamestate)
+            if agent2:
+                agent2.act(gamestate)
+        except Exception as error:
+            # Do nothing in case of error thrown!
+            agent1.controller.empty_input()
+            if agent2:
+                agent2.controller.empty_input()
+            if log:
+                log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+            else:
+                print("WARNING: Exception thrown: ", error)
     else:
         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
                                                         controller_one,
-                                                        args.port,
                                                         melee.enums.Character.FOX,
                                                         stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
-                                                        args.connect_code,
-                                                        costume=costume,
-                                                        autostart=args.connect_code!="",
+                                                        connect_code="",
+                                                        autostart=False,
                                                         swag=True)
 
     if log:
