@@ -1,3 +1,4 @@
+import random
 import melee
 import Chains
 from Tactics.tactic import Tactic
@@ -29,6 +30,9 @@ class KeepDistance(Tactic):
             bufferzone = 18
         if character == Character.SAMUS:
             bufferzone = 15
+
+        # Throw in a little randomness to fake out the opponent
+        bufferzone += random.randint(-5, 5)
 
         # If we're in the first two difficulty levels, just get in there
         if self.difficulty > 2:
