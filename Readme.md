@@ -11,13 +11,17 @@
 
     It does! To run SmashBot, you can just use your regular Slippi Dolphin install.
 
-3. **Does SmashBot cheat?**
+3. **Can I Run SmashBot online?**
+
+    No and don't try. It won't work for you and it will just mess up a lot, making both you and SmashBot look bad. You can play it locally in VS mode.
+
+4. **Does SmashBot cheat?**
 
     The short answer is: No.
 
     The long answer is that SmashBot only interfaces with the game by pressing buttons on a virtual controller. There isn't anything it does that you **couldn't** do in principle. It just so happens, however, that a computer is much faster and more reliable than you, so it's able to do things that a human realistically can't.
 
-4. **How is SmashBot designed?**
+5. **How is SmashBot designed?**
 
     SmashBot makes decisions on a tiered hierarchy of objectives: Strategies, Tactics, and Chains. Each objective inspects the current game state and decides which lower level objective will be best to achieve it.
 
@@ -27,15 +31,15 @@
 
     **Chains** are the lowest level of objective that consists of a "chain" of button presses that Smashers will recognize, such as Wavedash, Jump-canceled Upsmash, etc...
 
-5. **Can I play SmashBot on a regular GameCube or hacked Wii?**
+6. **Can I play SmashBot on a regular GameCube or hacked Wii?**
 
     For right now, SmashBot only runs on a PC as a normal computer program. (Meaning that Melee has to be in an emulator)
 
-6. **What Operating Systems does it play on?**
+7. **What Operating Systems does it play on?**
 
     SmashBot runs on Linux, OSX, and Windows!
 
-7. **I found a bug. How can I help?**
+8. **I found a bug. How can I help?**
 
     Hey thanks, that's awesome! For starters, make sure you can reliably reproduce the bug. Then go ahead and make an Issue on GitHub at https://github.com/altf4/SmashBot/issues. If you want to be even MORE awesome, run the AI with the "--debug" flag and upload the CSV file it gives you along with the issue. That CSV contains a full breakdown of the AI's state at each frame, so we can easily pinpoint what went wrong and where.
 
