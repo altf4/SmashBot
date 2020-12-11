@@ -137,7 +137,6 @@ while True:
                                                         controller_one,
                                                         melee.enums.Character.FOX,
                                                         stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
-                                                        connect_code="",
                                                         autostart=False,
                                                         swag=True)
 
