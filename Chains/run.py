@@ -37,7 +37,7 @@ class Run(Chain):
         jumpcancel = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
         if jumpcancel or smashbot_state.action in jumping:
             self.controller.press_button(Button.BUTTON_L)
-            onleft = smashbot_state.x < opponent_state.x
+            onleft = smashbot_state.position.x < opponent_state.position.x
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = 1
             if onleft != False:

@@ -27,5 +27,5 @@ class ESAgent():
         gamestate.projectiles = knownprojectiles
 
         self.strategy.step(gamestate,
-                           gamestate.player[self.smashbot_port],
-                           gamestate.player[self.opponent_port])
+                           gamestate.players[self.smashbot_port],
+                           gamestate.players[self.opponent_port])

@@ -23,12 +23,12 @@ class Firefox(Chain):
 
     def getangle(self, gamestate, smashbot_state):
         x = 0
-        if smashbot_state.x < 0:
+        if smashbot_state.position.x < 0:
             x = 1
 
         # The point we grab the edge at is a little below the stage
-        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
-        diff_y = abs(smashbot_state.y + 5)
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
+        diff_y = abs(smashbot_state.position.y + 5)
         larger_magnitude = max(diff_x, diff_y)
 
         # Scale down values to between 0 and 1
@@ -36,11 +36,11 @@ class Firefox(Chain):
         y = diff_y / larger_magnitude
 
         # Now scale down to be between .5 and 1
-        if smashbot_state.x < 0:
+        if smashbot_state.position.x < 0:
             x = (x/2) + 0.5
         else:
             x = 0.5 - (x/2)
-        if smashbot_state.y < 0:
+        if smashbot_state.position.y < 0:
             y = (y/2) + 0.5
         else:
             y = 0.5 - (y/2)
@@ -72,20 +72,20 @@ class Firefox(Chain):
             return
 
         x = 0
-        if smashbot_state.x < 0:
+        if smashbot_state.position.x < 0:
             x = 1
 
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:
             self.interruptible = False
-            diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
+            diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
 
             if self.direction == FIREFOX.HIGH:
                 if diff_x > 20:
                     controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
                 else:
                     controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 1)
-            if self.direction == FIREFOX.MEDIUM and smashbot_state.y > -10:
+            if self.direction == FIREFOX.MEDIUM and smashbot_state.position.y > -10:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
             if self.direction == FIREFOX.EDGE:
                 x, y = self.getangle(gamestate, smashbot_state)
@@ -97,7 +97,7 @@ class Firefox(Chain):
             x, y = self.getangle(gamestate, smashbot_state)
             # Let's add a little extra room so we don't miscalculate
             # if .3625 < y < .6375 or .3625 < x < .6375:
-            if (.3525 < y < .6475) or (.3525 < x < .6475) and (smashbot_state.y > -15):
+            if (.3525 < y < .6475) or (.3525 < x < .6475) and (smashbot_state.position.y > -15):
                 controller.empty_input()
                 return
 

@@ -38,7 +38,7 @@ class Retreat(Tactic):
         # If there's a Samus bomb between us and opponent
         for projectile in gamestate.projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
-                if smashbot_state.x < projectile.x < opponent_state.x or smashbot_state.x > projectile.x > opponent_state.x:
+                if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     return True
 
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
@@ -69,16 +69,16 @@ class Retreat(Tactic):
         samus_bomb = False
         for projectile in gamestate.projectiles:
             if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
-                if smashbot_state.x < projectile.x < opponent_state.x or smashbot_state.x > projectile.x > opponent_state.x:
+                if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     samus_bomb = True
         if samus_bomb:
             bufferzone = 60
 
-        onright = opponent_state.x < smashbot_state.x
+        onright = opponent_state.position.x < smashbot_state.position.x
         if not onright:
             bufferzone *= -1
 
-        pivotpoint = opponent_state.x + bufferzone
+        pivotpoint = opponent_state.position.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
         edgebuffer = 30

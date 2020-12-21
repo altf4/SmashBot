@@ -22,7 +22,7 @@ class Shffl(Chain):
             self.interruptible = False
             controller.release_button(Button.BUTTON_Y)
             jumpdirection = 1
-            if opponent_state.x < smashbot_state.x:
+            if opponent_state.position.x < smashbot_state.position.x:
                 jumpdirection = 0
             controller.tilt_analog(Button.BUTTON_MAIN, jumpdirection, .5)
             return
@@ -44,11 +44,11 @@ class Shffl(Chain):
             #   If we're close to the edge, angle back in
             x = 0.5
             edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            if opponent_state.x < 0:
+            if opponent_state.position.x < 0:
                 edge_x = -edge_x
-            edgedistance = abs(edge_x - smashbot_state.x)
+            edgedistance = abs(edge_x - smashbot_state.position.x)
             if edgedistance < 15:
-                x = int(smashbot_state.x < 0)
+                x = int(smashbot_state.position.x < 0)
 
             controller.tilt_analog(Button.BUTTON_MAIN, x, 0)
             # Only do the L cancel near the end of the animation
@@ -80,11 +80,11 @@ class Shffl(Chain):
             #   If we're close to the edge, angle back in
             x = 0.5
             edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            if opponent_state.x < 0:
+            if opponent_state.position.x < 0:
                 edge_x = -edge_x
-            edgedistance = abs(edge_x - smashbot_state.x)
+            edgedistance = abs(edge_x - smashbot_state.position.x)
             if edgedistance < 15:
-                x = int(smashbot_state.x < 0)
+                x = int(smashbot_state.position.x < 0)
 
             controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
             controller.tilt_analog(Button.BUTTON_C, .5, .5)

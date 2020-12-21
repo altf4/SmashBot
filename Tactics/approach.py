@@ -19,10 +19,10 @@ class Approach(Tactic):
             return
 
         # If opponent is on a side platform and we're not
-        on_main_platform = smashbot_state.y < 1 and smashbot_state.on_ground
-        if opponent_state.y > 1 and opponent_state.on_ground and on_main_platform and gamestate.stage != melee.enums.Stage.FOUNTAIN_OF_DREAMS:
-            self.pickchain(Chains.BoardSidePlatform, [opponent_state.x > 0])
+        on_main_platform = smashbot_state.position.y < 1 and smashbot_state.on_ground
+        if opponent_state.position.y > 1 and opponent_state.on_ground and on_main_platform and gamestate.stage != melee.enums.Stage.FOUNTAIN_OF_DREAMS:
+            self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0])
             return
 
         self.chain = None
-        self.pickchain(Chains.DashDance, [opponent_state.x])
+        self.pickchain(Chains.DashDance, [opponent_state.position.x])

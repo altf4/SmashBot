@@ -32,13 +32,13 @@ class Edgeguard(Tactic):
             return True
 
         # If smashbot is closer to the edge, edgeguard
-        diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.x))
-        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.x))
+        diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.position.x))
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
 
         opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
-        opponent_dist = math.sqrt( (opponent_state.y+15)**2 + (diff_x_opponent)**2 )
-        smashbot_dist = math.sqrt( (smashbot_state.y+15)**2 + (diff_x)**2 )
+        opponent_dist = math.sqrt( (opponent_state.position.y+15)**2 + (diff_x_opponent)**2 )
+        smashbot_dist = math.sqrt( (smashbot_state.position.y+15)**2 + (diff_x)**2 )
 
         if smashbot_dist < opponent_dist and not opponentonedge:
             return True
@@ -46,24 +46,24 @@ class Edgeguard(Tactic):
 
     def illusionhighframes(self, gamestate, opponent_state):
         inillusion =  opponent_state.character in [Character.FOX, Character.FALCO] and \
-            opponent_state.action in [Action.SWORD_DANCE_2_HIGH, Action.SWORD_DANCE_2_MID] and (0 < opponent_state.y < 30)
+            opponent_state.action in [Action.SWORD_DANCE_2_HIGH, Action.SWORD_DANCE_2_MID] and (0 < opponent_state.position.y < 30)
         if not inillusion:
             return 999
-        if not (-2 < opponent_state.y < 25):
+        if not (-2 < opponent_state.position.y < 25):
             return 999
 
         edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        if opponent_state.x < 0:
+        if opponent_state.position.x < 0:
             edge_x = -edge_x
 
         speed = 16.5
         if opponent_state.character == Character.FOX:
             speed = 18.72
 
-        if opponent_state.x > 0:
+        if opponent_state.position.x > 0:
             speed = -speed
 
-        x = opponent_state.x
+        x = opponent_state.position.x
         frames = 0
         for i in range(1, 3):
             x += speed
@@ -86,10 +86,10 @@ class Edgeguard(Tactic):
             return 999
 
         edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        if opponent_state.x < 0:
+        if opponent_state.position.x < 0:
             edge_x = -edge_x
 
-        x, y = opponent_state.x, opponent_state.y
+        x, y = opponent_state.position.x, opponent_state.position.y
         # Project their trajectory. Does it reach right above the edge? When will it?
         for i in range(self.framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame):
             x += opponent_state.speed_air_x_self
@@ -126,7 +126,7 @@ class Edgeguard(Tactic):
         speed_x = opponent_state.speed_air_x_self + opponent_state.speed_x_attack
         speed_y = opponent_state.speed_y_self + opponent_state.speed_y_attack
 
-        x, y = opponent_state.x, opponent_state.y
+        x, y = opponent_state.position.x, opponent_state.position.y
 
         if x > 0:
             mobility = -mobility
@@ -262,7 +262,7 @@ class Edgeguard(Tactic):
         # How long will it take opponent to grab the edge?
         #   Distance to the snap point of the edge
         edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        edgedistance = abs(opponent_state.x) - (edge_x + 15)
+        edgedistance = abs(opponent_state.position.x) - (edge_x + 15)
         # Assume opponent can move at their "max" speed
         airhorizspeed = self.framedata.characterdata[opponent_state.character]["AirSpeed"]
         edgegrabframes_x = edgedistance // airhorizspeed
@@ -276,34 +276,34 @@ class Edgeguard(Tactic):
         #   This is the shortest possible time opponent could get into position
         edgegrabframes_y = 1000
         # Are they already in place?
-        if -5 > opponent_state.y > -23:
+        if -5 > opponent_state.position.y > -23:
             edgegrabframes_y = 0
         # Are they above?
-        elif opponent_state.y > -5:
-            edgegrabframes_y = (opponent_state.y + 5) // fastfallspeed
+        elif opponent_state.position.y > -5:
+            edgegrabframes_y = (opponent_state.position.y + 5) // fastfallspeed
         # Are they below?
-        elif opponent_state.y < -23:
+        elif opponent_state.position.y < -23:
             djapexframes = self.framedata.frames_until_dj_apex(opponent_state)
             djheight = self.framedata.dj_height(opponent_state)
             # Can they double-jump to grab the edge?
-            if -5 > opponent_state.y + djheight > -23:
+            if -5 > opponent_state.position.y + djheight > -23:
                 edgegrabframes_y = djapexframes
-            elif opponent_state.y + djheight > -5:
+            elif opponent_state.position.y + djheight > -5:
                 # If the jump puts them too high, then we have to wait for them to fall after the jump
-                fallframes = (opponent_state.y + djheight + 5) // fastfallspeed
+                fallframes = (opponent_state.position.y + djheight + 5) // fastfallspeed
                 edgegrabframes_y = djapexframes + fallframes
-            elif opponent_state.y + djheight < -23:
+            elif opponent_state.position.y + djheight < -23:
                 # If the jump puts them too low, then they have to UP-B. How long will that take?
                 upbframes = self.upbapexframes(opponent_state)
                 edgegrabframes_y = upbframes
                 # How many falling frames do they need?
-                fallframes = (opponent_state.y + upbframes + 5) // fastfallspeed
+                fallframes = (opponent_state.position.y + upbframes + 5) // fastfallspeed
                 if fallframes > 0:
                     edgegrabframes_y += fallframes
 
         edgegrabframes = max(edgegrabframes_x, edgegrabframes_y)
 
-        facinginwards = opponent_state.facing == (opponent_state.x < 0)
+        facinginwards = opponent_state.facing == (opponent_state.position.x < 0)
         firefox = opponent_state.character in [Character.FOX, Character.FALCO] and \
             opponent_state.action == Action.SWORD_DANCE_3_LOW and facinginwards
         inteleport = opponent_state.character in [Character.FOX, Character.FALCO] and \
@@ -321,12 +321,12 @@ class Edgeguard(Tactic):
         #   In these cases, opponent COULD grab the edge much faster than in other situations
         if opponent_state.character in [Character.SHEIK, Character.ZELDA, Character.FOX, Character.FALCO, \
                 Character.PIKACHU, Character.PICHU, Character.MEWTWO]:
-            if opponent_state.y > 0 and opponent_state.action != Action.DEAD_FALL:
+            if opponent_state.position.y > 0 and opponent_state.action != Action.DEAD_FALL:
                 edgegrabframes = 1
                 if firefox:
                     edgegrabframes = max(15 - opponent_state.action_frame, 0)
             # If in place to grab edge,
-            if (-5 > opponent_state.y > -23) and firefox:
+            if (-5 > opponent_state.position.y > -23) and firefox:
                 edgegrabframes = max(15 - opponent_state.action_frame, 0)
             # If opponent is IN the teleport phase, then it matters whether they're moving up or down
             if inteleport:
@@ -366,7 +366,7 @@ class Edgeguard(Tactic):
         proj_incoming = Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate) and smashbot_state.invulnerability_left <= 2
 
         samusgrapple = opponent_state.character == Character.SAMUS and opponent_state.action == Action.SWORD_DANCE_4_LOW and \
-            -25 < opponent_state.y < 0 and smashbot_state.invulnerability_left <= 2
+            -25 < opponent_state.position.y < 0 and smashbot_state.invulnerability_left <= 2
 
         hitframe = self.framedata.in_range(opponent_state, smashbot_state, gamestate.stage)
         framesleft = hitframe - opponent_state.action_frame
@@ -403,7 +403,7 @@ class Edgeguard(Tactic):
         edgegrabframes = self.snaptoedgeframes(gamestate, opponent_state)
 
         # How heigh can they go with a jump?
-        potentialheight = djheight + opponent_state.y
+        potentialheight = djheight + opponent_state.position.y
         if potentialheight < -23:
             mustupb = True
 
@@ -411,11 +411,11 @@ class Edgeguard(Tactic):
         #   Have they already UP-B'd?
         if self.isupb(opponent_state):
             if self.upbstart == 0:
-                self.upbstart = opponent_state.y
+                self.upbstart = opponent_state.position.y
             # If they are halfway through the up-b, then subtract out what they've alrady used
             potentialheight = self.upbheight(opponent_state) + self.upbstart
         elif opponent_state.action == Action.DEAD_FALL:
-            potentialheight = opponent_state.y
+            potentialheight = opponent_state.position.y
         else:
             potentialheight += self.upbheight(opponent_state)
 
@@ -461,8 +461,8 @@ class Edgeguard(Tactic):
             if opponent_state.character in [Character.FOX, Character.FALCO]:
                 # Are they in the start of a firefox?
                 # But make sure they can't grab the edge in the middle of it
-                edgedistance = abs(opponent_state.x) - (melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 15)
-                inrange = (-5 > opponent_state.y > -23) and (edgedistance < 15)
+                edgedistance = abs(opponent_state.position.x) - (melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 15)
+                inrange = (-5 > opponent_state.position.y > -23) and (edgedistance < 15)
                 if opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 5 and not inrange:
                     self.pickchain(Chains.Edgestall)
                     return
@@ -515,7 +515,7 @@ class Edgeguard(Tactic):
         # We are on the stage
         else:
             edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            edgedistance = abs(edge_x - abs(smashbot_state.x))
+            edgedistance = abs(edge_x - abs(smashbot_state.position.x))
 
             randomgrab = False
             if random.randint(0, 20) == 0:
@@ -534,7 +534,7 @@ class Edgeguard(Tactic):
                     return
 
             # Dash dance near the edge
-            pivotpoint = opponent_state.x
+            pivotpoint = opponent_state.position.x
             # Don't run off the stage though, adjust this back inwards a little if it's off
             edgebuffer = 5
             pivotpoint = min(pivotpoint, edge_x - edgebuffer)

@@ -13,9 +13,9 @@ class Grabedge(Chain):
         # Moved this here from constructor.
         #   It should be fine, but let's keep an eye out for if this breaks
         edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        if opponent_state.x < 0:
+        if opponent_state.position.x < 0:
             edge_x = -edge_x
-        edgedistance = abs(edge_x - smashbot_state.x)
+        edgedistance = abs(edge_x - smashbot_state.position.x)
         if edgedistance > 15:
             self.wavedash = False
         if edgedistance < 2:
@@ -23,7 +23,7 @@ class Grabedge(Chain):
 
         # Where is the edge that we're going to?
         edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        if opponent_state.x < 0:
+        if opponent_state.position.x < 0:
             edge_x = -edge_x
 
         # If we're on the edge, then we're done here, end the chain
@@ -56,11 +56,11 @@ class Grabedge(Chain):
                 controller.empty_input()
                 return
 
-        facinginwards = smashbot_state.facing == (smashbot_state.x < 0)
+        facinginwards = smashbot_state.facing == (smashbot_state.position.x < 0)
         if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
             facinginwards = not facinginwards
 
-        edgedistance = abs(edge_x - smashbot_state.x)
+        edgedistance = abs(edge_x - smashbot_state.position.x)
         turnspeed = abs(smashbot_state.speed_ground_x_self)
         # If we turn right now, what will our speed be?
         if smashbot_state.action == Action.DASHING:
@@ -96,7 +96,7 @@ class Grabedge(Chain):
 
         # If we're in the shine, but too high, just wait
         if smashbot_state.action in [Action.SWORD_DANCE_4_MID_AIR, Action.SWORD_DANCE_4_LOW_AIR] \
-                and -10 < smashbot_state.y and edgedistance < 10:
+                and -10 < smashbot_state.position.y and edgedistance < 10:
             self.interruptible = False
             controller.empty_input()
             return
@@ -107,7 +107,7 @@ class Grabedge(Chain):
 
             # Should we shine?
             canhit = gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
-            if (smashbot_state.y < -15) or canhit:
+            if (smashbot_state.position.y < -15) or canhit:
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
                 return
@@ -118,7 +118,7 @@ class Grabedge(Chain):
             else:
                 # DI in to the opponent
                 x = 0
-                if smashbot_state.x < opponent_state.x:
+                if smashbot_state.position.x < opponent_state.position.x:
                     x = 1
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, x, 0.5)
             return
@@ -144,8 +144,8 @@ class Grabedge(Chain):
         # Firefox to grab edge
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
             # Must be between 0 and -10
-            inxrange = -10 < (abs(edge_x) - abs(smashbot_state.x)) < 0
-            if -15 < smashbot_state.y < -5 and inxrange:
+            inxrange = -10 < (abs(edge_x) - abs(smashbot_state.position.x)) < 0
+            if -15 < smashbot_state.position.y < -5 and inxrange:
                 self.interruptible = False
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
@@ -186,12 +186,12 @@ class Grabedge(Chain):
             return
 
         #Are we outside the given radius of dash dancing?
-        if smashbot_state.x < edge_x:
+        if smashbot_state.position.x < edge_x:
             self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
             return
 
-        if smashbot_state.x > edge_x:
+        if smashbot_state.position.x > edge_x:
             self.interruptible = True
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
             return

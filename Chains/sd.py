@@ -15,7 +15,7 @@ class SD(Chain):
                 self.controller.empty_input()
                 return
 
-        onright = smashbot_state.x > 0
+        onright = smashbot_state.position.x > 0
         if onright:
             self.controller.tilt_analog(Button.BUTTON_MAIN, 1, 0.5)
         else:

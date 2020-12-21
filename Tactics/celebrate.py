@@ -12,11 +12,11 @@ class Celebrate(Tactic):
                 Action.DEAD_LEFT, Action.DEAD_RIGHT, Action.DEAD_DOWN]:
             return True
 
-        if opponent_state.action == Action.DEAD_FALL and opponent_state.y < -20:
+        if opponent_state.action == Action.DEAD_FALL and opponent_state.position.y < -20:
             return True
 
         if opponent_state.action == Action.PARASOL_FALLING and opponent_state.character == Character.PEACH and \
-                opponent_state.y < -30:
+                opponent_state.position.y < -30:
             return True
 
         return False

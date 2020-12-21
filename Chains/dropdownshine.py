@@ -11,12 +11,12 @@ class Dropdownshine(Chain):
             return False
 
         # They must be below us
-        if opponent_state.y > smashbot_state.y:
+        if opponent_state.position.y > smashbot_state.position.y:
             return False
 
         # If opponent can grab the edge, don't go
         #   -25 is really conservative. 15 is more likely
-        if -25 < opponent_state.y and opponent_state.speed_y_self < 0:
+        if -25 < opponent_state.position.y and opponent_state.speed_y_self < 0:
             return False
 
         # Opponent must be moving slowly horizontally
@@ -24,11 +24,11 @@ class Dropdownshine(Chain):
             return False
 
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
-        frames_y = abs(opponent_state.y - smashbot_state.y) // 3.4
+        frames_y = abs(opponent_state.position.y - smashbot_state.position.y) // 3.4
 
         # Horizontal speed is 0.819625854, how long will it take to get to the opponent horizontally?
         #   But we won't be able to use the full horizontal speed. So half it
-        frames_x = abs(opponent_state.x - smashbot_state.x) // (0.819625854 / 2)
+        frames_x = abs(opponent_state.position.x - smashbot_state.position.x) // (0.819625854 / 2)
 
         # If opponent is in a FireFox, we have to get there before they take off
         framesleft = framedata.frame_count(opponent_state.character, opponent_state.action) - opponent_state.action_frame
@@ -80,6 +80,6 @@ class Dropdownshine(Chain):
         # DI in toward the opponent
         self.interruptible = False
         x = 0
-        if smashbot_state.x < opponent_state.x:
+        if smashbot_state.position.x < opponent_state.position.x:
             x = 1
         controller.tilt_analog(melee.Button.BUTTON_MAIN, x, 0.5)

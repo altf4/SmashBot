@@ -33,7 +33,7 @@ class Edgedash(Chain):
                     controller.empty_input()
                     return
                 x = 1
-                if smashbot_state.x < 0:
+                if smashbot_state.position.x < 0:
                     x = 0
                 self.interruptible = False
                 controller.tilt_analog(Button.BUTTON_C, x, 0.5)
@@ -57,7 +57,7 @@ class Edgedash(Chain):
                 controller.empty_input()
                 return
             x = 1
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 0
             self.interruptible = False
             self.letgoframe = gamestate.frame
@@ -76,7 +76,7 @@ class Edgedash(Chain):
             # Airdodge back into the stage
             if gamestate.frame - self.letgoframe >= 4:
                 x = 0
-                if smashbot_state.x < 0:
+                if smashbot_state.position.x < 0:
                     x = 1
                 self.interruptible = False
                 controller.tilt_analog(Button.BUTTON_MAIN, x, 0.2)
@@ -84,7 +84,7 @@ class Edgedash(Chain):
                 return
             else:
                 x = 0
-                if smashbot_state.x < 0:
+                if smashbot_state.position.x < 0:
                     x = 1
                 self.interruptible = False
                 controller.tilt_analog(Button.BUTTON_MAIN, x, 0.5)

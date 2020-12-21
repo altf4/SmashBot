@@ -26,7 +26,7 @@ class Edgebair(Chain):
                 controller.empty_input()
                 return
             x = 1
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 0
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_C, x, 0.5)
@@ -36,7 +36,7 @@ class Edgebair(Chain):
         if smashbot_state.action == Action.FALLING:
             self.interruptible = False
             x = 0
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 1
             controller.tilt_analog(Button.BUTTON_C, .5, .5)
             controller.tilt_analog(Button.BUTTON_MAIN, x, 0.5)
@@ -47,7 +47,7 @@ class Edgebair(Chain):
         if smashbot_state.speed_y_self < 0:
             self.interruptible = False
             x = 0
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 1
             controller.tilt_analog(Button.BUTTON_MAIN, x, 0)
             # Only do the L cancel near the end of the animation
@@ -66,7 +66,7 @@ class Edgebair(Chain):
             return
         elif smashbot_state.speed_y_self > 0:
             x = 0
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 1
             controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
             controller.tilt_analog(Button.BUTTON_C, .5, .5)

@@ -22,10 +22,10 @@ class Defend(Tactic):
                 continue
             # Missles and needles that aren't moving are actually already exploded. Ignore them
             if projectile.subtype in [melee.enums.ProjectileSubtype.SAMUS_MISSLE, melee.enums.ProjectileSubtype.NEEDLE_THROWN, \
-                    melee.enums.ProjectileSubtype.TURNIP] and (-0.01 < projectile.x_speed < 0.01):
+                    melee.enums.ProjectileSubtype.TURNIP] and (-0.01 < projectile.speed.x < 0.01):
                 continue
 
-            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB and (-0.01 < projectile.y_speed < 0.01):
+            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB and (-0.01 < projectile.speed.y < 0.01):
                 continue
 
             size = 10
@@ -42,12 +42,12 @@ class Defend(Tactic):
                 size *= 2
 
             # Is this about to hit us in the next frame?
-            proj_x, proj_y = projectile.x, projectile.y
+            proj_x, proj_y = projectile.position.x, projectile.position.y
             for i in range(0, 1):
-                proj_x += projectile.x_speed
-                proj_y += projectile.y_speed
-                smashbot_y = smashbot_state.y
-                smashbot_x = smashbot_state.x + smashbot_state.speed_ground_x_self
+                proj_x += projectile.speed.x
+                proj_y += projectile.speed.y
+                smashbot_y = smashbot_state.position.y
+                smashbot_x = smashbot_state.position.x + smashbot_state.speed_ground_x_self
                 # This is a bit hacky, but it's easiest to move our "center" up a little for the math
                 if smashbot_state.on_ground:
                     smashbot_y += 8
@@ -153,7 +153,7 @@ class Defend(Tactic):
         if self.logger:
             self.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
 
-        onfront = (opponent_state.x < smashbot_state.x) == opponent_state.facing
+        onfront = (opponent_state.position.x < smashbot_state.position.x) == opponent_state.facing
         # Are we in the powershield window?
         if framesuntilhit <= 2:
             if smashbot_state.action == Action.EDGE_HANGING:
@@ -170,9 +170,9 @@ class Defend(Tactic):
             else:
                 bufferzone += framedata.range_backward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
 
-            pivotpoint = opponent_state.x
+            pivotpoint = opponent_state.position.x
             # Dash to a point away from the opponent, out of range
-            if opponent_state.x < smashbot_state.x:
+            if opponent_state.position.x < smashbot_state.position.x:
                 # Dash right
                 pivotpoint += bufferzone
                 # But don't run off the edge

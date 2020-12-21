@@ -18,7 +18,7 @@ class BoardSidePlatform(Chain):
             platform_center = (position[1] + position[2]) / 2
             platform_height = position[0]
 
-        under_platform = abs(smashbot_state.x - platform_center) < 10
+        under_platform = abs(smashbot_state.position.x - platform_center) < 10
 
         if smashbot_state.on_ground:
             self.interruptible = True
@@ -50,7 +50,7 @@ class BoardSidePlatform(Chain):
 
         # Waveland down
         aerials = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
-        if smashbot_state.ecb_bottom[1] + smashbot_state.y > platform_height and smashbot_state.action not in aerials:
+        if smashbot_state.ecb.bottom.y + smashbot_state.position.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
@@ -66,7 +66,7 @@ class BoardSidePlatform(Chain):
 
         # If we see the opponent jump, they cannot protect themselves from uair.
         # Does not look for KNEE_BEND because Smashbot needs to discern between SH and FH
-        y_afternineframes = opponent_state.y
+        y_afternineframes = opponent_state.position.y
         gravity = self.framedata.characterdata[opponent_state.character]["Gravity"]
         y_speed = opponent_state.speed_y_self
         for i in range(1,10):
@@ -92,10 +92,10 @@ class BoardSidePlatform(Chain):
             if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
                     self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                     return
-            if smashbot_state.x > platform_center + 2:
+            if smashbot_state.position.x > platform_center + 2:
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
                 return
-            if smashbot_state.x < platform_center - 2:
+            if smashbot_state.position.x < platform_center - 2:
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
                 return
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), .5)

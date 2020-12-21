@@ -15,7 +15,7 @@ class Wait(Tactic):
 
         # When teetering on the edge, make sure there isn't an opponent pushing on us.
         # We'll fall if we try to act
-        opponent_pushing = (gamestate.distance < 8) and abs(smashbot_state.x) > abs(opponent_state.x)
+        opponent_pushing = (gamestate.distance < 8) and abs(smashbot_state.position.x) > abs(opponent_state.position.x)
         if smashbot_state.action == Action.EDGE_TEETERING_START and opponent_pushing:
             return True
 

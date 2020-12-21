@@ -18,7 +18,7 @@ class Roll(Chain):
                 controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)
                 return
             self.interruptible = False
-            controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.x < opponent_state.x), 0.5)
+            controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.5)
             return
 
         # Let go once we're in the roll

@@ -52,18 +52,18 @@ class KeepDistance(Tactic):
 
         for projectile in gamestate.projectiles:
             if self.logger:
-                self.logger.log("Notes", "proj_x: " + str(projectile.x) + " ", concat=True)
-                self.logger.log("Notes", "proj_y: " + str(projectile.y) + " ", concat=True)
-                self.logger.log("Notes", "proj_x_speed: " + str(projectile.x_speed) + " ", concat=True)
-                self.logger.log("Notes", "proj_y_speed: " + str(projectile.y_speed) + " ", concat=True)
+                self.logger.log("Notes", "proj_x: " + str(projectile.position.x) + " ", concat=True)
+                self.logger.log("Notes", "proj_y: " + str(projectile.position.y) + " ", concat=True)
+                self.logger.log("Notes", "proj_x_speed: " + str(projectile.speed.x) + " ", concat=True)
+                self.logger.log("Notes", "proj_y_speed: " + str(projectile.speed.y) + " ", concat=True)
 
         bufferzone = self._getbufferzone(opponent_state)
         #Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
         # if we have our opponent cornered, reduce the edgebuffer
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-        if opponent_state.x < smashbot_state.x < 0 or \
-                0 < smashbot_state.x < opponent_state.x:
+        if opponent_state.position.x < smashbot_state.position.x < 0 or \
+                0 < smashbot_state.position.x < opponent_state.position.x:
             edgebuffer = 10
 
         # Figure out which side we should dash dance on
@@ -75,11 +75,11 @@ class KeepDistance(Tactic):
                 bufferzone *= -1
         # If they're on the ground, stay on the side we're on
         else:
-            onright = opponent_state.x < smashbot_state.x
+            onright = opponent_state.position.x < smashbot_state.position.x
             if not onright:
                 bufferzone *= -1
 
-        pivotpoint = opponent_state.x + bufferzone
+        pivotpoint = opponent_state.position.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
         pivotpoint = min(pivotpoint, edge - edgebuffer)

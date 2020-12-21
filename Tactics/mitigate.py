@@ -59,19 +59,19 @@ class Mitigate(Tactic):
                 if smashbot_state.off_stage:
                     y = 1
                     x = 0
-                    if smashbot_state.x < 0:
+                    if smashbot_state.position.x < 0:
                         x = 1
                 else:
                     if smashbot_state.percent > 60:
                         y = 1
                         x = 0
-                        if smashbot_state.x < 0:
+                        if smashbot_state.position.x < 0:
                             x = 1
                     # If at low damage, DI away
                     else:
                         y = 0.5
                         x = 1
-                        if smashbot_state.x < 0:
+                        if smashbot_state.position.x < 0:
                             x = 0
             self.chain = None
             self.pickchain(Chains.DI, [x, y, cx, cy])
@@ -79,11 +79,11 @@ class Mitigate(Tactic):
 
         # Tech if we need to
         #   Calculate when we will land
-        if smashbot_state.y > -4 and not smashbot_state.on_ground and \
+        if smashbot_state.position.y > -4 and not smashbot_state.on_ground and \
                 Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
             framesuntillanding = 0
             speed = smashbot_state.speed_y_attack + smashbot_state.speed_y_self
-            height = smashbot_state.y
+            height = smashbot_state.position.y
             gravity = self.framedata.characterdata[smashbot_state.character]["Gravity"]
             termvelocity = self.framedata.characterdata[smashbot_state.character]["TerminalVelocity"]
             while height > 0:
@@ -107,13 +107,13 @@ class Mitigate(Tactic):
             if smashbot_state.percent > 60:
                 y = 1
                 x = 0
-                if smashbot_state.x < 0:
+                if smashbot_state.position.x < 0:
                     x = 1
             # If at low damage, DI away
             else:
                 y = 0.5
                 x = 1
-                if smashbot_state.x < 0:
+                if smashbot_state.position.x < 0:
                     x = 0
             self.chain = None
             self.pickchain(Chains.DI, [x, y])

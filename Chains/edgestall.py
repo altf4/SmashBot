@@ -20,7 +20,7 @@ class Edgestall(Chain):
                 controller.empty_input()
                 return
             x = 1
-            if smashbot_state.x < 0:
+            if smashbot_state.position.x < 0:
                 x = 0
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_C, x, 0.5)

@@ -59,7 +59,7 @@ class Wavedash(Chain):
         if jumpcancel or smashbot_state.action in jumping:
             self.interruptible = False
             controller.press_button(Button.BUTTON_L)
-            onleft = smashbot_state.x < opponent_state.x
+            onleft = smashbot_state.position.x < opponent_state.position.x
             # Normalize distance from (0->1) to (0.5 -> 1)
             x = (self.distance / 2) + .5
             if onleft != self.towards:

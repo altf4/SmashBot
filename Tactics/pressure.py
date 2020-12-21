@@ -69,7 +69,7 @@ class Pressure(Tactic):
                 distance = max(gamestate.distance / 20, 1)
                 self.pickchain(Chains.Wavedash, [distance])
                 return
-            self.pickchain(Chains.DashDance, [opponent_state.x])
+            self.pickchain(Chains.DashDance, [opponent_state.position.x])
             return
 
         # Keep a running count of how many shines we've done
@@ -86,8 +86,8 @@ class Pressure(Tactic):
 
         inshinerange = gamestate.distance < 11.80-3
         # Where will opponent end up, after sliding is accounted for? (at the end of our grab)
-        endposition = opponent_state.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_ground_x_self, 7)
-        ourendposition = smashbot_state.x + self.framedata.slide_distance(smashbot_state, smashbot_state.speed_ground_x_self, 7)
+        endposition = opponent_state.position.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_ground_x_self, 7)
+        ourendposition = smashbot_state.position.x + self.framedata.slide_distance(smashbot_state, smashbot_state.speed_ground_x_self, 7)
         ingrabrange = abs(endposition - ourendposition) < 13.5
 
         # If we're out of range, and CAN dash, then let's just dash in no matter
@@ -95,13 +95,13 @@ class Pressure(Tactic):
         if not inshinerange and candash:
             # Dash dance at our opponent
             self.chain = None
-            self.pickchain(Chains.DashDance, [opponent_state.x])
+            self.pickchain(Chains.DashDance, [opponent_state.position.x])
             return
 
         neutral = smashbot_state.action in [Action.STANDING, Action.DASHING, Action.TURNING, \
             Action.RUNNING, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]
 
-        facingopponent = smashbot_state.facing == (smashbot_state.x < opponent_state.x)
+        facingopponent = smashbot_state.facing == (smashbot_state.position.x < opponent_state.position.x)
         # If we're turning, then any action will turn around, so take that into account
         if smashbot_state.action == Action.TURNING:
             facingopponent = not facingopponent
@@ -118,7 +118,7 @@ class Pressure(Tactic):
                 if self.waveshine:
                     x = 0.5
                     # If opponent is facing us, do the max distance wavedash to cross them up (avoid grab)
-                    if (opponent_state.x < smashbot_state.x) == opponent_state.facing:
+                    if (opponent_state.position.x < smashbot_state.position.x) == opponent_state.facing:
                         x = 1.0
                     self.chain = None
                     self.pickchain(Chains.Waveshine, [x])
@@ -140,4 +140,4 @@ class Pressure(Tactic):
 
         # If we fall through, then just dashdance at our opponent
         self.chain = None
-        self.pickchain(Chains.DashDance, [opponent_state.x])
+        self.pickchain(Chains.DashDance, [opponent_state.position.x])
