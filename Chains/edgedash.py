@@ -4,9 +4,10 @@ from Chains.chain import Chain
 
 # Edgedash
 class Edgedash(Chain):
-    def __init__(self):
+    def __init__(self, refresh):
         self.hasstalled = False
         self.letgoframe = 0
+        self.refresh = refresh
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
@@ -24,7 +25,7 @@ class Edgedash(Chain):
             return
 
         # Do a firefox stall
-        if not self.hasstalled:
+        if not self.hasstalled and self.refresh:
             # If we are able to let go of the edge, do it
             if smashbot_state.action == Action.EDGE_HANGING:
                 # If we already pressed back last frame, let go
@@ -67,14 +68,13 @@ class Edgedash(Chain):
         # Once we're falling, jump
         if smashbot_state.action == Action.FALLING:
             self.interruptible = False
-            controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+            controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
             controller.press_button(Button.BUTTON_Y)
             return
 
         # Jumping, stay in the chain and DI in
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
-            # Airdodge back into the stage
-            if gamestate.frame - self.letgoframe >= 4:
+            if smashbot_state.position.y + smashbot_state.ecb.bottom.y > 0:
                 x = 0
                 if smashbot_state.position.x < 0:
                     x = 1

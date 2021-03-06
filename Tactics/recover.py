@@ -3,6 +3,7 @@ import Chains
 import random
 import math
 from melee.enums import Action
+from Tactics.punish import Punish
 from Tactics.tactic import Tactic
 from Chains.firefox import FIREFOX
 from Chains.illusion import SHORTEN
@@ -80,8 +81,12 @@ class Recover(Tactic):
             self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
+        # TODO: Determine whether we should refresh before the ledge dash
+        # It takes 16 frames to go from frame 1 of hanging to standing.
+        frames_left = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
+        refresh = False
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
-            self.pickchain(Chains.Edgedash)
+            self.pickchain(Chains.Edgedash, [refresh])
             return
 
         # If we can't possibly illusion to recover, don't try
