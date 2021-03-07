@@ -171,6 +171,11 @@ class Defend(Tactic):
                 bufferzone += framedata.range_backward(opponent_state.character, opponent_state.action, opponent_state.action_frame)
 
             pivotpoint = opponent_state.position.x
+
+            # Add some extra buffer for horizontal movement
+            if opponent_state.speed_y_self < 0:
+                pivotpoint += abs(opponent_state.position.y // opponent_state.speed_y_self) * opponent_state.speed_air_x_self
+
             # Dash to a point away from the opponent, out of range
             if opponent_state.position.x < smashbot_state.position.x:
                 # Dash right
@@ -182,4 +187,5 @@ class Defend(Tactic):
                 pivotpoint -= bufferzone
                 # But don't run off the edge
                 pivotpoint = max(-melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 5, pivotpoint)
+            self.chain = None
             self.pickchain(Chains.DashDance, [pivotpoint])

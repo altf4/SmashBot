@@ -34,9 +34,14 @@ class KeepDistance(Tactic):
         # Throw in a little randomness to fake out the opponent
         bufferzone += random.randint(-5, 5)
 
-        # If we're in the first two difficulty levels, just get in there
-        if self.difficulty > 2:
+        # If we're in the first two difficulty levels, just get in there. Unless opponent is airborne
+        if self.difficulty > 2 and opponent_state.on_ground:
             bufferzone = 0
+
+        # If oppoonent is attacking, keep a little further back to avoid running right into it
+        if self.framedata.attack_state(opponent_state.character, opponent_state.action, opponent_state.action_frame) in [melee.enums.AttackState.ATTACKING, melee.enums.AttackState.WINDUP]:
+            bufferzone += 20
+
         # Stay a little further out if they're invulnerable
         if opponent_state.invulnerability_left > 0:
             bufferzone += 20
