@@ -132,6 +132,10 @@ while True:
                 log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
             else:
                 print("WARNING: Exception thrown: ", error)
+        if log:
+            log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
+            log.logframe(gamestate)
+            log.writeframe()
     else:
         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
                                                         controller_one,
@@ -139,8 +143,5 @@ while True:
                                                         stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
                                                         autostart=False,
                                                         swag=True)
-
-    if log:
-        log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
-        log.logframe(gamestate)
-        log.writeframe()
+        if log:
+            log.skipframe()
