@@ -45,29 +45,59 @@ class Mitigate(Tactic):
             self.pickchain(Chains.Struggle)
             return
 
+        # For throws, randomize the TDI
+        if smashbot_state.action in [Action.THROWN_FORWARD, Action.THROWN_BACK, \
+                Action.THROWN_UP, Action.THROWN_DOWN, Action.THROWN_DOWN_2]:
+            self.chain = None
+            self.pickchain(Chains.DI, [random.choice([0, 0.5, 1]), random.choice([0, 0.5, 1])])
+            return
+
+        # Trajectory DI
+        if smashbot_state.hitlag_left == 1:
+            # DI up and in if we're at high percent
+            x, y = 0.5, 0.5
+            cx, cy = 0.5, 0.5
+            if smashbot_state.percent > 60:
+                y = 1
+                x = 0
+                if smashbot_state.position.x < 0:
+                    x = 1
+            # If at low damage, DI away
+            else:
+                y = 0.5
+                x = 1
+                if smashbot_state.position.x < 0:
+                    x = 0
+            # ASDI down
+            if not (opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH):
+                cy = 0
+
+            self.chain = None
+            self.pickchain(Chains.DI, [x, y, cx, cy])
+            return
+
         # Smash DI
-        if smashbot_state.hitlag > 0:
+        if smashbot_state.hitlag_left > 1:
             # Alternate each frame
             x = 0.5
             y = 0.5
             cx = 0.5
             cy = 0.5
-            if not (opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH):
-                cy = 0
             if bool(gamestate.frame % 2):
-                # If we're off the stage, DI up and in
+                # If we're off the stage, SDI up and in
                 if smashbot_state.off_stage:
                     y = 1
                     x = 0
                     if smashbot_state.position.x < 0:
                         x = 1
                 else:
+                    # Survival SDI
                     if smashbot_state.percent > 60:
                         y = 1
                         x = 0
                         if smashbot_state.position.x < 0:
                             x = 1
-                    # If at low damage, DI away
+                    # Combo SDI
                     else:
                         y = 0.5
                         x = 1
@@ -99,25 +129,6 @@ class Mitigate(Tactic):
                 self.pickchain(Chains.Tech)
                 return
 
-        # Regular DI
-        if Action.DAMAGE_HIGH_1.value <= smashbot_state.action.value <= Action.DAMAGE_FLY_ROLL.value:
-            # DI up and in if we're at high percent
-            x = 0.5
-            y = 0.5
-            if smashbot_state.percent > 60:
-                y = 1
-                x = 0
-                if smashbot_state.position.x < 0:
-                    x = 1
-            # If at low damage, DI away
-            else:
-                y = 0.5
-                x = 1
-                if smashbot_state.position.x < 0:
-                    x = 0
-            self.chain = None
-            self.pickchain(Chains.DI, [x, y])
-            return
         if smashbot_state.action == Action.TUMBLING:
             x = gamestate.frame % 2
             self.chain = None
