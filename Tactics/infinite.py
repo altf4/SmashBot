@@ -5,34 +5,39 @@ from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Tactics.punish import Punish
 from melee.enums import Character
+from melee.enums import Stage
 
 class Infinite(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
 
-    def killpercent(opponent_state):
-        character = opponent_state.character
+    def killpercent(stage, character):
+        percent = 100
         if character == Character.CPTFALCON:
-            return 113
+            percent = 113
         if character == Character.FALCO:
-            return 103
+            percent = 103
         if character == Character.FOX:
-            return 96
+            percent = 96
         if character == Character.SHEIK:
-            return 92
+            percent = 92
         if character == Character.PIKACHU:
-            return 73
+            percent = 73
         if character == Character.PEACH:
-            return 80
+            percent = 80
         if character == Character.ZELDA:
-            return 70
+            percent = 70
         if character == Character.MARTH:
-            return 89
+            percent = 89
         if character == Character.JIGGLYPUFF:
-            return 55
+            percent = 55
         if character == Character.SAMUS:
-            return 89
-        return 100
+            percent = 89
+
+        # Dreamland is big
+        if stage == Stage.DREAMLAND:
+            percent += 20
+        return percent
 
     def caninfinite(smashbot_state, opponent_state, gamestate, framedata, difficulty):
         isroll = framedata.is_roll(opponent_state.character, opponent_state.action)
@@ -77,7 +82,7 @@ class Infinite(Tactic):
 
         if framedata.characterdata[opponent_state.character]["Friction"] >= 0.06 and \
                 opponent_state.hitstun_frames_left > 1 and not isroll and opponent_state.on_ground \
-                and opponent_state.percent < Infinite.killpercent(opponent_state):
+                and opponent_state.percent < Infinite.killpercent(gamestate.stage, opponent_state.character):
             return True
 
         return False
