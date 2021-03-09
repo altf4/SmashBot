@@ -46,10 +46,14 @@ class Mitigate(Tactic):
             return
 
         # For throws, randomize the TDI
-        if smashbot_state.action in [Action.THROWN_FORWARD, Action.THROWN_BACK, \
-                Action.THROWN_UP, Action.THROWN_DOWN, Action.THROWN_DOWN_2]:
+        if smashbot_state.action in [Action.THROWN_FORWARD, Action.THROWN_BACK, Action.THROWN_DOWN, Action.THROWN_DOWN_2]:
             self.chain = None
             self.pickchain(Chains.DI, [random.choice([0, 0.5, 1]), random.choice([0, 0.5, 1])])
+            return
+        # Up throws are a little different. Don't DI up and down
+        if smashbot_state.action == Action.THROWN_UP:
+            self.chain = None
+            self.pickchain(Chains.DI, [random.choice([0, 0.3, 0.5, 0.7, 1]), 0.5])
             return
 
         # Trajectory DI
