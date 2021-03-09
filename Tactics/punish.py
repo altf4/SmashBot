@@ -154,7 +154,7 @@ class Punish(Tactic):
         if opponent_state.action in shieldactions:
             return False
 
-        if smashbot_state.off_stage:
+        if smashbot_state.off_stage or opponent_state.off_stage:
             return False
 
         firefox = opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.character in [Character.FOX, Character.FALCO]

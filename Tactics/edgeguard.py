@@ -31,6 +31,10 @@ class Edgeguard(Tactic):
         if smashbot_state.off_stage and smashbot_state.hitstun_frames_left > 0:
             return True
 
+        # Steal the ledge from Sheik Shino stall
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 5:
+            return True
+
         # If smashbot is closer to the edge, edgeguard
         diff_x_opponent = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(opponent_state.position.x))
         diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
@@ -525,6 +529,12 @@ class Edgeguard(Tactic):
 
             # Can we challenge their ledge?
             framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
+            
+            # Sheik shino stall is safe to grab edge from on these frames
+            if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 5:
+                self.pickchain(Chains.Grabedge, [True])
+                return
+
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
                 if randomgrab or framesleft > 10:
                     wavedash = True

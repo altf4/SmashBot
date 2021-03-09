@@ -65,6 +65,10 @@ class Defend(Tactic):
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             return False
 
+        # Try to the ledge from Sheik Shino stall first
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 10:
+            return False
+
         # FireFox is different
         firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
         if firefox:
