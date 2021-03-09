@@ -53,7 +53,7 @@ class BoardSidePlatform(Chain):
         if smashbot_state.ecb.bottom.y + smashbot_state.position.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.2)
             return
 
         # Don't jump into Peach's dsmash or SH early dair spam
