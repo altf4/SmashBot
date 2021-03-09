@@ -73,6 +73,9 @@ class Punish(Tactic):
                 if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
                     return 0
                 frame = framedata.first_hitbox_frame(opponent_state.character, opponent_state.action)
+                # Account for boost grab. Dash attack can cancel into a grab
+                if opponent_state.action == Action.DASH_ATTACK:
+                    return min(6, frame - opponent_state.action_frame - 1)
                 return max(0, frame - opponent_state.action_frame - 1)
             if attackstate == melee.enums.AttackState.ATTACKING and smashbot_state.action == Action.SHIELD_RELEASE:
                 if opponent_state.action in [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]:
