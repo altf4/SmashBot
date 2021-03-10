@@ -105,8 +105,10 @@ class Grabedge(Chain):
         if smashbot_state.action == Action.FALLING:
             self.interruptible = False
 
+            sing = (opponent_state.character == Character.JIGGLYPUFF) and opponent_state.action in [Action.SHINE_RELEASE_AIR, Action.DOWN_B_AIR]
+
             # Should we shine?
-            canhit = gamestate.distance < 11.8 and opponent_state.invulnerability_left == 0
+            canhit = gamestate.distance < 11.8 and (opponent_state.invulnerability_left == 0) and not sing
             if (smashbot_state.position.y < -15) or canhit:
                 controller.press_button(Button.BUTTON_B)
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
