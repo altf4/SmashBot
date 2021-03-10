@@ -529,9 +529,14 @@ class Edgeguard(Tactic):
 
             # Can we challenge their ledge?
             framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
-            
+
             # Sheik shino stall is safe to grab edge from on these frames
             if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 5:
+                self.pickchain(Chains.Grabedge, [True])
+                return
+
+            # Puff sing stall is safe to grab from
+            if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in [Action.DOWN_B_AIR, Action.SHINE_RELEASE_AIR] and opponent_state.action_frame < 10:
                 self.pickchain(Chains.Grabedge, [True])
                 return
 

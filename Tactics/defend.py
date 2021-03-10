@@ -69,6 +69,10 @@ class Defend(Tactic):
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 10:
             return False
 
+        # Puff sing stall is safe to grab from
+        if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in [Action.DOWN_B_AIR, Action.SHINE_RELEASE_AIR] and opponent_state.action_frame < 10:
+            return False
+
         # FireFox is different
         firefox = opponent_state.action in [Action.SWORD_DANCE_4_HIGH, Action.SWORD_DANCE_4_MID] and opponent_state.character in [Character.FOX, Character.FALCO]
         if firefox:
