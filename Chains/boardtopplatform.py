@@ -17,21 +17,45 @@ class BoardTopPlatform(Chain):
             platform_center = (position[1] + position[2]) / 2
             platform_height = position[0]
 
-        under_platform = abs(smashbot_state.position.x - platform_center) < 10
+        on_side_platform = smashbot_state.on_ground and smashbot_state.position.y > 5
+        above_top_platform = (not smashbot_state.on_ground) and (smashbot_state.position.y + smashbot_state.ecb.bottom.y > platform_height) and \
+            position[1] < smashbot_state.position.x < position[2]
 
-        if smashbot_state.on_ground:
+        if smashbot_state.on_ground and smashbot_state.action != Action.KNEE_BEND:
             self.interruptible = True
 
-        # Are we in position to jump?
-        if under_platform and smashbot_state.action == Action.TURNING:
-            self.interruptible = False
-            self.controller.press_button(melee.Button.BUTTON_Y)
-            return
+        # Stage 1, get to the inside edge of the side platform
+        #   Are we in position to jump? We want to be dashing inwards on a side plat
+        if on_side_platform:
+            # Get the x coord of the inner edge of the plat
+            right_edge = (melee.side_platform_position(True, gamestate))[2]
+            if right_edge - abs(smashbot_state.position.x) < 8:
+                if smashbot_state.action in [Action.DASHING, Action.RUNNING] and (smashbot_state.facing == (smashbot_state.position.x < 0)):
+                    self.interruptible = False
+                    self.controller.press_button(melee.Button.BUTTON_Y)
+                    return
+                else:
+                    # Dash inwards
+                    self.interruptible = False
+                    self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
+                    return
+            else:
+                # Dash inwards
+                self.interruptible = False
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
+                return
 
         # If we're crouching, keep holding Y
         if smashbot_state.action == Action.KNEE_BEND:
             self.controller.press_button(melee.Button.BUTTON_Y)
             self.interruptible = False
+            return
+
+        # Jump when falling
+        if smashbot_state.action == Action.FALLING and smashbot_state.jumps_left > 0 and smashbot_state.action_frame > 6:
+            self.interruptible = False
+            self.controller.press_button(melee.Button.BUTTON_Y)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
             return
 
         # Jump out of shine
@@ -49,10 +73,14 @@ class BoardTopPlatform(Chain):
 
         # Waveland down
         aerials = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
-        if smashbot_state.ecb.bottom.y + smashbot_state.position.y > platform_height and smashbot_state.action not in aerials:
+        if above_top_platform and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
+            # If opponent is in front of us, waveland towards them
+            if smashbot_state.facing == (smashbot_state.position.x < opponent_state.position.x):
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.2)
+            else:
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
         # Don't jump into Peach's dsmash or SH early dair spam
@@ -63,20 +91,9 @@ class BoardTopPlatform(Chain):
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
-        # If we see the opponent jump, they cannot protect themselves from uair.
-        # Does not look for KNEE_BEND because Smashbot needs to discern between SH and FH
-        y_afternineframes = opponent_state.position.y
-        gravity = self.framedata.characterdata[opponent_state.character]["Gravity"]
-        y_speed = opponent_state.speed_y_self
-        for i in range(1,10):
-            y_afternineframes += y_speed
-            y_speed -= gravity
-
-
-        aerialsminusdair = [Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR]
-        if shineable and (opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] or opponent_state.action in aerialsminusdair) and y_afternineframes < 50:
-            self.controller.press_button(melee.Button.BUTTON_A)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 1)
+        # Hold inwards while we're jumping
+        if shineable:
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
             return
 
         # Last resort, just dash at the center of the platform

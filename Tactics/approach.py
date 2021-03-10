@@ -24,5 +24,14 @@ class Approach(Tactic):
             self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0])
             return
 
+        # If opponent is on top platform
+        on_side_platform = (5 < smashbot_state.position.y < 35) and smashbot_state.on_ground
+        top_platform_position = melee.top_platform_position(gamestate)
+        opp_top_platform = (opponent_state.position.y+1 >= top_platform_position[0]) and (top_platform_position[1] < opponent_state.position.x < top_platform_position[2])
+
+        if on_side_platform and opp_top_platform:
+            self.pickchain(Chains.BoardTopPlatform)
+            return
+
         self.chain = None
         self.pickchain(Chains.DashDance, [opponent_state.position.x])

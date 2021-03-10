@@ -53,7 +53,7 @@ class BoardSidePlatform(Chain):
         if smashbot_state.ecb.bottom.y + smashbot_state.position.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.2)
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x) * 0.8, 0)
             return
 
         # Don't jump into Peach's dsmash or SH early dair spam
@@ -87,6 +87,13 @@ class BoardSidePlatform(Chain):
             #   else we'll get stuck in the slow turnaround
             if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
                 return
+
+            # If we're just using the side platform as a springboard, then go closer in than the middle
+            if opponent_state.position.y + 20 >= platform_height:
+                if smashbot_state.position.x > 0:
+                    platform_center = position[1] + 8
+                else:
+                    platform_center = position[2] - 8
 
             #Dash back, since we're about to start running
             if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
