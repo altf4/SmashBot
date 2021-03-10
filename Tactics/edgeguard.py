@@ -483,8 +483,9 @@ class Edgeguard(Tactic):
 
                 # If we can, challenge their shine at the edge
                 if self.difficulty >= 3 and edgegrabframes > 2:
-                    self.pickchain(Chains.Dropdownshine)
-                    return
+                    if Dropdownshine.inrange(smashbot_state, opponent_state, self.framedata):
+                        self.pickchain(Chains.Dropdownshine)
+                        return
 
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
@@ -498,8 +499,9 @@ class Edgeguard(Tactic):
             # Shine them, as long as they aren't attacking right now
             frameadvantage = framesleft > 2 or smashbot_state.invulnerability_left > 2
             if gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage and not samusupbinvuln:
-                self.pickchain(Chains.Dropdownshine)
-                return
+                if Dropdownshine.inrange(smashbot_state, opponent_state, self.framedata):
+                    self.pickchain(Chains.Dropdownshine)
+                    return
 
             # Illusion high
             if self.illusionhighframes(gamestate, opponent_state) <= 5:

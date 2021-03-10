@@ -23,6 +23,10 @@ class Dropdownshine(Chain):
         if abs(opponent_state.speed_air_x_self) > 1.5:
             return False
 
+        # Don't shine a singing puff, they'll just fall
+        if (opponent_state.character == Character.JIGGLYPUFF) and opponent_state.action in [Action.SHINE_RELEASE_AIR, Action.DOWN_B_AIR]:
+            return False
+
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
         frames_y = abs(opponent_state.position.y - smashbot_state.position.y) // 3.4
 
