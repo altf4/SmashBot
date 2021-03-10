@@ -1,5 +1,5 @@
 import melee
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 # Grab the edge
