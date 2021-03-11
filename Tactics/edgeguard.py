@@ -529,6 +529,20 @@ class Edgeguard(Tactic):
             if self.difficulty == 4:
                 randomgrab = True
 
+            # They're camping. Camp back
+            if gamestate.custom["ledge_grab_count"] > 3:
+                # Get into position away from the edge.
+                pivotpoint = 0
+
+                if abs(smashbot_state.position.x - pivotpoint) > 5:
+                    self.chain = None
+                    self.pickchain(Chains.DashDance, [pivotpoint])
+                    return
+                else:
+                    # Laser
+                    self.pickchain(Chains.Laser)
+                    return
+
             # Can we challenge their ledge?
             framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
 

@@ -15,8 +15,10 @@ class Multishine(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
+        actionable_landing = smashbot_state.action == Action.LANDING and smashbot_state.action_frame >= 4
+
         #If standing or turning, shine
-        if smashbot_state.action == Action.STANDING or smashbot_state.action == Action.TURNING:
+        if smashbot_state.action in [Action.STANDING, Action.TURNING] or actionable_landing:
             controller.press_button(Button.BUTTON_B)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             self.interruptible = False
