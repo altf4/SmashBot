@@ -2,6 +2,8 @@ import melee
 import math
 from Strategies.bait import Bait
 
+from melee.enums import ProjectileSubtype
+
 class ESAgent():
     """
     Expert system agent for SmashBot.
@@ -22,7 +24,7 @@ class ESAgent():
     def act(self, gamestate):
         knownprojectiles = []
         for projectile in gamestate.projectiles:
-            if projectile.subtype != melee.enums.ProjectileSubtype.UNKNOWN_PROJECTILE:
+            if projectile.subtype not in [ProjectileSubtype.UNKNOWN_PROJECTILE, ProjectileSubtype.PEACH_PARASOL]:
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 
