@@ -177,11 +177,8 @@ class Recover(Tactic):
         y_canairdodge = smashbot_state.position.y + 18 >= -6
         # airdodge_randomizer not currently in use
         airdodge_randomizer = random.randint(0, 4) == 1
-        x = 0
-        if smashbot_state.position.x < 0:
-            x = 1
         if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge) and not hit_movement:
-            self.pickchain(Chains.Airdodge, [x, 1])
+            self.pickchain(Chains.Airdodge, [int(smashbot_state.position.x < 0), int(smashbot_state.position.y + smashbot_state.ecb.bottom.y < 5)])
             return
 
         # First jump back to the stage if we're low
