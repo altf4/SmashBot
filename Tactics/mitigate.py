@@ -87,7 +87,7 @@ class Mitigate(Tactic):
             y = 0.5
             cx = 0.5
             cy = 0.5
-            if bool(gamestate.frame % 2):
+            if self.controller.prev.main_stick == (0.5, 0.5):
                 # If we're off the stage, SDI up and in
                 if smashbot_state.off_stage:
                     y = 1

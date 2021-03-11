@@ -12,6 +12,9 @@ class Edgedash(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
+        if self.logger:
+            self.logger.log("Notes", " Distance to edge : " + str(smashbot_state.position.y + smashbot_state.ecb.bottom.y) + " ", concat=True)
+
         # If we just grabbed the edge, just wait
         if smashbot_state.action == Action.EDGE_CATCHING:
             self.interruptible = True
@@ -33,11 +36,8 @@ class Edgedash(Chain):
                     self.interruptible = False
                     controller.empty_input()
                     return
-                x = 1
-                if smashbot_state.position.x < 0:
-                    x = 0
                 self.interruptible = False
-                controller.tilt_analog(Button.BUTTON_C, x, 0.5)
+                controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.position.x < 0), 0.5)
                 return
 
             # Once we're falling, UP-B
@@ -57,12 +57,9 @@ class Edgedash(Chain):
             if controller.prev.c_stick != (0.5, 0.5):
                 controller.empty_input()
                 return
-            x = 1
-            if smashbot_state.position.x < 0:
-                x = 0
             self.interruptible = False
             self.letgoframe = gamestate.frame
-            controller.tilt_analog(Button.BUTTON_C, x, 0.5)
+            controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.position.x > 0), 0.5)
             return
 
         # Once we're falling, jump
@@ -70,24 +67,25 @@ class Edgedash(Chain):
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
             controller.press_button(Button.BUTTON_Y)
+            controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
             return
 
         # Jumping, stay in the chain and DI in
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
-            if smashbot_state.position.y + smashbot_state.ecb.bottom.y > 0:
-                x = 0
-                if smashbot_state.position.x < 0:
-                    x = 1
+            # Wait until we're at least 0.15 above stage, or else we'll miss
+            if smashbot_state.position.y + smashbot_state.ecb.bottom.y > 0.15:
+                airdodge_angle = 0.2
+                # Go at a more horizontal angle if we're only just barely above the stage
+                if smashbot_state.position.y + smashbot_state.ecb.bottom.y < 1:
+                    airdodge_angle = 0.35
+
                 self.interruptible = False
-                controller.tilt_analog(Button.BUTTON_MAIN, x, 0.2)
+                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), airdodge_angle)
                 controller.press_button(Button.BUTTON_L)
                 return
             else:
-                x = 0
-                if smashbot_state.position.x < 0:
-                    x = 1
                 self.interruptible = False
-                controller.tilt_analog(Button.BUTTON_MAIN, x, 0.5)
+                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0.5)
                 return
 
         self.interruptible = True
