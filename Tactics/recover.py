@@ -168,7 +168,10 @@ class Recover(Tactic):
         opponentxvelocity = opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self
         opponentmovingtoedge = not opponent_state.off_stage and (opponent_edgedistance < 20) and (opponentxvelocity > 0 == opponent_state.position.x > 0)
         opponentgoingoffstage = opponent_state.action in [Action.FALLING, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD, Action.LANDING_SPECIAL,\
-        Action.DASHING, Action.WALK_MIDDLE, Action.WALK_FAST, Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
+            Action.DASHING, Action.WALK_MIDDLE, Action.WALK_FAST, Action.NAIR, Action.FAIR, Action.UAIR, Action.BAIR, Action.DAIR]
+
+        # Don't airdodge recovery if we still have attack velocity. It just causes an SD
+        hit_movement = abs(smashbot_state.speed_x_attack) > 0.2
 
         x_canairdodge = abs(smashbot_state.position.x) - 18 <= abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
         y_canairdodge = smashbot_state.position.y + 18 >= -6
@@ -177,7 +180,7 @@ class Recover(Tactic):
         x = 0
         if smashbot_state.position.x < 0:
             x = 1
-        if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge):
+        if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge) and not hit_movement:
             self.pickchain(Chains.Airdodge, [x, 1])
             return
 
