@@ -1,6 +1,6 @@
 import melee
 import Chains
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 
 class Approach(Tactic):
@@ -34,6 +34,25 @@ class Approach(Tactic):
         if on_side_platform and opp_top_platform:
             self.pickchain(Chains.BoardTopPlatform)
             return
+
+        # Jump over Samus Bomb
+        samus_bomb = opponent_state.character == Character.SAMUS and opponent_state.action == Action.SWORD_DANCE_4_MID
+        # Falcon rapid jab
+        falcon_rapid_jab = opponent_state.action == Action.LOOPING_ATTACK_MIDDLE
+        # Are they facing the right way, though?
+        facing_wrong_way = opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x)
+
+        if samus_bomb or falcon_rapid_jab:
+            landing_spot = opponent_state.position.x
+            if opponent_state.position.x < smashbot_state.position.x:
+                landing_spot -= 10
+            else:
+                landing_spot += 10
+
+            # Don't jump off the stage
+            if abs(landing_spot) < melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and not facing_wrong_way:
+                self.pickchain(Chains.JumpOver, [landing_spot])
+                return
 
         self.chain = None
         self.pickchain(Chains.DashDance, [opponent_state.position.x])

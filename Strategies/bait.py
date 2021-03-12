@@ -18,6 +18,7 @@ from Tactics.selfdestruct import SelfDestruct
 class Bait(Strategy):
     def __init__(self, logger, controller, framedata, difficulty):
         self.approach = False
+        self.approach_frame = -123
         self.logger = logger
         self.controller = controller
         self.framedata = framedata
@@ -49,9 +50,20 @@ class Bait(Strategy):
             self.picktactic(Tactics.SelfDestruct)
             return
 
-        # If we have stopped approaching, reset the state
-        if type(self.tactic) != Tactics.Approach:
+        # Reset the approach state after 1 second
+        if self.approach and abs(self.approach_frame - gamestate.frame) > 60:
+            self.approach_frame = -123
             self.approach = False
+
+        # Randomly approach sometimes rather than keeping distance
+        # Should happen on average once per 2 seconds
+        # The effect will last for about 1 second
+        if random.randint(0, 120) == 0:
+            self.approach = True
+            self.approach_frame = gamestate.frame
+
+        if self.logger:
+            self.logger.log("Notes", " approach: " + str(self.approach) + " ", concat=True)
 
         if Mitigate.needsmitigation(smashbot_state):
             self.picktactic(Tactics.Mitigate)
@@ -111,7 +123,7 @@ class Bait(Strategy):
             self.picktactic(Tactics.Pressure)
             return
 
-        if Retreat.shouldretreat(smashbot_state, opponent_state, gamestate):
+        if Retreat.shouldretreat(smashbot_state, opponent_state, gamestate, not self.approach):
             self.picktactic(Tactics.Retreat)
             return
 
@@ -120,10 +132,6 @@ class Bait(Strategy):
         if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
                 opponent_state.speed_y_self > 0:
             jumping = True
-
-        # Randomly approach some times rather than keeping distance
-        if smashbot_state.action == Action.TURNING and random.randint(0, 40) == 0:
-            self.approach = True
 
         if (jumping and opponent_state.invulnerability_left <= 0) or self.approach:
             self.picktactic(Tactics.Approach)

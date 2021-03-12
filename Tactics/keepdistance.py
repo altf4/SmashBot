@@ -90,6 +90,10 @@ class KeepDistance(Tactic):
         pivotpoint = min(pivotpoint, edge - edgebuffer)
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
 
+        if smashbot_state.action == Action.SHIELD_RELEASE:
+            self.pickchain(Chains.Wavedash, [1.0, False])
+            return
+
         self.chain = None
         if not smashbot_state.off_stage:
             self.pickchain(Chains.DashDance, [pivotpoint])

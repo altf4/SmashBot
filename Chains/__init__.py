@@ -28,3 +28,4 @@ from Chains.shieldaction import ShieldAction
 from Chains.airdodge import Airdodge
 from Chains.boardtopplatform import BoardTopPlatform
 from Chains.laser import Laser
+from Chains.jumpover import JumpOver

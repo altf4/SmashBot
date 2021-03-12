@@ -16,10 +16,11 @@ class Waveshine(Chain):
 
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
-            Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START, Action.CROUCH_END] # Added last 3 because Smashbot would do nothing if Chains.Waveshine was called during them
+            Action.RUNNING, Action.RUN_BRAKE, Action.CROUCH_START, Action.CROUCH_END]
 
         jcshine = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
         lastdashframe = (smashbot_state.action == Action.DASHING) and (smashbot_state.action_frame == 12)
+        landing_over = (smashbot_state.action == Action.LANDING) and (smashbot_state.action_frame >= 4)
 
         # If somehow we are off stage, give up immediately
         if smashbot_state.off_stage:
@@ -28,7 +29,7 @@ class Waveshine(Chain):
             return
 
         # Do the shine if we can
-        if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine):
+        if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine or landing_over):
             self.interruptible = False
             controller.press_button(Button.BUTTON_B)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)

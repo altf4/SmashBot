@@ -4,7 +4,7 @@ from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Retreat(Tactic):
-    def shouldretreat(smashbot_state, opponent_state, gamestate):
+    def shouldretreat(smashbot_state, opponent_state, gamestate, camp):
         if smashbot_state.invulnerability_left > 1:
             return False
 
@@ -41,8 +41,11 @@ class Retreat(Tactic):
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     return True
 
-        if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
-            return True
+        # Camp out rapid jabs
+        if camp and opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
+            # Are they facing the right way, though?
+            if opponent_state.facing == (opponent_state.position.x < smashbot_state.position.x):
+                return True
 
         return False
 
@@ -73,6 +76,8 @@ class Retreat(Tactic):
                     samus_bomb = True
         if samus_bomb:
             bufferzone = 60
+        if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
+            bufferzone += 15
 
         onright = opponent_state.position.x < smashbot_state.position.x
         if not onright:
@@ -81,7 +86,7 @@ class Retreat(Tactic):
         pivotpoint = opponent_state.position.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
-        edgebuffer = 30
+        edgebuffer = 10
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - edgebuffer
         # If we are about to pivot near the edge, just grab the edge instead
         if abs(pivotpoint) > edge:
@@ -90,6 +95,10 @@ class Retreat(Tactic):
 
         pivotpoint = min(pivotpoint, edge)
         pivotpoint = max(pivotpoint, -edge)
+
+        if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE and abs(smashbot_state.position.x - pivotpoint) < 4:
+            self.pickchain(Chains.Laser)
+            return
 
         self.chain = None
         self.pickchain(Chains.DashDance, [pivotpoint])
