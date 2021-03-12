@@ -39,12 +39,19 @@ class ESAgent():
         gamestate.custom["ledge_grab_count"] = self.ledge_grab_count
 
         # Let's treat Counter-Moves as invulnerable. So we'll know to not attack during that time
+        countering = False
         if gamestate.player[self.opponent_port].character in [Character.ROY, Character.MARTH]:
             if gamestate.player[self.opponent_port].action in [Action.MARTH_COUNTER, Action.MARTH_COUNTER_FALLING]:
-                # We consider Counter to start a frame early to cover the transition. Or else it's hard to see the invuln coming up
-                if 4 <= gamestate.player[self.opponent_port].action_frame <= 29:
-                    gamestate.player[self.opponent_port].invulnerable = True
-                    gamestate.player[self.opponent_port].invulnerability_left = max(28 - gamestate.player[self.opponent_port].action_frame, gamestate.player[self.opponent_port].invulnerability_left)
+                # We consider Counter to start a frame early and a frame late
+                if 4 <= gamestate.player[self.opponent_port].action_frame <= 30:
+                    countering = True
+        if gamestate.player[self.opponent_port].character == Character.PEACH:
+            if gamestate.player[self.opponent_port].action in [Action.UP_B_GROUND, Action.DOWN_B_STUN]:
+                if 4 <= gamestate.player[self.opponent_port].action_frame <= 30:
+                    countering = True
+        if countering:
+            gamestate.player[self.opponent_port].invulnerable = True
+            gamestate.player[self.opponent_port].invulnerability_left = max(29 - gamestate.player[self.opponent_port].action_frame, gamestate.player[self.opponent_port].invulnerability_left)
 
         self.strategy.step(gamestate,
                            gamestate.players[self.smashbot_port],
