@@ -37,7 +37,7 @@ class Retreat(Tactic):
 
         # If there's a Samus bomb between us and opponent
         for projectile in gamestate.projectiles:
-            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
+            if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB:
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     return True
 
@@ -71,7 +71,7 @@ class Retreat(Tactic):
         # Samus bomb?
         samus_bomb = False
         for projectile in gamestate.projectiles:
-            if projectile.subtype == melee.enums.ProjectileSubtype.SAMUS_BOMB:
+            if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB:
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     samus_bomb = True
         if samus_bomb:
@@ -97,6 +97,10 @@ class Retreat(Tactic):
         pivotpoint = max(pivotpoint, -edge)
 
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE and abs(smashbot_state.position.x - pivotpoint) < 4:
+            self.pickchain(Chains.Laser)
+            return
+
+        if samus_bomb and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 10:
             self.pickchain(Chains.Laser)
             return
 
