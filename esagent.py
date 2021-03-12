@@ -2,7 +2,7 @@ import melee
 import math
 from Strategies.bait import Bait
 
-from melee.enums import ProjectileSubtype, Action, Character
+from melee.enums import ProjectileType, Action, Character
 
 class ESAgent():
     """
@@ -25,7 +25,7 @@ class ESAgent():
     def act(self, gamestate):
         knownprojectiles = []
         for projectile in gamestate.projectiles:
-            if projectile.subtype not in [ProjectileSubtype.UNKNOWN_PROJECTILE, ProjectileSubtype.PEACH_PARASOL]:
+            if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL]:
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 
