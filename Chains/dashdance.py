@@ -10,7 +10,6 @@ class DashDance(Chain):
         self.interruptible = True
 
     def step(self, gamestate, smashbot_state, opponent_state):
-        #TODO: Moonwalk protection
         if smashbot_state.moonwalkwarning and self.controller.prev.main_stick[0] != 0.5:
             self.controller.empty_input()
             return
@@ -130,11 +129,18 @@ class DashDance(Chain):
             self.controller.tilt_analog(Button.BUTTON_MAIN, x, 0.35)
             return
 
-        #We can't dash IMMEDIATELY after landing. So just chill for a bit
-        if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 4) or \
-            not smashbot_state.on_ground:
-                self.controller.empty_input()
-                return
+        # We can't dash IMMEDIATELY after landing. So just chill for a bit
+        if (smashbot_state.action == Action.LANDING and smashbot_state.action_frame < 4):
+            self.controller.empty_input()
+            return
+
+        if not smashbot_state.on_ground:
+            # Do a fastfall if we're not already
+            if smashbot_state.speed_y_self > -3:
+                self.controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0)
+            else:
+                self.controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.5)
+            return
 
         #Don't run off the stage
         if abs(smashbot_state.position.x) > \
