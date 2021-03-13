@@ -66,5 +66,11 @@ class Laser(Chain):
                 controller.release_button(Button.BUTTON_B)
             return
 
+        # If we're in a teeter, don't laser, since we'll fall down. Instead, dash back for a frame
+        if smashbot_state.action in [Action.EDGE_TEETERING_START, Action.EDGE_TEETERING]:
+            self.interruptible = True
+            controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), 0.5)
+            return
+
         self.interruptible = True
         controller.release_all()

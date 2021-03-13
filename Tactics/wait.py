@@ -24,6 +24,9 @@ class Wait(Tactic):
                 Action.EDGE_ROLL_SLOW, Action.SHIELD_STUN, Action.TECH_MISS_DOWN, Action.LANDING_SPECIAL]:
             return True
 
+        if smashbot_state.action == Action.LANDING and smashbot_state.action_frame <= 3:
+            return True
+
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):

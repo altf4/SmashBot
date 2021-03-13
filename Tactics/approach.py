@@ -42,7 +42,7 @@ class Approach(Tactic):
         # Are they facing the right way, though?
         facing_wrong_way = opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x)
 
-        if samus_bomb or falcon_rapid_jab:
+        if (samus_bomb or falcon_rapid_jab) and opponent_state.position.y < 5:
             landing_spot = opponent_state.position.x
             if opponent_state.position.x < smashbot_state.position.x:
                 landing_spot -= 10

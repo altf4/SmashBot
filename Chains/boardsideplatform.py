@@ -9,6 +9,8 @@ class BoardSidePlatform(Chain):
         self.interruptible = True
 
     def step(self, gamestate, smashbot_state, opponent_state):
+        if self.logger:
+            self.logger.log("Notes", " right side platform: " + str(self.right_platform) + " ", concat=True)
 
         platform_center = 0
         platform_height = 0
@@ -18,13 +20,30 @@ class BoardSidePlatform(Chain):
             platform_center = (position[1] + position[2]) / 2
             platform_height = position[0]
 
-        under_platform = abs(smashbot_state.position.x - platform_center) < 10
+        top_platform_height, _, _ = melee.top_platform_position(gamestate)
+
+        # Where to dash dance to
+        pivot_point = platform_center
+        # If opponent is on the platform, get right under them
+        if position[1] < opponent_state.position.x < position[2]:
+            pivot_point = opponent_state.position.x
+
+        # If we're just using the side platform as a springboard, then go closer in than the middle
+        if opponent_state.position.y >= top_platform_height:
+            if smashbot_state.position.x > 0:
+                pivot_point = position[1] + 8
+            else:
+                pivot_point = position[2] - 8
 
         if smashbot_state.on_ground:
             self.interruptible = True
+            # If we're already on the platform, just do nothing. We shouldn't be here
+            if smashbot_state.position.y > 5:
+                self.controller.release_all()
+                return
 
         # Are we in position to jump?
-        if under_platform and smashbot_state.action == Action.TURNING:
+        if (abs(smashbot_state.position.x - pivot_point) < 5) and smashbot_state.action == Action.TURNING :
             self.interruptible = False
             self.controller.press_button(melee.Button.BUTTON_Y)
             return
@@ -88,25 +107,15 @@ class BoardSidePlatform(Chain):
             if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
                 return
 
-            # If we're just using the side platform as a springboard, then go closer in than the middle
-            if opponent_state.position.y + 20 >= platform_height:
-                if smashbot_state.position.x > 0:
-                    platform_center = position[1] + 8
-                else:
-                    platform_center = position[2] - 8
-
             #Dash back, since we're about to start running
             if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
-                    self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
-                    return
-            if smashbot_state.position.x > platform_center + 2:
-                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                 return
-            if smashbot_state.position.x < platform_center - 2:
-                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
+            else:
+                if self.logger:
+                    self.logger.log("Notes", " dd: " + str(pivot_point) + " ", concat=True)
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < pivot_point), .5)
                 return
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), .5)
-            return
         # Mash analog L presses to L-cancel if Smashbot is throwing out an aerial
         elif not smashbot_state.on_ground and smashbot_state.action in aerials:
             self.interruptible = False

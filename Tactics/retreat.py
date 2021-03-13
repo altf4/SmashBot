@@ -40,6 +40,8 @@ class Retreat(Tactic):
             if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB:
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     return True
+                if opponent_state.position.y > 10:
+                    return True
 
         # Camp out rapid jabs
         if camp and opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
@@ -89,20 +91,46 @@ class Retreat(Tactic):
         edgebuffer = 10
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - edgebuffer
         # If we are about to pivot near the edge, just grab the edge instead
-        if abs(pivotpoint) > edge:
+        if abs(pivotpoint) > edge and opponent_state.position.y < 20:
             self.pickchain(Chains.Grabedge)
             return
 
         pivotpoint = min(pivotpoint, edge)
         pivotpoint = max(pivotpoint, -edge)
 
-        if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE and abs(smashbot_state.position.x - pivotpoint) < 4:
-            self.pickchain(Chains.Laser)
-            return
+        missle_approaching = False
+        for projectile in gamestate.projectiles:
+            if projectile.type in [melee.ProjectileType.SAMUS_MISSLE, melee.ProjectileType.SAMUS_CHARGE_BEAM]:
+                missle_approaching = True
 
-        if samus_bomb and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 10:
-            self.pickchain(Chains.Laser)
-            return
+        # Only do this laser if we are on the same level as the opponent
+        if abs(opponent_state.position.y - smashbot_state.position.y) < 5 and not missle_approaching:
+            if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE and abs(smashbot_state.position.x - pivotpoint) < 4:
+                self.pickchain(Chains.Laser)
+                return
+
+            if samus_bomb and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 10:
+                self.pickchain(Chains.Laser)
+                return
+
+        # If opponent is on a side platform, board the opposite platform and laser
+        #   They don't need to be standing on the plat, just sort of shortly above it
+        side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate)
+        other_side_plat_height, other_side_plat_left, other_side_plat_right = melee.side_platform_position(opponent_state.position.x < 0, gamestate)
+        if (opponent_state.position.y+1 > side_plat_height) and (side_plat_left < opponent_state.position.x < side_plat_right):
+            # If we're already on the platform
+            if smashbot_state.position.y > 5 and smashbot_state.on_ground:
+                # Make sure we're in the center-ish of the platform
+                if (other_side_plat_left+5 < smashbot_state.position.x < other_side_plat_right-5) and not missle_approaching:
+                    self.pickchain(Chains.Laser)
+                    return
+                else:
+                    self.chain = None
+                    self.pickchain(Chains.DashDance, [other_side_plat_left + (other_side_plat_right - other_side_plat_left / 2)])
+                    return
+            else:
+                self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x < 0])
+                return
 
         self.chain = None
         self.pickchain(Chains.DashDance, [pivotpoint])
