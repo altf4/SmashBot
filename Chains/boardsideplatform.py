@@ -112,8 +112,6 @@ class BoardSidePlatform(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
                 return
             else:
-                if self.logger:
-                    self.logger.log("Notes", " dd: " + str(pivot_point) + " ", concat=True)
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < pivot_point), .5)
                 return
         # Mash analog L presses to L-cancel if Smashbot is throwing out an aerial

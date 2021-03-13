@@ -14,6 +14,7 @@ from Tactics.celebrate import Celebrate
 from Tactics.wait import Wait
 from Tactics.retreat import Retreat
 from Tactics.selfdestruct import SelfDestruct
+from Tactics.approach import Approach
 
 class Bait(Strategy):
     def __init__(self, logger, controller, framedata, difficulty):
@@ -94,7 +95,7 @@ class Bait(Strategy):
             self.picktactic(Tactics.KeepDistance)
             return
 
-        if Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate):
+        if Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate, self.logger):
             self.picktactic(Tactics.Defend)
             return
 
@@ -133,7 +134,7 @@ class Bait(Strategy):
                 opponent_state.speed_y_self > 0:
             jumping = True
 
-        if (jumping and opponent_state.invulnerability_left <= 0) or self.approach:
+        if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or ((jumping and opponent_state.invulnerability_left <= 0) or self.approach):
             self.picktactic(Tactics.Approach)
             return
 

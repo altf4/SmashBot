@@ -5,7 +5,7 @@ from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 
 class Defend(Tactic):
-    def needsprojectiledefense(smashbot_state, opponent_state, gamestate):
+    def needsprojectiledefense(smashbot_state, opponent_state, gamestate, logger=None):
         if smashbot_state.invulnerability_left > 2:
             return False
 
@@ -41,6 +41,11 @@ class Defend(Tactic):
             if smashbot_state.action == Action.EDGE_HANGING:
                 size *= 2
 
+            # If the projectile is above us, then increase its effective size.
+            #   Since our hurtbox extends upwards more that way
+            if abs(smashbot_state.position.x - projectile.position.x) < 10 and abs(projectile.speed.x) < 1:
+                size += 5
+
             # Is this about to hit us in the next frame?
             proj_x, proj_y = projectile.position.x, projectile.position.y
             for i in range(0, 1):
@@ -52,6 +57,8 @@ class Defend(Tactic):
                 if smashbot_state.on_ground:
                     smashbot_y += 8
                 distance = math.sqrt((proj_x - smashbot_x)**2 + (proj_y - smashbot_y)**2)
+                if logger:
+                    logger.log("Notes", " distance to projectile: " + str(distance) + " ", concat=True)
                 if distance < size:
                     return True
         return False

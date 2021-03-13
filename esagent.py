@@ -25,6 +25,9 @@ class ESAgent():
     def act(self, gamestate):
         knownprojectiles = []
         for projectile in gamestate.projectiles:
+            # Held turnips
+            if projectile.type == ProjectileType.TURNIP and projectile.subtype == 0:
+                continue
             if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL]:
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles

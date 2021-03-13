@@ -2,8 +2,18 @@ import melee
 import Chains
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
+from Tactics.punish import Punish
 
 class Approach(Tactic):
+    def shouldapproach(smashbot_state, opponent_state, gamestate, framedata, logger):
+        # Specify that this needs to be platform approach
+        framesleft = Punish.framesleft(opponent_state, framedata, smashbot_state)
+        if logger:
+            logger.log("Notes", " framesleft: " + str(framesleft) + " ", concat=True)
+        if framesleft >= 9:
+            return True
+        return False
+
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
         #If we can't interrupt the chain, just continue it
