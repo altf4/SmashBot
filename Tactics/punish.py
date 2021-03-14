@@ -262,8 +262,9 @@ class Punish(Tactic):
             # Numbers are adjusted from PS shine to be more conservative due to longer startup.
             if opponent_state.position.y >= 11:
                 if opponentyvelocity >= 0 or abs(opponent_state.position.x - smashbot_state.position.x) > 5:
-                    self.pickchain(Chains.Wavedash)
-                    return
+                    if smashbot_state.action in shieldactions:
+                        self.pickchain(Chains.Wavedash)
+                        return
                 else:
                     self.pickchain(Chains.Waveshine)
                     return
