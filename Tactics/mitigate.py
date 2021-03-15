@@ -82,33 +82,7 @@ class Mitigate(Tactic):
 
         # Smash DI
         if smashbot_state.hitlag_left > 1:
-            # Alternate each frame
-            x = 0.5
-            y = 0.5
-            cx = 0.5
-            cy = 0.5
-            if self.controller.prev.main_stick == (0.5, 0.5):
-                # If we're off the stage, SDI up and in
-                if smashbot_state.off_stage:
-                    y = 1
-                    x = 0
-                    if smashbot_state.position.x < 0:
-                        x = 1
-                else:
-                    # Survival SDI
-                    if smashbot_state.percent > 60:
-                        y = 1
-                        x = 0
-                        if smashbot_state.position.x < 0:
-                            x = 1
-                    # Combo SDI
-                    else:
-                        y = 0.5
-                        x = 1
-                        if smashbot_state.position.x < 0:
-                            x = 0
-            self.chain = None
-            self.pickchain(Chains.DI, [x, y, cx, cy])
+            self.pickchain(Chains.SDI)
             return
 
         # Tech if we need to
