@@ -1,7 +1,7 @@
 import math
 
 import melee
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 class SDI(Chain):
@@ -115,6 +115,22 @@ class SDI(Chain):
         # Situationally-specifci SDI
         #   Some hits require specific SDI to get out of a tricky combo. Account for those first, here
 
+        # These moves are a kind of tornado. If you fight against it, you actually just wind up back in. In order to get out,
+        #   we need to SDI in the direction that we're being hit / up
+        if opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH:
+            angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
+            self.cardinal = self._angle_to_cardinal(angle)
+            self.cardinal = (self.cardinal[0], 1)
+            if self.logger:
+                self.logger.log("Notes", " Downsmash SDI angle: " + str(angle) + " ", concat=True)
+            if gamestate.frame % 2:
+                x, y = self._cardinal_right(self.cardinal)
+                controller.tilt_analog(Button.BUTTON_MAIN, x, y)
+            else:
+                x, y = self._cardinal_left(self.cardinal)
+                controller.tilt_analog(Button.BUTTON_MAIN, x, y)
+            return
+
         # TODO: SDI Into the ground to tech?
 
         # We're off the stage, so let's SDI back onto the stage
@@ -137,12 +153,12 @@ class SDI(Chain):
         # Survival SDI
         #   If we're at risk of dying from the hit, then SDI backwards to go further back to cut into the knockback
         if smashbot_state.percent > 60 and absolute_speed > 3:
-            angle = math.degrees(-math.atan2(smashbot_state.speed_y_attack, smashbot_state.speed_x_attack)) + 90
+            angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
             # Which cardinal direction is the most opposite the direction?
             angle = (angle + 180) % 360
             self.cardinal = self._angle_to_cardinal(angle)
             if self.logger:
-                self.logger.log("Notes", " Survival SDI angle: " + str(angle) + " ", concat=True)
+                self.logger.log("Notes", " Survival SDI angle: " + str(angle) + " " + str(smashbot_state.speed_y_attack) + " " + str(smashbot_state.speed_x_attack), concat=True)
 
             # If on ground, then we can't SDI up or down
             if smashbot_state.on_ground:
