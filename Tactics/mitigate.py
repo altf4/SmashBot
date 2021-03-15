@@ -58,26 +58,7 @@ class Mitigate(Tactic):
 
         # Trajectory DI
         if smashbot_state.hitlag_left == 1:
-            # DI up and in if we're at high percent
-            x, y = 0.5, 0.5
-            cx, cy = 0.5, 0.5
-            if smashbot_state.percent > 60:
-                y = 1
-                x = 0
-                if smashbot_state.position.x < 0:
-                    x = 1
-            # If at low damage, DI away
-            else:
-                y = 0.5
-                x = 1
-                if smashbot_state.position.x < 0:
-                    x = 0
-            # ASDI down
-            if not (opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH):
-                cy = 0
-
-            self.chain = None
-            self.pickchain(Chains.DI, [x, y, cx, cy])
+            self.pickchain(Chains.TDI)
             return
 
         # Smash DI

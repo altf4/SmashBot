@@ -8,7 +8,7 @@ class SDI(Chain):
     def __init__(self):
         self.cardinal = None
 
-    def _angle_to_cardinal(self, angle):
+    def angle_to_cardinal(angle):
         """For the given angle, return the nearest cardinal (8 directions) direction"""
         if angle <= 22.5 or 337.5 < angle:
             return 1, 0.5
@@ -30,7 +30,7 @@ class SDI(Chain):
         # This shouldn't be possible, but just in case
         return 1, 1
 
-    def _cardinal_left(self, cardinal):
+    def cardinal_left(cardinal):
         """For the given cardinal, return the cardinal to the left of it"""
         if cardinal == (1, 0.5):
             return 1, 1
@@ -52,7 +52,7 @@ class SDI(Chain):
         # This shouldn't be possible, but just in case
         return 1, 1
 
-    def _cardinal_right(self, cardinal):
+    def cardinal_right(cardinal):
         """For the given cardinal, return the cardinal to the left of it"""
         if cardinal == (1, 0.5):
             return 1, 0
@@ -74,7 +74,7 @@ class SDI(Chain):
         # This shouldn't be possible, but just in case
         return 1, 1
 
-    def _touching_ground(self, smashbot_state):
+    def touching_ground(smashbot_state):
         """Returns whether we're on top of the ground, but not necessarily triggering the on_ground flag
 
         If we're on the ground, we don't want to DI down, so it's important to know
@@ -105,10 +105,10 @@ class SDI(Chain):
             if self.logger:
                 self.logger.log("Notes", " Committed SDI cardinal: " + str(self.cardinal) + " ", concat=True)
             if gamestate.frame % 2:
-                x, y = self._cardinal_right(self.cardinal)
+                x, y = SDI.cardinal_right(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             else:
-                x, y = self._cardinal_left(self.cardinal)
+                x, y = SDI.cardinal_left(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             return
 
@@ -119,15 +119,15 @@ class SDI(Chain):
         #   we need to SDI in the direction that we're being hit / up
         if opponent_state.character in [Character.PEACH, Character.PIKACHU, Character.SAMUS, Character.SHEIK] and opponent_state.action == Action.DOWNSMASH:
             angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
-            self.cardinal = self._angle_to_cardinal(angle)
+            self.cardinal = SDI.angle_to_cardinal(angle)
             self.cardinal = (self.cardinal[0], 1)
             if self.logger:
                 self.logger.log("Notes", " Downsmash SDI angle: " + str(angle) + " ", concat=True)
             if gamestate.frame % 2:
-                x, y = self._cardinal_right(self.cardinal)
+                x, y = SDI.cardinal_right(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             else:
-                x, y = self._cardinal_left(self.cardinal)
+                x, y = SDI.cardinal_left(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             return
 
@@ -140,10 +140,10 @@ class SDI(Chain):
                 self.logger.log("Notes", " Off-stage SDI cardinal: " + str(cardinal) + " ", concat=True)
 
             if gamestate.frame % 2:
-                x, y = self._cardinal_right(cardinal)
+                x, y = SDI.cardinal_right(cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             else:
-                x, y = self._cardinal_left(cardinal)
+                x, y = SDI.cardinal_left(cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             return
 
@@ -156,7 +156,7 @@ class SDI(Chain):
             angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
             # Which cardinal direction is the most opposite the direction?
             angle = (angle + 180) % 360
-            self.cardinal = self._angle_to_cardinal(angle)
+            self.cardinal = SDI.angle_to_cardinal(angle)
             if self.logger:
                 self.logger.log("Notes", " Survival SDI angle: " + str(angle) + " " + str(smashbot_state.speed_y_attack) + " " + str(smashbot_state.speed_x_attack), concat=True)
 
@@ -168,17 +168,17 @@ class SDI(Chain):
                     self.cardinal = (0, 0.5)
 
             # If we're not ON the actual ground, but touching it, then don't SDI down
-            if self._touching_ground(smashbot_state):
+            if SDI.touching_ground(smashbot_state):
                 if self.cardinal[1] == 0:
                     self.cardinal = (self.cardinal[0], 0.5)
                     if self.cardinal[0] == 0.5:
                         self.cardinal = (1, 0.5)
 
             if gamestate.frame % 2:
-                x, y = self._cardinal_right(self.cardinal)
+                x, y = SDI.cardinal_right(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             else:
-                x, y = self._cardinal_left(self.cardinal)
+                x, y = SDI.cardinal_left(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
             return
 
@@ -186,9 +186,9 @@ class SDI(Chain):
         #   SDI away from the opponent to keep from from following up
         angle = math.degrees(-math.atan2(smashbot_state.position.x - opponent_state.position.x, smashbot_state.position.y - opponent_state.position.y)) + 90
         angle = (angle + 360) % 360
-        self.cardinal = self._angle_to_cardinal(angle)
+        self.cardinal = SDI.angle_to_cardinal(angle)
         if self.logger:
-            self.logger.log("Notes", " Combo DI angle: " + str(angle) + " ", concat=True)
+            self.logger.log("Notes", " Combo SDI angle: " + str(angle) + " ", concat=True)
 
         # If on ground, then we can't SDI up or down
         if smashbot_state.on_ground:
@@ -198,16 +198,16 @@ class SDI(Chain):
                 self.cardinal = (0, 0.5)
 
         # If we're not ON the actual ground, but touching it, then don't SDI down
-        if self._touching_ground(smashbot_state):
+        if SDI.touching_ground(smashbot_state):
             if self.cardinal[1] == 0:
                 self.cardinal = (self.cardinal[0], 0.5)
                 if self.cardinal[0] == 0.5:
                     self.cardinal = (1, 0.5)
 
         if gamestate.frame % 2:
-            x, y = self._cardinal_right(self.cardinal)
+            x, y = SDI.cardinal_right(self.cardinal)
             controller.tilt_analog(Button.BUTTON_MAIN, x, y)
         else:
-            x, y = self._cardinal_left(self.cardinal)
+            x, y = SDI.cardinal_left(self.cardinal)
             controller.tilt_analog(Button.BUTTON_MAIN, x, y)
         return
