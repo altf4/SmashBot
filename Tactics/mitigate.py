@@ -1,9 +1,9 @@
 import melee
 import Chains
 import random
-from melee.enums import Action, Button
+from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
-from melee.enums import Character
+from Chains.firefox import FIREFOX
 
 class Mitigate(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):
@@ -86,6 +86,17 @@ class Mitigate(Tactic):
             # Do the tech
             if framesuntillanding < 4:
                 self.pickchain(Chains.Tech)
+                return
+
+        # Meteor cancel 8 frames after hitlag ended
+        # TODO: keep track of Up-B lockout window.
+        # TODO: Don't SDI an up input if we want to meteor cancel
+        if smashbot_state.speed_y_attack < 0 and smashbot_state.action_frame == 8:
+            if smashbot_state.jumps_left > 0:
+                self.pickchain(Chains.Jump, [int(smashbot_state.position.x < 0)])
+                return
+            else:
+                self.pickchain(Chains.Firefox, [FIREFOX.SAFERANDOM])
                 return
 
         if smashbot_state.action == Action.TUMBLING:
