@@ -72,8 +72,8 @@ class Edgedash(Chain):
 
         # Jumping, stay in the chain and DI in
         if smashbot_state.action == Action.JUMPING_ARIAL_FORWARD:
-            # Wait until we're at least 0.2 above stage, or else we'll miss
-            if smashbot_state.position.y + smashbot_state.ecb.bottom.y > 0.2:
+            # Wait until we're at least 0.25 above stage, or else we'll miss
+            if smashbot_state.position.y + smashbot_state.ecb.bottom.y > 0.25:
                 airdodge_angle = 0.2
                 # Go at a more horizontal angle if we're only just barely above the stage
                 if smashbot_state.position.y + smashbot_state.ecb.bottom.y < 1:
