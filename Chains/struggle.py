@@ -14,8 +14,6 @@ class Struggle(Chain):
             controller.press_button(Button.BUTTON_B)
             controller.press_button(Button.BUTTON_X)
             controller.press_button(Button.BUTTON_Y)
-            controller.press_button(Button.BUTTON_L)
-            controller.press_button(Button.BUTTON_R)
             controller.press_button(Button.BUTTON_Z)
         # Release every button
         else:
