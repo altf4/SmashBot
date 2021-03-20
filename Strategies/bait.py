@@ -10,6 +10,7 @@ from Tactics.recover import Recover
 from Tactics.mitigate import Mitigate
 from Tactics.edgeguard import Edgeguard
 from Tactics.infinite import Infinite
+from Tactics.juggle import Juggle
 from Tactics.celebrate import Celebrate
 from Tactics.wait import Wait
 from Tactics.retreat import Retreat
@@ -102,6 +103,11 @@ class Bait(Strategy):
         # If we can infinite our opponent, do that!
         if Infinite.caninfinite(smashbot_state, opponent_state, gamestate, self.framedata, self.difficulty):
             self.picktactic(Tactics.Infinite)
+            return
+
+        # If we can juggle opponent in the air, do that
+        if Juggle.canjuggle(smashbot_state, opponent_state, gamestate, self.framedata, self.difficulty):
+            self.picktactic(Tactics.Juggle)
             return
 
         # If we can punish our opponent for a laggy move, let's do that

@@ -12,3 +12,4 @@ from Tactics.infinite import Infinite
 from Tactics.celebrate import Celebrate
 from Tactics.retreat import Retreat
 from Tactics.selfdestruct import SelfDestruct
+from Tactics.juggle import Juggle

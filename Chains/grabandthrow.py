@@ -20,7 +20,7 @@ class GrabAndThrow(Chain):
         self.interruptible = False
 
         # If we already pressed Z last frame, let go
-        if controller.prev.button[Button.BUTTON_L]:
+        if controller.prev.button[Button.BUTTON_Z]:
             controller.empty_input()
             return
 
@@ -51,7 +51,7 @@ class GrabAndThrow(Chain):
             return
 
         # Do the throw
-        if smashbot_state.action == Action.GRAB_WAIT or smashbot_state == Action.GRAB_PULLING:
+        if smashbot_state.action in [Action.GRAB_WAIT, Action.GRAB_PULLING]:
             if self.direction == THROW_DIRECTION.DOWN:
                 controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
             if self.direction == THROW_DIRECTION.UP:
