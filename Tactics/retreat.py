@@ -115,8 +115,8 @@ class Retreat(Tactic):
 
         # If opponent is on a side platform, board the opposite platform and laser
         #   They don't need to be standing on the plat, just sort of shortly above it
-        side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate)
-        other_side_plat_height, other_side_plat_left, other_side_plat_right = melee.side_platform_position(opponent_state.position.x < 0, gamestate)
+        side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate.stage)
+        other_side_plat_height, other_side_plat_left, other_side_plat_right = melee.side_platform_position(opponent_state.position.x < 0, gamestate.stage)
         if (side_plat_height is not None) and (opponent_state.position.y+1 > side_plat_height) and (side_plat_left < opponent_state.position.x < side_plat_right):
             # If we're already on the platform
             if smashbot_state.position.y > 5 and smashbot_state.on_ground:

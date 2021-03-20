@@ -4,26 +4,31 @@ from Chains.chain import Chain
 from melee.enums import Action, Button
 
 class BoardSidePlatform(Chain):
-    def __init__(self, right_platform):
+    def __init__(self, right_platform, attack=True):
         self.right_platform = right_platform
         self.interruptible = True
+        self.attack = attack
 
     def step(self, gamestate, smashbot_state, opponent_state):
         if self.logger:
             self.logger.log("Notes", " right side platform: " + str(self.right_platform) + " ", concat=True)
 
         platform_center = 0
-        platform_height, platform_left, platform_right = melee.side_platform_position(self.right_platform, gamestate)
+        platform_height, platform_left, platform_right = melee.side_platform_position(self.right_platform, gamestate.stage)
         if platform_height is not None:
             platform_center = (platform_left + platform_right) / 2
 
-        top_platform_height, _, _ = melee.top_platform_position(gamestate)
+        top_platform_height, _, _ = melee.top_platform_position(gamestate.stage)
 
         # Where to dash dance to
         pivot_point = platform_center
         # If opponent is on the platform, get right under them
         if platform_left < opponent_state.position.x < platform_right:
             pivot_point = opponent_state.position.x
+
+        # Unless we don't need to attack them, then it's safe to just board asap
+        if self.attack and platform_left < smashbot_state.position.x < platform_right:
+            pivot_point = smashbot_state.position.x
 
         # If we're just using the side platform as a springboard, then go closer in than the middle
         if opponent_state.position.y >= top_platform_height:
@@ -59,7 +64,7 @@ class BoardSidePlatform(Chain):
         # Can we shine our opponent right now, while we're in the air?
         foxshinerange = 11.8
         shineable = smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]
-        if shineable and gamestate.distance < foxshinerange:
+        if self.attack and shineable and gamestate.distance < foxshinerange:
             self.controller.press_button(melee.Button.BUTTON_B)
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
@@ -69,7 +74,11 @@ class BoardSidePlatform(Chain):
         if smashbot_state.ecb.bottom.y + smashbot_state.position.y > platform_height and smashbot_state.action not in aerials:
             self.interruptible = True
             self.controller.press_button(melee.Button.BUTTON_L)
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x) * 0.8, 0)
+            # When we're choosing to not attack, just get close to the opponent if we're already
+            x = int(smashbot_state.position.x < opponent_state.position.x) * 0.8
+            if not self.attack and abs(smashbot_state.position.x - opponent_state.position.x) < 5:
+                x = 0.5
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, x, 0)
             return
 
         # Don't jump into Peach's dsmash or SH early dair spam

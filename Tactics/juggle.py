@@ -14,6 +14,9 @@ class Juggle(Tactic):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
 
     def canjuggle(smashbot_state, opponent_state, gamestate, framedata, difficulty):
+        if opponent_state.invulnerability_left > 0:
+            return False
+
         # If the opponent is in hitstun, in the air
         if (not opponent_state.on_ground) and (opponent_state.hitstun_frames_left > 0):
             return True
@@ -49,7 +52,22 @@ class Juggle(Tactic):
         if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
             facing_away = not facing_away
 
-        on_ground = opponent_state.on_ground or opponent_state.position.y < 1
+        on_ground = opponent_state.on_ground or opponent_state.position.y < 1 or opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN]
+
+        # Make sure we don't dashdance off the platform during a juggle
+        side_platform_height, side_platform_left, side_platform_right = melee.side_platform_position(smashbot_state.position.x > 0, gamestate.stage)
+        top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate.stage)
+        if smashbot_state.position.y < 5:
+            end_x = min(end_x, melee.EDGE_GROUND_POSITION[gamestate.stage]-5)
+            end_x = max(end_x, -melee.EDGE_GROUND_POSITION[gamestate.stage]+5)
+        elif (side_platform_height is not None) and abs(smashbot_state.position.y - side_platform_height) < 5:
+            end_x = min(end_x, side_platform_right-5)
+            end_x = max(end_x, side_platform_left+5)
+        elif (top_platform_height is not None) and abs(smashbot_state.position.y - top_platform_height) < 5:
+            end_x = min(end_x, top_platform_right-5)
+            end_x = max(end_x, top_platform_left+5)
+
+        # TODO Slideoff detection
 
         if self.logger:
             self.logger.log("Notes", "Predicted End Position: " + str(end_x) + " " + str(end_y) + " ", concat=True)
@@ -72,7 +90,7 @@ class Juggle(Tactic):
                 return
             if (abs(smashbot_state.position.x - end_x) < 5) and (7 <= frames_left <= 9):
                 if 10 < smashbot_state.position.y - end_y < 15:
-                    if smashbot_state.action == Action.TURNING:
+                    if smashbot_state.action == Action.TURNING and in_range:
                         self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                         return
                 if smashbot_state.action == Action.DASHING:
@@ -85,11 +103,27 @@ class Juggle(Tactic):
                 # We still have plenty of time, so just get closer to the DD spot
                 #   Even if we're already close
                 if frames_left > 10:
+                    # Do we need to jump up to the side platform?
+                    side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate.stage)
+                    # TODO 13 is the fastest getup attack of the legal character, do a lookup for the actual one
+                    if opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN]:
+                        frames_left += 13
+                    if side_plat_height is not None and (frames_left > 25) and abs(side_plat_height - opponent_state.position.y) < 5:
+                        # But only if we're already mostly there
+                        smashbot_on_side_plat = smashbot_state.on_ground and abs(smashbot_state.position.y - side_plat_height) < 5
+                        if side_plat_left < smashbot_state.position.x < side_plat_right:
+                            self.chain = None
+                            self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0, False])
+                            return
+
+                    if self.logger:
+                        self.logger.log("Notes", " DD at: " + str(end_x), concat=True)
+                        self.logger.log("Notes", " plat at: " + str(side_plat_left) + " " + str(side_plat_right), concat=True)
                     self.chain = None
                     self.pickchain(Chains.DashDance, [end_x])
                     return
                 # We need to get to a position where our back is to the end position. We'll do a pivot stand to get there
-                if (abs(smashbot_state.position.x - end_x) < 10):
+                if (abs(smashbot_state.position.x - end_x) < 5):
                     # Pivot
                     if smashbot_state.action == Action.DASHING:
                         self.chain = None
@@ -97,27 +131,36 @@ class Juggle(Tactic):
                         return
                     if smashbot_state.action in [Action.TURNING, Action.STANDING]:
                         if 7 <= frames_left <= 9:
-                            if facing_away:
+                            if facing_away and gamestate.distance < 20:
                                 self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                                 return
                             else:
                                 # Can't grab a tech miss. Don't try
-                                if opponent_state.action not in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN]:
+                                if opponent_state.action not in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN] and gamestate.distance < 10:
                                     self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.UP])
                                     return
-                        if frames_left == 1:
+                        if frames_left == 1 and gamestate.distance < 10:
                             self.pickchain(Chains.Waveshine)
                             return
                         else:
                             self.pickchain(Chains.Nothing)
                             return
 
+                # If we're a little further away than 5 units, but still in range
+                elif (abs(smashbot_state.position.x - end_x) < 10):
+                    # Don't dashdance here. Just stand still
+                    if smashbot_state.action == Action.TURNING and smashbot_state.action_frame > 1:
+                        self.pickchain(Chains.Nothing)
+                        return
+
+                    self.chain = None
+                    self.pickchain(Chains.DashDance, [end_x])
+                    return
+
                 # We're further than 5 units away, so DD into their end position
-                self.logger.log("Notes", "DD at: " + str(end_x), concat=True)
                 self.chain = None
                 self.pickchain(Chains.DashDance, [end_x])
                 return
 
-        self.logger.log("Notes", "Fall thru DD: " + str(end_x), concat=True)
         self.chain = None
         self.pickchain(Chains.DashDance, [end_x])

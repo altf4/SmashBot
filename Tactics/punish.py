@@ -24,6 +24,10 @@ class Punish(Tactic):
         if opponent_state.action == Action.KNEE_BEND and opponent_state.character == Character.SAMUS:
             return 0
 
+        # It's unsafe to shine an opponent lying on a platform. Just wait for them to act instead
+        if opponent_state.position.y > 5 and opponent_state.action in [Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]:
+            return 0
+
         # Samus UP_B invulnerability
         if opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
                 opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5:

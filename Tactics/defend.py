@@ -187,6 +187,12 @@ class Defend(Tactic):
 
             pivotpoint = opponent_state.position.x
 
+            # If it's a getup attack, just get in there and shield it. It's safe
+            if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
+                self.chain = None
+                self.pickchain(Chains.DashDance, [opponent_state.position.x])
+                return
+
             # Add some extra buffer for horizontal movement
             if opponent_state.speed_y_self < 0:
                 pivotpoint += abs(opponent_state.position.y // opponent_state.speed_y_self) * opponent_state.speed_air_x_self

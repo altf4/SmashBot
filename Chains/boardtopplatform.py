@@ -12,7 +12,7 @@ class BoardTopPlatform(Chain):
         platform_center = 0
         platform_height = 0
 
-        position = melee.top_platform_position(gamestate)
+        position = melee.top_platform_position(gamestate.stage)
         if position:
             platform_center = (position[1] + position[2]) / 2
             platform_height = position[0]
@@ -28,7 +28,7 @@ class BoardTopPlatform(Chain):
         #   Are we in position to jump? We want to be dashing inwards on a side plat
         if on_side_platform:
             # Get the x coord of the inner edge of the plat
-            right_edge = (melee.side_platform_position(True, gamestate))[2]
+            right_edge = (melee.side_platform_position(True, gamestate.stage))[2]
             if right_edge - abs(smashbot_state.position.x) < 8:
                 if smashbot_state.action in [Action.DASHING, Action.RUNNING] and (smashbot_state.facing == (smashbot_state.position.x < 0)):
                     self.interruptible = False

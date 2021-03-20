@@ -32,3 +32,4 @@ from Chains.jumpover import JumpOver
 from Chains.sdi import SDI
 from Chains.tdi import TDI
 from Chains.tilt import Tilt
+from Chains.airattack import AirAttack

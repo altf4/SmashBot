@@ -119,19 +119,19 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.enums.Menu.IN_GAME:
-        try:
-            agent1.act(gamestate)
-            if agent2:
-                agent2.act(gamestate)
-        except Exception as error:
-            # Do nothing in case of error thrown!
-            agent1.controller.empty_input()
-            if agent2:
-                agent2.controller.empty_input()
-            if log:
-                log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
-            else:
-                print("WARNING: Exception thrown: ", error)
+        # try:
+        agent1.act(gamestate)
+        if agent2:
+            agent2.act(gamestate)
+        # except Exception as error:
+        #     # Do nothing in case of error thrown!
+        #     agent1.controller.empty_input()
+        #     if agent2:
+        #         agent2.controller.empty_input()
+        #     if log:
+        #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+        #     else:
+        #         print("WARNING: Exception thrown: ", error)
         if log:
             log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
             log.logframe(gamestate)

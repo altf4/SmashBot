@@ -81,6 +81,12 @@ class Dropdownshine(Chain):
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
+        # Fall-through
+        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
         # DI in toward the opponent
         self.interruptible = False
         x = 0
