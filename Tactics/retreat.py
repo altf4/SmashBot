@@ -117,7 +117,7 @@ class Retreat(Tactic):
         #   They don't need to be standing on the plat, just sort of shortly above it
         side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate)
         other_side_plat_height, other_side_plat_left, other_side_plat_right = melee.side_platform_position(opponent_state.position.x < 0, gamestate)
-        if (opponent_state.position.y+1 > side_plat_height) and (side_plat_left < opponent_state.position.x < side_plat_right):
+        if (side_plat_height is not None) and (opponent_state.position.y+1 > side_plat_height) and (side_plat_left < opponent_state.position.x < side_plat_right):
             # If we're already on the platform
             if smashbot_state.position.y > 5 and smashbot_state.on_ground:
                 # Make sure we're in the center-ish of the platform
