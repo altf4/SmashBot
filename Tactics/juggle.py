@@ -66,11 +66,11 @@ class Juggle(Tactic):
                 self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                 return
 
-            if frames_left >= 9:
+            if frames_left > 9:
                 self.chain = None
                 self.pickchain(Chains.DashDance, [end_x])
                 return
-            if (abs(smashbot_state.position.x - end_x) < 5) and (frames_left < 9):
+            if (abs(smashbot_state.position.x - end_x) < 5) and (7 <= frames_left <= 9):
                 if 10 < smashbot_state.position.y - end_y < 15:
                     if smashbot_state.action == Action.TURNING:
                         self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
