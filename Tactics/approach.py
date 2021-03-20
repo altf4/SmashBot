@@ -36,10 +36,10 @@ class Approach(Tactic):
 
         # If opponent is on top platform
         on_side_platform = (5 < smashbot_state.position.y < 35) and smashbot_state.on_ground
-        top_platform_position = melee.top_platform_position(gamestate)
+        top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate)
         opp_top_platform = False
-        if top_platform_position:
-            opp_top_platform = (opponent_state.position.y+1 >= top_platform_position[0]) and (top_platform_position[1] < opponent_state.position.x < top_platform_position[2])
+        if top_platform_height is not None:
+            opp_top_platform = (opponent_state.position.y+1 >= top_platform_height) and (top_platform_left < opponent_state.position.x < top_platform_right)
 
         if on_side_platform and opp_top_platform:
             self.pickchain(Chains.BoardTopPlatform)

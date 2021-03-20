@@ -13,27 +13,24 @@ class BoardSidePlatform(Chain):
             self.logger.log("Notes", " right side platform: " + str(self.right_platform) + " ", concat=True)
 
         platform_center = 0
-        platform_height = 0
-
-        position = melee.side_platform_position(self.right_platform, gamestate)
-        if position:
-            platform_center = (position[1] + position[2]) / 2
-            platform_height = position[0]
+        platform_height, platform_left, platform_right = melee.side_platform_position(self.right_platform, gamestate)
+        if platform_height is not None:
+            platform_center = (platform_left + platform_right) / 2
 
         top_platform_height, _, _ = melee.top_platform_position(gamestate)
 
         # Where to dash dance to
         pivot_point = platform_center
         # If opponent is on the platform, get right under them
-        if position[1] < opponent_state.position.x < position[2]:
+        if platform_left < opponent_state.position.x < platform_right:
             pivot_point = opponent_state.position.x
 
         # If we're just using the side platform as a springboard, then go closer in than the middle
         if opponent_state.position.y >= top_platform_height:
             if smashbot_state.position.x > 0:
-                pivot_point = position[1] + 8
+                pivot_point = platform_left + 8
             else:
-                pivot_point = position[2] - 8
+                pivot_point = platform_right - 8
 
         if smashbot_state.on_ground:
             self.interruptible = True

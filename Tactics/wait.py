@@ -19,6 +19,9 @@ class Wait(Tactic):
         if smashbot_state.action == Action.EDGE_TEETERING_START and opponent_pushing:
             return True
 
+        if smashbot_state.action in [Action.THROW_UP, Action.THROW_DOWN, Action.THROW_FORWARD, Action.THROW_BACK]:
+            return True
+
         if smashbot_state.action in [Action.BACKWARD_TECH, Action.NEUTRAL_TECH, Action.FORWARD_TECH, \
                 Action.TECH_MISS_UP, Action.EDGE_GETUP_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_ROLL_QUICK, \
                 Action.EDGE_ROLL_SLOW, Action.SHIELD_STUN, Action.TECH_MISS_DOWN, Action.LANDING_SPECIAL]:
