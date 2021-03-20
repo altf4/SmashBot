@@ -132,6 +132,8 @@ class Pressure(Tactic):
 
             # Recalculate facing for the slide end
             facingopponent = smashbot_state.facing == (ourendposition < endposition)
+            if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
+                facingopponent = not facingopponent
 
             # Grab opponent
             if ingrabrange and facingopponent and (self.shinecount >= self.shinemax):

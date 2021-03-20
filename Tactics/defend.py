@@ -171,6 +171,11 @@ class Defend(Tactic):
         onfront = (opponent_state.position.x < smashbot_state.position.x) == opponent_state.facing
         # Are we in the powershield window?
         if framesuntilhit <= 2:
+            if framesuntilhit == 2 and opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
+                self.chain = None
+                self.pickchain(Chains.Run, [smashbot_state.position.x < opponent_state.position.x])
+                return
+
             if smashbot_state.action == Action.EDGE_HANGING:
                 self.chain = None
                 self.pickchain(Chains.DI, [0.5, 0.65])
