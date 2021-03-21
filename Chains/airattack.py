@@ -13,11 +13,29 @@ class AIR_ATTACK_DIRECTION(Enum):
 class AirAttack(Chain):
     def __init__(self, target_x, target_y, direction=AIR_ATTACK_DIRECTION.DOWN):
         self.direction = direction
+        self.target_x = target_x
+        self.target_y = target_y
+
+    def frame_commitment(target_y):
+        """Given the target height, how many frames worth of commitment does it require?"""
+        if 15 < target_y <= 30:
+            return 500 # Height 2 (heigher because we need to drop-down upair) 22
+        if 30 < target_y <= 40:
+            return 15 # Height 3
+        if 40 < target_y <= 50:
+            return 19 # Height 4
+        if 50 < target_y <= 60:
+            return 23 # Height 5
+        if 55 < target_y <= 65:
+            return 25 # Height 6 # TODO
+        if 65 < target_y <= 75:
+            return 28 # Height 7 # TODO
+        return 500
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
-        #   1) Short hop height -> 10.65
+        #   1) Short hop height -> 10.65 (maybe don't use)
         #   2) Full hop, falling up air -> 20 (22 frames)
         #   3) Full hop height -> 30 (19 frames)
         #   4) Jump, immediate double jump -> 40 (19 frames) (dj on jump frame 2) (attack on dj frame 2)
@@ -25,81 +43,122 @@ class AirAttack(Chain):
         #   6) Jump wait a bit more, jump -> 60
         #   7) Full jump, double jump -> 70
 
+        # TODO adjust for starting height. Like on a platform
+
+        height_level = 0
+        if 15 < self.target_y <= 25:
+            height_level = 2
+        if 25 < self.target_y <= 35:
+            height_level = 3
+        if 35 < self.target_y <= 45:
+            height_level = 4
+        if 45 < self.target_y <= 55:
+            height_level = 5
+        if 55 < self.target_y <= 65:
+            height_level = 6
+        if 65 < self.target_y <= 75:
+            height_level = 7
         #DJ -> 40 units
 
-        # If we're in knee bend, let go of jump. But move toward opponent
-        if smashbot_state.action == Action.KNEE_BEND:
-            self.interruptible = False
-            controller.release_button(Button.BUTTON_Y)
-            jumpdirection = 1
-            if opponent_state.position.x < smashbot_state.position.x:
-                jumpdirection = 0
-            controller.tilt_analog(Button.BUTTON_MAIN, jumpdirection, .5)
+        # Landing. We're done
+        if smashbot_state.action in [Action.LANDING, Action.UAIR_LANDING]:
+            self.interruptible = True
+            controller.release_all()
             return
 
-        # If we're on the ground, but NOT in knee bend, then jump
+        # TODO dash over to the location first?
+
+        # Full hop
         if smashbot_state.on_ground:
-            if controller.prev.button[Button.BUTTON_Y]:
-                self.interruptible = True
-                controller.empty_input()
-            else:
-                self.interruptible = False
-                controller.press_button(Button.BUTTON_Y)
-            return
-
-        # If we're falling, then press down hard to do a fast fall, and press L to L cancel
-        if smashbot_state.speed_y_self < 0:
             self.interruptible = False
-            # Don't jump right off the stage like an idiot
-            #   If we're close to the edge, angle back in
-            x = 0.5
-            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            if opponent_state.position.x < 0:
-                edge_x = -edge_x
-            edgedistance = abs(edge_x - smashbot_state.position.x)
-            if edgedistance < 15:
-                x = int(smashbot_state.position.x < 0)
-
-            controller.tilt_analog(Button.BUTTON_MAIN, x, 0)
-            # Only do the L cancel near the end of the animation
-            if smashbot_state.action_frame >= 12:
-                controller.press_button(Button.BUTTON_L)
-            return
-
-        # Once we're airborn, do an attack
-        if not self.framedata.is_attack(smashbot_state.character, smashbot_state.action):
-            # If the C stick wasn't set to middle, then
-            if controller.prev.c_stick != (.5, .5):
-                controller.tilt_analog(Button.BUTTON_C, .5, .5)
+            controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
+            if controller.prev.button[Button.BUTTON_Y] and smashbot_state.action != Action.KNEE_BEND:
+                controller.release_button(Button.BUTTON_Y)
+                return
+            else:
+                controller.press_button(Button.BUTTON_Y)
+                controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
                 return
 
-            if self.direction == SHFFL_DIRECTION.UP:
-                controller.tilt_analog(Button.BUTTON_C, .5, 1)
-            if self.direction == SHFFL_DIRECTION.DOWN:
-                controller.tilt_analog(Button.BUTTON_C, .5, 0)
-            if self.direction == SHFFL_DIRECTION.FORWARD:
-                controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.facing), .5)
-            if self.direction == SHFFL_DIRECTION.BACK:
-                controller.tilt_analog(Button.BUTTON_C, int(not smashbot_state.facing), .5)
-            if self.direction == SHFFL_DIRECTION.NEUTRAL:
-                controller.press_button(Button.BUTTON_A)
-                controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)
-            return
-        elif smashbot_state.speed_y_self > 0:
-            # Don't jump right off the stage like an idiot
-            #   If we're close to the edge, angle back in
-            x = 0.5
-            edge_x = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
-            if opponent_state.position.x < 0:
-                edge_x = -edge_x
-            edgedistance = abs(edge_x - smashbot_state.position.x)
-            if edgedistance < 15:
-                x = int(smashbot_state.position.x < 0)
+        # falling back down
+        if smashbot_state.speed_y_self < 0:
+            # TODO L-cancel? maybe only on height 1?
 
-            controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
-            controller.tilt_analog(Button.BUTTON_C, .5, .5)
-            controller.release_button(Button.BUTTON_L)
+            # Drift onto stage if we're near the edge
+            if abs(smashbot_state.position.x) + 10 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
+                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), .5)
+                return
+            else:
+                # fastfall
+                controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0)
+                return
+
+        # Okay, we're jumping in the air, now what?
+        if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD, Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]:
+            if height_level == 3:
+                # Up-air right away
+                # Drift towards the spot
+                controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
+                return
+            if height_level == 4:
+                # Double jump on jumping frame 2
+                if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
+                    if smashbot_state.action_frame == 2:
+                        controller.press_button(Button.BUTTON_Y)
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        return
+                    else:
+                        controller.release_button(Button.BUTTON_Y)
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        return
+                # Attack on DJ frame 2
+                if smashbot_state.action in [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]:
+                    if smashbot_state.action_frame == 2:
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
+                        return
+                    else:
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
+                        return
+            if height_level == 5:
+                # Double jump on jumping frame 6
+                if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
+                    if smashbot_state.action_frame == 6:
+                        controller.press_button(Button.BUTTON_Y)
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        return
+                    else:
+                        controller.release_button(Button.BUTTON_Y)
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        return
+                # Attack on DJ frame 2
+                if smashbot_state.action in [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]:
+                    if smashbot_state.action_frame == 2:
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
+                        return
+                    else:
+                        controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                        controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
+                        return
+
+
+                controller.release_all()
+                return
+            else:
+                # Up-air right away
+                # Drift towards the spot
+                controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
+                return
+
+        # Drift in during the attack
+        if smashbot_state.action in [Action.UAIR, Action.BAIR, Action.DAIR, Action.FAIR, Action.NAIR]:
+            controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+            controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
             return
 
         self.interruptible = True
-        controller.empty_input()
+        controller.release_all()

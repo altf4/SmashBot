@@ -4,6 +4,7 @@ from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 from Chains.tilt import TILT_DIRECTION
 from Chains.grabandthrow import THROW_DIRECTION
+from Chains.airattack import AirAttack, AIR_ATTACK_DIRECTION
 from Tactics.punish import Punish
 from Tactics.infinite import Infinite
 from melee.enums import Character
@@ -80,23 +81,40 @@ class Juggle(Tactic):
             # If we can just throw out the attack and hit now, do it. No need to wait for them to fall further
             end_early_x, end_early_y = self.framedata.project_hit_location(opponent_state, 7)
             in_range = (abs(end_early_x - smashbot_state.position.x) < 8) and (abs(end_early_y - smashbot_state.position.y) < 12)
-            if smashbot_state.action == Action.TURNING and in_range:
+            if smashbot_state.action == Action.TURNING and in_range and (7 <= frames_left <= 9):
                 self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                 return
 
-            if frames_left > 9:
-                self.chain = None
-                self.pickchain(Chains.DashDance, [end_x])
-                return
-            if (abs(smashbot_state.position.x - end_x) < 5) and (7 <= frames_left <= 9):
-                if 10 < smashbot_state.position.y - end_y < 15:
-                    if smashbot_state.action == Action.TURNING and in_range:
-                        self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
+            # Line up an air-attack
+            if end_y >= 15:
+                # TODO find commitment for each of the levels I guess? Not the for end_y
+                commitment = AirAttack.frame_commitment(end_y)
+                if self.logger:
+                    self.logger.log("Notes", " commitment: " + str(commitment), concat=True)
+
+                if commitment < frames_left:
+                    end_early_x, end_early_y = self.framedata.project_hit_location(opponent_state, commitment)
+                    self.logger.log("Notes", "Predicted Early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
+
+                    # TODO Don't hit when they're off stage
+                    if abs(smashbot_state.position.x - end_early_x) < 30:
+                        self.pickchain(Chains.AirAttack, [end_early_x, end_early_y, AIR_ATTACK_DIRECTION.UP])
                         return
-                if smashbot_state.action == Action.DASHING:
+
+            else:
+                if frames_left > 9:
                     self.chain = None
                     self.pickchain(Chains.DashDance, [end_x])
                     return
+                if (abs(smashbot_state.position.x - end_x) < 5) and (7 <= frames_left <= 9):
+                    if 10 < smashbot_state.position.y - end_y < 15:
+                        if smashbot_state.action == Action.TURNING and in_range:
+                            self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
+                            return
+                    if smashbot_state.action == Action.DASHING:
+                        self.chain = None
+                        self.pickchain(Chains.DashDance, [end_x])
+                        return
 
         else:
             if self.framedata.is_roll(opponent_state.character, opponent_state.action):

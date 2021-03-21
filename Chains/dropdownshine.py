@@ -61,6 +61,11 @@ class Dropdownshine(Chain):
             controller.press_button(Button.BUTTON_Y)
             return
 
+        if smashbot_state.action in [Action.EDGE_CATCHING]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
         # Drop down with a fastfall
         if smashbot_state.action == Action.EDGE_HANGING:
             self.interruptible = False
