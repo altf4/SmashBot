@@ -141,11 +141,10 @@ class Juggle(Tactic):
                             if facing_away and gamestate.distance < 20:
                                 self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                                 return
-                            else:
-                                # Can't grab a tech miss. Don't try
-                                if opponent_state.action not in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN] and gamestate.distance < 10:
-                                    self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.UP])
-                                    return
+                            # Can't grab a tech miss. Don't try
+                            elif opponent_state.action not in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN] and gamestate.distance < 10:
+                                self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.UP])
+                                return
                         if frames_left == 1 and gamestate.distance < 10:
                             self.pickchain(Chains.Waveshine)
                             return
