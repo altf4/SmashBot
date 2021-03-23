@@ -80,7 +80,8 @@ class Juggle(Tactic):
         if not on_ground:
             # If we can just throw out an uptilt and hit now, do it. No need to wait for them to fall further
             end_early_x, end_early_y = self.framedata.project_hit_location(opponent_state, 7)
-            self.logger.log("Notes", " uptilt early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
+            if self.logger:
+                self.logger.log("Notes", " uptilt early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
             in_range = (abs(end_early_x - smashbot_state.position.x) < 8) and (abs(end_early_y - smashbot_state.position.y) < 12)
             if smashbot_state.action == Action.TURNING and in_range and (7 <= frames_left <= 9):
                 self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
