@@ -27,7 +27,7 @@ class BoardSidePlatform(Chain):
             pivot_point = opponent_state.position.x
 
         # Unless we don't need to attack them, then it's safe to just board asap
-        if self.attack and platform_left < smashbot_state.position.x < platform_right:
+        if not self.attack and (platform_left < smashbot_state.position.x < platform_right):
             pivot_point = smashbot_state.position.x
 
         # If we're just using the side platform as a springboard, then go closer in than the middle
