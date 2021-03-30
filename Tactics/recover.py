@@ -101,11 +101,14 @@ class Recover(Tactic):
             facinginwards = True
 
         if smashbot_state.action == Action.DEAD_FALL:
-            x = 0
-            if smashbot_state.position.x < 0:
-                x = 1
             self.chain = None
-            self.pickchain(Chains.DI, [x, 0.5])
+            self.pickchain(Chains.DI, [int(smashbot_state.position.x < 0), 0.5])
+            return
+
+        # FireFox high
+        if smashbot_state.action == Action.SWORD_DANCE_1_AIR and smashbot_state.position.y > 10:
+            self.chain = None
+            self.pickchain(Chains.DI, [int(smashbot_state.position.x < 0), 0.5])
             return
 
         # Are we facing the wrong way in shine? Turn around
