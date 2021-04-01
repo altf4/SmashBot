@@ -7,13 +7,17 @@ from Chains.firefox import FIREFOX
 
 # Dash dance a just a little outside our opponont's range
 class KeepDistance(Tactic):
+    def __init__(self, logger, controller, framedata, difficulty):
+        self.radius = 0
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
+
     def _getbufferzone(self, opponent_state):
         character = opponent_state.character
         bufferzone = 30
         if character == Character.FOX:
-            bufferzone = 18
+            bufferzone = 25
         if character == Character.FALCO:
-            bufferzone = 18
+            bufferzone = 25
         if character == Character.CPTFALCON:
             bufferzone = 20
         if character == Character.MARTH:
@@ -31,12 +35,9 @@ class KeepDistance(Tactic):
         if character == Character.SAMUS:
             bufferzone = 15
 
-        # Throw in a little randomness to fake out the opponent
-        bufferzone += random.randint(-5, 5)
-
         # If we're in the first two difficulty levels, just get in there. Unless opponent is airborne
-        if self.difficulty > 2 and opponent_state.on_ground:
-            bufferzone = 0
+        # if self.difficulty > 2 and opponent_state.on_ground:
+        #     bufferzone = 0
 
         # If oppoonent is attacking, keep a little further back to avoid running right into it
         if self.framedata.attack_state(opponent_state.character, opponent_state.action, opponent_state.action_frame) in [melee.enums.AttackState.ATTACKING, melee.enums.AttackState.WINDUP]:
@@ -73,16 +74,15 @@ class KeepDistance(Tactic):
 
         # Figure out which side we should dash dance on
         #   If opponent is in the air, go behind them
-        if not opponent_state.on_ground:
-            if bufferzone == 0:
-                bufferzone = 10
-            if opponent_state.facing:
-                bufferzone *= -1
-        # If they're on the ground, stay on the side we're on
-        else:
-            onright = opponent_state.position.x < smashbot_state.position.x
-            if not onright:
-                bufferzone *= -1
+        # if not opponent_state.on_ground:
+        #     if bufferzone == 0:
+        #         bufferzone = 10
+        #     if opponent_state.facing:
+        #         bufferzone *= -1
+        # # If they're on the ground, stay on the side we're on
+        # else:
+        if opponent_state.position.x > smashbot_state.position.x:
+            bufferzone *= -1
 
         pivotpoint = opponent_state.position.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
@@ -94,9 +94,13 @@ class KeepDistance(Tactic):
             self.pickchain(Chains.Wavedash, [1.0, False])
             return
 
+        # Switch up our dash dance radius every second
+        if gamestate.frame % 60 == 0:
+            self.radius = random.randint(0, 4)
+
         self.chain = None
         if not smashbot_state.off_stage:
-            self.pickchain(Chains.DashDance, [pivotpoint])
+            self.pickchain(Chains.DashDance, [pivotpoint, self.radius])
         # If for whatever reason keepdistance gets called while Smashbot is recovering, it will do an emergency Firefox
         else:
             self.pickchain(Chains.Firefox)

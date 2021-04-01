@@ -42,12 +42,12 @@ class Juggle(Tactic):
             return
 
         # Get over to where they will end up at the end of hitstun
-        end_x, end_y = self.framedata.project_hit_location(opponent_state)
-        frames_left = opponent_state.hitstun_frames_left
+        end_x, end_y, frames_left = self.framedata.project_hit_location(opponent_state, gamestate.stage)
 
         if self.framedata.is_roll(opponent_state.character, opponent_state.action):
             end_x = self.framedata.roll_end_position(opponent_state, gamestate.stage)
             frames_left = self.framedata.last_roll_frame(opponent_state.character, opponent_state.action) - opponent_state.action_frame
+            # TODO handle slideoff here
 
         facing_away = (smashbot_state.position.x < end_x) != smashbot_state.facing
         if smashbot_state.action == Action.TURNING and smashbot_state.action_frame == 1:
@@ -79,28 +79,49 @@ class Juggle(Tactic):
         # Uptilt's hitbox is pretty forgiving if we do it a few frames early, so no big deal there
         if not on_ground:
             # If we can just throw out an uptilt and hit now, do it. No need to wait for them to fall further
-            end_early_x, end_early_y = self.framedata.project_hit_location(opponent_state, 7)
+            end_early_x, end_early_y, _ = self.framedata.project_hit_location(opponent_state, gamestate.stage, 7)
             if self.logger:
                 self.logger.log("Notes", " uptilt early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
             in_range = (abs(end_early_x - smashbot_state.position.x) < 8) and (abs(end_early_y - smashbot_state.position.y) < 12)
-            if smashbot_state.action == Action.TURNING and in_range and (7 <= frames_left <= 9):
-                self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
-                return
+            if smashbot_state.action in [Action.TURNING, Action.STANDING] and in_range and (7 <= frames_left):
+                if facing_away or abs(end_early_y - smashbot_state.position.y) > 5:
+                    self.chain = None
+                    self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
+                    return
+                # For the grab, they can't be too high vertically, or too low
+                elif smashbot_state.position.y + 2 < end_early_y:
+                    self.chain = None
+                    self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.UP])
+                    return
+
             # Check each height level, can we do an up-air right now?
             for height_level in AirAttack.height_levels():
                 height = AirAttack.attack_height(height_level)
-                commitment = AirAttack.frame_commitment(height)
-                end_early_x, end_early_y = self.framedata.project_hit_location(opponent_state, commitment)
-                if (commitment < frames_left) and (abs(smashbot_state.position.x - end_early_x) < 20) and (abs(end_early_y - height) < 5):
+                commitment = AirAttack.frame_commitment(height_level)
+                end_early_x, end_early_y, _ = self.framedata.project_hit_location(opponent_state, gamestate.stage, commitment)
+                if (commitment < frames_left) and (abs(smashbot_state.position.x - end_early_x) < 20) and (abs(end_early_y - (height+smashbot_state.position.y)) < 5):
                     if self.logger:
                         self.logger.log("Notes", " Early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
-                        self.logger.log("Notes", " height: " + str(height), concat=True)
+                        self.logger.log("Notes", " height_level: " + str(height_level), concat=True)
                         self.logger.log("Notes", " commitment: " + str(commitment), concat=True)
                     self.chain = None
-                    self.pickchain(Chains.AirAttack, [end_early_x, end_early_y, AIR_ATTACK_DIRECTION.UP])
+                    self.pickchain(Chains.AirAttack, [end_early_x, end_early_y, height_level, AIR_ATTACK_DIRECTION.UP])
                     return
+
+            # They are going to land on a platform before hitstun ends
+            # TODO Do we have time?
+            if frames_left < opponent_state.hitstun_frames_left and end_y > 0:
+                # Board the platform they're going to
+                if end_y > 40:
+                    self.chain = None
+                    self.pickchain(Chains.BoardTopPlatform)
+                    return
+                else:
+                    self.chain = None
+                    self.pickchain(Chains.BoardSidePlatform, [end_x > 0, False])
+                    return
+
             # Just dash dance to where they will end up
-            # TODO board platform to get closer?
             if frames_left > 9:
                 self.chain = None
                 self.pickchain(Chains.DashDance, [end_x])

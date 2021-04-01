@@ -31,7 +31,7 @@ class BoardSidePlatform(Chain):
             pivot_point = smashbot_state.position.x
 
         # If we're just using the side platform as a springboard, then go closer in than the middle
-        if opponent_state.position.y >= top_platform_height:
+        if top_platform_height is not None and (opponent_state.position.y >= top_platform_height):
             if smashbot_state.position.x > 0:
                 pivot_point = platform_left + 8
             else:
@@ -45,13 +45,21 @@ class BoardSidePlatform(Chain):
                 return
 
         # Are we in position to jump?
-        if (abs(smashbot_state.position.x - pivot_point) < 5) and smashbot_state.action == Action.TURNING :
-            self.interruptible = False
-            self.controller.press_button(melee.Button.BUTTON_Y)
-            return
+        if (abs(smashbot_state.position.x - pivot_point) < 5) and (platform_left < smashbot_state.position.x < platform_right):
+            # Do pivot jumps to prevent too much unpredictable horizontal movement
+            if smashbot_state.action == Action.TURNING:
+                self.interruptible = False
+                self.controller.press_button(melee.Button.BUTTON_Y)
+                return
 
         # If we're crouching, keep holding Y
         if smashbot_state.action == Action.KNEE_BEND:
+            # Jump toward the pivot point, if we're far away
+            if abs(smashbot_state.position.x - pivot_point) > 10:
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < pivot_point), 0)
+            else:
+                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
+
             self.controller.press_button(melee.Button.BUTTON_Y)
             self.interruptible = False
             return
@@ -76,7 +84,7 @@ class BoardSidePlatform(Chain):
             self.controller.press_button(melee.Button.BUTTON_L)
             # When we're choosing to not attack, just get close to the opponent if we're already
             x = int(smashbot_state.position.x < opponent_state.position.x) * 0.8
-            if not self.attack and abs(smashbot_state.position.x - opponent_state.position.x) < 5:
+            if not self.attack and abs(smashbot_state.position.x - opponent_state.position.x) < 10:
                 x = 0.5
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, x, 0)
             return

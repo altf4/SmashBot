@@ -76,19 +76,19 @@ class DashDance(Chain):
         #Dash back, since we're about to start running
         # #Action.FOX_DASH_FRAMES
         if smashbot_state.action == Action.DASHING and smashbot_state.action_frame >= 11:
-                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
-                return
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+            return
 
         # Continue holding down if you enter RUN_BRAKE or CROUCH_START. Removed Action.RUNNING from these action states because that was causing down inputs which disrupted waveshine combos.
         # #Action.FOX_DASH_FRAMES
         if smashbot_state.action in [Action.RUN_BRAKE, Action.CROUCH_START]:
-                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-                return
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+            return
 
         #We can't dashback while in CROUCH_END. We can, however, dash forward.
         if smashbot_state.action == Action.CROUCH_END:
-                self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), 0)
-                return
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), 0)
+            return
 
         # Do nothing during the first 2 frames of DOWN_B_GROUND_START
         cantjcyet = smashbot_state == Action.DOWN_B_GROUND_START and smashbot_state.action_frame < 3
@@ -142,7 +142,7 @@ class DashDance(Chain):
                 self.controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < opponent_state.position.x), 0.5)
             return
 
-        #Don't run off the stage
+        # Don't run off the stage
         if abs(smashbot_state.position.x) > \
             melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - 6.6:#(3 * FOX_DASH_SPEED):
                 x = 0
@@ -151,15 +151,12 @@ class DashDance(Chain):
                 self.controller.tilt_analog(melee.Button.BUTTON_MAIN, x, .5)
                 return
 
-        #Are we outside the given radius of dash dancing?
-        if smashbot_state.position.x < self.pivotpoint - self.radius:
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
+        # Are we inside the given radius of dash dancing?
+        if (smashbot_state.position.x > self.pivotpoint - self.radius) and (smashbot_state.position.x < self.pivotpoint + self.radius):
+            # Dash the direction we're facing to keep going through to the end of the radius
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.facing), .5)
             return
 
-        if smashbot_state.position.x > self.pivotpoint + self.radius:
-            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
-            return
-
-        #Dash away if within a given radius
-        self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(not smashbot_state.facing), .5)
+        # Dash towards the pivot point
+        self.controller.tilt_analog(melee.Button.BUTTON_MAIN, int(smashbot_state.position.x < self.pivotpoint), .5)
         return

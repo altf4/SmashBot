@@ -134,13 +134,13 @@ class Bait(Strategy):
             self.picktactic(Tactics.Retreat)
             return
 
-        # Is opponent starting a jump?
-        jumping = opponent_state.action == Action.KNEE_BEND
-        if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
-                opponent_state.speed_y_self > 0:
-            jumping = True
+        # # Is opponent starting a jump?
+        # jumping = opponent_state.action == Action.KNEE_BEND
+        # if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
+        #         opponent_state.speed_y_self > 0:
+        #     jumping = True
 
-        if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or ((jumping and opponent_state.invulnerability_left <= 0) or self.approach):
+        if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or self.approach:
             self.picktactic(Tactics.Approach)
             return
 

@@ -11,39 +11,34 @@ class AIR_ATTACK_DIRECTION(Enum):
     NEUTRAL = 4
 
 class AirAttack(Chain):
-    def __init__(self, target_x, target_y, direction=AIR_ATTACK_DIRECTION.DOWN):
+    def __init__(self, target_x, target_y, height_level, direction=AIR_ATTACK_DIRECTION.DOWN):
         self.direction = direction
         self.target_x = target_x
         self.target_y = target_y
+        self.height_level = height_level
 
-    def frame_commitment(target_y):
-        """Given the target height, how many frames worth of commitment does it require?"""
-        if 5 < target_y <= 15:
-            return 500 # Height 1 maybe remove
-        if 15 < target_y <= 30:
-            return 500 # Height 2 (heigher because we need to drop-down upair) 22
-        if 30 < target_y <= 40:
-            return 15 # Height 3
-        if 40 < target_y <= 50:
-            return 19 # Height 4
-        if 50 < target_y <= 60:
-            return 23 # Height 5
-        if 60 < target_y <= 70:
-            return 29 # Height 6
-        if 70 < target_y <= 80:
-            return 28 # Height 7 # TODO
+    def frame_commitment(height_level):
+        """Given the target height level, how many frames worth of commitment does it require?"""
+        if height_level == 2:
+            return 25 # Higher because we need to drop-down upair
+        if height_level == 3:
+            return 15
+        if height_level == 4:
+            return 19
+        if height_level == 5:
+            return 23
+        if height_level == 6:
+            return 29
         return 500
 
     def height_levels():
         """Returns a list of the possible attack height levels"""
-        return [1, 2, 3, 4, 5, 6, 7]
+        return [2, 3, 4, 5, 6]
 
     def attack_height(height_level):
         """For a given height level, returns the height of our attack"""
-        if height_level == 1:
-            return 0
         if height_level == 2:
-            return 0
+            return 20
         if height_level == 3:
             return 31
         if height_level == 4:
@@ -52,45 +47,16 @@ class AirAttack(Chain):
             return 55
         if height_level == 6:
             return 66
-        if height_level == 7:
-            return 0
-        return 0
+        return 500
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
-
-        #   1) Short hop height -> 10.65 (maybe don't use)
-        #   2) Full hop, falling up air -> 20 (22 frames)
-        #   3) Full hop height -> 30 (19 frames)
-        #   4) Jump, immediate double jump -> 40 (19 frames) (dj on jump frame 2) (attack on dj frame 2)
-        #   5) Jump, wait, double jump -> 50
-        #   6) Jump wait a bit more, jump -> 60
-        #   7) Full jump, double jump -> 70
-
-        # TODO adjust for starting height. Like on a platform
-
-        height_level = 0
-        if 15 < self.target_y <= 30:
-            height_level = 2
-        if 30 < self.target_y <= 40:
-            height_level = 3
-        if 40 < self.target_y <= 50:
-            height_level = 4
-        if 50 < self.target_y <= 60:
-            height_level = 5
-        if 60 < self.target_y <= 70:
-            height_level = 6
-        if 70 < self.target_y <= 80:
-            height_level = 7
-        #DJ -> 40 units
 
         # Landing. We're done
         if smashbot_state.action in [Action.LANDING, Action.UAIR_LANDING]:
             self.interruptible = True
             controller.release_all()
             return
-
-        # TODO dash over to the location first?
 
         # Full hop
         if smashbot_state.on_ground:
@@ -101,7 +67,11 @@ class AirAttack(Chain):
                 return
             else:
                 controller.press_button(Button.BUTTON_Y)
-                controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+                # Only jump to the side if we're far away horizontally. If they're right above, then just straight up and drift
+                x = int(self.target_x > smashbot_state.position.x)
+                if abs(self.target_x - smashbot_state.position.x) < 10:
+                    x = 0.5
+                controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
                 return
 
         # falling back down
@@ -117,18 +87,35 @@ class AirAttack(Chain):
                 controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0)
                 return
 
+        # Height level 2 is a bit different, handle it special
+        if self.height_level == 2:
+            # Up-air on frame 11
+            if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and smashbot_state.action_frame >= 11:
+                controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
+                return
+            if smashbot_state.action in [Action.UAIR, Action.BAIR, Action.DAIR, Action.FAIR, Action.NAIR]:
+                # Fast fall and L cancel on frame 8
+                if smashbot_state.action_frame >= 8:
+                    controller.press_button(Button.BUTTON_L)
+                    controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0)
+                    return
+
+            controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
+            controller.tilt_analog(Button.BUTTON_C, 0.5, 0.5)
+            return
+
         # Okay, we're jumping in the air, now what?
         if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD, Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD]:
-            if height_level == 3:
+            if self.height_level == 3:
                 # Up-air right away
                 # Drift towards the spot
                 controller.tilt_analog(Button.BUTTON_MAIN, int(self.target_x > smashbot_state.position.x), .5)
                 controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
                 return
             jump_on_frame = 2
-            if height_level == 5:
+            if self.height_level == 5:
                 jump_on_frame = 6
-            if height_level == 6:
+            if self.height_level == 6:
                 jump_on_frame = 12
             # Double jump on jumping frame 2
             if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
