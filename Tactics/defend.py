@@ -18,24 +18,24 @@ class Defend(Tactic):
         for projectile in gamestate.projectiles:
             if projectile.type == melee.enums.ProjectileType.SAMUS_GRAPPLE_BEAM and opponent_state.on_ground:
                 continue
-            if projectile.subtype in [melee.enums.ProjectileType.SHEIK_SMOKE, melee.enums.ProjectileType.SHEIK_CHAIN ]:
+            if projectile.type in [melee.enums.ProjectileType.SHEIK_SMOKE, melee.enums.ProjectileType.SHEIK_CHAIN ]:
                 continue
             # Missles and needles that aren't moving are actually already exploded. Ignore them
-            if projectile.subtype in [melee.enums.ProjectileType.SAMUS_MISSLE, melee.enums.ProjectileType.NEEDLE_THROWN, \
+            if projectile.type in [melee.enums.ProjectileType.SAMUS_MISSLE, melee.enums.ProjectileType.NEEDLE_THROWN, \
                     melee.enums.ProjectileType.TURNIP] and (-0.01 < projectile.speed.x < 0.01):
                 continue
 
-            if projectile.subtype == melee.enums.ProjectileType.SAMUS_BOMB and (-0.01 < projectile.speed.y < 0.01):
+            if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB and (-0.01 < projectile.speed.y < 0.01):
                 continue
 
             size = 10
-            if projectile.subtype == melee.enums.ProjectileType.PIKACHU_THUNDERJOLT_1:
+            if projectile.type == melee.enums.ProjectileType.PIKACHU_THUNDERJOLT_1:
                 size = 18
-            if projectile.subtype == melee.enums.ProjectileType.NEEDLE_THROWN:
+            if projectile.type == melee.enums.ProjectileType.NEEDLE_THROWN:
                 size = 12
-            if projectile.subtype == melee.enums.ProjectileType.PIKACHU_THUNDER:
+            if projectile.type == melee.enums.ProjectileType.PIKACHU_THUNDER:
                 size = 20
-            if projectile.subtype == melee.enums.ProjectileType.TURNIP:
+            if projectile.type == melee.enums.ProjectileType.TURNIP:
                 size = 12
             # Your hitbox is super distorted when edge hanging. Give ourselves more leeway here
             if smashbot_state.action == Action.EDGE_HANGING:
@@ -129,7 +129,7 @@ class Defend(Tactic):
         if Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate):
             for projectile in projectiles:
                 # Don't consider a grapple beam a projectile. It doesn't have a hitbox
-                if projectile.subtype == melee.enums.ProjectileType.SAMUS_GRAPPLE_BEAM:
+                if projectile.type == melee.enums.ProjectileType.SAMUS_GRAPPLE_BEAM:
                     continue
                 if smashbot_state.action == Action.EDGE_HANGING:
                     if opponent_state.character == Character.PEACH and \
