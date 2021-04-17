@@ -153,26 +153,31 @@ class SDI(Chain):
         # Survival SDI
         #   If we're at risk of dying from the hit, then SDI backwards to go further back to cut into the knockback
         if smashbot_state.percent > 60 and absolute_speed > 3:
-            angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
-            # Which cardinal direction is the most opposite the direction?
-            angle = (angle + 180) % 360
-            self.cardinal = SDI.angle_to_cardinal(angle)
-            if self.logger:
-                self.logger.log("Notes", " Survival SDI angle: " + str(angle) + " " + str(smashbot_state.speed_y_attack) + " " + str(smashbot_state.speed_x_attack), concat=True)
+            # Amsah tech
+            #   If we're in survival DI, and near the ground, then let's Amsah tech
+            if smashbot_state.position.y < 6:
+                self.cardinal = (int(smashbot_state.position.x < 0), 0)
+            else:
+                angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
+                # Which cardinal direction is the most opposite the direction?
+                angle = (angle + 180) % 360
+                self.cardinal = SDI.angle_to_cardinal(angle)
+                if self.logger:
+                    self.logger.log("Notes", " Survival SDI angle: " + str(angle) + " " + str(smashbot_state.speed_y_attack) + " " + str(smashbot_state.speed_x_attack), concat=True)
 
-            # If on ground, then we can't SDI up or down
-            if smashbot_state.on_ground:
-                if angle < 90 or angle > 270:
-                    self.cardinal = (1, 0.5)
-                else:
-                    self.cardinal = (0, 0.5)
-
-            # If we're not ON the actual ground, but touching it, then don't SDI down
-            if SDI.touching_ground(smashbot_state):
-                if self.cardinal[1] == 0:
-                    self.cardinal = (self.cardinal[0], 0.5)
-                    if self.cardinal[0] == 0.5:
+                # If on ground, then we can't SDI up or down
+                if smashbot_state.on_ground:
+                    if angle < 90 or angle > 270:
                         self.cardinal = (1, 0.5)
+                    else:
+                        self.cardinal = (0, 0.5)
+
+                # If we're not ON the actual ground, but touching it, then don't SDI down
+                if SDI.touching_ground(smashbot_state):
+                    if self.cardinal[1] == 0:
+                        self.cardinal = (self.cardinal[0], 0.5)
+                        if self.cardinal[0] == 0.5:
+                            self.cardinal = (1, 0.5)
 
             if gamestate.frame % 2:
                 x, y = SDI.cardinal_right(self.cardinal)

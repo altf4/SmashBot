@@ -1,9 +1,14 @@
 import melee
+import random
 import Chains
 from melee.enums import Action, Character
 from Tactics.tactic import Tactic
 
 class Celebrate(Tactic):
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
+        self.random_celebration = random.randint(0, 100)
+
     def deservescelebration(smashbot_state, opponent_state):
         if smashbot_state.off_stage:
             return False
@@ -28,5 +33,8 @@ class Celebrate(Tactic):
             self.pickchain(Chains.DI, [0.5, 0.65])
             return
 
-        self.pickchain(Chains.Multishine)
+        if self.random_celebration > 10:
+            self.pickchain(Chains.Multishine)
+        else:
+            self.pickchain(Chains.Glide, [0])
         return

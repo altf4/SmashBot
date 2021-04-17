@@ -33,3 +33,4 @@ from Chains.sdi import SDI
 from Chains.tdi import TDI
 from Chains.tilt import Tilt
 from Chains.airattack import AirAttack
+from Chains.glide import Glide

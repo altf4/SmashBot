@@ -60,7 +60,8 @@ class Bait(Strategy):
         # Randomly approach sometimes rather than keeping distance
         # Should happen on average once per 2 seconds
         # The effect will last for about 1 second
-        if random.randint(0, 120) == 0 and (opponent_state.invulnerability_left == 0):
+        # On the first two difficulties, just always approach
+        if (random.randint(0, 120) == 0 or self.difficulty >= 4) and (opponent_state.invulnerability_left == 0):
             self.approach = True
             self.approach_frame = gamestate.frame
 
