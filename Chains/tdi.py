@@ -1,4 +1,5 @@
 import math
+import random
 
 import melee
 from melee.enums import Action, Button, Character

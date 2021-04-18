@@ -9,6 +9,7 @@ from Chains.firefox import FIREFOX
 class KeepDistance(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):
         self.radius = 0
+        self.stand_menacingly = False
         Tactic.__init__(self, logger, controller, framedata, difficulty)
 
     def _getbufferzone(self, opponent_state):
@@ -64,7 +65,7 @@ class KeepDistance(Tactic):
                 self.logger.log("Notes", "proj_y_speed: " + str(projectile.speed.y) + " ", concat=True)
 
         bufferzone = self._getbufferzone(opponent_state)
-        #Don't dash RIGHT up against the edge. Leave a little space
+        # Don't dash RIGHT up against the edge. Leave a little space
         edgebuffer = 30
         # if we have our opponent cornered, reduce the edgebuffer
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
@@ -72,15 +73,6 @@ class KeepDistance(Tactic):
                 0 < smashbot_state.position.x < opponent_state.position.x:
             edgebuffer = 10
 
-        # Figure out which side we should dash dance on
-        #   If opponent is in the air, go behind them
-        # if not opponent_state.on_ground:
-        #     if bufferzone == 0:
-        #         bufferzone = 10
-        #     if opponent_state.facing:
-        #         bufferzone *= -1
-        # # If they're on the ground, stay on the side we're on
-        # else:
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
 
@@ -97,6 +89,18 @@ class KeepDistance(Tactic):
         # Switch up our dash dance radius every second
         if gamestate.frame % 60 == 0:
             self.radius = random.randint(0, 4)
+
+        # Give ourselves a 1 in 30 chance of starting a "stand there menacingly" each pivot, if we're already in position
+        if smashbot_state.action == Action.TURNING and (opponent_state.position.x < smashbot_state.position.x) == smashbot_state.facing:
+            if (random.randint(0, 30) == 0):
+                self.stand_menacingly = True
+
+        if self.framedata.is_attack(opponent_state.character, opponent_state.action) or abs(pivotpoint - smashbot_state.position.x) > 10:
+                self.stand_menacingly = False
+
+        if self.stand_menacingly:
+            self.pickchain(Chains.Nothing)
+            return
 
         self.chain = None
         if not smashbot_state.off_stage:
