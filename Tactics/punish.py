@@ -184,14 +184,10 @@ class Punish(Tactic):
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
             Action.RUNNING]
 
-        #TODO: Wrap the shine range into a helper
-        foxshinerange = 9.9 #lowered from 11.8
-        inshinerange = gamestate.distance < foxshinerange
-
-        if inshinerange and smashbot_state.action in shineablestates:
+        foxshinerange = 9.9
+        if gamestate.distance < foxshinerange and smashbot_state.action in shineablestates:
             return True
 
-        #TODO: Wrap this up into a helper
         foxrunspeed = 2.2
         #TODO: Subtract from this time spent turning or transitioning
         # Assume that we can run at max speed toward our opponent
@@ -388,36 +384,31 @@ class Punish(Tactic):
                 x = 0
 
             if not slideoff and distance < 14.5 and -5 < height < 8:
+                # If Smashbot is in the corner and below usmash kill %, he will opt to waveshine them back towards center rather than usmash
+                if abs(smashbot_state.position.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.position.x) < abs(smashbot_state.position.x) and gamestate.distance < 9.9:
+                    self.pickchain(Chains.Waveshine, [x])
                 if facing:
                     self.chain = None
-                    # If Smashbot is in the corner and below usmash kill %, he will opt to waveshine them back towards center rather than usmash
-                    if abs(smashbot_state.position.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.position.x) < abs(smashbot_state.position.x) and gamestate.distance < 9.9:
-                        self.pickchain(Chains.Waveshine, [x])
                     # Do the upsmash
                     # NOTE: If we get here, we want to delete the chain and start over
                     #   Since the amount we need to charge may have changed
-                    else:
-                        self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])
+                    self.pickchain(Chains.SmashAttack, [framesleft-framesneeded-1, SMASH_DIRECTION.UP])
                     return
                 else:
-                    if abs(smashbot_state.position.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.position.x) < abs(smashbot_state.position.x) and gamestate.distance < 9.9:
+                    # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
+                    #   This shouldn't happen often, but can if we're pushed away after powershield
+                    offedge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] < abs(endposition)
+                    if framesleft < 11 and not offedge:
+                        if gamestate.distance <= 9.5 and opponent_state.percent < 89:
+                            self.pickchain(Chains.Waveshine, [x])
+                        else:
+                            self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
+                        return
+                    # If we are running away from our opponent, just shine now
+                    onright = opponent_state.position.x < smashbot_state.position.x
+                    if (smashbot_state.speed_ground_x_self > 0) == onright and gamestate.distance <= 9.5:
                         self.pickchain(Chains.Waveshine, [x])
                         return
-                    else:
-                        # Do the bair if there's not enough time to wavedash, but we're facing away and out of shine range
-                        #   This shouldn't happen often, but can if we're pushed away after powershield
-                        offedge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage] < abs(endposition)
-                        if framesleft < 11 and not offedge:
-                            if gamestate.distance <= 9.5 and opponent_state.percent < 89:
-                                self.pickchain(Chains.Waveshine, [x])
-                            else:
-                                self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.BACK])
-                            return
-                        # If we are running away from our opponent, just shine now
-                        onright = opponent_state.position.x < smashbot_state.position.x
-                        if (smashbot_state.speed_ground_x_self > 0) == onright and gamestate.distance <= 9.5:
-                            self.pickchain(Chains.Waveshine, [x])
-                            return
             # If we're not in attack range, and can't run, then maybe we can wavedash in
             #   Now we need more time for the wavedash. 10 frames of lag, and 3 jumping
             framesneeded = 13

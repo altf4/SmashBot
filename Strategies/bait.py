@@ -53,7 +53,8 @@ class Bait(Strategy):
             return
 
         # Reset the approach state after 1 second
-        if self.approach and abs(self.approach_frame - gamestate.frame) > 60:
+        #   Or if opponent becomes invulnerable
+        if self.approach and ((abs(self.approach_frame - gamestate.frame) > 60) or (opponent_state.invulnerability_left > 0)):
             self.approach_frame = -123
             self.approach = False
 
@@ -134,12 +135,6 @@ class Bait(Strategy):
         if Retreat.shouldretreat(smashbot_state, opponent_state, gamestate, not self.approach):
             self.picktactic(Tactics.Retreat)
             return
-
-        # # Is opponent starting a jump?
-        # jumping = opponent_state.action == Action.KNEE_BEND
-        # if opponent_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and \
-        #         opponent_state.speed_y_self > 0:
-        #     jumping = True
 
         if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or self.approach:
             self.picktactic(Tactics.Approach)

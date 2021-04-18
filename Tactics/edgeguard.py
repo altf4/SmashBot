@@ -573,6 +573,16 @@ class Edgeguard(Tactic):
             pivotpoint = opponent_state.position.x
             # Don't run off the stage though, adjust this back inwards a little if it's off
             edgebuffer = 5
+
+            # Against Jigglypuff, we need to respect the ledge invulnerability. DD inwards more
+            if opponent_state.character == Character.JIGGLYPUFF and opponent_state.invulnerability_left > 0:
+                if self.logger:
+                    self.logger.log("Notes", "staying safe: " + str(opponent_state.invulnerability_left) + " ", concat=True)
+                if opponent_state.position.x > 0:
+                    pivotpoint -= 10
+                else:
+                    pivotpoint += 10
+
             pivotpoint = min(pivotpoint, edge_x - edgebuffer)
             pivotpoint = max(pivotpoint, (-edge_x) + edgebuffer)
 

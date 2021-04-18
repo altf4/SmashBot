@@ -36,10 +36,6 @@ class KeepDistance(Tactic):
         if character == Character.SAMUS:
             bufferzone = 15
 
-        # If we're in the first two difficulty levels, just get in there. Unless opponent is airborne
-        # if self.difficulty > 2 and opponent_state.on_ground:
-        #     bufferzone = 0
-
         # If oppoonent is attacking, keep a little further back to avoid running right into it
         if self.framedata.attack_state(opponent_state.character, opponent_state.action, opponent_state.action_frame) in [melee.enums.AttackState.ATTACKING, melee.enums.AttackState.WINDUP]:
             bufferzone += 20
