@@ -99,7 +99,6 @@ class Firefox(Chain):
                 # Unless we're in range to just grab the edge. Then the angle doesn't matter
                 if not ((-16.4 < smashbot_state.position.y < -5) and (diff_x < 10)):
                     controller.empty_input()
-                    print("blah")
                     return
 
         # If we already pressed B last frame, let go

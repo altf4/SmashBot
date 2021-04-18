@@ -99,14 +99,16 @@ class Juggle(Tactic):
                 height = AirAttack.attack_height(height_level)
                 commitment = AirAttack.frame_commitment(height_level)
                 end_early_x, end_early_y, _ = self.framedata.project_hit_location(opponent_state, gamestate.stage, commitment)
-                if (commitment < frames_left) and (abs(smashbot_state.position.x - end_early_x) < 20) and (abs(end_early_y - (height+smashbot_state.position.y)) < 5):
-                    if self.logger:
-                        self.logger.log("Notes", " Early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
-                        self.logger.log("Notes", " height_level: " + str(height_level), concat=True)
-                        self.logger.log("Notes", " commitment: " + str(commitment), concat=True)
-                    self.chain = None
-                    self.pickchain(Chains.AirAttack, [end_early_x, end_early_y, height_level, AIR_ATTACK_DIRECTION.UP])
-                    return
+                # -3 to commitment here because of first hit of upair. Shave 3 frames off
+                if (commitment-3 < frames_left) and (abs(smashbot_state.position.x - end_early_x) < 20):
+                    if -10 < (end_early_y - (height+smashbot_state.position.y)) < 5:
+                        if self.logger:
+                            self.logger.log("Notes", " Early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
+                            self.logger.log("Notes", " height_level: " + str(height_level), concat=True)
+                            self.logger.log("Notes", " commitment: " + str(commitment), concat=True)
+                        self.chain = None
+                        self.pickchain(Chains.AirAttack, [end_early_x, end_early_y, height_level, AIR_ATTACK_DIRECTION.UP])
+                        return
 
             # They are going to land on a platform before hitstun ends
             # TODO Do we have time?
