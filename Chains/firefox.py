@@ -71,14 +71,12 @@ class Firefox(Chain):
                 controller.press_button(Button.BUTTON_Y)
             return
 
-        x = 0
-        if smashbot_state.position.x < 0:
-            x = 1
+        x = int(smashbot_state.position.x < 0)
 
+        diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:
             self.interruptible = False
-            diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
 
             if self.direction == FIREFOX.HIGH:
                 if diff_x > 20:
@@ -98,8 +96,11 @@ class Firefox(Chain):
             # Let's add a little extra room so we don't miscalculate
             # if .3625 < y < .6375 or .3625 < x < .6375:
             if (.3525 < y < .6475) or (.3525 < x < .6475) and (smashbot_state.position.y > -15):
-                controller.empty_input()
-                return
+                # Unless we're in range to just grab the edge. Then the angle doesn't matter
+                if not ((-16.4 < smashbot_state.position.y < -5) and (diff_x < 10)):
+                    controller.empty_input()
+                    print("blah")
+                    return
 
         # If we already pressed B last frame, let go
         if controller.prev.button[Button.BUTTON_B]:

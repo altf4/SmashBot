@@ -68,7 +68,7 @@ class Recover(Tactic):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
         # We need to decide how we want to recover
         self.useillusion = bool(random.randint(0, 1))
-
+        self.logger = logger
 
     def step(self, gamestate, smashbot_state, opponent_state):
         self._propagate  = (gamestate, smashbot_state, opponent_state)
@@ -142,16 +142,6 @@ class Recover(Tactic):
                 self.pickchain(Chains.Nothing)
                 return
 
-        # If we illusion at this range when the opponent is holding ledge, Smashbot dies.
-        # Firefox instead if the opponent is grabbing edge. Opponent has to get up or get burned.
-        if (-16.4 < smashbot_state.position.y < -5) and (diff_x < 10) and facinginwards and opponentonedge:
-            if gamestate.stage == melee.enums.Stage.BATTLEFIELD:
-                # If Smashbot does a random or horizontal sideB here, he pretty reliably SDs on Battlefield
-                self.pickchain(Chains.Firefox, [FIREFOX.EDGE])
-            else:
-                self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
-            return
-
         # If we're lined up, do the illusion
         #   88 is a little longer than the illusion max length
         if self.useillusion and (-16.4 < smashbot_state.position.y < -5) and (10 < diff_x < 88) and not opponentonedge:
@@ -164,6 +154,16 @@ class Recover(Tactic):
                 length = SHORTEN.SHORT
 
             self.pickchain(Chains.Illusion, [length])
+            return
+
+        # If we illusion at this range when the opponent is holding ledge, Smashbot dies.
+        # Firefox instead if the opponent is grabbing edge. Opponent has to get up or get burned.
+        if (-16.4 < smashbot_state.position.y < -5) and (diff_x < 10) and facinginwards:
+            if gamestate.stage == melee.enums.Stage.BATTLEFIELD:
+                # If Smashbot does a random or horizontal sideB here, he pretty reliably SDs on Battlefield
+                self.pickchain(Chains.Firefox, [FIREFOX.EDGE])
+            else:
+                self.pickchain(Chains.Firefox, [FIREFOX.RANDOM])
             return
 
         # Is the opponent going offstage to edgeguard us?
@@ -189,6 +189,11 @@ class Recover(Tactic):
         # For reference, if Fox inputs a DJ at y = -58.83, he will NOT sweetspot grab the ledge.
         jump_randomizer = random.randint(0, 5) == 1
         if smashbot_state.jumps_left > 0 and (smashbot_state.position.y < -52 or opponentgoingoffstage or opponentmovingtoedge or jump_randomizer):
+            self.pickchain(Chains.Jump)
+            return
+
+        # Always just jump out of shine
+        if smashbot_state.action == Action.DOWN_B_AIR:
             self.pickchain(Chains.Jump)
             return
 

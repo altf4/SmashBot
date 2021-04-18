@@ -460,6 +460,11 @@ class Edgeguard(Tactic):
                 self.controller.press_button(Button.BUTTON_L)
                 return
 
+            # Challenge rising UP-B's with a shine if we're in range
+            if self.isupb(opponent_state) and opponent_state.speed_y_self >= 0 and gamestate.distance < 10:
+                self.pickchain(Chains.Dropdownshine)
+                return
+
             # Edgestall
             # For Fox and Falco, we have a different edgestall strategy. Only edgestall if they start a FireFox
             if opponent_state.character in [Character.FOX, Character.FALCO]:
