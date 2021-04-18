@@ -364,7 +364,6 @@ class Edgeguard(Tactic):
 
         # How many frames will it take to get to our opponent right now?
         onedge = smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
-        opponentonedge = opponent_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]
 
         # Stand up if opponent attacks us
         proj_incoming = Defend.needsprojectiledefense(smashbot_state, opponent_state, gamestate) and smashbot_state.invulnerability_left <= 2
@@ -562,7 +561,7 @@ class Edgeguard(Tactic):
                 return
 
             if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
-                if randomgrab or framesleft > 10:
+                if (randomgrab or framesleft > 10) and opponent_state.action not in [Action.EDGE_ROLL_SLOW, Action.EDGE_ROLL_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_GETUP_QUICK, Action.EDGE_ATTACK_SLOW, Action.EDGE_ATTACK_QUICK]:
                     wavedash = True
                     if self.framedata.is_attack(opponent_state.character, opponent_state.action):
                         wavedash = False
