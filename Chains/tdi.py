@@ -26,14 +26,31 @@ class TDI(Chain):
         if smashbot_state.percent > 60 and absolute_speed > 3:
             # Amsah tech
             #   If we're in survival DI, and near the ground, then let's Amsah tech
-            cardinal = (0.5, 1)
+            angle = (math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90) % 360
+
             if smashbot_state.position.y < 6:
-                cardinal = (int(smashbot_state.position.x < 0), 0)
+                if 0 <= angle <= 40:
+                    angle = (angle - 90) % 360
+                elif 40 < angle <= 90:
+                    angle = (angle + 90) % 360
+                elif 90 < angle <= 140:
+                    angle = (angle - 90) % 360
+                elif 140 < angle <= 180:
+                    angle = (angle + 90) % 360
+                else:
+                    # TODO What situation would this be? We're being hit downward, so I guess just DI into the stage
+                    angle = 0
+                    if smashbot_state.position.x > 0:
+                        angle = 180
+                cardinal = SDI.angle_to_cardinal(angle)
                 controller.press_button(Button.BUTTON_L)
+
             else:
-                angle = math.degrees(-math.atan2(smashbot_state.speed_x_attack, smashbot_state.speed_y_attack)) + 90
-                # TODO which 90 degree angle?
-                angle = (angle + 90) % 360
+                # TODO which 90 degree angle? Randomize for now
+                if random.randint(0, 1) == 0:
+                    angle = (angle + 90) % 360
+                else:
+                    angle = (angle - 90) % 360
                 cardinal = SDI.angle_to_cardinal(angle)
             controller.tilt_analog(Button.BUTTON_MAIN, cardinal[0], cardinal[1])
             return
