@@ -25,6 +25,9 @@ class SmashAttack(Chain):
         # Do we need to jump cancel?
         jumpcancelactions = [Action.SHIELD, Action.SHIELD_RELEASE, Action.DASHING, Action.RUNNING]
         if smashbot_state.action in jumpcancelactions:
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.empty_input()
+                return
             self.interruptible = False
             controller.press_button(Button.BUTTON_Y)
             return
@@ -34,6 +37,9 @@ class SmashAttack(Chain):
             smashbot_state.action == Action.DOWN_B_GROUND_START or \
             smashbot_state.action == Action.DOWN_B_GROUND)
         if isInShineStart and smashbot_state.action_frame >= 3 and smashbot_state.on_ground:
+            if controller.prev.button[Button.BUTTON_Y]:
+                controller.empty_input()
+                return
             self.interruptible = False
             controller.press_button(Button.BUTTON_Y)
             return
