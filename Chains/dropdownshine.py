@@ -69,6 +69,10 @@ class Dropdownshine(Chain):
         # Drop down with a fastfall
         if smashbot_state.action == Action.EDGE_HANGING:
             self.interruptible = False
+            if self.controller.prev.c_stick[0] != 0.5:
+                controller.release_all()
+                return
+
             controller.tilt_analog(melee.Button.BUTTON_C, int(not smashbot_state.facing), 0.5)
             return
 
