@@ -144,7 +144,11 @@ class Recover(Tactic):
 
         # If we're lined up, do the illusion
         #   88 is a little longer than the illusion max length
-        if self.useillusion and (-16.4 < smashbot_state.position.y < -5) and (10 < diff_x < 88) and not opponentonedge:
+        # Also, we have to adjust the min illusion height upwards on BF
+        min_height = -16.4
+        if gamestate.stage == melee.enums.Stage.BATTLEFIELD:
+            min_height = -10
+        if self.useillusion and (min_height < smashbot_state.position.y < -5) and (10 < diff_x < 88) and not opponentonedge:
             length = SHORTEN.LONG
             if diff_x < 50:
                 length = SHORTEN.MID
