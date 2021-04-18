@@ -20,7 +20,8 @@ class Juggle(Tactic):
 
         # If the opponent is in hitstun, in the air
         if (not opponent_state.on_ground) and (opponent_state.hitstun_frames_left > 0):
-            return True
+            if not framedata.is_attack(opponent_state.character, opponent_state.action):
+                return True
 
         # Stop the juggle once at kill percent
         if opponent_state.percent > Infinite.killpercent(gamestate.stage, opponent_state.character):
