@@ -387,6 +387,7 @@ class Punish(Tactic):
                 # If Smashbot is in the corner and below usmash kill %, he will opt to waveshine them back towards center rather than usmash
                 if abs(smashbot_state.position.x) + 42 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and opponent_state.percent < 89 and abs(opponent_state.position.x) < abs(smashbot_state.position.x) and gamestate.distance < 9.9:
                     self.pickchain(Chains.Waveshine, [x])
+                    return
                 if facing:
                     self.chain = None
                     # Do the upsmash
