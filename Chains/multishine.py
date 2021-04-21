@@ -15,6 +15,10 @@ class Multishine(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
+        # Don't multishine forward on the Yoshi's lip
+        if gamestate.stage == melee.Stage.YOSHIS_STORY and abs(smashbot_state.position.x) > 37:
+            self.direction = MULTISHINE_DIRECTION.NEUTRAL
+
         actionable_landing = smashbot_state.action == Action.LANDING and smashbot_state.action_frame >= 4
 
         #If standing or turning, shine
