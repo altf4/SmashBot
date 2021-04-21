@@ -21,6 +21,11 @@ class JumpOver(Chain):
             controller.release_all()
             return
 
+        if smashbot_state.action in [Action.WALK_SLOW, Action.WALK_MIDDLE, Action.WALK_FAST]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
         landing_direction = smashbot_state.position.x < self.landing_spot
 
         starting_distance = 45
