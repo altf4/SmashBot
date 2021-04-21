@@ -102,7 +102,8 @@ class Juggle(Tactic):
                 end_early_x, end_early_y, _ = self.framedata.project_hit_location(opponent_state, gamestate.stage, commitment)
                 # -3 to commitment here because of first hit of upair. Shave 3 frames off
                 if (commitment-3 < frames_left) and (abs(smashbot_state.position.x - end_early_x) < 20):
-                    if -10 < (end_early_y - (height+smashbot_state.position.y)) < 5:
+                    # It's okay if SmashBot's end position is no more than 5 units above the target, and 10 below
+                    if -10 < ((height+smashbot_state.position.y) - end_early_y) < 5:
                         if self.logger:
                             self.logger.log("Notes", " Early End Position: " + str(end_early_x) + " " + str(end_early_y) + " ", concat=True)
                             self.logger.log("Notes", " height_level: " + str(height_level), concat=True)
@@ -112,7 +113,6 @@ class Juggle(Tactic):
                         return
 
             # They are going to land on a platform before hitstun ends
-            # TODO Do we have time?
             if frames_left < opponent_state.hitstun_frames_left and end_y > 0:
                 # Board the platform they're going to
                 if end_y > 40:

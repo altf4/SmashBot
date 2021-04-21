@@ -52,8 +52,14 @@ class AirAttack(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
-        # Landing. We're done
-        if smashbot_state.action in [Action.LANDING, Action.UAIR_LANDING]:
+        # Landing / falling. We're done
+        if smashbot_state.action in [Action.LANDING, Action.UAIR_LANDING, Action.FALLING]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
+        # We've somehow fallen off stage
+        if smashbot_state.position.y < 0:
             self.interruptible = True
             controller.release_all()
             return
@@ -76,11 +82,16 @@ class AirAttack(Chain):
 
         # falling back down
         if smashbot_state.speed_y_self < 0:
-            # TODO L-cancel? maybe only on height 1?
+            # L-Cancel
+            #   Spam shoulder button
+            if controller.prev.l_shoulder == 0:
+                controller.press_shoulder(Button.BUTTON_L, 1.0)
+            else:
+                controller.press_shoulder(Button.BUTTON_L, 0)
 
             # Drift onto stage if we're near the edge
             if abs(smashbot_state.position.x) + 10 > melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
-                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), .5)
+                controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.position.x < 0), 0)
                 return
             else:
                 # fastfall
@@ -94,9 +105,8 @@ class AirAttack(Chain):
                 controller.tilt_analog(Button.BUTTON_C, 0.5, 1)
                 return
             if smashbot_state.action in [Action.UAIR, Action.BAIR, Action.DAIR, Action.FAIR, Action.NAIR]:
-                # Fast fall and L cancel on frame 8
+                # Fast fall on frame 8
                 if smashbot_state.action_frame >= 8:
-                    controller.press_button(Button.BUTTON_L)
                     controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0)
                     return
 
