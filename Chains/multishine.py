@@ -19,6 +19,12 @@ class Multishine(Chain):
         if gamestate.stage == melee.Stage.YOSHIS_STORY and abs(smashbot_state.position.x) > 37:
             self.direction = MULTISHINE_DIRECTION.NEUTRAL
 
+        # Pivot if we're dashing. Or else we might dash right off stage, which is annoying
+        if smashbot_state.action in [Action.DASHING]:
+            self.interruptible = True
+            controller.tilt_analog(Button.BUTTON_MAIN, int(not smashbot_state.facing), 0.5)
+            return
+
         actionable_landing = smashbot_state.action == Action.LANDING and smashbot_state.action_frame >= 4
 
         #If standing or turning, shine
