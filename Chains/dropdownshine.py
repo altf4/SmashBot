@@ -82,6 +82,11 @@ class Dropdownshine(Chain):
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             controller.press_button(Button.BUTTON_B)
             return
+        # End the chain if opponent is above us
+        elif opponent_state.position.y > smashbot_state.position.y:
+            self.interruptible = True
+            controller.release_all()
+            return
 
         # Fastfall if we aren't already
         # Fastfall speed is 3.4, but we need a little wiggle room
