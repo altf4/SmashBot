@@ -27,9 +27,13 @@ class Edgeguard(Tactic):
         if not smashbot_state.off_stage:
             return True
 
+        # If smashbot is fully off the stage, then don't start an edge guard
+        if smashbot_state.off_stage and not smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            return False
+
         # If smashbot is in hitstun, then recover
         if smashbot_state.off_stage and smashbot_state.hitstun_frames_left > 0:
-            return True
+            return False
 
         # Steal the ledge from Sheik Shino stall
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 5:
@@ -561,7 +565,7 @@ class Edgeguard(Tactic):
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
-            if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10:
+            if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10 and smashbot_state.on_ground:
                 if (randomgrab or framesleft > 10) and opponent_state.action not in [Action.EDGE_ROLL_SLOW, Action.EDGE_ROLL_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_GETUP_QUICK, Action.EDGE_ATTACK_SLOW, Action.EDGE_ATTACK_QUICK]:
                     wavedash = True
                     if self.framedata.is_attack(opponent_state.character, opponent_state.action):
