@@ -14,6 +14,7 @@ class JumpOver(Chain):
         if self.logger:
             self.logger.log("Notes", " landing_spot: " + str(self.landing_spot) + " ", concat=True)
 
+        controller.release_button(Button.BUTTON_L)
         # We can give up in the first few frames of landing
         if smashbot_state.action == Action.LANDING and smashbot_state.action_frame <= 3:
             self.interruptible = True
