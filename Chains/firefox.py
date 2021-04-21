@@ -50,7 +50,7 @@ class Firefox(Chain):
         controller = self.controller
 
         # We're done here if...
-        if smashbot_state.on_ground or smashbot_state.action in [Action.EDGE_CATCHING, Action.EDGE_HANGING]:
+        if smashbot_state.on_ground or smashbot_state.action in [Action.EDGE_CATCHING, Action.EDGE_HANGING, Action.SWORD_DANCE_1_AIR]:
             self.interruptible = True
             controller.empty_input()
             return
