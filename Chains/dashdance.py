@@ -111,7 +111,7 @@ class DashDance(Chain):
                 self.controller.release_button(Button.BUTTON_Y)
 
         # Airdodge for the wavedash
-        jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]
+        jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD] and abs(smashbot_state.position.x) < melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
         jumpcancel = (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame == 3)
         if jumpcancel or smashbot_state.action in jumping:
             self.controller.press_button(Button.BUTTON_L)
