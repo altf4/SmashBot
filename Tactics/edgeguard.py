@@ -530,7 +530,8 @@ class Edgeguard(Tactic):
             randomgrab = False
             if random.randint(0, 20) == 0:
                 randomgrab = True
-            if self.difficulty == 4:
+            # Don't make this guaranteed, even on most aggressive mode. Make it common, but not predictable
+            if self.difficulty == 4 and random.randint(0, 10) == 0:
                 randomgrab = True
 
             # They're camping. Camp back
