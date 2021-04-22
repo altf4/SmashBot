@@ -53,10 +53,12 @@ Also make sure to stay updated on libmelee with `pip3 install --upgrade melee`
 
 3. You'll probably want a GameCube Adapter, available on Amazon here: https://www.amazon.com/Super-Smash-GameCube-Adapter-Wii-U/dp/B00L3LQ1FI. Or alternatively the HitBox adapter works well too: https://www.hitboxarcade.com/products/gamecube-controller-adapter
 
-4. Install some custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/master/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
+4. Install some custom Slippi Gecko Codes. You can find them here: https://github.com/altf4/slippi-ssbm-asm/blob/libmelee/Output/Netplay/GALE01r2.ini Simply replace your existing `GALE01r2.ini` file with this one.
 
 5. Make sure you have all the `Required` and `Recommended` Gecko Codes enabled.
 
-6. Run `smashbot.py -e PATH_TO_SLIPPI_FOLDER` (Not the actual exe itself, just the directory where it is)
+6. Disable the `Apply Delay to all In-Game Screens` Gecko Code.
 
-7. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
+7. Run `smashbot.py -e PATH_TO_SLIPPI_FOLDER` (Not the actual exe itself, just the directory where it is)
+
+8. By default, SmashBot takes controller 2, and assumes you're on controller 1. You can change this with the `--port N`  option to change SmashBot's port, and `--opponent N` to change the human player's port.
