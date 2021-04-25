@@ -474,8 +474,9 @@ class Edgeguard(Tactic):
                 # Are they in the start of a firefox?
                 # But make sure they can't grab the edge in the middle of it
                 edgedistance = abs(opponent_state.position.x) - (melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 15)
-                inrange = (-5 > opponent_state.position.y > -23) and (edgedistance < 15)
-                if opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 5 and not inrange:
+                in_immediate_range = (-5 > opponent_state.position.y > -23) and (edgedistance < 15)
+                in_fly_range = opponent_state.action_frame > ((edgedistance-15) / 3)
+                if opponent_state.action == Action.SWORD_DANCE_3_LOW and not in_fly_range and not in_immediate_range:
                     self.pickchain(Chains.Edgestall)
                     return
             # We must be on the first frame, or else it's dangerous
