@@ -46,7 +46,7 @@ class Juggle(Tactic):
         end_x, end_y, frames_left = self.framedata.project_hit_location(opponent_state, gamestate.stage)
 
         if self.framedata.is_roll(opponent_state.character, opponent_state.action):
-            end_x = self.framedata.roll_end_position(opponent_state, gamestate.stage)
+            end_x = self.framedata.roll_end_position(opponent_state, gamestate.stage) + self.framedata.slide_distance(opponent_state, opponent_state.speed_x_attack, frames_left)
             frames_left = self.framedata.last_roll_frame(opponent_state.character, opponent_state.action) - opponent_state.action_frame
             # TODO handle slideoff here
 
