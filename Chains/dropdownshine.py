@@ -27,6 +27,10 @@ class Dropdownshine(Chain):
         if (opponent_state.character == Character.JIGGLYPUFF) and opponent_state.action in [Action.SHINE_RELEASE_AIR, Action.DOWN_B_AIR]:
             return False
 
+        # Don't shine a dead fall opponent. They're already dead and it just causes SDs
+        if opponent_state.action == Action.DEAD_FALL:
+            return False
+
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
         frames_y = abs(opponent_state.position.y - smashbot_state.position.y) // 3.4
 
