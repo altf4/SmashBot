@@ -571,8 +571,15 @@ class Edgeguard(Tactic):
                     wavedash = True
                     if self.framedata.is_attack(opponent_state.character, opponent_state.action):
                         wavedash = False
-                    self.pickchain(Chains.Grabedge, [wavedash])
-                    return
+
+                    ff_early = False
+                    if opponent_state.character in [Character.FOX, Character.FALCO] and opponent_state.action == Action.SWORD_DANCE_3_LOW:
+                        if opponent_state.action_frame < 20:
+                            ff_early = True
+
+                    if not ff_early:
+                        self.pickchain(Chains.Grabedge, [wavedash])
+                        return
 
             # Dash dance near the edge
             pivotpoint = opponent_state.position.x
