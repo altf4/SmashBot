@@ -142,7 +142,7 @@ class Juggle(Tactic):
                     if side_plat_height is not None and (frames_left > 25) and abs(side_plat_height - opponent_state.position.y) < 5:
                         # But only if we're already mostly there
                         smashbot_on_side_plat = smashbot_state.on_ground and abs(smashbot_state.position.y - side_plat_height) < 5
-                        if side_plat_left < smashbot_state.position.x < side_plat_right:
+                        if side_plat_left < smashbot_state.position.x < side_plat_right and not smashbot_on_side_plat:
                             self.chain = None
                             self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0, False])
                             return
@@ -169,7 +169,11 @@ class Juggle(Tactic):
                             elif opponent_state.action not in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN] and gamestate.distance < 10:
                                 self.pickchain(Chains.GrabAndThrow, [THROW_DIRECTION.UP])
                                 return
-                        if frames_left == 1 and gamestate.distance < 10:
+
+                        # Don't waveshine an opponent if they're in tech miss or laying down on a platform
+                        #   It will end the juggle and be impossible to follow up on. Instead, we can just wait
+                        tech_miss_on_plat = opponen.position.y > 10 and opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN, Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]
+                        if frames_left == 1 and gamestate.distance < 10 and not tech_miss_on_plat:
                             self.pickchain(Chains.Waveshine)
                             return
                         else:
