@@ -108,7 +108,7 @@ class Edgeguard(Tactic):
         return 999
 
     def canrecoverhigh(self, gamestate, opponent_state):
-        if opponent_state.character == Character.JIGGLYPUFF:
+        if opponent_state.character in [Character.JIGGLYPUFF, Character.PIKACHU]:
             return True
 
         # Don't grab the edge if opponent is recovering high.
@@ -569,6 +569,11 @@ class Edgeguard(Tactic):
 
             # Puff sing stall is safe to grab from
             if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in [Action.DOWN_B_AIR, Action.SHINE_RELEASE_AIR] and opponent_state.action_frame < 10:
+                self.pickchain(Chains.Grabedge, [True])
+                return
+
+            # Grab edge out from under Pika quick-attack startup
+            if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 7:
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
