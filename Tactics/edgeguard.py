@@ -518,6 +518,12 @@ class Edgeguard(Tactic):
                     self.pickchain(Chains.Edgebair)
                     return
 
+            # If opponent is recovering high with illusion, bair them at the right time
+            if (opponent_state.character == Character.FOX and opponent_state.action_frame == 15) or (opponent_state.character == Character.FALCO and opponent_state.action_frame == 10):
+                if opponent_state.action == Action.SWORD_DANCE_2_HIGH and opponent_state.position.y > -4:
+                    self.pickchain(Chains.Edgebair)
+                    return
+
             if self.firefoxhighframes(gamestate, opponent_state) <= 5:
                 self.pickchain(Chains.Edgebair)
                 return
