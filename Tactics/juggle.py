@@ -172,7 +172,7 @@ class Juggle(Tactic):
 
                         # Don't waveshine an opponent if they're in tech miss or laying down on a platform
                         #   It will end the juggle and be impossible to follow up on. Instead, we can just wait
-                        tech_miss_on_plat = opponen.position.y > 10 and opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN, Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]
+                        tech_miss_on_plat = opponent_state.position.y > 10 and opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN, Action.LYING_GROUND_UP, Action.LYING_GROUND_DOWN]
                         if frames_left == 1 and gamestate.distance < 10 and not tech_miss_on_plat:
                             self.pickchain(Chains.Waveshine)
                             return
