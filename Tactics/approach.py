@@ -28,20 +28,24 @@ class Approach(Tactic):
             self.pickchain(Chains.Wavedash)
             return
 
-        # If opponent is on a side platform and we're not
-        on_main_platform = smashbot_state.position.y < 1 and smashbot_state.on_ground
-        if opponent_state.position.y > 1 and opponent_state.on_ground and on_main_platform and gamestate.stage != melee.enums.Stage.FOUNTAIN_OF_DREAMS:
-            self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0])
-            return
-
-        # If opponent is on top platform
-        on_side_platform = (5 < smashbot_state.position.y < 35) and smashbot_state.on_ground
-        top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate.stage)
+        # Are we behind in the game?
+        losing = smashbot_state.stock < opponent_state.stock or (smashbot_state.stock == opponent_state.stock and smashbot_state.percent > opponent_state.percent)
         opp_top_platform = False
+        top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate.stage)
         if top_platform_height is not None:
             opp_top_platform = (opponent_state.position.y+1 >= top_platform_height) and (top_platform_left < opponent_state.position.x < top_platform_right)
 
-        if on_side_platform and opp_top_platform:
+        # If opponent is on a side platform and we're not
+        on_main_platform = smashbot_state.position.y < 1 and smashbot_state.on_ground
+        # Avoid side plat if we're ahead and opp is on top plat. Let them camp
+        if not (opp_top_platform and not losing):
+            if opponent_state.position.y > 10 and opponent_state.on_ground and on_main_platform:
+                self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0])
+                return
+
+        # If opponent is on top platform
+        on_side_platform = (5 < smashbot_state.position.y < 35) and smashbot_state.on_ground
+        if on_side_platform and opp_top_platform and losing:
             self.pickchain(Chains.BoardTopPlatform)
             return
 
