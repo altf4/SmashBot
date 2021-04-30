@@ -146,6 +146,10 @@ class Juggle(Tactic):
                             self.chain = None
                             self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0, False])
                             return
+                        else:
+                            self.chain = None
+                            self.pickchain(Chains.DashDance, [(side_plat_left + side_plat_right) / 2])
+                            return
 
                     if self.logger:
                         self.logger.log("Notes", " DD at: " + str(end_x), concat=True)
@@ -154,7 +158,7 @@ class Juggle(Tactic):
                     self.pickchain(Chains.DashDance, [end_x])
                     return
                 # We need to get to a position where our back is to the end position. We'll do a pivot stand to get there
-                if (abs(smashbot_state.position.x - end_x) < 5):
+                if (abs(smashbot_state.position.x - end_x) < 5) and (abs(smashbot_state.position.y - end_y) < 20):
                     # Pivot
                     if smashbot_state.action == Action.DASHING:
                         self.chain = None
