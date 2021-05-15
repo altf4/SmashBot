@@ -2,7 +2,7 @@ import melee
 import math
 from Strategies.bait import Bait
 
-from melee.enums import ProjectileType, Action, Character
+from melee.enums import ProjectileType, Action, Button, Character
 
 class ESAgent():
     """
@@ -17,6 +17,9 @@ class ESAgent():
         self.logger = dolphin.logger
         self.difficulty = difficulty
         self.ledge_grab_count = 0
+        self.tech_lockout = 0
+        self.meteor_jump_lockout = 0
+        self.meteor_ff_lockout = 0
         self.strategy = Bait(self.logger,
                             self.controller,
                             self.framedata,
@@ -32,6 +35,29 @@ class ESAgent():
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 
+        # Tech lockout
+        if gamestate.player[self.smashbot_port].controller_state.button[Button.BUTTON_L]:
+            self.tech_lockout = 40
+        else:
+            self.tech_lockout -= 1
+            self.tech_lockout = max(0, self.tech_lockout)
+
+        # Jump meteor cancel lockout
+        if gamestate.player[self.smashbot_port].controller_state.button[Button.BUTTON_Y] or \
+            gamestate.player[self.smashbot_port].controller_state.main_stick[1] > 0.8:
+            self.meteor_jump_lockout = 40
+        else:
+            self.meteor_jump_lockout -= 1
+            self.meteor_jump_lockout = max(0, self.meteor_jump_lockout)
+
+        # Firefox meteor cancel lockout
+        if gamestate.player[self.smashbot_port].controller_state.button[Button.BUTTON_B] and \
+            gamestate.player[self.smashbot_port].controller_state.main_stick[1] > 0.8:
+            self.meteor_ff_lockout = 40
+        else:
+            self.meteor_ff_lockout -= 1
+            self.meteor_ff_lockout = max(0, self.meteor_ff_lockout)
+
         # Keep a ledge grab count
         if gamestate.player[self.opponent_port].action == Action.EDGE_CATCHING and gamestate.player[self.opponent_port].action_frame == 1:
             self.ledge_grab_count += 1
@@ -40,6 +66,9 @@ class ESAgent():
         if gamestate.frame == -123:
             self.ledge_grab_count = 0
         gamestate.custom["ledge_grab_count"] = self.ledge_grab_count
+        gamestate.custom["tech_lockout"] = self.tech_lockout
+        gamestate.custom["meteor_jump_lockout"] = self.meteor_jump_lockout
+        gamestate.custom["meteor_ff_lockout"] = self.meteor_ff_lockout
 
         # Let's treat Counter-Moves as invulnerable. So we'll know to not attack during that time
         countering = False

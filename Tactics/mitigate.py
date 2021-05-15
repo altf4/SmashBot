@@ -89,13 +89,13 @@ class Mitigate(Tactic):
                 return
 
         # Meteor cancel 8 frames after hitlag ended
-        # TODO: keep track of Up-B lockout window.
         # TODO: Don't SDI an up input if we want to meteor cancel
         if smashbot_state.speed_y_attack < 0 and smashbot_state.action_frame == 8:
             if smashbot_state.jumps_left > 0:
-                self.pickchain(Chains.Jump, [int(smashbot_state.position.x < 0)])
-                return
-            else:
+                if gamestate.custom["meteor_jump_lockout"] == 0:
+                    self.pickchain(Chains.Jump, [int(smashbot_state.position.x < 0)])
+                    return
+            elif gamestate.custom["meteor_ff_lockout"] == 0:
                 self.pickchain(Chains.Firefox, [FIREFOX.SAFERANDOM])
                 return
 

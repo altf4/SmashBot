@@ -27,6 +27,10 @@ class Tech(Chain):
             controller.empty_input()
             return
 
+        if gamestate.custom["tech_lockout"] > 0:
+            controller.empty_input()
+            return
+
         if self.direction == TECH_DIRECTION.TECH_IN_PLACE:
             controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, .5)

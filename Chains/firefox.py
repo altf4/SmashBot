@@ -1,4 +1,5 @@
 import melee
+import math
 import random
 from melee.enums import Action, Button
 from Chains.chain import Chain
@@ -21,10 +22,32 @@ class Firefox(Chain):
         else:
             self.direction = direction
 
+    def get_low_corner(self, stage):
+        """Returns the (x, y) coords of the lowest point of the stage where we can ride up the wall
+
+        Basically, we need to aim ABOVE this point, or we'll FF below the stage.
+        """
+        if stage == melee.Stage.YOSHIS_STORY:
+            return (melee.EDGE_POSITION[stage], -1000)
+        if stage == melee.Stage.BATTLEFIELD:
+            return (melee.EDGE_POSITION[stage], 0)
+        if stage == melee.Stage.FINAL_DESTINATION:
+            return (45, -66.21936)
+        if stage == melee.Stage.DREAMLAND:
+            return (63, -47.480972)
+        if stage == melee.Stage.POKEMON_STADIUM:
+            return (70, -29.224771)
+
+        return (0, 0)
+
     def getangle(self, gamestate, smashbot_state):
         x = 0
         if smashbot_state.position.x < 0:
             x = 1
+
+        # Make sure we don't angle below the stage's low corner.
+        #   If we do, we'll SD
+        corner_x, corner_y = self.get_low_corner(gamestate.stage)
 
         # The point we grab the edge at is a little below the stage
         diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
@@ -38,12 +61,25 @@ class Firefox(Chain):
         # Now scale down to be between .5 and 1
         if smashbot_state.position.x < 0:
             x = (x/2) + 0.5
+            corner_x *= -1
         else:
             x = 0.5 - (x/2)
         if smashbot_state.position.y < 0:
             y = (y/2) + 0.5
         else:
             y = 0.5 - (y/2)
+
+        # Only bother with corner adjustment when FF upwards
+        if smashbot_state.position.y < -10:
+            wanted_angle = math.degrees(-math.atan2(x, y)) + 90
+            lowest_angle = math.degrees(-math.atan2(smashbot_state.position.x - corner_x, smashbot_state.position.y - corner_y)) + 90
+            if smashbot_state.position.x > 0:
+                if wanted_angle > lowest_angle:
+                    return 0.5, 1 #TODO make a better angle here.
+            else:
+                if wanted_angle < lowest_angle:
+                    return 0.5, 1 #TODO make a better angle here.
+
         return x, y
 
     def step(self, gamestate, smashbot_state, opponent_state):
@@ -72,7 +108,6 @@ class Firefox(Chain):
             return
 
         x = int(smashbot_state.position.x < 0)
-
         diff_x = abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x))
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:

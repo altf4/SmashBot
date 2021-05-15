@@ -13,5 +13,6 @@ class DI(Chain):
         controller = self.controller
         self.interruptible = True
         controller.release_button(Button.BUTTON_L)
+        controller.release_button(Button.BUTTON_Y)
         controller.tilt_analog(Button.BUTTON_MAIN, self.x, self.y)
         controller.tilt_analog(Button.BUTTON_C, self.cx, self.cy)

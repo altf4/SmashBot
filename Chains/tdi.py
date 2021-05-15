@@ -44,7 +44,10 @@ class TDI(Chain):
                     if smashbot_state.position.x > 0:
                         angle = 180
                 cardinal = SDI.angle_to_cardinal(angle)
-                controller.press_button(Button.BUTTON_L)
+                if gamestate.custom["tech_lockout"] == 0:
+                    controller.press_button(Button.BUTTON_L)
+                else:
+                    controller.release_button(Button.BUTTON_L)
 
             else:
                 # TODO which 90 degree angle? Randomize for now
