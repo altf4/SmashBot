@@ -211,8 +211,15 @@ class Recover(Tactic):
             self.pickchain(Chains.DI, [x, 0.5])
             return
 
+        # The height to start a firefox at
+        firefox_height = -60 + random.randint(0, 30)
+
+        # If opponent is in hitstun, just do it now
+        if opponent_state.hitstun_frames_left > 0:
+            firefox_height = 100
+
         # Don't firefox if we're super high up, wait a little to come down
-        if smashbot_state.speed_y_self < 0 and smashbot_state.position.y < -60:
+        if smashbot_state.speed_y_self < 0 and smashbot_state.position.y < firefox_height:
             if gamestate.stage == melee.enums.Stage.BATTLEFIELD and diff_x < 30:
                 self.pickchain(Chains.Firefox, [FIREFOX.HIGH])
             else:
