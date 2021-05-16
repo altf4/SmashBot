@@ -395,7 +395,7 @@ class Edgeguard(Tactic):
 
         # For pikachu, we want to be up on the stage to edgeguard. Not on edge
         if opponent_state.character == Character.PIKACHU and smashbot_state.action == Action.EDGE_HANGING and smashbot_state.invulnerability_left == 0:
-            if opponent_state.position.y < -15:
+            if opponent_state.position.y < -20:
                 self.chain = None
                 self.pickchain(Chains.Edgedash, [False])
                 return
