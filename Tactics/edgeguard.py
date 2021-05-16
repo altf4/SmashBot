@@ -557,8 +557,8 @@ class Edgeguard(Tactic):
             if self.difficulty == 4 and random.randint(0, 10) == 0:
                 randomgrab = True
 
-            # For pikachu, don't grab the edge unless they're sitting, camping
-            if opponent_state.character == Character.PIKACHU and opponent_state.action != Action.EDGE_HANGING:
+            # For pikachu and jiggs don't grab the edge unless they're sitting, camping
+            if opponent_state.character in [Character.PIKACHU, Character.JIGGLYPUFF] and opponent_state.action != Action.EDGE_HANGING:
                 randomgrab = False
 
             # TODO Don't grab the edge if opponent is
