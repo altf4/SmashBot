@@ -31,7 +31,7 @@ class ESAgent():
             # Held turnips
             if projectile.type == ProjectileType.TURNIP and projectile.type == 0:
                 continue
-            if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL]:
+            if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL, ProjectileType.FOX_LASER]:
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 

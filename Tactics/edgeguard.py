@@ -554,7 +554,7 @@ class Edgeguard(Tactic):
                     self.chain = None
                     self.pickchain(Chains.DashDance, [pivotpoint])
                     return
-                else:
+                elif len(gamestate.projectiles) == 0:
                     # Laser
                     self.pickchain(Chains.Laser)
                     return

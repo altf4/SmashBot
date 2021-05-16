@@ -34,7 +34,7 @@ class Defend(Tactic):
             if projectile.type == melee.enums.ProjectileType.NEEDLE_THROWN:
                 size = 12
             if projectile.type == melee.enums.ProjectileType.PIKACHU_THUNDER:
-                size = 20
+                size = 40
             if projectile.type == melee.enums.ProjectileType.TURNIP:
                 size = 12
             # Your hitbox is super distorted when edge hanging. Give ourselves more leeway here
