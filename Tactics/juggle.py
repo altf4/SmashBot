@@ -62,10 +62,10 @@ class Juggle(Tactic):
         if smashbot_state.position.y < 5:
             end_x = min(end_x, melee.EDGE_GROUND_POSITION[gamestate.stage]-5)
             end_x = max(end_x, -melee.EDGE_GROUND_POSITION[gamestate.stage]+5)
-        elif (side_platform_height is not None) and abs(smashbot_state.position.y - side_platform_height) < 5:
+        elif opponent_state.hitstun_frames_left == 0 and (side_platform_height is not None) and abs(smashbot_state.position.y - side_platform_height) < 5:
             end_x = min(end_x, side_platform_right-5)
             end_x = max(end_x, side_platform_left+5)
-        elif (top_platform_height is not None) and abs(smashbot_state.position.y - top_platform_height) < 5:
+        elif opponent_state.hitstun_frames_left == 0 and (top_platform_height is not None) and abs(smashbot_state.position.y - top_platform_height) < 5:
             end_x = min(end_x, top_platform_right-5)
             end_x = max(end_x, top_platform_left+5)
 

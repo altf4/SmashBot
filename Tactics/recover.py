@@ -182,10 +182,13 @@ class Recover(Tactic):
 
         x_canairdodge = abs(smashbot_state.position.x) - 18 <= abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage])
         y_canairdodge = smashbot_state.position.y >= -24
-        # airdodge_randomizer not currently in use
-        airdodge_randomizer = random.randint(0, 4) == 1
         if x_canairdodge and y_canairdodge and (opponentgoingoffstage or opponentmovingtoedge) and not hit_movement:
             self.pickchain(Chains.Airdodge, [int(smashbot_state.position.x < 0), int(smashbot_state.position.y + smashbot_state.ecb.bottom.y < 5)])
+            return
+
+        # Jump if we're falling, are below stage, and have a jump
+        if smashbot_state.speed_y_self < 0 and smashbot_state.jumps_left > 0 and smashbot_state.position.y < 0:
+            self.pickchain(Chains.Jump)
             return
 
         # First jump back to the stage if we're low

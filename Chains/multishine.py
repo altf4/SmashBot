@@ -19,6 +19,10 @@ class Multishine(Chain):
         if gamestate.stage == melee.Stage.YOSHIS_STORY and abs(smashbot_state.position.x) > 37:
             self.direction = MULTISHINE_DIRECTION.NEUTRAL
 
+        # Don't multishine off the stage
+        if abs(smashbot_state.position.x - melee.stages.EDGE_GROUND_POSITION[gamestate.stage]) < 5:
+            self.direction = MULTISHINE_DIRECTION.NEUTRAL
+
         # Pivot if we're dashing. Or else we might dash right off stage, which is annoying
         if smashbot_state.action in [Action.DASHING]:
             self.interruptible = True
