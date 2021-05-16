@@ -17,6 +17,10 @@ class Shffl(Chain):
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
 
+        if smashbot_state.action == Action.FALLING:
+            self.interruptible = True
+            controller.empty_input()
+
         # If we're in knee bend, let go of jump. But move toward opponent
         if smashbot_state.action == Action.KNEE_BEND:
             self.interruptible = False
