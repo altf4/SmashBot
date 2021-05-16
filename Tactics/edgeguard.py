@@ -31,6 +31,9 @@ class Edgeguard(Tactic):
         if smashbot_state.off_stage and not smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
             return False
 
+        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            return True
+
         # If smashbot is in hitstun, then recover
         if smashbot_state.off_stage and smashbot_state.hitstun_frames_left > 0:
             return False
@@ -390,6 +393,13 @@ class Edgeguard(Tactic):
                     self.pickchain(Chains.DI, [0.5, 0.65])
                     return
 
+        # For pikachu, we want to be up on the stage to edgeguard. Not on edge
+        if opponent_state.character == Character.PIKACHU and smashbot_state.action == Action.EDGE_HANGING and smashbot_state.invulnerability_left == 0:
+            if opponent_state.position.y < -15:
+                self.chain = None
+                self.pickchain(Chains.Edgedash, [False])
+                return
+
         # Special exception for Fox/Falco illusion
         #   Since it is dumb and technically a projectile
         if opponent_state.character in [Character.FOX, Character.FALCO]:
@@ -464,9 +474,11 @@ class Edgeguard(Tactic):
                 return
 
             # Challenge rising UP-B's with a shine if we're in range
+            #   except for pikachu
             if self.isupb(opponent_state) and opponent_state.speed_y_self >= 0 and gamestate.distance < 10:
-                self.pickchain(Chains.Dropdownshine)
-                return
+                if opponent_state.character != Character.PIKACHU:
+                    self.pickchain(Chains.Dropdownshine)
+                    return
 
             # Edgestall
             # For Fox and Falco, we have a different edgestall strategy. Only edgestall if they start a FireFox
@@ -545,6 +557,12 @@ class Edgeguard(Tactic):
             if self.difficulty == 4 and random.randint(0, 10) == 0:
                 randomgrab = True
 
+            # For pikachu, don't grab the edge unless they're sitting, camping
+            if opponent_state.character == Character.PIKACHU and opponent_state.action != Action.EDGE_HANGING:
+                randomgrab = False
+
+            # TODO Don't grab the edge if opponent is
+
             # They're camping. Camp back
             if gamestate.custom["ledge_grab_count"] > 3:
                 # Get into position away from the edge.
@@ -577,7 +595,7 @@ class Edgeguard(Tactic):
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
-            if not recoverhigh and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10 and smashbot_state.on_ground:
+            if (not recoverhigh or randomgrab) and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10 and smashbot_state.on_ground:
                 if (randomgrab or framesleft > 10) and opponent_state.action not in [Action.EDGE_ROLL_SLOW, Action.EDGE_ROLL_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_GETUP_QUICK, Action.EDGE_ATTACK_SLOW, Action.EDGE_ATTACK_QUICK]:
                     wavedash = True
                     if self.framedata.is_attack(opponent_state.character, opponent_state.action):

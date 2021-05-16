@@ -18,6 +18,9 @@ class Juggle(Tactic):
         if opponent_state.invulnerability_left > 0:
             return False
 
+        if smashbot_state.off_stage:
+            return False
+
         # If the opponent is in hitstun, in the air
         if (not opponent_state.on_ground) and (opponent_state.hitstun_frames_left > 0):
             if not framedata.is_attack(opponent_state.character, opponent_state.action):
