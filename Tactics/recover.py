@@ -55,7 +55,7 @@ class Recover(Tactic):
         if opponent_dist < smashbot_dist and not onedge:
             return True
 
-        if smashbot_dist >= 15:
+        if smashbot_dist >= 20:
             return True
 
         # If we're both fully off stage, recover
