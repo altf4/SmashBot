@@ -91,8 +91,7 @@ class DashDance(Chain):
             return
 
         # Do nothing during the first 2 frames of DOWN_B_GROUND_START
-        cantjcyet = smashbot_state == Action.DOWN_B_GROUND_START and smashbot_state.action_frame < 3
-        if cantjcyet:
+        if smashbot_state == Action.DOWN_B_GROUND_START and smashbot_state.action_frame < 3:
             self.controller.empty_input()
             return
 
@@ -109,6 +108,7 @@ class DashDance(Chain):
                 self.controller.press_button(Button.BUTTON_Y)
             else:
                 self.controller.release_button(Button.BUTTON_Y)
+            return
 
         # Airdodge for the wavedash
         jumping = [Action.JUMPING_ARIAL_FORWARD, Action.JUMPING_ARIAL_BACKWARD, Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]

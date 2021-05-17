@@ -1,5 +1,6 @@
 import melee
 import Chains
+import random
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Tactics.punish import Punish
@@ -25,7 +26,7 @@ class Approach(Tactic):
             Action.DOWN_B_GROUND_START, Action.LANDING_SPECIAL, Action.SHIELD, Action.SHIELD_START, \
             Action.SHIELD_RELEASE, Action.SHIELD_STUN, Action.SHIELD_REFLECT]
         if needswavedash:
-            self.pickchain(Chains.Wavedash)
+            self.pickchain(Chains.Wavedash, [True])
             return
 
         # Are we behind in the game?
@@ -44,8 +45,7 @@ class Approach(Tactic):
                 return
 
         # If opponent is on top platform
-        on_side_platform = (5 < smashbot_state.position.y < 35) and smashbot_state.on_ground
-        if on_side_platform and opp_top_platform and losing:
+        if opp_top_platform and losing and random.randint(0, 20) == 0:
             self.pickchain(Chains.BoardTopPlatform)
             return
 
