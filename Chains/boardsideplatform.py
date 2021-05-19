@@ -37,6 +37,10 @@ class BoardSidePlatform(Chain):
             else:
                 pivot_point = platform_right - 8
 
+        # Don't run off the stage (mostly on Yoshis)
+        pivot_point = max(-melee.stages.EDGE_GROUND_POSITION[gamestate.stage]+5, pivot_point)
+        pivot_point = min(melee.stages.EDGE_GROUND_POSITION[gamestate.stage]-5, pivot_point)
+
         if smashbot_state.on_ground:
             self.interruptible = True
             # If we're already on the platform, just do nothing. We shouldn't be here
