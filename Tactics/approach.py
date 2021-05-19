@@ -34,17 +34,16 @@ class Approach(Tactic):
         opp_top_platform = False
         top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate.stage)
         if top_platform_height is not None:
-            opp_top_platform = (opponent_state.position.y+1 >= top_platform_height) and (top_platform_left < opponent_state.position.x < top_platform_right)
+            opp_top_platform = (opponent_state.position.y+1 >= top_platform_height) and (top_platform_left-1 < opponent_state.position.x < top_platform_right+1)
 
         # If opponent is on a side platform and we're not
         on_main_platform = smashbot_state.position.y < 1 and smashbot_state.on_ground
-        # Avoid side plat if we're ahead and opp is on top plat. Let them camp
-        if not (opp_top_platform and not losing):
+        if not opp_top_platform:
             if opponent_state.position.y > 10 and opponent_state.on_ground and on_main_platform:
                 self.pickchain(Chains.BoardSidePlatform, [opponent_state.position.x > 0])
                 return
 
-        # If opponent is on top platform
+        # If opponent is on top platform. Unless we're ahead. Then let them camp
         if opp_top_platform and losing and random.randint(0, 20) == 0:
             self.pickchain(Chains.BoardTopPlatform)
             return
