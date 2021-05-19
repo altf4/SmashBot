@@ -3,8 +3,9 @@ from melee.enums import Action, Button, Character
 from Chains.chain import Chain
 
 class Powershield(Chain):
-    def __init__(self, hold=False):
+    def __init__(self, hold=False, zpress=False):
         self.hold = hold
+        self.zpress = zpress
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
@@ -59,6 +60,8 @@ class Powershield(Chain):
 
         if not isshielding:
             self.interruptible = False
+            if self.zpress and controller.prev.button[Button.BUTTON_A]:
+                controller.press_button(Button.BUTTON_Z)
             controller.press_button(Button.BUTTON_L)
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             return

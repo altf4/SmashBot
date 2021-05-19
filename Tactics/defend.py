@@ -142,7 +142,7 @@ class Defend(Tactic):
                         self.chain = None
                         self.pickchain(Chains.DI, [0.5, 0.65])
                         return
-                self.pickchain(Chains.Powershield)
+                self.pickchain(Chains.Powershield, [False, True])
                 return
 
         hitframe = framedata.in_range(opponent_state, smashbot_state, gamestate.stage)
@@ -181,7 +181,7 @@ class Defend(Tactic):
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
             hold = framedata.hitbox_count(opponent_state.character, opponent_state.action) > 1
-            self.pickchain(Chains.Powershield, [hold])
+            self.pickchain(Chains.Powershield, [hold, False])
         else:
             # 12 starting buffer for Fox's character model size
             bufferzone = 12

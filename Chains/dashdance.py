@@ -10,18 +10,21 @@ class DashDance(Chain):
         self.interruptible = True
 
     def step(self, gamestate, smashbot_state, opponent_state):
+        if smashbot_state.moonwalkwarning:
+            self.controller.press_button(Button.BUTTON_A)
+
         if smashbot_state.moonwalkwarning and self.controller.prev.main_stick[0] != 0.5:
-            self.controller.empty_input()
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
             return
 
         # Causes an empty_input if hitting left did not cause Smashbot to be TURNING or DASHING left, i.e. if Smashbot attempts a dashback during frames 1-3 of initial dash forward.
         if (self.controller.prev.main_stick[0] == 1) and (smashbot_state.action == Action.DASHING and not smashbot_state.facing):
-            self.controller.empty_input()
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
             return
 
         # Causes an empty_input if hitting left did not cause Smashbot to be TURNING or DASHING left, i.e. if Smashbot attempts a dashback during frames 1-3 of initial dash forward.
         if (self.controller.prev.main_stick[0] == 0) and (smashbot_state.action == Action.DASHING and smashbot_state.facing):
-            self.controller.empty_input()
+            self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
             return
 
 
