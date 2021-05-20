@@ -613,7 +613,7 @@ class Edgeguard(Tactic):
             # Dash dance near the edge
             pivotpoint = opponent_state.position.x
             # Don't run off the stage though, adjust this back inwards a little if it's off
-            edgebuffer = 5
+            edgebuffer = 2
 
             # Against Jigglypuff, we need to respect the ledge invulnerability. DD inwards more
             if opponent_state.character == Character.JIGGLYPUFF and opponent_state.invulnerability_left > 0:
