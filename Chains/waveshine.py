@@ -107,6 +107,12 @@ class Waveshine(Chain):
             if edgedistance < 0.5:
                 direction = smashbot_state.position.x < 0
 
+            # Don't waveshine off the stage facing away
+            facinginwards = smashbot_state.facing == (smashbot_state.position.x < 0)
+            moving_out = direction == (0 < smashbot_state.position.x)
+            if edgedistance < 18.5 and moving_out and not facinginwards:
+                self.distance = 0
+
             # Normalize distance from (0->1) to (-0.5 -> 0.5)
             delta = (self.distance / 2) # 0->0.5
             if not direction:
