@@ -35,6 +35,10 @@ class Dropdownshine(Chain):
         if opponent_state.action == Action.DEAD_FALL:
             return False
 
+        # Don't shine Falcon/Dorf in up-B. Just let them land on stage (or die off the stage)
+        if opponent_state.character in [Character.GANONDORF, Character.CPTFALCON] and opponent_state.action == Action.SWORD_DANCE_3_LOW:
+            return False
+
         # Fastfall speed is 3.4, how long will it take to get to the opponent vertically?
         frames_y = abs(opponent_state.position.y - smashbot_state.position.y) // 3.4
 
@@ -70,6 +74,12 @@ class Dropdownshine(Chain):
             return
 
         if smashbot_state.action in [Action.EDGE_CATCHING]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
+        # Don't BM shine them. It leads to SD a lot of the time
+        if opponent_state.action == Action.DEAD_FALL:
             self.interruptible = True
             controller.release_all()
             return
