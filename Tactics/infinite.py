@@ -15,6 +15,8 @@ class Infinite(Tactic):
         percent = 100
         if character == Character.CPTFALCON:
             percent = 113
+        if character == Character.GANONDORF:
+            percent = 113
         if character == Character.FALCO:
             percent = 103
         if character == Character.FOX:
