@@ -474,9 +474,9 @@ class Edgeguard(Tactic):
                 return
 
             # Challenge rising UP-B's with a shine if we're in range
-            #   except for pikachu
+            #   except for pikachu and falcon/ganon
             if self.isupb(opponent_state) and opponent_state.speed_y_self >= 0 and gamestate.distance < 10:
-                if opponent_state.character != Character.PIKACHU:
+                if opponent_state.character not in [Character.PIKACHU, Character.GANONDORF, Character.CPTFALCON]:
                     self.pickchain(Chains.Dropdownshine)
                     return
 
@@ -597,18 +597,15 @@ class Edgeguard(Tactic):
 
             if (not recoverhigh or randomgrab) and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10 and smashbot_state.on_ground:
                 if (randomgrab or framesleft > 10) and opponent_state.action not in [Action.EDGE_ROLL_SLOW, Action.EDGE_ROLL_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_GETUP_QUICK, Action.EDGE_ATTACK_SLOW, Action.EDGE_ATTACK_QUICK]:
-                    wavedash = True
-                    if self.framedata.is_attack(opponent_state.character, opponent_state.action):
-                        wavedash = False
+                    if not self.framedata.is_attack(opponent_state.character, opponent_state.action):
+                        ff_early = False
+                        if opponent_state.character in [Character.FOX, Character.FALCO] and opponent_state.action == Action.SWORD_DANCE_3_LOW:
+                            if opponent_state.action_frame < 20:
+                                ff_early = True
 
-                    ff_early = False
-                    if opponent_state.character in [Character.FOX, Character.FALCO] and opponent_state.action == Action.SWORD_DANCE_3_LOW:
-                        if opponent_state.action_frame < 20:
-                            ff_early = True
-
-                    if not ff_early:
-                        self.pickchain(Chains.Grabedge, [wavedash])
-                        return
+                        if not ff_early:
+                            self.pickchain(Chains.Grabedge, [True])
+                            return
 
             # Dash dance near the edge
             pivotpoint = opponent_state.position.x
