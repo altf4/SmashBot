@@ -160,17 +160,19 @@ class Defend(Tactic):
                 framesuntilhit = 0
 
         # Is the attack a grab? If so, spot dodge right away
-        if self.framedata.is_grab(opponent_state.character, opponent_state.action):
-            if opponent_state.character != Character.SAMUS or framesuntilhit <= 2:
-                self.pickchain(Chains.SpotDodge)
-                return
+        is_grab = self.framedata.is_grab(opponent_state.character, opponent_state.action)
+        #   Falcon/Ganon up-B
+        dangerous_up_b = opponent_state.character in [Character.GANONDORF, Character.CPTFALCON] and opponent_state.action == Action.SWORD_DANCE_3_LOW
+        if not dangerous_up_b and is_grab and (opponent_state.character != Character.SAMUS or framesuntilhit <= 2):
+            self.pickchain(Chains.SpotDodge)
+            return
 
         if self.logger:
             self.logger.log("Notes", "framesuntilhit: " + str(framesuntilhit) + " ", concat=True)
 
         onfront = (opponent_state.position.x < smashbot_state.position.x) == opponent_state.facing
         # Are we in the powershield window?
-        if framesuntilhit <= 2:
+        if framesuntilhit <= 2 and not is_grab:
             if framesuntilhit == 2 and opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
                 self.chain = None
                 self.pickchain(Chains.Run, [smashbot_state.position.x < opponent_state.position.x])
