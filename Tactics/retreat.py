@@ -48,7 +48,18 @@ class Retreat(Tactic):
             # Are they facing the right way, though?
             if opponent_state.facing == (opponent_state.position.x < smashbot_state.position.x):
                 return True
+        if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1:
+            # But only on main platform
+            if opponent_state.position.y < 10:
+                return True
 
+        return False
+
+    def is_rapid_jab(opponent_state):
+        if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
+            return True
+        if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1:
+            return True
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
@@ -85,6 +96,9 @@ class Retreat(Tactic):
         if not onright:
             bufferzone *= -1
 
+        if Retreat.is_rapid_jab(opponent_state):
+            bufferzone = 60
+
         pivotpoint = opponent_state.position.x + bufferzone
         # Don't run off the stage though, adjust this back inwards a little if it's off
 
@@ -98,6 +112,7 @@ class Retreat(Tactic):
         pivotpoint = min(pivotpoint, edge)
         pivotpoint = max(pivotpoint, -edge)
 
+        # TODO make this a general function for all projectiles
         missle_approaching = False
         for projectile in gamestate.projectiles:
             if projectile.type in [melee.ProjectileType.SAMUS_MISSLE, melee.ProjectileType.SAMUS_CHARGE_BEAM]:
@@ -105,7 +120,7 @@ class Retreat(Tactic):
 
         # Only do this laser if we are on the same level as the opponent
         if abs(opponent_state.position.y - smashbot_state.position.y) < 5 and not missle_approaching:
-            if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE and abs(smashbot_state.position.x - pivotpoint) < 4:
+            if Retreat.is_rapid_jab(opponent_state) and abs(smashbot_state.position.x - pivotpoint) < 4:
                 self.pickchain(Chains.Laser)
                 return
 

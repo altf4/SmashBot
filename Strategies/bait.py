@@ -136,7 +136,8 @@ class Bait(Strategy):
             self.picktactic(Tactics.Retreat)
             return
 
-        if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or self.approach:
+        if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or \
+                (self.approach and not Approach.approach_too_dangerous(smashbot_state, opponent_state, gamestate)):
             self.picktactic(Tactics.Approach)
             return
 
