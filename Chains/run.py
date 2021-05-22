@@ -15,11 +15,16 @@ class Run(Chain):
 
         controller = self.controller
 
+        if smashbot_state.action in [Action.SHIELD_REFLECT, Action.SHIELD_STUN]:
+            self.interruptible = True
+            controller.release_all()
+            return
+
         #We need to input a jump to wavedash out of these states if dash/run gets called while in one of these states, or else we get stuck
         jcstates = [Action.DOWN_B_GROUND_START, Action.DOWN_B_GROUND, Action.TURNING_RUN]
         if (smashbot_state.action in jcstates) or (smashbot_state.action == Action.TURNING and smashbot_state.action_frame in range(2,12)):
-                self.controller.press_button(Button.BUTTON_Y)
-                return
+            self.controller.press_button(Button.BUTTON_Y)
+            return
 
         #If the past action didn't work because Smashbot tried to press Y on a bad frame and continues holding Y, he needs to let go of Y and try again
         if controller.prev.button[Button.BUTTON_Y] and smashbot_state.action in jcstates:
