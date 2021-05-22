@@ -190,11 +190,15 @@ class Grabedge(Chain):
         #Are we outside the given radius of dash dancing?
         if smashbot_state.position.x < edge_x:
             self.interruptible = True
+            if not self.wavedash:
+                self.interruptible = False
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
             return
 
         if smashbot_state.position.x > edge_x:
             self.interruptible = True
+            if not self.wavedash:
+                self.interruptible = False
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 0, .5)
             return
 
