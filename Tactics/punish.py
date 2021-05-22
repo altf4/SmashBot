@@ -179,6 +179,10 @@ class Punish(Tactic):
         if framedata.is_roll(opponent_state.character, opponent_state.action):
             return True
 
+        # Don't punish if the vertical difference is too great.
+        if abs(smashbot_state.position.y - opponent_state.position.y) > 10:
+            return False
+
         # Can we shine right now without any movement?
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
