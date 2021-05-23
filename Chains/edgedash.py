@@ -21,6 +21,12 @@ class Edgedash(Chain):
             controller.empty_input()
             return
 
+        # If we just grabbed the edge, just wait
+        if smashbot_state.on_ground:
+            self.interruptible = True
+            controller.empty_input()
+            return
+
         if smashbot_state.action == Action.SWORD_DANCE_3_LOW:
             self.hasstalled = True
             self.interruptible = False
