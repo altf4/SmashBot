@@ -1,14 +1,12 @@
 import melee
 import Chains
-from melee.enums import Action, Character
+from melee.enums import Action, Character, Stage
 from Tactics.tactic import Tactic
 from Chains.tilt import TILT_DIRECTION
 from Chains.grabandthrow import THROW_DIRECTION
 from Chains.airattack import AirAttack, AIR_ATTACK_DIRECTION
 from Tactics.punish import Punish
 from Tactics.infinite import Infinite
-from melee.enums import Character
-from melee.enums import Stage
 
 class Juggle(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):

@@ -6,7 +6,8 @@ from enum import Enum
 class SMASH_DIRECTION(Enum):
     UP = 0
     DOWN = 1
-    FORWARD = 2
+    LEFT = 2
+    RIGHT = 3
 
 class SmashAttack(Chain):
     def __init__(self, charge=0, direction=SMASH_DIRECTION.UP):
@@ -69,5 +70,7 @@ class SmashAttack(Chain):
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 1)
         elif self.direction == SMASH_DIRECTION.DOWN:
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
-        elif self.direction == SMASH_DIRECTION.FORWARD:
-            controller.tilt_analog(Button.BUTTON_MAIN, int(smashbot_state.facing), .5)
+        elif self.direction == SMASH_DIRECTION.LEFT:
+            controller.tilt_analog(Button.BUTTON_MAIN, 0, .5)
+        elif self.direction == SMASH_DIRECTION.RIGHT:
+            controller.tilt_analog(Button.BUTTON_MAIN, 1, .5)

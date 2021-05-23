@@ -13,3 +13,4 @@ from Tactics.celebrate import Celebrate
 from Tactics.retreat import Retreat
 from Tactics.selfdestruct import SelfDestruct
 from Tactics.juggle import Juggle
+from Tactics.challenge import Challenge

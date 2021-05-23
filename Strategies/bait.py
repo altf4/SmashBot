@@ -16,6 +16,7 @@ from Tactics.wait import Wait
 from Tactics.retreat import Retreat
 from Tactics.selfdestruct import SelfDestruct
 from Tactics.approach import Approach
+from Tactics.challenge import Challenge
 
 class Bait(Strategy):
     def __init__(self, logger, controller, framedata, difficulty):
@@ -134,6 +135,10 @@ class Bait(Strategy):
 
         if Retreat.shouldretreat(smashbot_state, opponent_state, gamestate, not self.approach):
             self.picktactic(Tactics.Retreat)
+            return
+
+        if Challenge.canchallenge(smashbot_state, opponent_state, gamestate, self.framedata, self.difficulty):
+            self.picktactic(Tactics.Challenge)
             return
 
         if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or \

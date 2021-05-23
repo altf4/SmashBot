@@ -4,14 +4,18 @@ from Chains.chain import Chain
 from melee.enums import Action, Button
 
 class DashDance(Chain):
-    def __init__(self, pivot, radius=0):
+    def __init__(self, pivot, radius=0, hold_a=True):
         self.pivotpoint = pivot
         self.radius = radius
         self.interruptible = True
+        self.hold_a = hold_a
 
     def step(self, gamestate, smashbot_state, opponent_state):
-        if smashbot_state.moonwalkwarning:
+        if smashbot_state.moonwalkwarning and self.hold_a:
             self.controller.press_button(Button.BUTTON_A)
+
+        if not self.hold_a and self.controller.prev.button[Button.BUTTON_A]:
+            self.controller.release_button(Button.BUTTON_A)
 
         if smashbot_state.moonwalkwarning and self.controller.prev.main_stick[0] != 0.5:
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)

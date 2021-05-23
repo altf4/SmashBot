@@ -43,16 +43,6 @@ class Retreat(Tactic):
                 if opponent_state.position.y > 10:
                     return True
 
-        # Camp out rapid jabs
-        if camp and opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
-            # Are they facing the right way, though?
-            if opponent_state.facing == (opponent_state.position.x < smashbot_state.position.x):
-                return True
-        if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1:
-            # But only on main platform
-            if opponent_state.position.y < 10:
-                return True
-
         return False
 
     def is_rapid_jab(opponent_state):
@@ -120,10 +110,6 @@ class Retreat(Tactic):
 
         # Only do this laser if we are on the same level as the opponent
         if abs(opponent_state.position.y - smashbot_state.position.y) < 5 and not missle_approaching:
-            if Retreat.is_rapid_jab(opponent_state) and abs(smashbot_state.position.x - pivotpoint) < 4:
-                self.pickchain(Chains.Laser)
-                return
-
             if samus_bomb and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 10:
                 self.pickchain(Chains.Laser)
                 return
