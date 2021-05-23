@@ -137,7 +137,7 @@ class Bait(Strategy):
             return
 
         if Approach.shouldapproach(smashbot_state, opponent_state, gamestate, self.framedata, self.logger) or \
-                (self.approach and not Approach.approach_too_dangerous(smashbot_state, opponent_state, gamestate)):
+                (self.approach and not Approach.approach_too_dangerous(smashbot_state, opponent_state, gamestate, self.framedata)):
             self.picktactic(Tactics.Approach)
             return
 

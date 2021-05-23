@@ -17,9 +17,11 @@ class Approach(Tactic):
             return True
         return False
 
-    def approach_too_dangerous(smashbot_state, opponent_state, gamestate):
+    def approach_too_dangerous(smashbot_state, opponent_state, gamestate, framedata):
         # TODO Do we actually care about this projectile?
         if len(gamestate.projectiles) > 0:
+            return True
+        if framedata.is_attack(opponent_state.character, opponent_state.action):
             return True
         return False
 

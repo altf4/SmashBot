@@ -36,7 +36,7 @@ class Powershield(Chain):
             return
 
         # Also hold the shield in case we pressed too soon and opponent is still attacking
-        if attackstate == melee.AttackState.ATTACKING and smashbot_state.action in [Action.SHIELD_REFLECT]:
+        if attackstate == melee.AttackState.ATTACKING and smashbot_state.action in [Action.SHIELD_REFLECT, Action.SHIELD]:
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
             controller.press_button(Button.BUTTON_L)

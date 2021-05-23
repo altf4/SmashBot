@@ -194,6 +194,11 @@ class Defend(Tactic):
 
             pivotpoint = opponent_state.position.x
 
+            # TODO: I hate having individual exceptions like this. This is raptor boost.
+            # This should be handled by range_forward/back. It doesn't do locomotion currently
+            if opponent_state.character in [Character.GANONDORF, Character.CPTFALCON] and opponent_state.action == Action.SWORD_DANCE_1:
+                bufferzone += 25
+
             # If it's a getup attack, just get in there and shield it. It's safe
             if opponent_state.action in [Action.GROUND_ATTACK_UP, Action.GETUP_ATTACK]:
                 self.chain = None
