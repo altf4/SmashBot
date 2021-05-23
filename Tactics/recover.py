@@ -85,11 +85,10 @@ class Recover(Tactic):
             self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
-        # TODO: Determine whether we should refresh before the ledge dash
-        # It takes 16 frames to go from frame 1 of hanging to standing.
-        frames_left = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
-        refresh = False
         if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+            # It takes 16 frames to go from frame 1 of hanging to standing.
+            frames_left = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
+            refresh = frames_left < 16 and smashbot_state.invulnerability_left < 16
             self.pickchain(Chains.Edgedash, [refresh])
             return
 
