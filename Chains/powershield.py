@@ -28,7 +28,6 @@ class Powershield(Chain):
             return
 
         # Hold onto the shield until the attack is done
-        # TODO: Shield DI in here
         if self.hold:
             self.interruptible = False
             controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
@@ -56,9 +55,20 @@ class Powershield(Chain):
 
         # If we're in shield stun, we can let go
         if smashbot_state.action == Action.SHIELD_STUN:
-            self.interruptible = True
-            controller.empty_input()
-            return
+            if smashbot_state.hitlag_left > 0:
+                self.interruptible = False
+                controller.release_button(Button.BUTTON_A)
+                controller.release_button(Button.BUTTON_Z)
+                controller.release_button(Button.BUTTON_L)
+                if controller.prev.main_stick[0] == 0.5:
+                    controller.tilt_analog(Button.BUTTON_MAIN, int(opponent_state.position.x > smashbot_state.position.x), 0.5)
+                else:
+                    controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+                return
+            else:
+                self.interruptible = True
+                controller.empty_input()
+                return
 
         # If we already pressed L last frame, let go
         if controller.prev.button[Button.BUTTON_L]:
