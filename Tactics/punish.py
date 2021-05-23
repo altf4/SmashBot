@@ -228,12 +228,11 @@ class Punish(Tactic):
             return
 
         # Attempt powershield action, note, we don't have a way of knowing for sure if we hit a physical PS
-        powershieldrelease = (smashbot_state.action == Action.SHIELD_RELEASE and smashbot_state.shield_strength >= 59.9)
         opponentxvelocity = (opponent_state.speed_air_x_self + opponent_state.speed_ground_x_self + opponent_state.speed_x_attack)
         opponentyvelocity = (opponent_state.speed_y_attack + opponent_state.speed_y_self)
         opponentonright = opponent_state.position.x > smashbot_state.position.x
 
-        if powershieldrelease:
+        if smashbot_state.action == Action.SHIELD_RELEASE:
             # Sometimes shine OOS will miss because the oppponent is still rising with an aerial. Peach's float can be hard to shine OOS.
             if opponent_state.position.y >= 11.5:
                 # If the opponent is above a certain height and still rising, or outside of a small x range, don't shine, just WD.
