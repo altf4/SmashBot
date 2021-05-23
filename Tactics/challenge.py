@@ -3,6 +3,7 @@ import Chains
 from melee.enums import Action, Character, Stage
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
+from Chains.shffl import SHFFL_DIRECTION
 
 class Challenge(Tactic):
     """Challenge is for when we throw out a hitbox to beat out (challenge) an opponent's attack
@@ -17,6 +18,12 @@ class Challenge(Tactic):
     def canchallenge(smashbot_state, opponent_state, gamestate, framedata, difficulty):
         if opponent_state.invulnerability_left > 0:
             return False
+
+        # If we're ahead and opponent is on a platform, don't challenge.
+        losing = smashbot_state.stock < opponent_state.stock or (smashbot_state.stock == opponent_state.stock and smashbot_state.percent > opponent_state.percent)
+        if not losing and opponent_state.on_ground and opponent_state.position.y > 10:
+            return False
+
         # Rapid jabs
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
             return True
@@ -41,6 +48,15 @@ class Challenge(Tactic):
             bufferzone = 35
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
+
+        side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate.stage)
+        on_side_plat = False
+        if side_plat_height is not None:
+            on_side_plat = opponent_state.on_ground and abs(opponent_state.position.y - side_plat_height) < 5
+
+        if on_side_plat:
+            bufferzone = 0
+
         pivotpoint += bufferzone
 
         # Don't run off the stage though, adjust this back inwards a little if it's off
@@ -48,10 +64,13 @@ class Challenge(Tactic):
         pivotpoint = min(pivotpoint, edge - edgebuffer)
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
 
-        # TODO JABS ON PLATFORMS
-
         if self.logger:
             self.logger.log("Notes", "pivotpoint: " + str(pivotpoint) + " ", concat=True)
+
+        if on_side_plat and abs(smashbot_state.position.x - pivotpoint) < 2 and smashbot_state.action == Action.TURNING:
+            if opponent_state.action_frame < 6:
+                self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.UP])
+                return
 
         smash_now = opponent_state.action_frame < 6
         if opponent_state.character == Character.CPTFALCON:
@@ -59,7 +78,7 @@ class Challenge(Tactic):
 
         # If spacing and timing is right, do a smash attack
         if abs(smashbot_state.position.x - pivotpoint) < 2 and smashbot_state.action == Action.TURNING:
-            if smash_now:
+            if smash_now and not on_side_plat:
                 self.chain = None
                 if opponent_state.position.x < smashbot_state.position.x:
                     self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.LEFT])
