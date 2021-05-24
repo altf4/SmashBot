@@ -29,6 +29,8 @@ class Challenge(Tactic):
             return True
         if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1:
             return True
+        if opponent_state.character == Character.MARTH and opponent_state.action in [Action.NEUTRAL_ATTACK_1, Action.NEUTRAL_ATTACK_2]:
+            return True
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
@@ -39,6 +41,11 @@ class Challenge(Tactic):
             self.chain.step(gamestate, smashbot_state, opponent_state)
             return
 
+        # If we chose to run, keep running
+        if type(self.chain) == Chains.Run:
+            self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
+            return
+
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
 
         # Dash dance up to the correct spacing
@@ -46,6 +53,8 @@ class Challenge(Tactic):
         bufferzone = 30
         if opponent_state.character == Character.CPTFALCON:
             bufferzone = 35
+        if opponent_state.character == Character.MARTH:
+            bufferzone = 40
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
 
@@ -75,10 +84,17 @@ class Challenge(Tactic):
         smash_now = opponent_state.action_frame < 6
         if opponent_state.character == Character.CPTFALCON:
             smash_now = opponent_state.action_frame in [4, 12, 20, 27]
+        if opponent_state.character == Character.MARTH:
+            smash_now = opponent_state.action_frame < 6
 
         # If spacing and timing is right, do a smash attack
         if abs(smashbot_state.position.x - pivotpoint) < 2 and smashbot_state.action == Action.TURNING:
             if smash_now and not on_side_plat:
+                # For marth, it's actually more reliable to run between slashes
+                if opponent_state.character == Character.MARTH:
+                    self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
+                    return
+
                 self.chain = None
                 if opponent_state.position.x < smashbot_state.position.x:
                     self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.LEFT])
