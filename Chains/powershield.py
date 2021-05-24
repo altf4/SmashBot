@@ -65,7 +65,6 @@ class Powershield(Chain):
                     if self.direction is None:
                         # Can we be in shine range after the hitlag?
                         di_distance = 3.96 * (smashbot_state.hitlag_left // 2)
-                        print(gamestate.frame, di_distance)
                         shine_range = 11.8
                         shield_slide = 10
                         if abs(opponent_state.position.x - smashbot_state.position.x) < di_distance + shine_range - shield_slide:
