@@ -6,6 +6,7 @@ class Powershield(Chain):
     def __init__(self, hold=False, zpress=False):
         self.hold = hold
         self.zpress = zpress
+        self.direction = None
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
@@ -61,7 +62,17 @@ class Powershield(Chain):
                 controller.release_button(Button.BUTTON_Z)
                 controller.release_button(Button.BUTTON_L)
                 if controller.prev.main_stick[0] == 0.5:
-                    controller.tilt_analog(Button.BUTTON_MAIN, int(opponent_state.position.x > smashbot_state.position.x), 0.5)
+                    if self.direction is None:
+                        # Can we be in shine range after the hitlag?
+                        di_distance = 3.96 * (smashbot_state.hitlag_left // 2)
+                        print(gamestate.frame, di_distance)
+                        shine_range = 11.8
+                        shield_slide = 10
+                        if abs(opponent_state.position.x - smashbot_state.position.x) < di_distance + shine_range - shield_slide:
+                            self.direction = int(opponent_state.position.x > smashbot_state.position.x)
+                        else:
+                            self.direction = int(opponent_state.position.x < smashbot_state.position.x)
+                    controller.tilt_analog(Button.BUTTON_MAIN, self.direction, 0.5)
                 else:
                     controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
                 return
