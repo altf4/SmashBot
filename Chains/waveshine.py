@@ -22,11 +22,16 @@ class Waveshine(Chain):
         lastdashframe = (smashbot_state.action == Action.DASHING) and (smashbot_state.action_frame == 12)
         landing_over = (smashbot_state.action == Action.LANDING) and (smashbot_state.action_frame >= 4)
 
-        # If we're in the air, don't try to waveshine
+        # If we're in the air high, don't try to waveshine
         if smashbot_state.action == Action.DOWN_B_AIR:
-            self.interruptible = True
-            controller.empty_input()
-            return
+            if smashbot_state.position.y > 5:
+                self.interruptible = True
+                controller.empty_input()
+                return
+            else:
+                self.interruptible = False
+                controller.empty_input()
+                return
 
         # If somehow we are off stage, give up immediately
         if smashbot_state.off_stage:
@@ -43,7 +48,7 @@ class Waveshine(Chain):
             return
 
         # Alternative shine. Happens when we clank. Do the shine again!
-        if jcshine and gamestate.distance < 11.8 and opponent_state.hitlag_left == 0:
+        if jcshine and gamestate.distance < 11.8 and opponent_state.hitlag_left == 0 and opponent_state.hitstun_frames_left == 0:
             self.interruptible = False
             controller.press_button(Button.BUTTON_B)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
