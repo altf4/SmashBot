@@ -43,7 +43,7 @@ class Edgedash(Chain):
                     controller.empty_input()
                     return
                 self.interruptible = False
-                controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.position.x < 0), 0.5)
+                controller.tilt_analog(Button.BUTTON_C, int(smashbot_state.position.x > 0), 0.5)
                 return
 
             # Once we're falling, UP-B
