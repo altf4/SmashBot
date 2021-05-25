@@ -104,6 +104,15 @@ class SDI(Chain):
         if self.cardinal is not None:
             if self.logger:
                 self.logger.log("Notes", " Committed SDI cardinal: " + str(self.cardinal) + " ", concat=True)
+            if SDI.touching_ground(smashbot_state):
+                # If we're on the ground, and want to move horizontally, just alternate neutral and the direction
+                #   This will avoid accidentally moving upwards
+                if self.cardinal[1] == 0.5:
+                    if gamestate.frame % 2:
+                        controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+                    else:
+                        controller.tilt_analog(Button.BUTTON_MAIN, self.cardinal[0], 0.5)
+                    return
             if gamestate.frame % 2:
                 x, y = SDI.cardinal_right(self.cardinal)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
@@ -208,6 +217,14 @@ class SDI(Chain):
                 self.cardinal = (self.cardinal[0], 0.5)
                 if self.cardinal[0] == 0.5:
                     self.cardinal = (1, 0.5)
+            # If we're on the ground, and want to move horizontally, just alternate neutral and the direction
+            #   This will avoid accidentally moving upwards
+            if self.cardinal[1] == 0.5:
+                if gamestate.frame % 2:
+                    controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+                else:
+                    controller.tilt_analog(Button.BUTTON_MAIN, self.cardinal[0], 0.5)
+                return
 
         if gamestate.frame % 2:
             x, y = SDI.cardinal_right(self.cardinal)

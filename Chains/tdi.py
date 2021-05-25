@@ -80,5 +80,11 @@ class TDI(Chain):
                 cardinal = (cardinal[0], 0.5)
                 if cardinal[0] == 0.5:
                     cardinal = (1, 0.5)
+            # Don't tech if we're close to the edge. We're better off doing a slideoff
+            if abs(melee.stages.EDGE_POSITION[gamestate.stage] - abs(smashbot_state.position.x)) > 30:
+                if gamestate.custom["tech_lockout"] == 0:
+                    controller.press_button(Button.BUTTON_L)
+                else:
+                    controller.release_button(Button.BUTTON_L)
 
         controller.tilt_analog(Button.BUTTON_MAIN, cardinal[0], cardinal[1])
