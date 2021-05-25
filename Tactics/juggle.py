@@ -58,15 +58,15 @@ class Juggle(Tactic):
         on_ground = opponent_state.on_ground or opponent_state.position.y < 1 or opponent_state.action in [Action.TECH_MISS_UP, Action.TECH_MISS_DOWN]
 
         # Make sure we don't dashdance off the platform during a juggle
-        side_platform_height, side_platform_left, side_platform_right = melee.side_platform_position(smashbot_state.position.x > 0, gamestate.stage)
+        side_platform_height, side_platform_left, side_platform_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate.stage)
         top_platform_height, top_platform_left, top_platform_right = melee.top_platform_position(gamestate.stage)
-        if smashbot_state.position.y < 5:
+        if opponent_state.position.y < 5:
             end_x = min(end_x, melee.EDGE_GROUND_POSITION[gamestate.stage]-5)
             end_x = max(end_x, -melee.EDGE_GROUND_POSITION[gamestate.stage]+5)
-        elif opponent_state.hitstun_frames_left == 0 and (side_platform_height is not None) and abs(smashbot_state.position.y - side_platform_height) < 5:
+        elif (side_platform_height is not None) and abs(opponent_state.position.y - side_platform_height) < 5:
             end_x = min(end_x, side_platform_right-5)
             end_x = max(end_x, side_platform_left+5)
-        elif opponent_state.hitstun_frames_left == 0 and (top_platform_height is not None) and abs(smashbot_state.position.y - top_platform_height) < 5:
+        elif (top_platform_height is not None) and abs(opponent_state.position.y - top_platform_height) < 5:
             end_x = min(end_x, top_platform_right-5)
             end_x = max(end_x, top_platform_left+5)
 
