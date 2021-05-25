@@ -118,7 +118,7 @@ class Firefox(Chain):
                 else:
                     controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 1)
                     return
-            if self.direction == FIREFOX.HORIZONTAL and smashbot_state.position.y > -10:
+            if self.direction == FIREFOX.HORIZONTAL and smashbot_state.position.y > -8:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
                 return
             if self.direction == FIREFOX.EDGE:
