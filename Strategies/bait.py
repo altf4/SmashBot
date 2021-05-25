@@ -63,7 +63,7 @@ class Bait(Strategy):
         # Should happen on average once per 2 seconds
         # The effect will last for about 1 second
         # On the first two difficulties, just always approach
-        if (random.randint(0, 120) == 0 or self.difficulty >= 4) and (opponent_state.invulnerability_left == 0):
+        if (random.randint(0, 120) == 0 or (self.difficulty >= 4 and opponent_state.action != Action.CROUCHING)) and (opponent_state.invulnerability_left == 0):
             self.approach = True
             self.approach_frame = gamestate.frame
 
