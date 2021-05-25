@@ -126,7 +126,7 @@ class Recover(Tactic):
         # If we can just do nothing and grab the edge, do that
         # Action.SWORD_DANCE_1_AIR is Fox's initial freefall after his upB finishes launching.
         # Fox can ledgegrab from behind in this animation, but he oftentimes needs to fastfall to hit the window.
-        if -12 < smashbot_state.position.y and (diff_x < 10) and (facinginwards or smashbot_state.action == Action.SWORD_DANCE_1_AIR) and smashbot_state.speed_y_self < 0:
+        if -12 < smashbot_state.position.y and (diff_x < 10) and (facinginwards or smashbot_state.action == Action.SWORD_DANCE_1_AIR) and smashbot_state.speed_y_self <= 0:
             # Do a Fastfall if we're not already
             if smashbot_state.action == Action.FALLING and smashbot_state.speed_y_self > -3.3:
                 self.chain = None

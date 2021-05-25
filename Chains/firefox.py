@@ -8,7 +8,7 @@ from enum import Enum
 class FIREFOX(Enum):
     HIGH = 0
     EDGE = 1
-    MEDIUM = 2
+    HORIZONTAL = 2
     RANDOM = 3
     # Added SAFERANDOM option so Smashbot wouldn't random a straight horizontal upB and SD below the stage
     SAFERANDOM = 4
@@ -30,7 +30,7 @@ class Firefox(Chain):
         if stage == melee.Stage.YOSHIS_STORY:
             return (melee.EDGE_POSITION[stage], -1000)
         if stage == melee.Stage.BATTLEFIELD:
-            return (melee.EDGE_POSITION[stage], 0)
+            return (melee.EDGE_POSITION[stage], -10)
         if stage == melee.Stage.FINAL_DESTINATION:
             return (45, -66.21936)
         if stage == melee.Stage.DREAMLAND:
@@ -41,10 +41,6 @@ class Firefox(Chain):
         return (0, 0)
 
     def getangle(self, gamestate, smashbot_state):
-        x = 0
-        if smashbot_state.position.x < 0:
-            x = 1
-
         # Make sure we don't angle below the stage's low corner.
         #   If we do, we'll SD
         corner_x, corner_y = self.get_low_corner(gamestate.stage)
@@ -71,12 +67,15 @@ class Firefox(Chain):
 
         # Only bother with corner adjustment when FF upwards
         if smashbot_state.position.y < -10:
-            wanted_angle = math.degrees(-math.atan2(x, y)) + 90
-            lowest_angle = math.degrees(-math.atan2(smashbot_state.position.x - corner_x, smashbot_state.position.y - corner_y)) + 90
+            wanted_angle = math.degrees(-math.atan2(x - 0.5, y - 0.5)) % 360
+            lowest_angle = math.degrees(-math.atan2(corner_x - smashbot_state.position.x, corner_y - smashbot_state.position.y)) % 360
+
             if smashbot_state.position.x > 0:
-                if wanted_angle > lowest_angle:
+                # On the right, lower angle is higher
+                if lowest_angle < wanted_angle:
                     return 0.5, 1 #TODO make a better angle here.
             else:
+                # On the left, lower angle is lower
                 if wanted_angle < lowest_angle:
                     return 0.5, 1 #TODO make a better angle here.
 
@@ -112,17 +111,21 @@ class Firefox(Chain):
         # Which way should we point?
         if smashbot_state.action == Action.FIREFOX_WAIT_AIR:
             self.interruptible = False
-
             if self.direction == FIREFOX.HIGH:
                 if diff_x > 20:
                     controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
+                    return
                 else:
                     controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 1)
-            if self.direction == FIREFOX.MEDIUM and smashbot_state.position.y > -10:
+                    return
+            if self.direction == FIREFOX.HORIZONTAL and smashbot_state.position.y > -10:
                 controller.tilt_analog(Button.BUTTON_MAIN, x, .5)
+                return
             if self.direction == FIREFOX.EDGE:
                 x, y = self.getangle(gamestate, smashbot_state)
                 controller.tilt_analog(Button.BUTTON_MAIN, x, y)
+                return
+            controller.tilt_analog(Button.BUTTON_MAIN, x, 1)
             return
 
         # Is this a "forbidden" angle? Don't try it if it is.
