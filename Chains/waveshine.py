@@ -42,6 +42,14 @@ class Waveshine(Chain):
             self.hasshined = True
             return
 
+        # Alternative shine. Happens when we clank. Do the shine again!
+        if jcshine and gamestate.distance < 11.8 and opponent_state.hitlag_left == 0:
+            self.interruptible = False
+            controller.press_button(Button.BUTTON_B)
+            controller.tilt_analog(Button.BUTTON_MAIN, .5, 0)
+            self.hasshined = True
+            return
+
         # If we're in the early knee bend frames, just hang on and wait
         if (smashbot_state.action == Action.KNEE_BEND) and (smashbot_state.action_frame < 3):
             controller.empty_input()
