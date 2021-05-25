@@ -96,6 +96,14 @@ class SDI(Chain):
         #   2) Combo SDI
         #   3) Situationally-specific SDI
 
+        # SDI the chain in
+        if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
+            if gamestate.frame % 2:
+                controller.tilt_analog(Button.BUTTON_MAIN, int(opponent_state.position.x > smashbot_state.position.x), 0.5)
+            else:
+                controller.tilt_analog(Button.BUTTON_MAIN, 0.5, 0.5)
+            return
+
         # SDI implementation
         # We break up SDI into 8 possible directions. 4 cardinal directions and 4 diagonals
         #   Every SDI targets one of these 8 directions and wiggles back and forth accross the direction

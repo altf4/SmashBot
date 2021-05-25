@@ -11,13 +11,13 @@ class Retreat(Tactic):
         shieldactions = [Action.SHIELD_START, Action.SHIELD, Action.SHIELD_RELEASE, \
             Action.SHIELD_STUN, Action.SHIELD_REFLECT]
 
-        winning = smashbot_state.stock > opponent_state.stock
-        if smashbot_state.stock == opponent_state.stock and smashbot_state.percent < opponent_state.percent:
-            winning = False
+        losing = smashbot_state.stock < opponent_state.stock
+        if smashbot_state.stock == opponent_state.stock:
+            losing = smashbot_state.percent > opponent_state.percent
 
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
-            # If we're ahead, retreat from the chain
-            if winning:
+            # If we're losing, don't retreat
+            if not losing:
                 return True
 
         # FireFox is different
