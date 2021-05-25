@@ -55,6 +55,8 @@ class Challenge(Tactic):
             bufferzone = 35
         if opponent_state.character == Character.MARTH:
             bufferzone = 40
+        if opponent_state.character == Character.SHEIK:
+            bufferzone = 38
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
 
