@@ -15,6 +15,7 @@ class Challenge(Tactic):
     """
     def __init__(self, logger, controller, framedata, difficulty):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
+        self.keep_running = False
 
     def canchallenge(smashbot_state, opponent_state, gamestate, framedata, difficulty):
         if opponent_state.invulnerability_left > 0:
@@ -49,7 +50,7 @@ class Challenge(Tactic):
             return
 
         # If we chose to run, keep running
-        if type(self.chain) == Chains.Run:
+        if type(self.chain) == Chains.Run and self.keep_running:
             self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
             return
 
@@ -108,22 +109,27 @@ class Challenge(Tactic):
             spacing_grace_zone = 8
 
         # If spacing and timing is right, do a smash attack
-        if abs(smashbot_state.position.x - pivotpoint) < spacing_grace_zone and smashbot_state.action == Action.TURNING:
-            if smash_now and not on_side_plat and not falling_spacie:
-                # For marth, it's actually more reliable to run between slashes
-                if opponent_state.character == Character.MARTH:
-                    self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
-                    return
+        if abs(smashbot_state.position.x - pivotpoint) < spacing_grace_zone:
+            if smashbot_state.action == Action.TURNING:
+                if smash_now and not on_side_plat and not falling_spacie:
+                    # For marth, it's actually more reliable to run between slashes
+                    if opponent_state.character == Character.MARTH:
+                        self.keep_running = True
+                        self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
+                        return
 
-                self.chain = None
-                if opponent_state.position.x < smashbot_state.position.x:
-                    self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.LEFT])
-                else:
-                    self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.RIGHT])
-                return
-            if falling_spacie and abs(opponent_state.position.y - smashbot_state.position.y) < 30:
-                self.chain = None
-                self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
+                    self.chain = None
+                    if opponent_state.position.x < smashbot_state.position.x:
+                        self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.LEFT])
+                    else:
+                        self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.RIGHT])
+                    return
+                if falling_spacie and abs(opponent_state.position.y - smashbot_state.position.y) < 36:
+                    self.chain = None
+                    self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
+                    return
+            elif smashbot_state.action == Action.DASHING:
+                self.pickchain(Chains.Run, [not smashbot_state.facing])
                 return
 
         # If we're stuck in shield, wavedash back
