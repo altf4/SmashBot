@@ -595,6 +595,15 @@ class Edgeguard(Tactic):
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
+            # Grab the edge when opponent starts a FireFox
+            if opponent_state.character in [Character.FOX, Character.FALCO] and opponent_state.action == Action.SWORD_DANCE_3_LOW and (opponent_state.action_frame < 22):
+                # But not if they're in range to grab the edge themselves
+                edgedistance = abs(opponent_state.position.x) - (melee.stages.EDGE_GROUND_POSITION[gamestate.stage] + 15)
+                in_immediate_range = (-5 > opponent_state.position.y > -28) and (edgedistance < 15)
+                if not in_immediate_range:
+                    self.pickchain(Chains.Grabedge, [True])
+                    return
+
             if (not recoverhigh or randomgrab) and not onedge and opponent_state.invulnerability_left < 5 and edgedistance < 10 and smashbot_state.on_ground:
                 if (randomgrab or framesleft > 10) and opponent_state.action not in [Action.EDGE_ROLL_SLOW, Action.EDGE_ROLL_QUICK, Action.EDGE_GETUP_SLOW, Action.EDGE_GETUP_QUICK, Action.EDGE_ATTACK_SLOW, Action.EDGE_ATTACK_QUICK]:
                     if not self.framedata.is_attack(opponent_state.character, opponent_state.action):
