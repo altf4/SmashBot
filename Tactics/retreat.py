@@ -35,9 +35,14 @@ class Retreat(Tactic):
         if opponent_state.speed_y_self < 0 and not opponent_state.on_ground and smashbot_state.action in shieldactions:
             return True
 
+        # Pikachu thunder
+        if opponent_state.character == Character.PIKACHU and opponent_state.action in [Action.SWORD_DANCE_3_LOW_AIR, \
+            Action.SWORD_DANCE_2_HIGH_AIR, Action.DOWN_B_GROUND_START, Action.SHINE_TURN]:
+            return True
+
         # If there's a Samus bomb between us and opponent
         for projectile in gamestate.projectiles:
-            if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB:
+            if projectile.type in [melee.ProjectileType.SAMUS_BOMB, melee.ProjectileType.PIKACHU_THUNDER]:
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     return True
                 if opponent_state.position.y > 10:
@@ -74,7 +79,7 @@ class Retreat(Tactic):
         # Samus bomb?
         samus_bomb = False
         for projectile in gamestate.projectiles:
-            if projectile.type == melee.enums.ProjectileType.SAMUS_BOMB:
+            if projectile.type in [melee.ProjectileType.SAMUS_BOMB, melee.ProjectileType.PIKACHU_THUNDER]:
                 if smashbot_state.position.x < projectile.x < opponent_state.position.x or smashbot_state.position.x > projectile.x > opponent_state.position.x:
                     samus_bomb = True
         if samus_bomb:
