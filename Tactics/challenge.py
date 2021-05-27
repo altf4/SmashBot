@@ -4,6 +4,7 @@ from melee.enums import Action, Character, Stage
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Chains.shffl import SHFFL_DIRECTION
+from Chains.tilt import TILT_DIRECTION
 
 class Challenge(Tactic):
     """Challenge is for when we throw out a hitbox to beat out (challenge) an opponent's attack
@@ -31,6 +32,12 @@ class Challenge(Tactic):
             return True
         if opponent_state.character == Character.MARTH and opponent_state.action in [Action.NEUTRAL_ATTACK_1, Action.NEUTRAL_ATTACK_2]:
             return True
+
+        # Falling spacies
+        if opponent_state.character in [Character.FOX, Character.FALCO]:
+            if not opponent_state.on_ground and opponent_state.speed_y_self < 0:
+                return True
+
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
@@ -68,6 +75,13 @@ class Challenge(Tactic):
         if on_side_plat:
             bufferzone = 0
 
+        # Falling spacies
+        falling_spacie = False
+        if opponent_state.character in [Character.FOX, Character.FALCO]:
+            if not opponent_state.on_ground and opponent_state.speed_y_self < 0:
+                bufferzone = 0
+                falling_spacie = True
+
         pivotpoint += bufferzone
 
         # Don't run off the stage though, adjust this back inwards a little if it's off
@@ -89,9 +103,13 @@ class Challenge(Tactic):
         if opponent_state.character == Character.MARTH:
             smash_now = opponent_state.action_frame < 6
 
+        spacing_grace_zone = 2
+        if falling_spacie:
+            spacing_grace_zone = 8
+
         # If spacing and timing is right, do a smash attack
-        if abs(smashbot_state.position.x - pivotpoint) < 2 and smashbot_state.action == Action.TURNING:
-            if smash_now and not on_side_plat:
+        if abs(smashbot_state.position.x - pivotpoint) < spacing_grace_zone and smashbot_state.action == Action.TURNING:
+            if smash_now and not on_side_plat and not falling_spacie:
                 # For marth, it's actually more reliable to run between slashes
                 if opponent_state.character == Character.MARTH:
                     self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
@@ -102,6 +120,10 @@ class Challenge(Tactic):
                     self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.LEFT])
                 else:
                     self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.RIGHT])
+                return
+            if falling_spacie and abs(opponent_state.position.y - smashbot_state.position.y) < 30:
+                self.chain = None
+                self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                 return
 
         # If we're stuck in shield, wavedash back
