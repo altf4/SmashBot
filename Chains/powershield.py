@@ -67,7 +67,10 @@ class Powershield(Chain):
                         di_distance = 3.96 * (smashbot_state.hitlag_left // 2)
                         shine_range = 11.8
                         shield_slide = 10
-                        if abs(opponent_state.position.x - smashbot_state.position.x) < di_distance + shine_range - shield_slide:
+                        sdi_in = abs(opponent_state.position.x - smashbot_state.position.x) < di_distance + shine_range - shield_slide
+                        if opponent_state.off_stage:
+                            sdi_in = False
+                        if sdi_in:
                             self.direction = int(opponent_state.position.x > smashbot_state.position.x)
                         else:
                             self.direction = int(opponent_state.position.x < smashbot_state.position.x)
