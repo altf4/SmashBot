@@ -4,8 +4,13 @@ import random
 from melee.enums import Action, Button, Character
 from Tactics.tactic import Tactic
 from Tactics.punish import Punish
+from Chains.shffl import SHFFL_DIRECTION
 
 class Approach(Tactic):
+    def __init__(self, logger, controller, framedata, difficulty):
+        Tactic.__init__(self, logger, controller, framedata, difficulty)
+        self.random_approach = random.randint(0, 100)
+
     def shouldapproach(smashbot_state, opponent_state, gamestate, framedata, logger):
         if len(gamestate.projectiles) > 0:
             return False
@@ -59,14 +64,9 @@ class Approach(Tactic):
             return
 
         # Jump over Samus Bomb
+        # TODO Don't jump on top of an existing bomb
         samus_bomb = opponent_state.character == Character.SAMUS and opponent_state.action == Action.SWORD_DANCE_4_MID
-        # Falcon rapid jab
-        falcon_rapid_jab = opponent_state.action == Action.LOOPING_ATTACK_MIDDLE
-        # Are they facing the right way, though?
-        facing_wrong_way = opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x)
-        pika_rapid_jab = opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1
-
-        if (samus_bomb or falcon_rapid_jab) and opponent_state.position.y < 5:
+        if samus_bomb and opponent_state.position.y < 5:
             landing_spot = opponent_state.position.x
             if opponent_state.position.x < smashbot_state.position.x:
                 landing_spot -= 10
@@ -74,9 +74,20 @@ class Approach(Tactic):
                 landing_spot += 10
 
             # Don't jump off the stage
-            if abs(landing_spot) < melee.stages.EDGE_GROUND_POSITION[gamestate.stage] and not facing_wrong_way:
+            if abs(landing_spot) < melee.stages.EDGE_GROUND_POSITION[gamestate.stage]:
                 self.pickchain(Chains.JumpOver, [landing_spot])
                 return
+
+        # SHFFL at opponent sometimes (33% chance per approach)
+        if self.random_approach < 33:
+            if not self.framedata.is_attack(opponent_state.character, opponent_state.action):
+                # We need to be dashing towards our opponent. Not too close to the ledge
+                vertical_distance = abs(smashbot_state.position.y - opponent_state.position.y)
+                facing_opponent = smashbot_state.facing == (smashbot_state.position.x < opponent_state.position.x)
+                if smashbot_state.action == Action.DASHING and facing_opponent:
+                    if vertical_distance < 20 and gamestate.distance < 35 and abs(melee.stages.EDGE_GROUND_POSITION[gamestate.stage] - abs(smashbot_state.position.x)) > 35:
+                        self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.NEUTRAL])
+                        return
 
         self.chain = None
         self.pickchain(Chains.DashDance, [opponent_state.position.x])

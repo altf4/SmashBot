@@ -24,6 +24,7 @@ class Shffl(Chain):
         # If we're in knee bend, let go of jump. But move toward opponent
         if smashbot_state.action == Action.KNEE_BEND:
             self.interruptible = False
+            controller.release_button(Button.BUTTON_A)
             controller.release_button(Button.BUTTON_Y)
             jumpdirection = 1
             if opponent_state.position.x < smashbot_state.position.x:
@@ -55,9 +56,12 @@ class Shffl(Chain):
                 x = int(smashbot_state.position.x < 0)
 
             controller.tilt_analog(Button.BUTTON_MAIN, x, 0)
-            # Only do the L cancel near the end of the animation
-            if smashbot_state.action_frame >= 12:
-                controller.press_button(Button.BUTTON_L)
+            # L-Cancel
+            #   Spam shoulder button
+            if controller.prev.l_shoulder == 0:
+                controller.press_shoulder(Button.BUTTON_L, 1.0)
+            else:
+                controller.press_shoulder(Button.BUTTON_L, 0)
             return
 
         # Once we're airborn, do an attack
