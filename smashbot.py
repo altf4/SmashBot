@@ -43,12 +43,12 @@ parser.add_argument('--stage', '-s', default="FD",
                     help='Specify which stage to select')
 
 stagedict = {
-    "FD": melee.enums.Stage.FINAL_DESTINATION,
-    "BF": melee.enums.Stage.BATTLEFIELD,
-    "YS": melee.enums.Stage.YOSHIS_STORY,
-    "FOD": melee.enums.Stage.FOUNTAIN_OF_DREAMS,
-    "DL": melee.enums.Stage.DREAMLAND,
-    "PS": melee.enums.Stage.POKEMON_STADIUM
+    "FD": melee.Stage.FINAL_DESTINATION,
+    "BF": melee.Stage.BATTLEFIELD,
+    "YS": melee.Stage.YOSHIS_STORY,
+    "FOD": melee.Stage.FOUNTAIN_OF_DREAMS,
+    "DL": melee.Stage.DREAMLAND,
+    "PS": melee.Stage.POKEMON_STADIUM
 }
 
 args = parser.parse_args()
@@ -61,9 +61,9 @@ if args.debug:
 #    GCN_ADAPTER will use your WiiU adapter for live human-controlled play
 #    UNPLUGGED is pretty obvious what it means
 #    STANDARD is a named pipe input (bot)
-opponent_type = melee.enums.ControllerType.STANDARD
+opponent_type = melee.ControllerType.STANDARD
 if not args.bot:
-    opponent_type = melee.enums.ControllerType.GCN_ADAPTER
+    opponent_type = melee.ControllerType.GCN_ADAPTER
 
 # Create our console object. This will be the primary object that we will interface with
 console = melee.console.Console(path=args.dolphinexecutable,
@@ -108,17 +108,13 @@ print("Connected")
 controller_one.connect()
 controller_two.connect()
 
-supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
-    melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
-    melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH, melee.enums.Character.GANONDORF]
-
 # Main loop
 while True:
     # "step" to the next frame
     gamestate = console.step()
 
     # What menu are we in?
-    if gamestate.menu_state == melee.enums.Menu.IN_GAME:
+    if gamestate.menu_state == melee.Menu.IN_GAME:
         try:
             agent1.act(gamestate)
             if agent2:
@@ -139,8 +135,8 @@ while True:
     else:
         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
                                                         controller_one,
-                                                        melee.enums.Character.FOX,
-                                                        stagedict.get(args.stage, melee.enums.Stage.FINAL_DESTINATION),
+                                                        melee.Character.FOX,
+                                                        stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
                                                         autostart=False,
                                                         swag=True)
         if log:

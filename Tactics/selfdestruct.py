@@ -5,17 +5,8 @@ from melee.enums import Action
 
 class SelfDestruct(Tactic):
     def shouldsd(gamestate, smashbot_state, opponent_state):
-
-        supportedcharacters = [melee.enums.Character.PEACH, melee.enums.Character.CPTFALCON, melee.enums.Character.FALCO, \
-            melee.enums.Character.FOX, melee.enums.Character.SAMUS, melee.enums.Character.ZELDA, melee.enums.Character.SHEIK, \
-            melee.enums.Character.PIKACHU, melee.enums.Character.JIGGLYPUFF, melee.enums.Character.MARTH, melee.enums.Character.GANONDORF]
-
-        supportedstages = [melee.enums.Stage.FINAL_DESTINATION, melee.enums.Stage.BATTLEFIELD, \
-            melee.enums.Stage.YOSHIS_STORY, melee.enums.Stage.DREAMLAND, melee.enums.Stage.POKEMON_STADIUM]
-
-        # SD if the opponent is using an unsupported character
-        if opponent_state.character not in supportedcharacters:
-            return True
+        supportedstages = [melee.Stage.FINAL_DESTINATION, melee.Stage.BATTLEFIELD, \
+            melee.Stage.YOSHIS_STORY, melee.Stage.DREAMLAND, melee.Stage.POKEMON_STADIUM]
 
         # SD if we are on an unsupported stage
         if gamestate.stage not in supportedstages:
