@@ -28,7 +28,7 @@ class Dropdownshine(Chain):
             return False
 
         # Don't try to shine Pikachu in the middle of quick attack teleport section
-        if (opponent_state.character == Character.PIKACHU) and opponent_state.action in [Action.SWORD_DANCE_4_LOW]:
+        if (opponent_state.character in [Character.PIKACHU, Character.PICHU]) and opponent_state.action in [Action.SWORD_DANCE_4_LOW]:
             return False
 
         # Don't shine a dead fall opponent. They're already dead and it just causes SDs

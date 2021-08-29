@@ -29,7 +29,7 @@ class Challenge(Tactic):
         # Rapid jabs
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
             return True
-        if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.NEUTRAL_ATTACK_1:
+        if opponent_state.character in [Character.PIKACHU, Character.PICHU] and opponent_state.action == Action.NEUTRAL_ATTACK_1:
             return True
         if opponent_state.character == Character.MARTH and opponent_state.action in [Action.NEUTRAL_ATTACK_1, Action.NEUTRAL_ATTACK_2]:
             return True

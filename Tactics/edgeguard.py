@@ -111,7 +111,7 @@ class Edgeguard(Tactic):
         return 999
 
     def canrecoverhigh(self, gamestate, opponent_state):
-        if opponent_state.character in [Character.JIGGLYPUFF, Character.PIKACHU]:
+        if opponent_state.character in [Character.JIGGLYPUFF, Character.PIKACHU, Character.PICHU]:
             return True
 
         # Don't grab the edge if opponent is recovering high.
@@ -250,7 +250,7 @@ class Edgeguard(Tactic):
             if action in [Action.SHINE_RELEASE_AIR]:
                 return True
         # Just remember that he gets two of them
-        if character == Character.PIKACHU:
+        if character in [Character.PIKACHU, Character.PICHU]:
             if action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_LOW, Action.SWORD_DANCE_1_AIR]:
                 return True
         if character == Character.JIGGLYPUFF:
@@ -394,7 +394,7 @@ class Edgeguard(Tactic):
                     return
 
         # For pikachu, we want to be up on the stage to edgeguard. Not on edge
-        if opponent_state.character == Character.PIKACHU and smashbot_state.action == Action.EDGE_HANGING and smashbot_state.invulnerability_left == 0:
+        if opponent_state.character in [Character.PIKACHU, Character.PICHU] and smashbot_state.action == Action.EDGE_HANGING and smashbot_state.invulnerability_left == 0:
             if opponent_state.position.y < -20:
                 self.chain = None
                 self.pickchain(Chains.Edgedash, [False])
@@ -474,9 +474,9 @@ class Edgeguard(Tactic):
                 return
 
             # Challenge rising UP-B's with a shine if we're in range
-            #   except for pikachu and falcon/ganon
+            #   except for pikachu/pichu and falcon/ganon
             if self.isupb(opponent_state) and opponent_state.speed_y_self >= 0 and gamestate.distance < 10:
-                if opponent_state.character not in [Character.PIKACHU, Character.GANONDORF, Character.CPTFALCON]:
+                if opponent_state.character not in [Character.PIKACHU, Character.PICHU, Character.GANONDORF, Character.CPTFALCON]:
                     self.pickchain(Chains.Dropdownshine)
                     return
 
@@ -558,7 +558,7 @@ class Edgeguard(Tactic):
                 randomgrab = True
 
             # For pikachu and jiggs don't grab the edge unless they're sitting, camping
-            if opponent_state.character in [Character.PIKACHU, Character.JIGGLYPUFF] and opponent_state.action != Action.EDGE_HANGING:
+            if opponent_state.character in [Character.PIKACHU, Character.PICHU, Character.JIGGLYPUFF] and opponent_state.action != Action.EDGE_HANGING:
                 randomgrab = False
 
             # TODO Don't grab the edge if opponent is
@@ -591,7 +591,7 @@ class Edgeguard(Tactic):
                 return
 
             # Grab edge out from under Pika quick-attack startup
-            if opponent_state.character == Character.PIKACHU and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 7:
+            if opponent_state.character in [Character.PIKACHU, Character.PICHU] and opponent_state.action == Action.SWORD_DANCE_4_MID and opponent_state.action_frame < 7:
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
