@@ -26,6 +26,23 @@ class ESAgent():
                             self.difficulty)
 
     def act(self, gamestate):
+        # Figure out who our opponent is
+        #   Opponent is the closest player that is a different costume
+        if len(gamestate.player) > 2:
+            nearest_dist = 1000
+            nearest_port = 1
+            for i, player in gamestate.players.items():
+                if i in [2,3]:
+                    continue
+                xdist = gamestate.players[self.smashbot_port].position.x - player.position.x
+                ydist = gamestate.players[self.smashbot_port].position.y - player.position.y
+                dist = math.sqrt((xdist**2) + (ydist**2))
+                if dist < nearest_dist:
+                    nearest_dist = dist
+                    nearest_port = i
+            self.opponent_port = nearest_port
+            gamestate.distance = nearest_dist
+
         knownprojectiles = []
         for projectile in gamestate.projectiles:
             # Held turnips
