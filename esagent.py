@@ -29,10 +29,15 @@ class ESAgent():
         # Figure out who our opponent is
         #   Opponent is the closest player that is a different costume
         if len(gamestate.player) > 2:
+            opponents = []
+            for i, player in gamestate.players.items():
+                if player.team_id != gamestate.players[self.smashbot_port].team_id:
+                    opponents.append(i)
+
             nearest_dist = 1000
             nearest_port = 1
             for i, player in gamestate.players.items():
-                if i in [2,3]:
+                if len(opponents) > 0 and i not in opponents:
                     continue
                 xdist = gamestate.players[self.smashbot_port].position.x - player.position.x
                 ydist = gamestate.players[self.smashbot_port].position.y - player.position.y
