@@ -26,6 +26,10 @@ class ESAgent():
                             self.difficulty)
 
     def act(self, gamestate):
+        if self.smashbot_port not in gamestate.players:
+            self.controller.release_all()
+            return
+
         # Figure out who our opponent is
         #   Opponent is the closest player that is a different costume
         if len(gamestate.player) > 2:
