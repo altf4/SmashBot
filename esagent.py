@@ -54,9 +54,10 @@ class ESAgent():
 
         knownprojectiles = []
         for projectile in gamestate.projectiles:
-            # Held turnips
-            if projectile.type == ProjectileType.TURNIP and projectile.type == 0:
-                continue
+            # Held turnips and link bombs
+            if projectile.type in [ProjectileType.TURNIP, ProjectileType.LINK_BOMB, ProjectileType.YLINK_BOMB]:
+                if projectile.subtype == 0:
+                    continue
             # Charging arrows
             if projectile.type in [ProjectileType.YLINK_ARROW, ProjectileType.FIRE_ARROW, \
                 ProjectileType.LINK_ARROW, ProjectileType.ARROW]:
