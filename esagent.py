@@ -68,6 +68,10 @@ class ESAgent():
                 knownprojectiles.append(projectile)
         gamestate.projectiles = knownprojectiles
 
+        # Yoshi shield animations are weird. Change them to normal shield
+        if gamestate.player[self.opponent_port].action in [melee.Action.NEUTRAL_B_CHARGING, melee.Action.NEUTRAL_B_FULL_CHARGE, melee.Action.LASER_GUN_PULL]:
+            gamestate.player[self.opponent_port].action = melee.Action.SHIELD
+
         # Tech lockout
         if gamestate.player[self.smashbot_port].controller_state.button[Button.BUTTON_L]:
             self.tech_lockout = 40
