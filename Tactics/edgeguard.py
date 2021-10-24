@@ -474,9 +474,10 @@ class Edgeguard(Tactic):
                 return
 
             # Challenge rising UP-B's with a shine if we're in range
-            #   except for pikachu/pichu and falcon/ganon
+            #   except for pikachu/pichu, falcon/ganon, Shiek
             if self.isupb(opponent_state) and opponent_state.speed_y_self >= 0 and gamestate.distance < 10:
-                if opponent_state.character not in [Character.PIKACHU, Character.PICHU, Character.GANONDORF, Character.CPTFALCON]:
+                if opponent_state.character not in [Character.PIKACHU, Character.PICHU, Character.GANONDORF, Character.CPTFALCON, \
+                    Character.SHEIK]:
                     self.pickchain(Chains.Dropdownshine)
                     return
 
