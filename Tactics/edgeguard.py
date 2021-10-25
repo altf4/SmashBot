@@ -174,7 +174,7 @@ class Edgeguard(Tactic):
 
         if character == Character.FOX:
             # If they are in the teleport section, predict how much more they have to go
-            if opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_1_AIR]:
+            if opponent_state.action in [Action.SWORD_DANCE_4_MID]:
                 c = math.sqrt(opponent_state.speed_y_self**2 + opponent_state.speed_air_x_self**2)
                 height = (opponent_state.speed_y_self / c) * 81.5
                 return height
