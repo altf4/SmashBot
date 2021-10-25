@@ -52,6 +52,17 @@ class ESAgent():
             self.opponent_port = nearest_port
             gamestate.distance = nearest_dist
 
+        # Pick the right climber to be the opponent
+        if gamestate.player[self.opponent_port].nana is not None:
+            xdist = gamestate.player[self.opponent_port].nana.position.x - gamestate.player[self.smashbot_port].position.x
+            ydist = gamestate.player[self.opponent_port].nana.position.y - gamestate.player[self.smashbot_port].position.y
+            dist = math.sqrt((xdist**2) + (ydist**2))
+            if dist < gamestate.distance:
+                gamestate.distance = dist
+                popo = gamestate.player[self.opponent_port]
+                gamestate.player[self.opponent_port] = gamestate.player[self.opponent_port].nana
+                gamestate.player[self.opponent_port].nana = popo
+
         knownprojectiles = []
         for projectile in gamestate.projectiles:
             # Held turnips and link bombs
