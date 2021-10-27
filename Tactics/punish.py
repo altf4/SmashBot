@@ -64,6 +64,12 @@ class Punish(Tactic):
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             return 1
 
+        # Opponent is in a lag state
+        if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
+                Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
+            # TODO: DO an actual lookup to see how many frames this is
+            return 8 - (opponent_state.action_frame // 3)
+
         # Is opponent attacking?
         if framedata.is_attack(opponent_state.character, opponent_state.action):
             # What state of the attack is the opponent in?
@@ -123,12 +129,6 @@ class Punish(Tactic):
                 return min(count, opponent_state.hitstun_frames_left)
 
             return opponent_state.hitstun_frames_left
-
-        # Opponent is in a lag state
-        if opponent_state.action in [Action.UAIR_LANDING, Action.FAIR_LANDING, \
-                Action.DAIR_LANDING, Action.BAIR_LANDING, Action.NAIR_LANDING]:
-            # TODO: DO an actual lookup to see how many frames this is
-            return 8 - (opponent_state.action_frame // 3)
 
         # Exception for Jigglypuff rollout
         #   The action frames are weird for this action, and Jiggs is actionable during it in 1 frame
