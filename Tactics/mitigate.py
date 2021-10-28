@@ -13,7 +13,9 @@ class Mitigate(Tactic):
     def needsmitigation(smashbot_state):
         # Always interrupt if we got hit. Whatever chain we were in will have been broken anyway
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
-                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH]:
+                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH, \
+                Action.CAPTURE_WAIT_KIRBY, Action.CAPTURE_KIRBY, Action.SHOULDERED_WAIT, Action.SHOULDERED_WALK_SLOW, \
+                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN]:
             return True
 
         # Thrown action
@@ -41,7 +43,9 @@ class Mitigate(Tactic):
 
         # Did we get grabbed?
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
-                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH]:
+                Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH, \
+                Action.CAPTURE_WAIT_KIRBY, Action.CAPTURE_KIRBY, Action.SHOULDERED_WAIT, Action.SHOULDERED_WALK_SLOW, \
+                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN]:
             self.pickchain(Chains.Struggle)
             return
 
