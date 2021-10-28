@@ -74,6 +74,9 @@ class ESAgent():
                 ProjectileType.LINK_ARROW, ProjectileType.ARROW]:
                 if projectile.speed.x == 0 and projectile.speed.y == 0:
                     continue
+            # Pesticide
+            if projectile.type == ProjectileType.PESTICIDE:
+                continue
             if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL, \
                 ProjectileType.FOX_LASER, ProjectileType.SHEIK_CHAIN, ProjectileType.SHEIK_SMOKE]:
                 knownprojectiles.append(projectile)
