@@ -33,6 +33,11 @@ class Challenge(Tactic):
             return True
         if opponent_state.character == Character.MARTH and opponent_state.action in [Action.NEUTRAL_ATTACK_1, Action.NEUTRAL_ATTACK_2]:
             return True
+        if opponent_state.character == Character.GAMEANDWATCH and opponent_state.action in [Action.NEUTRAL_B_ATTACKING]:
+            return True
+        if opponent_state.character == Character.NESS and opponent_state.action in [Action.DOWNTILT]:
+            return True
+
 
         # Falling spacies
         if opponent_state.character in [Character.FOX, Character.FALCO]:
