@@ -15,7 +15,7 @@ class Mitigate(Tactic):
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
                 Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH, \
                 Action.CAPTURE_WAIT_KIRBY, Action.CAPTURE_KIRBY, Action.SHOULDERED_WAIT, Action.SHOULDERED_WALK_SLOW, \
-                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN]:
+                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN, Action.CAPTURE_WAIT_KOOPA, Action.CAPTURE_DAMAGE_KOOPA]:
             return True
 
         # Thrown action
@@ -45,7 +45,7 @@ class Mitigate(Tactic):
         if smashbot_state.action in [Action.GRABBED, Action.GRAB_PUMMELED, Action.GRAB_PULL, \
                 Action.GRAB_PUMMELED, Action.GRAB_PULLING_HIGH, Action.GRABBED_WAIT_HIGH, Action.PUMMELED_HIGH, \
                 Action.CAPTURE_WAIT_KIRBY, Action.CAPTURE_KIRBY, Action.SHOULDERED_WAIT, Action.SHOULDERED_WALK_SLOW, \
-                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN]:
+                Action.SHOULDERED_WALK_MIDDLE, Action.SHOULDERED_TURN, Action.CAPTURE_WAIT_KOOPA, Action.CAPTURE_DAMAGE_KOOPA]:
             self.pickchain(Chains.Struggle)
             return
 

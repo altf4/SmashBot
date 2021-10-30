@@ -164,6 +164,9 @@ class Defend(Tactic):
         #   Ignore yoshi's really long windup
         if opponent_state.character == Character.YOSHI and opponent_state.action in [Action.NEUTRAL_B_CHARGING_AIR, Action.SWORD_DANCE_2_MID] and opponent_state.action_frame < 14:
             is_grab = False
+        # Bowser's claw is so slow we have to wait a bit.
+        if opponent_state.character == Character.BOWSER and opponent_state.action_frame < 14 and opponent_state.action in [Action.NEUTRAL_B_ATTACKING_AIR, Action.SWORD_DANCE_3_MID]:
+            is_grab = False
         #   Falcon/Ganon up-B
         dangerous_up_b = opponent_state.character in [Character.GANONDORF, Character.CPTFALCON] and opponent_state.action == Action.SWORD_DANCE_3_LOW
         if not dangerous_up_b and is_grab and (opponent_state.character != Character.SAMUS or framesuntilhit <= 2):

@@ -515,12 +515,16 @@ class Edgeguard(Tactic):
             framesleft = Punish.framesleft(opponent_state, self.framedata, smashbot_state)
 
             # Samus UP_B invulnerability
-            samusupbinvuln = opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
+            upbinvuln = opponent_state.action in [Action.SWORD_DANCE_3_MID, Action.SWORD_DANCE_3_LOW] and \
                     opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5
+            # Bowser up-b invulnerability
+            if opponent_state.action in [Action.SWORD_DANCE_2_HIGH_AIR, Action.DOWN_B_GROUND_START] and \
+                    opponent_state.character == Character.BOWSER and opponent_state.action_frame <= 4:
+                upbinvuln = True
 
             # Shine them, as long as they aren't attacking right now
             frameadvantage = framesleft > 2 or smashbot_state.invulnerability_left > 2
-            if gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage and not samusupbinvuln:
+            if gamestate.distance < 11.8 and edgegrabframes > 2 and frameadvantage and not upbinvuln:
                 if Dropdownshine.inrange(smashbot_state, opponent_state, self.framedata):
                     self.pickchain(Chains.Dropdownshine)
                     return

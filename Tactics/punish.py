@@ -33,6 +33,11 @@ class Punish(Tactic):
                 opponent_state.character == Character.SAMUS and opponent_state.action_frame <= 5:
             return 0
 
+        # Bowser up-b invulnerability
+        if opponent_state.action in [Action.SWORD_DANCE_2_HIGH_AIR, Action.DOWN_B_GROUND_START] and \
+                opponent_state.character == Character.BOWSER and opponent_state.action_frame <= 4:
+            return 0
+
         # Samus morph ball
         if opponent_state.character == Character.SAMUS and opponent_state.action in [Action.SWORD_DANCE_4_MID, Action.SWORD_DANCE_4_HIGH, Action.NEUTRAL_B_CHARGING]:
             return 1
