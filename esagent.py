@@ -136,6 +136,10 @@ class ESAgent():
             gamestate.player[self.opponent_port].invulnerable = True
             gamestate.player[self.opponent_port].invulnerability_left = max(29 - gamestate.player[self.opponent_port].action_frame, gamestate.player[self.opponent_port].invulnerability_left)
 
+        # Platform drop is fully actionable. Don't be fooled
+        if gamestate.players[self.opponent_port].action == Action.PLATFORM_DROP:
+            gamestate.players[self.opponent_port].hitstun_frames_left = 0
+
         self.strategy.step(gamestate,
                            gamestate.players[self.smashbot_port],
                            gamestate.players[self.opponent_port])
