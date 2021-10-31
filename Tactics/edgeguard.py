@@ -617,7 +617,7 @@ class Edgeguard(Tactic):
                             if opponent_state.action_frame < 20:
                                 ff_early = True
 
-                        if not ff_early:
+                        if not ff_early and (opponent_state.position.y < 0):
                             self.pickchain(Chains.Grabedge, [True])
                             return
 
