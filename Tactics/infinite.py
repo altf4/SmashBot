@@ -28,13 +28,15 @@ class Infinite(Tactic):
         if character == Character.PEACH:
             percent = 80
         if character == Character.ZELDA:
-            percent = 70
+            percent = 80
         if character == Character.MARTH:
             percent = 89
         if character == Character.JIGGLYPUFF:
             percent = 55
         if character == Character.SAMUS:
             percent = 89
+        if character == Character.DK:
+            percent = 120
 
         # Dreamland is big
         if stage == Stage.DREAMLAND:
