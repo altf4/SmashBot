@@ -27,7 +27,7 @@ class Grabedge(Chain):
             edge_x = -edge_x
 
         # If we're on the edge, then we're done here, end the chain
-        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING]:
+        if smashbot_state.action in [Action.EDGE_HANGING, Action.EDGE_CATCHING, Action.SWORD_DANCE_3_LOW]:
             self.interruptible = True
             controller.empty_input()
             return

@@ -622,8 +622,7 @@ class Edgeguard(Tactic):
                     if not self.framedata.is_attack(opponent_state.character, opponent_state.action):
                         ff_early = False
                         if opponent_state.character in [Character.FOX, Character.FALCO] and opponent_state.action == Action.SWORD_DANCE_3_LOW:
-                            if opponent_state.action_frame < 20:
-                                ff_early = True
+                            ff_early = True
 
                         if not ff_early and (opponent_state.position.y < 0):
                             self.pickchain(Chains.Grabedge, [True])
