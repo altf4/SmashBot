@@ -408,6 +408,14 @@ class Edgeguard(Tactic):
                 self.pickchain(Chains.DI, [0.5, 0.65])
                 return
 
+        # For ground-pound moves, just roll up
+        if opponent_state.character == Character.YOSHI and opponent_state.action == Action.SHINE_RELEASE_AIR \
+            or opponent_state.character == Character.BOWSER and opponent_state.action == Action.SWORD_DANCE_3_MID_AIR:
+            #TODO: Make this a chain
+            self.chain = None
+            self.controller.press_button(Button.BUTTON_L)
+            return
+
         # What recovery options does opponent have?
         landonstage = False
         grabedge = False
