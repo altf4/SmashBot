@@ -77,6 +77,9 @@ class ESAgent():
             # Pesticide
             if projectile.type == ProjectileType.PESTICIDE:
                 continue
+            # Ignore projectiles owned by us
+            if projectile.owner == self.smashbot_port:
+                continue
             if projectile.type not in [ProjectileType.UNKNOWN_PROJECTILE, ProjectileType.PEACH_PARASOL, \
                 ProjectileType.FOX_LASER, ProjectileType.SHEIK_CHAIN, ProjectileType.SHEIK_SMOKE]:
                 knownprojectiles.append(projectile)
