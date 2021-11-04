@@ -38,11 +38,14 @@ class Challenge(Tactic):
         if opponent_state.character == Character.NESS and opponent_state.action in [Action.DOWNTILT]:
             return True
 
-
         # Falling spacies
         if opponent_state.character in [Character.FOX, Character.FALCO]:
             if not opponent_state.on_ground and opponent_state.speed_y_self < 0:
                 return True
+
+        # DK Ground pound
+        if opponent_state.character == Character.DK and opponent_state.action in [Action.DK_GROUND_POUND]:
+            return True
 
         return False
 
@@ -70,6 +73,10 @@ class Challenge(Tactic):
             bufferzone = 40
         if opponent_state.character == Character.SHEIK:
             bufferzone = 38
+        if opponent_state.character == Character.DK:
+            bufferzone = 40
+            if opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x):
+                bufferzone = 40
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
 
@@ -108,12 +115,14 @@ class Challenge(Tactic):
             smash_now = opponent_state.action_frame in [4, 12, 20, 27]
         if opponent_state.character == Character.MARTH:
             smash_now = opponent_state.action_frame < 6
+        if opponent_state.character == Character.DK:
+            smash_now = False
 
         spacing_grace_zone = 2
         if falling_spacie:
             spacing_grace_zone = 8
 
-        # If spacing and timing is right, do a smash attack
+        # If spacing and timing is right, do an attack
         if abs(smashbot_state.position.x - pivotpoint) < spacing_grace_zone:
             if smashbot_state.action == Action.TURNING:
                 if smash_now and not on_side_plat and not falling_spacie:
@@ -134,6 +143,11 @@ class Challenge(Tactic):
                     self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                     return
             elif smashbot_state.action == Action.DASHING:
+                # Ground pound
+                if opponent_state.character == Character.DK and opponent_state.action in [Action.DK_GROUND_POUND]:
+                    if smashbot_state.facing == (smashbot_state.position.x < opponent_state.position.x):
+                        self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.DOWN])
+                        return
                 self.pickchain(Chains.Run, [not smashbot_state.facing])
                 return
 
