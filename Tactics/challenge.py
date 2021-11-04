@@ -1,6 +1,6 @@
 import melee
 import Chains
-from melee.enums import Action, Character, Stage
+from melee.enums import Action, Character, Stage, ProjectileType
 from Tactics.tactic import Tactic
 from Chains.smashattack import SMASH_DIRECTION
 from Chains.shffl import SHFFL_DIRECTION
@@ -47,6 +47,12 @@ class Challenge(Tactic):
         if opponent_state.character == Character.DK and opponent_state.action in [Action.DK_GROUND_POUND]:
             return True
 
+        # Mewtwo shadow ball charge
+        if opponent_state.character == Character.MEWTWO:
+            for projectile in gamestate.projectiles:
+                if projectile.type in [ProjectileType.SHADOWBALL] and projectile.subtype == 0:
+                    return True
+
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
@@ -73,6 +79,8 @@ class Challenge(Tactic):
             bufferzone = 40
         if opponent_state.character == Character.SHEIK:
             bufferzone = 38
+        if opponent_state.character == Character.MEWTWO:
+            bufferzone = 32
         if opponent_state.character == Character.DK:
             bufferzone = 40
             if opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x):
@@ -117,6 +125,13 @@ class Challenge(Tactic):
             smash_now = opponent_state.action_frame < 6
         if opponent_state.character == Character.DK:
             smash_now = False
+
+        shadowball = False
+        if opponent_state.character == Character.MEWTWO:
+            for projectile in gamestate.projectiles:
+                if projectile.type in [ProjectileType.SHADOWBALL] and projectile.subtype == 0:
+                    shadowball = True
+                    smash_now = True
 
         spacing_grace_zone = 2
         if falling_spacie:
