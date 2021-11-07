@@ -31,6 +31,10 @@ class ShieldAction(Chain):
 
         # Consider adding redundancy to check for SHIELD_RELEASE, but this just has button inputs atm
         if self.action == SHIELD_ACTION.PSSHINE:
+            if smashbot_state.action == Action.SHIELD_RELEASE and not gamestate.custom["powershielded_last"]:
+                self.interruptible = True
+                controller.press_button(Button.BUTTON_Y)
+                return
             controller.press_button(Button.BUTTON_B)
             controller.tilt_analog(Button.BUTTON_MAIN, .5, .3)
             return

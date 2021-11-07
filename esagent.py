@@ -20,6 +20,7 @@ class ESAgent():
         self.tech_lockout = 0
         self.meteor_jump_lockout = 0
         self.meteor_ff_lockout = 0
+        self.powershielded_last = False
         self.strategy = Bait(self.logger,
                             self.controller,
                             self.framedata,
@@ -124,6 +125,14 @@ class ESAgent():
         gamestate.custom["tech_lockout"] = self.tech_lockout
         gamestate.custom["meteor_jump_lockout"] = self.meteor_jump_lockout
         gamestate.custom["meteor_ff_lockout"] = self.meteor_ff_lockout
+
+        if gamestate.player[self.smashbot_port].action in [Action.SHIELD_REFLECT, Action.SHIELD_STUN]:
+            if gamestate.player[self.smashbot_port].is_powershield:
+                self.powershielded_last = True
+            elif gamestate.player[self.smashbot_port].hitlag_left > 0:
+                self.powershielded_last = False
+
+        gamestate.custom["powershielded_last"] = self.powershielded_last
 
         # Let's treat Counter-Moves as invulnerable. So we'll know to not attack during that time
         countering = False

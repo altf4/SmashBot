@@ -39,6 +39,12 @@ class Waveshine(Chain):
             controller.empty_input()
             return
 
+        # Jump out of shield if we didn't powershield this hit
+        if smashbot_state.action == Action.SHIELD_RELEASE and not gamestate.custom["powershielded_last"]:
+            self.interruptible = False
+            controller.press_button(Button.BUTTON_Y)
+            return
+
         # Do the shine if we can
         if not self.hasshined and ((smashbot_state.action in shineablestates) or lastdashframe or jcshine or landing_over):
             self.interruptible = False
