@@ -47,25 +47,24 @@ class BoardTopPlatform(Chain):
             self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
             return
 
+        jump_frame = 30
+        if gamestate.stage == Stage.BATTLEFIELD:
+            jump_frame = 14
+        if gamestate.stage == Stage.DREAMLAND:
+            jump_frame = 16
+        if gamestate.stage == Stage.YOSHIS_STORY:
+            jump_frame = 21
+
         # Double jump
         if smashbot_state.action in [Action.JUMPING_FORWARD, Action.JUMPING_BACKWARD]:
-            if gamestate.stage == Stage.BATTLEFIELD:
-                if smashbot_state.action_frame == 14:
+            if smashbot_state.action_frame == jump_frame:
+                if random.randint(0, 3) == 0:
                     self.controller.press_button(melee.Button.BUTTON_Y)
                     self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
                     self.interruptible = False
                     return
-            if gamestate.stage == Stage.DREAMLAND:
-                if smashbot_state.action_frame == 16:
-                    self.controller.press_button(melee.Button.BUTTON_Y)
-                    self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
-                    self.interruptible = False
-                    return
-            if gamestate.stage == Stage.YOSHIS_STORY:
-                if smashbot_state.action_frame == 21:
-                    self.controller.press_button(melee.Button.BUTTON_Y)
-                    self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0.5)
-                    self.interruptible = False
+                else:
+                    self.controller.tilt_analog(melee.Button.BUTTON_MAIN, 0.5, 0)
                     return
 
         # Drift into opponent

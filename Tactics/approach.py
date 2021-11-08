@@ -59,7 +59,7 @@ class Approach(Tactic):
                 return
 
         # If opponent is on top platform. Unless we're ahead. Then let them camp
-        if opp_top_platform and losing and random.randint(0, 20) == 0:
+        if opp_top_platform and losing:
             self.pickchain(Chains.BoardTopPlatform)
             return
 
