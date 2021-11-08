@@ -10,6 +10,7 @@ class Approach(Tactic):
     def __init__(self, logger, controller, framedata, difficulty):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
         self.random_approach = random.randint(0, 100)
+        self.approach_crouch = False
 
     def shouldapproach(smashbot_state, opponent_state, gamestate, framedata, logger):
         if len(gamestate.projectiles) > 0:
@@ -89,5 +90,23 @@ class Approach(Tactic):
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.NEUTRAL])
                         return
 
+
+        pivotpoint = opponent_state.position.x
+
+        # If opponent is crouching, don't take the bait! Approach carefully
+        if opponent_state.action in [Action.CROUCH_START, Action.CROUCHING]:
+            if opponent_state.position.x < smashbot_state.position.x:
+                pivotpoint += 25
+            else:
+                pivotpoint -= 25
+
+        # Once every second-ish, approach
+        in_position = abs(smashbot_state.position.x - pivotpoint) < 5
+        if in_position and random.randint(0, 60) == 0:
+            self.approach_crouch = True
+
+        if self.approach_crouch:
+            pivotpoint = opponent_state.position.x
+
         self.chain = None
-        self.pickchain(Chains.DashDance, [opponent_state.position.x])
+        self.pickchain(Chains.DashDance, [pivotpoint])
