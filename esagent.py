@@ -36,7 +36,9 @@ class ESAgent():
         if len(gamestate.player) > 2:
             opponents = []
             for i, player in gamestate.players.items():
-                if player.team_id != gamestate.players[self.smashbot_port].team_id:
+                if i == self.smashbot_port:
+                    continue
+                if not gamestate.is_teams or (player.team_id != gamestate.players[self.smashbot_port].team_id):
                     opponents.append(i)
 
             nearest_dist = 1000
