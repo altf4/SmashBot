@@ -1,4 +1,5 @@
 import melee
+import random
 from melee.enums import Action, Button
 from Chains.chain import Chain
 
@@ -10,9 +11,17 @@ class Waveshine(Chain):
     def __init__(self, distance=1):
         self.hasshined = False
         self.distance = distance
+        self.frames_spent = 0
 
     def step(self, gamestate, smashbot_state, opponent_state):
         controller = self.controller
+        self.frames_spent += 1
+
+        # This is here to break the SmashBot ditto deadlock
+        if self.frames_spent > 180 and random.randint(0, 100) < 20:
+            self.interruptible = True
+            controller.empty_input()
+            return
 
         shineablestates = [Action.TURNING, Action.STANDING, Action.WALK_SLOW, Action.WALK_MIDDLE, \
             Action.WALK_FAST, Action.EDGE_TEETERING_START, Action.EDGE_TEETERING, Action.CROUCHING, \
