@@ -93,12 +93,13 @@ class Approach(Tactic):
 
         pivotpoint = opponent_state.position.x
 
-        # If opponent is crouching, don't take the bait! Approach carefully
+        # If opponent is crouching and has a frame-1 move, don't take the bait! Approach carefully
         if opponent_state.action in [Action.CROUCH_START, Action.CROUCHING]:
-            if opponent_state.position.x < smashbot_state.position.x:
-                pivotpoint += 25
-            else:
-                pivotpoint -= 25
+            if opponent_state.character in [Character.FOX, Character.FALCO, Character.JIGGLYPUFF]:
+                if opponent_state.position.x < smashbot_state.position.x:
+                    pivotpoint += 25
+                else:
+                    pivotpoint -= 25
 
         # Once every second-ish, approach
         in_position = abs(smashbot_state.position.x - pivotpoint) < 5
