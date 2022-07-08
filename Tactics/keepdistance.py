@@ -48,6 +48,10 @@ class KeepDistance(Tactic):
         if opponent_state.action == Action.DEAD_FALL:
             bufferzone = 0
 
+        # Fox lasers. Just get in there
+        if opponent_state.character == Character.FOX and opponent_state.action == Action.NEUTRAL_B_CHARGING:
+            bufferzone = 0
+
         return bufferzone
 
     def step(self, gamestate, smashbot_state, opponent_state):

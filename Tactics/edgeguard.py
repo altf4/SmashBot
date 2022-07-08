@@ -267,6 +267,9 @@ class Edgeguard(Tactic):
         if character == Character.SAMUS:
             if action in [Action.SWORD_DANCE_3_LOW]:
                 return True
+        if character == Character.KIRBY and action in [Action.KIRBY_BLADE_UP, Action.KIRBY_BLADE_APEX]:
+            return True
+
         return False
 
     def snaptoedgeframes(self, gamestate, opponent_state):
@@ -474,6 +477,12 @@ class Edgeguard(Tactic):
             falconupearly = opponent_state.character == Character.CPTFALCON and \
                 opponent_state.action == Action.SWORD_DANCE_3_LOW and opponent_state.action_frame <= 12
 
+            # Special case for kirby blade
+            if opponent_state.character == Character.KIRBY and opponent_state.action in [Action.KIRBY_BLADE_UP]:
+                self.chain = None
+                self.pickchain(Chains.DI, [0.5, 0.65])
+                return
+
             # Roll up to edgehog
             if self.isupb(opponent_state) and not landonstage and not falconupearly:
                 #TODO: Make this a chain
@@ -641,6 +650,14 @@ class Edgeguard(Tactic):
                     pivotpoint -= 10
                 else:
                     pivotpoint += 10
+
+            # Avoid Kirby suck off stage
+            if opponent_state.character == Character.KIRBY and opponent_state.action in [Action.NESS_SHEILD_START, Action.MARTH_COUNTER_FALLING]:
+                edgebuffer += 30
+
+            # Avoid falcon/ganon up b
+            if opponent_state.character in [Character.CPTFALCON, Character.GANONDORF] and opponent_state.action in [Action.SWORD_DANCE_3_LOW]:
+                edgebuffer += 30
 
             pivotpoint = min(pivotpoint, edge_x - edgebuffer)
             pivotpoint = max(pivotpoint, (-edge_x) + edgebuffer)

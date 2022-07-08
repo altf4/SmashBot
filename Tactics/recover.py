@@ -2,7 +2,7 @@ import melee
 import Chains
 import random
 import math
-from melee.enums import Action
+from melee.enums import Action, Stage
 from Tactics.punish import Punish
 from Tactics.tactic import Tactic
 from Chains.firefox import FIREFOX
@@ -142,6 +142,15 @@ class Recover(Tactic):
                 self.pickchain(Chains.DI, [x, 0.5])
                 return
             else:
+                # Don't get battlefielded
+                if smashbot_state.action == Action.SLIDING_OFF_EDGE and gamestate.stage == Stage.BATTLEFIELD:
+                    self.chain = None
+                    x = 0
+                    if smashbot_state.position.x > 0:
+                        x = 1
+                    self.pickchain(Chains.DI, [x, 0.5])
+                    return
+
                 self.pickchain(Chains.Nothing)
                 return
 

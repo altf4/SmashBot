@@ -21,8 +21,7 @@ class Defend(Tactic):
             if projectile.type in [melee.ProjectileType.SHEIK_SMOKE, melee.ProjectileType.SHEIK_CHAIN ]:
                 continue
             # Missles and needles that aren't moving are actually already exploded. Ignore them
-            if projectile.type in [melee.ProjectileType.SAMUS_MISSLE, melee.ProjectileType.NEEDLE_THROWN, \
-                    melee.ProjectileType.TURNIP] and (-0.01 < projectile.speed.x < 0.01):
+            if projectile.type in [melee.ProjectileType.SAMUS_MISSLE, melee.ProjectileType.NEEDLE_THROWN] and (-0.01 < projectile.speed.x < 0.01):
                 continue
 
             if projectile.type == melee.ProjectileType.SAMUS_BOMB and (-0.01 < projectile.speed.y < 0.01):
@@ -43,8 +42,8 @@ class Defend(Tactic):
 
             # If the projectile is above us, then increase its effective size.
             #   Since our hurtbox extends upwards more that way
-            if abs(smashbot_state.position.x - projectile.position.x) < 10 and abs(projectile.speed.x) < 1:
-                size += 5
+            if abs(smashbot_state.position.x - projectile.position.x) < 15 and abs(projectile.speed.x) < 1:
+                size += 15
 
             # Is this about to hit us in the next frame?
             proj_x, proj_y = projectile.position.x, projectile.position.y
