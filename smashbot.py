@@ -65,7 +65,8 @@ console = melee.Console(path=None,
                         logger=log)
 
 controller_one = melee.Controller(console=console,
-                              port=1,
+                              port=args.port,
+                              serial_device="/dev/ttyACM0",
                               type=melee.ControllerType.STANDARD)
 
 # initialize our agent
@@ -116,37 +117,13 @@ while True:
             log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
             log.logframe(gamestate)
             log.writeframe()
-    # else:
-    #     if args.teams:
-    #         if gamestate.menu_state == melee.Menu.STAGE_SELECT:
-    #             agent1.controller.empty_input()
-    #         else:
-    #             melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
-    #                                                             controller_one,
-    #                                                             melee.Character.FOX,
-    #                                                             stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
-    #                                                             autostart=False,
-    #                                                             swag=True)
-    #             teams_not_ready = False
-    #             if 1 in gamestate.players:
-    #                 teams_not_ready = gamestate.players[1].controller_status == melee.ControllerStatus.CONTROLLER_UNPLUGGED
-    #             if 4 in gamestate.players:
-    #                 teams_not_ready = teams_not_ready or (gamestate.players[4].controller_status == melee.ControllerStatus.CONTROLLER_UNPLUGGED)
-    #             if teams_not_ready and 3 in gamestate.players:
-    #                 melee.menuhelper.MenuHelper.change_controller_status(controller_two,
-    #                                                                      gamestate,
-    #                                                                      3,
-    #                                                                      melee.ControllerStatus.CONTROLLER_UNPLUGGED)
-    #             else:
-    #                 melee.menuhelper.MenuHelper.choose_character(melee.Character.FOX,
-    #                                                             gamestate,
-    #                                                             controller_two)
-    #     else:
-    #         melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
-    #                                                         controller_one,
-    #                                                         melee.Character.FOX,
-    #                                                         stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
-    #                                                         autostart=False,
-    #                                                         swag=True)
-        if log:
-            log.skipframe()
+    else:
+        if gamestate.menu_state == melee.Menu.STAGE_SELECT:
+            agent1.controller.empty_input()
+        else:
+            melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
+                                                            controller_one,
+                                                            melee.Character.FOX,
+                                                            stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
+                                                            autostart=False,
+                                                            swag=True)    
