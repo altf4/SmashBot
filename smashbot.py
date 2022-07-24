@@ -60,7 +60,7 @@ if args.debug:
 
 # Create our console object. This will be the primary object that we will interface with
 console = melee.Console(path=None,
-                        is_dolphin=False,
+                        system="gamecube",
                         copy_home_directory=False,
                         logger=log)
 
@@ -99,6 +99,8 @@ print("Connected")
 while True:
     # "step" to the next frame
     gamestate = console.step()
+    if log:
+        log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
@@ -126,4 +128,4 @@ while True:
                                                             melee.Character.FOX,
                                                             stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
                                                             autostart=False,
-                                                            swag=True)    
+                                                            swag=True)
