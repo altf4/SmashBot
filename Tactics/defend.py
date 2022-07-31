@@ -63,7 +63,7 @@ class Defend(Tactic):
         return False
 
     def needsdefense(smashbot_state, opponent_state, gamestate, framedata):
-        # Is opponent attacking?
+        # Are we invulnerable?
         if smashbot_state.invulnerability_left > 2:
             return False
 
@@ -71,7 +71,7 @@ class Defend(Tactic):
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_2_HIGH:
             return False
 
-        # Try to the ledge from Sheik Shino stall first
+        # Try to take the ledge from Sheik Shino stall first
         if opponent_state.character == Character.SHEIK and opponent_state.action == Action.SWORD_DANCE_1_AIR and opponent_state.action_frame < 10:
             return False
 
