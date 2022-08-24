@@ -95,6 +95,76 @@ print("Connecting to TASTM32...")
 controller_one.connect()
 print("Connected")
 
+def naviate_to_allstar(gamestate, controller):
+    """Given a gamestate, press buttons on controller to get us into allstar
+
+    Luigi, very hard
+    """
+    if gamestate.frame % 2 == 0 and gamestate.menu_state != melee.Menu.UNKNOWN_MENU:
+        controller.empty_input()
+        return
+
+    if gamestate.menu_state == melee.Menu.PRESS_START:
+        controller.press_button(melee.Button.BUTTON_START)
+
+    if gamestate.menu_state == melee.Menu.MAIN_MENU:
+        # First submenu
+        if gamestate.submenu == melee.SubMenu.MAIN_MENU_SUBMENU:
+            if gamestate.menu_selection == 0:
+                controller.press_button(melee.Button.BUTTON_A)
+            else:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+        # Second submenu
+        if gamestate.submenu == melee.SubMenu.ONEP_MODE_SUBMENU:
+            if gamestate.menu_selection == 0:
+                controller.press_button(melee.Button.BUTTON_A)
+            else:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+        # Third submenu
+        if gamestate.submenu == melee.SubMenu.REGULAR_MATCH_SUBMENU:
+            if gamestate.menu_selection == 2:
+                controller.press_button(melee.Button.BUTTON_A)
+            else:
+                controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+                
+    # TODO: Fix this to actually read properly maybe
+    if gamestate._menu_scene == 28677:     
+        if gamestate.frame < 32:
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 1)
+        elif gamestate.frame < 42:
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
+        elif gamestate.frame < 55:
+            controller.press_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 56:
+            controller.release_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 77:
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+        elif gamestate.frame < 92:
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)            
+        # 4 difficulty presses            
+        elif gamestate.frame < 93:
+            controller.press_button(melee.Button.BUTTON_A)
+            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, .5)            
+        elif gamestate.frame < 94:
+            controller.release_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 95:
+            controller.press_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 96:
+            controller.release_button(melee.Button.BUTTON_A)  
+        elif gamestate.frame < 97:
+            controller.press_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 98:
+            controller.release_button(melee.Button.BUTTON_A)  
+        elif gamestate.frame < 99:
+            controller.press_button(melee.Button.BUTTON_A)
+        elif gamestate.frame < 100:
+            controller.release_button(melee.Button.BUTTON_A)  
+        elif gamestate.frame > 120:
+            controller.press_button(melee.Button.BUTTON_START)
+        else:
+            controller.empty_input()
+
+
 # Main loop
 while True:
     # "step" to the next frame
@@ -120,12 +190,8 @@ while True:
             log.logframe(gamestate)
             log.writeframe()
     else:
-        if gamestate.menu_state == melee.Menu.STAGE_SELECT:
-            agent1.controller.empty_input()
+        if gamestate._menu_scene == 5:
+            print("In Allstar, frame: ", gamestate.frame)
+            # PLAY YOUR DTM HERE
         else:
-            melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
-                                                            controller_one,
-                                                            melee.Character.FOX,
-                                                            stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
-                                                            autostart=False,
-                                                            swag=True)
+            naviate_to_allstar(gamestate, agent1.controller)
