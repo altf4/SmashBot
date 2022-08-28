@@ -165,7 +165,7 @@ with open("Initial_Inputs2.dtm", 'rb') as f:
     dtm_data = f.read()
     buffer_intitial = dtm.read_input(dtm_data)
 
-with open("Bizhawk_Dolphin_16426_-_SSBM_NTSC_1.02_All-Star_Pacifist_-_2_Complete.dtm", 'rb') as f:
+with open("segment_1.dtm", 'rb') as f:
     dtm_data = f.read()
     buffer_allstar = dtm.read_input(dtm_data)
 
