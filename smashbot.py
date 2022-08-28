@@ -5,6 +5,8 @@ import signal
 import sys
 
 import melee
+import dtm
+from melee import controller
 
 from esagent import ESAgent
 
@@ -90,11 +92,6 @@ if not console.connect():
     sys.exit(-1)
 print("Connected")
 
-# Plug our controller in
-print("Connecting to TASTM32...")
-controller_one.connect()
-print("Connected")
-
 def naviate_to_allstar(gamestate, controller):
     """Given a gamestate, press buttons on controller to get us into allstar
 
@@ -164,6 +161,21 @@ def naviate_to_allstar(gamestate, controller):
         else:
             controller.empty_input()
 
+with open("Initial_Inputs2.dtm", 'rb') as f:
+    dtm_data = f.read()
+    buffer_intitial = dtm.read_input(dtm_data)
+
+with open("Bizhawk_Dolphin_16426_-_SSBM_NTSC_1.02_All-Star_Pacifist_-_2_Complete.dtm", 'rb') as f:
+    dtm_data = f.read()
+    buffer_allstar = dtm.read_input(dtm_data)
+
+# Play setup dtm (triggers injection)
+agent1.controller.send_dtm(buffer_intitial)
+
+# Plug our controller in
+print("Connecting to TASTM32...")
+controller_one.connect()
+print("Connected")
 
 # Main loop
 while True:
@@ -192,6 +204,9 @@ while True:
     else:
         if gamestate._menu_scene == 5:
             print("In Allstar, frame: ", gamestate.frame)
-            # PLAY YOUR DTM HERE
+            if gamestate.frame == 0:
+                # PLAY YOUR DTM HERE
+                agent1.controller.send_dtm(buffer_allstar)
+                
         else:
             naviate_to_allstar(gamestate, agent1.controller)
