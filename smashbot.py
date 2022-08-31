@@ -179,32 +179,30 @@ print("Connected")
 while True:
     # "step" to the next frame
     gamestate = console.step()
+    print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
+    # if 1 in gamestate.players:
+    #     print(gamestate.players[1].position.x, gamestate.players[1].position.y)
     if log:
         log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        try:
-            agent1.act(gamestate)
+        if gamestate.frame == -40:
+            agent1.controller.send_dtm(buffer_allstar)
+        # try:
+        #     agent1.act(gamestate)
 
-        except Exception as error:
-            # Do nothing in case of error thrown!
-            agent1.controller.empty_input()
+        # except Exception as error:
+        #     # Do nothing in case of error thrown!
+        #     agent1.controller.empty_input()
 
-            if log:
-                log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
-            else:
-                print("WARNING: Exception thrown: ", error)
-        if log:
-            log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
-            log.logframe(gamestate)
-            log.writeframe()
+        #     if log:
+        #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+        #     else:
+        #         print("WARNING: Exception thrown: ", error)
+        # if log:
+        #     log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
+        #     log.logframe(gamestate)
+        #     log.writeframe()
     else:
-        if gamestate._menu_scene == 5:
-            print("In Allstar, frame: ", gamestate.frame)
-            if gamestate.frame == 0:
-                # PLAY YOUR DTM HERE
-                agent1.controller.send_dtm(buffer_allstar)
-                
-        else:
-            naviate_to_allstar(gamestate, agent1.controller)
+        naviate_to_allstar(gamestate, agent1.controller)
