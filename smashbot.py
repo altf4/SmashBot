@@ -134,9 +134,9 @@ def naviate_to_allstar(gamestate, controller):
             controller.press_button(melee.Button.BUTTON_A)
         elif gamestate.frame < 56:
             controller.release_button(melee.Button.BUTTON_A)
-        elif gamestate.frame < 77:
+        elif gamestate.frame < 78:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-        elif gamestate.frame < 92:
+        elif gamestate.frame < 91:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)            
         # 4 difficulty presses            
         elif gamestate.frame < 93:
@@ -162,12 +162,10 @@ def naviate_to_allstar(gamestate, controller):
             controller.empty_input()
 
 with open("Initial_Inputs2.dtm", 'rb') as f:
-    dtm_data = f.read()
-    buffer_intitial = dtm.read_input(dtm_data)
+    buffer_intitial = dtm.read_input(f.read())
 
 with open("segment_1.dtm", 'rb') as f:
-    dtm_data = f.read()
-    buffer_allstar = dtm.read_input(dtm_data)
+    buffer_allstar = dtm.read_input(f.read())
 
 # Play setup dtm (triggers injection)
 agent1.controller.send_dtm(buffer_intitial)
