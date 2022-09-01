@@ -187,7 +187,7 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        if gamestate.frame == -40:
+        if gamestate.frame == -51:
             agent1.controller.send_dtm(buffer_allstar)
         # try:
         #     agent1.act(gamestate)
