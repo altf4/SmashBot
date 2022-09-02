@@ -10,6 +10,9 @@ from melee import controller
 
 from esagent import ESAgent
 
+import threading
+import queue
+
 def check_port(value):
     ivalue = int(value)
     if ivalue < 1 or ivalue > 4:
@@ -168,18 +171,24 @@ with open("segment_1.dtm", 'rb') as f:
     buffer_allstar = dtm.read_input(f.read())
 
 # Play setup dtm (triggers injection)
-agent1.controller.send_dtm(buffer_intitial)
+#agent1.controller.send_dtm(buffer_intitial)
+t = threading.Thread(target=agent1.controller.send_dtm, args=(buffer_intitial,))
+t.start()
+t.join()
 
 # Plug our controller in
 print("Connecting to TASTM32...")
 controller_one.connect()
 print("Connected")
 
+q = queue.Queue()
+tasRunning = False
+
 # Main loop
 while True:
     # "step" to the next frame
-    gamestate = console.step()
-    print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
+    gamestate = console.step(tasRunning)
+    #print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
     # if 1 in gamestate.players:
     #     print(gamestate.players[1].position.x, gamestate.players[1].position.y)
     if log:
@@ -187,8 +196,16 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        if gamestate.frame == -51:
-            agent1.controller.send_dtm(buffer_allstar)
+        if gamestate.frame == -123:
+            print("Queuing TAS inputs")
+            t = threading.Thread(target=agent1.controller.send_dtm, args=(buffer_allstar, q))
+            t.start() # start the tastm32 stuff in a new thread
+            tasRunning = True
+        elif gamestate.frame == -40:
+            print("TAS begins!")
+            q.put(1) # random message to unpause
+            t.join()
+            print("TAS Complete!")
         # try:
         #     agent1.act(gamestate)
 
