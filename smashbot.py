@@ -164,11 +164,19 @@ def naviate_to_allstar(gamestate, controller):
         else:
             controller.empty_input()
 
+buffer_allstar = []
+
 with open("Initial_Inputs2.dtm", 'rb') as f:
     buffer_intitial = dtm.read_input(f.read())
 
 with open("segment_1.dtm", 'rb') as f:
-    buffer_allstar = dtm.read_input(f.read())
+    buffer_allstar.append(dtm.read_input(f.read()))
+
+with open("segment_between.dtm", 'rb') as f:
+    buffer_between = dtm.read_input(f.read())
+
+with open("segment_3.dtm", 'rb') as f:
+    buffer_allstar.append(dtm.read_input(f.read()))
 
 # Play setup dtm (triggers injection)
 #agent1.controller.send_dtm(buffer_intitial)
@@ -183,29 +191,40 @@ print("Connected")
 
 q = queue.Queue()
 tasRunning = False
+postGameRunning = False
 
 # Main loop
 while True:
+    # check if a TAS thread has completed
+    #print(t.is_alive())
+    if tasRunning and not t.is_alive():
+        print("TAS Complete!")
+        # need to navigate the postgame and between-level screens
+        if not postGameRunning:
+            t = threading.Thread(target=agent1.controller.send_dtm, args=(buffer_between, q))
+            t.start()
+            postGameRunning = True
+        else:
+            tasRunning = False
+            postGameRunning = False
     # "step" to the next frame
     gamestate = console.step(tasRunning)
-    #print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
+    # print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
     # if 1 in gamestate.players:
     #     print(gamestate.players[1].position.x, gamestate.players[1].position.y)
     if log:
         log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
 
     # What menu are we in?
-    if gamestate.menu_state == melee.Menu.IN_GAME:
+    if not postGameRunning and gamestate.menu_state == melee.Menu.IN_GAME:
         if gamestate.frame == -123:
             print("Queuing TAS inputs")
-            t = threading.Thread(target=agent1.controller.send_dtm, args=(buffer_allstar, q))
+            t = threading.Thread(target=agent1.controller.send_dtm, args=(buffer_allstar.pop(0), q))
             t.start() # start the tastm32 stuff in a new thread
             tasRunning = True
         elif gamestate.frame == -40:
             print("TAS begins!")
             q.put(1) # random message to unpause
-            t.join()
-            print("TAS Complete!")
         # try:
         #     agent1.act(gamestate)
 
