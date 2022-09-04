@@ -161,20 +161,29 @@ def naviate_to_allstar(gamestate, controller):
         else:
             controller.empty_input()
 
+dtm_buffers = {}
+
 with open("Initial_Inputs2.dtm", 'rb') as f:
     buffer_intitial = dtm.read_input(f.read())
 
 with open("segment_1.dtm", 'rb') as f:
-    buffer_allstar = dtm.read_input(f.read())
+    dtm_buffers[0xc0] = dtm.read_input(f.read())
+
+with open("skip_scores.dtm", 'rb') as f:
+    buffer_skip_scores = dtm.read_input(f.read())
+
+with open("segment_3.dtm", 'rb') as f:
+    dtm_buffers[0xc2] = dtm.read_input(f.read())
 
 # Play setup dtm (triggers injection)
-agent1.controller.send_dtm(buffer_intitial)
+agent1.controller.dtm_mode = True
+agent1.controller.send_whole_dtm(buffer_intitial)
 
 # Plug our controller in
 print("Connecting to TASTM32...")
 controller_one.connect()
 print("Connected")
-
+numSent = 0
 # Main loop
 while True:
     # "step" to the next frame
@@ -187,8 +196,32 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        if gamestate.frame == -51:
-            agent1.controller.send_dtm(buffer_allstar)
+        if gamestate.stage_raw not in [0xC0, 0xC2]:
+            print("Waiting area", gamestate.frame, gamestate.stage_raw)
+            if gamestate.frame == -123:
+                agent1.controller.reset_tastm32(True)
+                agent1.controller.dtm_mode = False
+            if gamestate.frame == -122:
+                agent1.controller.empty_input()
+            else:
+                agent1.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
+        else:
+            if gamestate.frame == -123:
+                agent1.controller.reset_tastm32(False)
+                agent1.controller.dtm_mode = True
+            if gamestate.frame == -100:
+                agent1.controller.pause_dtm()
+                numSent = agent1.controller.preload_dtm(dtm_buffers[gamestate.stage_raw])
+                print("Number of bytes preloaded: ", numSent)
+            if gamestate.frame == -40:
+                print("Unpausing and sending the remainder")
+                agent1.controller.unpause_dtm()
+                agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
+                print("done sending dtm")
+            if gamestate.frame == 381:
+                agent1.controller.send_whole_dtm(buffer_skip_scores)
+                print("Done sending whole DTM")
+
         # try:
         #     agent1.act(gamestate)
 
@@ -205,4 +238,7 @@ while True:
         #     log.logframe(gamestate)
         #     log.writeframe()
     else:
-        naviate_to_allstar(gamestate, agent1.controller)
+        # 261 is the <3 <3 <3 in-between stage
+        if gamestate._menu_scene != 261:
+            agent1.controller.dtm_mode = False
+            naviate_to_allstar(gamestate, agent1.controller)
