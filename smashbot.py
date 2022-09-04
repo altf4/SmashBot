@@ -196,6 +196,7 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
+        print("RNG state:", hex(gamestate.rng_state))
         if gamestate.stage_raw not in [0xC0, 0xC2]:
             print("Waiting area", gamestate.frame, gamestate.stage_raw)
             if gamestate.frame == -123:
