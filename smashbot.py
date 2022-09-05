@@ -184,7 +184,7 @@ with open("segment_7.dtm", 'rb') as f:
 LAST_FRAME = {
     0xc0: 381,
     0xc2: 179,
-    0xb6: 523,
+    0xb6: 299,
     0xb5: 300,
 }
 
