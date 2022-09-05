@@ -181,13 +181,6 @@ with open("segment_5.dtm", 'rb') as f:
 with open("segment_7.dtm", 'rb') as f:
     dtm_buffers[0xb5] = dtm.read_input(f.read())
 
-LAST_FRAME = {
-    0xc0: 381,
-    0xc2: 179,
-    0xb6: 299,
-    0xb5: 109,
-}
-
 # Play setup dtm (triggers injection)
 agent1.controller.dtm_mode = True
 agent1.controller.send_whole_dtm(buffer_intitial)
@@ -197,6 +190,7 @@ print("Connecting to TASTM32...")
 controller_one.connect()
 print("Connected")
 numSent = 0
+
 # Main loop
 while True:
     # "step" to the next frame
@@ -232,7 +226,15 @@ while True:
                 agent1.controller.unpause_dtm()
                 agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
                 print("done sending dtm")
-            if gamestate.frame == LAST_FRAME[gamestate.stage_raw]:
+            # There's ONE frame at the end of the game where a player has 0 stocks
+            # Are ALL opponents dead?
+            game_finished = True
+            for player in gamestate.players:
+                if player == 1:
+                    continue
+                if gamestate.players[player].stock > 0:
+                    game_finished = False
+            if game_finished:
                 agent1.controller.send_whole_dtm(buffer_skip_scores)
                 print("Done sending whole DTM")
 
