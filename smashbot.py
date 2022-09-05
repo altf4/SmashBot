@@ -185,7 +185,7 @@ LAST_FRAME = {
     0xc0: 381,
     0xc2: 179,
     0xb6: 299,
-    0xb5: 300,
+    0xb5: 109,
 }
 
 # Play setup dtm (triggers injection)
