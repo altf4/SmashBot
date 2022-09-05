@@ -175,6 +175,19 @@ with open("skip_scores.dtm", 'rb') as f:
 with open("segment_3.dtm", 'rb') as f:
     dtm_buffers[0xc2] = dtm.read_input(f.read())
 
+with open("segment_5.dtm", 'rb') as f:
+    dtm_buffers[0xb6] = dtm.read_input(f.read())
+
+with open("segment_7.dtm", 'rb') as f:
+    dtm_buffers[0xb5] = dtm.read_input(f.read())
+
+LAST_FRAME = {
+    0xc0: 381,
+    0xc2: 179,
+    0xb6: 523,
+    0xb5: 300,
+}
+
 # Play setup dtm (triggers injection)
 agent1.controller.dtm_mode = True
 agent1.controller.send_whole_dtm(buffer_intitial)
@@ -196,8 +209,7 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        print("RNG state:", hex(gamestate.rng_state))
-        if gamestate.stage_raw not in [0xC0, 0xC2]:
+        if gamestate.stage_raw not in [0xC0, 0xC2, 0xb6, 0xb5]:
             print("Waiting area", gamestate.frame, gamestate.stage_raw)
             if gamestate.frame == -123:
                 agent1.controller.reset_tastm32(True)
@@ -208,6 +220,7 @@ while True:
                 agent1.controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
         else:
             if gamestate.frame == -123:
+                print("RNG state:", hex(gamestate.rng_state))
                 agent1.controller.reset_tastm32(False)
                 agent1.controller.dtm_mode = True
             if gamestate.frame == -100:
@@ -219,7 +232,7 @@ while True:
                 agent1.controller.unpause_dtm()
                 agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
                 print("done sending dtm")
-            if gamestate.frame == 381:
+            if gamestate.frame == LAST_FRAME[gamestate.stage_raw]:
                 agent1.controller.send_whole_dtm(buffer_skip_scores)
                 print("Done sending whole DTM")
 
