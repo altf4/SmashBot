@@ -10,9 +10,6 @@ from melee import controller
 
 from esagent import ESAgent
 
-import threading
-import queue
-
 def check_port(value):
     ivalue = int(value)
     if ivalue < 1 or ivalue > 4:
