@@ -187,6 +187,24 @@ with open("segment_9.dtm", 'rb') as f:
 with open("segment_11.dtm", 'rb') as f:
     dtm_buffers[0xc9] = dtm.read_input(f.read())
 
+with open("segment_13.dtm", 'rb') as f:
+    dtm_buffers[0xc3] = dtm.read_input(f.read())
+
+with open("segment_15.dtm", 'rb') as f:
+    dtm_buffers[0xbb] = dtm.read_input(f.read())
+
+with open("segment_17.dtm", 'rb') as f:
+    dtm_buffers[0xc4] = dtm.read_input(f.read())
+
+with open("segment_19.dtm", 'rb') as f:
+    dtm_buffers[0xc6] = dtm.read_input(f.read())
+
+with open("segment_21.dtm", 'rb') as f:
+    dtm_buffers[0xb1] = dtm.read_input(f.read())
+
+with open("segment_13.dtm", 'rb') as f:
+    dtm_buffers[0xbd] = dtm.read_input(f.read())
+
 # Play setup dtm (triggers injection)
 agent1.controller.dtm_mode = True
 agent1.controller.send_whole_dtm(buffer_intitial)
@@ -209,7 +227,7 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
-        if gamestate.stage_raw not in [0xC0, 0xC2, 0xb6, 0xb5, 0xbe, 0xc9]:
+        if gamestate.stage_raw not in [0xC0, 0xC2, 0xb6, 0xb5, 0xbe, 0xc9, 0xc3, 0xbb, 0xc4, 0xc6, 0xb1, 0xbd]:
             print("Waiting area", gamestate.frame, gamestate.stage_raw)
             if gamestate.frame == -123:
                 agent1.controller.reset_tastm32(True)
