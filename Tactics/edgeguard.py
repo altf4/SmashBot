@@ -607,8 +607,9 @@ class Edgeguard(Tactic):
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
-            # Puff sing stall is safe to grab from
-            if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in [Action.DOWN_B_AIR, Action.SHINE_RELEASE_AIR] and opponent_state.action_frame < 10:
+            # Puff sing stall is safe to grab from as long as she's moving upwards
+            if opponent_state.character == Character.JIGGLYPUFF and opponent_state.action in [Action.DOWN_B_AIR, Action.SHINE_RELEASE_AIR] and \
+                    opponent_state.action_frame < 10 and opponent_state.speed_y_self > 1:
                 self.pickchain(Chains.Grabedge, [True])
                 return
 
