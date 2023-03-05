@@ -202,7 +202,7 @@ with open("segment_19.dtm", 'rb') as f:
 with open("segment_21.dtm", 'rb') as f:
     dtm_buffers[0xb1] = dtm.read_input(f.read())
 
-with open("segment_13.dtm", 'rb') as f:
+with open("segment_23.dtm", 'rb') as f:
     dtm_buffers[0xbd] = dtm.read_input(f.read())
 
 # Play setup dtm (triggers injection)
