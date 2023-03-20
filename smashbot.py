@@ -116,9 +116,10 @@ def navigate_to_pokefloats(gamestate, controller):
 
     # Do the nametag glitch to play in pokefloats alone
     if gamestate.menu_state == melee.Menu.CHARACTER_SELECT:
-        SETTINGS_MENU_HEIGHT = 20
+        SETTINGS_MENU_HEIGHT = 21
         # Move to time and 4-minutes
         cursor_x, cursor_y = gamestate.players[1].cursor_x, gamestate.players[1].cursor_y
+        print(cursor_x, cursor_y)
         if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame >= 45 and gamestate.frame <= 119:
             controller.empty_input()
             return
@@ -143,98 +144,24 @@ def navigate_to_pokefloats(gamestate, controller):
         if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 127:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
             return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 128:
-            controller.empty_input()
-            return
-        # Turn items off
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 129:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 130:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 131:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 132:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 133:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 134:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 135:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 136:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 137:
-            controller.press_button(melee.Button.BUTTON_A)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame <= 137 and gamestate.frame >= 164:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 165:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 1)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 166:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 167:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 168:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 169:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 170:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 171:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 172:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 173:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 174:
-            controller.empty_input()
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 175:
-            controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, .5)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 176:
+        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame >= 128 and gamestate.frame <= 208:
             controller.empty_input()
             return
 
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 177:
-            controller.press_button(melee.Button.BUTTON_B)
-            return
-        if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame <= 178 and gamestate.frame >= 208:
-            controller.empty_input()
-            return
         if cursor_y > SETTINGS_MENU_HEIGHT and gamestate.frame == 209:
             controller.press_button(melee.Button.BUTTON_B)
             return
-
-        print("stage B")
-        if gamestate.frame >= 180 and gamestate.frame < 240:
+        if gamestate.frame >= 180 and gamestate.frame <= 240:
             controller.empty_input()
             return
+
+        # Perform the nametag glitch
         if gamestate.frame in [241, 242, 243]:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 1)
             return
         if gamestate.frame == 244:
             controller.empty_input()
             return
-        # Perform the nametag glitch
         if gamestate.frame == 245:
             controller.press_button(melee.Button.BUTTON_A)
             controller.press_button(melee.Button.BUTTON_B)
@@ -255,12 +182,11 @@ def navigate_to_pokefloats(gamestate, controller):
             return
 
         # select character, go into game settings
-        print("stage A", cursor_x, cursor_y)
         if gamestate.players[1].coin_down or cursor_y > 21:
             controller.tilt_analog(melee.Button.BUTTON_MAIN, 1, 1)
             if cursor_y > 21:
                 controller.press_button(melee.Button.BUTTON_A)
-                print("GO INTO MENU")
+                print("press A")
             else:
                 controller.release_button(melee.Button.BUTTON_A)
             return
@@ -303,6 +229,11 @@ def naviate_to_allstar(gamestate, controller):
 
     Luigi, very hard
     """
+
+    if gamestate.menu_state == melee.Menu.POSTGAME_SCORES:
+        melee.menuhelper.MenuHelper.skip_postgame(controller, gamestate)
+        return
+
     if gamestate.frame % 2 == 0 and gamestate.menu_state != melee.Menu.UNKNOWN_MENU:
         controller.empty_input()
         return
@@ -432,10 +363,15 @@ while True:
     # "step" to the next frame
     gamestate = console.step()
     print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
-    # if 1 in gamestate.players:
-    #     print(gamestate.players[1].position.x, gamestate.players[1].position.y)
     if log:
         log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
+
+    if gamestate.menu_state == melee.Menu.POSTGAME_SCORES:
+        if not pokefloats_finished and gamestate.frame == 0:
+            agent1.controller.reset_tastm32(True)
+            agent1.controller.dtm_mode = False
+            pokefloats_finished = True
+            continue
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
