@@ -234,6 +234,10 @@ def naviate_to_allstar(gamestate, controller):
         melee.menuhelper.MenuHelper.skip_postgame(controller, gamestate)
         return
 
+    if gamestate.menu_state == melee.Menu.CHARACTER_SELECT:
+        controller.press_button(melee.Button.BUTTON_B)
+        return
+
     if gamestate.frame % 2 == 0 and gamestate.menu_state != melee.Menu.UNKNOWN_MENU:
         controller.empty_input()
         return
@@ -382,12 +386,12 @@ while True:
                 agent1.controller.reset_tastm32(False)
                 agent1.controller.dtm_mode = True
                 continue
-            if gamestate.frame == -100:
+            if gamestate.frame == -120:
                 agent1.controller.pause_dtm()
                 numSent = agent1.controller.preload_dtm(pokedloats_dtm)
                 continue
-            # TODO : desync here
-            if gamestate.frame == -90:
+            # TODO : desync here 90 down... 80 is close
+            if gamestate.frame == -82:
                 agent1.controller.unpause_dtm()
                 agent1.controller.send_remaining_dtm(pokedloats_dtm[numSent:])
                 continue
