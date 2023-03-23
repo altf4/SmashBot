@@ -253,17 +253,19 @@ def naviate_to_allstar(gamestate, controller):
             else:
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
         # Second submenu
-        if gamestate.submenu == melee.SubMenu.ONEP_MODE_SUBMENU:
+        elif gamestate.submenu == melee.SubMenu.ONEP_MODE_SUBMENU:
             if gamestate.menu_selection == 0:
                 controller.press_button(melee.Button.BUTTON_A)
             else:
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
         # Third submenu
-        if gamestate.submenu == melee.SubMenu.REGULAR_MATCH_SUBMENU:
+        elif gamestate.submenu == melee.SubMenu.REGULAR_MATCH_SUBMENU:
             if gamestate.menu_selection == 2:
                 controller.press_button(melee.Button.BUTTON_A)
             else:
                 controller.tilt_analog(melee.Button.BUTTON_MAIN, .5, 0)
+        else:
+            controller.press_button(melee.Button.BUTTON_B)
 
     # TODO: Fix this to actually read properly maybe
     if gamestate._menu_scene == 28677:
