@@ -28,10 +28,10 @@ def is_dir(dirname):
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--port', '-p', type=check_port,
                     help='The controller port your AI will play on',
-                    default=2)
+                    default=1)
 parser.add_argument('--opponent', '-o', type=check_port,
                     help='The controller port the opponent will play on',
-                    default=1)
+                    default=2)
 parser.add_argument('--bot', '-b',
                     help='Opponent is a second instance of SmashBot',
                     default=False)
@@ -44,6 +44,15 @@ parser.add_argument('--stage', '-s', default="FD",
 parser.add_argument('--teams', '-a',
                     help='Play a game of teams against two SmashBots',
                     action='store_true')
+parser.add_argument('--skipfloats', '-k',
+                    help='Skip Pokefloats',
+                    action='store_true',
+                    default=False)
+parser.add_argument('--skipallstar', '-r',
+                    help='Skip Allstar',
+                    action='store_true',
+                    default=False)
+
 stagedict = {
     "FD": melee.Stage.FINAL_DESTINATION,
     "BF": melee.Stage.BATTLEFIELD,
@@ -92,7 +101,8 @@ if not console.connect():
     sys.exit(-1)
 print("Connected")
 
-pokefloats_finished = False
+pokefloats_finished = args.skipfloats
+allstar_finished = args.skipallstar
 
 def navigate_to_pokefloats(gamestate, controller):
     if gamestate.menu_state == melee.Menu.STAGE_SELECT:
@@ -379,8 +389,38 @@ while True:
             pokefloats_finished = True
             continue
 
+    # Congrats screen at the end of allstar, start
+    if gamestate.menu_state == melee.Menu.UNKNOWN_MENU and gamestate._menu_scene == 535:
+        allstar_finished = True
+        agent1.controller.reset_tastm32(True)
+        agent1.controller.dtm_mode = False
+        continue
+    if gamestate.menu_state == melee.Menu.UNKNOWN_MENU and gamestate._menu_scene == 791:
+        if gamestate.frame % 2:
+            agent1.controller.press_button(melee.Button.BUTTON_A)
+        else:
+            agent1.controller.release_all()
+        continue
+
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
+
+        if allstar_finished and pokefloats_finished:
+            try:
+                agent1.act(gamestate)
+
+            except Exception as error:
+                # Do nothing in case of error thrown!
+                agent1.controller.empty_input()
+            # if log:
+            #     log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
+            # else:
+            #     print("WARNING: Exception thrown: ", error)
+            # if log:
+            #     log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
+            #     log.logframe(gamestate)
+            #     log.writeframe()
+            continue
 
         # Pokefloats
         if gamestate.stage_raw == 0x17:
@@ -433,25 +473,22 @@ while True:
                 agent1.controller.send_whole_dtm(buffer_skip_scores)
                 print("Done sending whole DTM")
 
-        # try:
-        #     agent1.act(gamestate)
-
-        # except Exception as error:
-        #     # Do nothing in case of error thrown!
-        #     agent1.controller.empty_input()
-
-        #     if log:
-        #         log.log("Notes", "Exception thrown: " + repr(error) + " ", concat=True)
-        #     else:
-        #         print("WARNING: Exception thrown: ", error)
-        # if log:
-        #     log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
-        #     log.logframe(gamestate)
-        #     log.writeframe()
     else:
         # 261 is the <3 <3 <3 in-between stage
         if gamestate._menu_scene != 261:
-            if pokefloats_finished:
+            if allstar_finished and pokefloats_finished:
+                if agent1.controller.dtm_mode:
+                    agent1.controller.reset_tastm32(True)
+                    agent1.controller.dtm_mode = False
+                    continue
+
+                melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
+                                agent1.controller,
+                                melee.Character.FOX,
+                                stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
+                                autostart=False,
+                                swag=True)
+            elif pokefloats_finished:
                 agent1.controller.dtm_mode = False
                 naviate_to_allstar(gamestate, agent1.controller)
             else:
