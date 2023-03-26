@@ -432,7 +432,6 @@ while True:
                 agent1.controller.pause_dtm()
                 numSent = agent1.controller.preload_dtm(pokedloats_dtm)
                 continue
-            # TODO : desync here 90 down... 80 is close
             if gamestate.frame == -82:
                 agent1.controller.unpause_dtm()
                 agent1.controller.send_remaining_dtm(pokedloats_dtm[numSent:])
@@ -465,8 +464,13 @@ while True:
             # Are ALL opponents dead?
             game_finished = True
             for player in gamestate.players:
+                # Or if WE are dead, then press start to retry the level
                 if player == 1:
-                    continue
+                    if gamestate.players[1].stock == 0:
+                        game_finished = True
+                        break
+                    else:
+                        continue
                 if gamestate.players[player].stock > 0:
                     game_finished = False
             if game_finished:
