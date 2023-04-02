@@ -378,7 +378,7 @@ numSent = 0
 while True:
     # "step" to the next frame
     gamestate = console.step()
-    print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
+    #print(gamestate.menu_state, gamestate._menu_scene, gamestate.frame)
     if log:
         log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
 
@@ -438,7 +438,7 @@ while True:
                 continue
 
         if gamestate.stage_raw not in [0xC0, 0xC2, 0xb6, 0xb5, 0xbe, 0xc9, 0xc3, 0xbb, 0xc4, 0xc6, 0xb1, 0xbd, 0xc8]:
-            print("Waiting area", gamestate.frame, gamestate.stage_raw)
+            # print("Waiting area", gamestate.frame, gamestate.stage_raw)
             if gamestate.frame == -123:
                 agent1.controller.reset_tastm32(True)
                 agent1.controller.dtm_mode = False
@@ -451,15 +451,31 @@ while True:
                 print("RNG state:", hex(gamestate.rng_state))
                 agent1.controller.reset_tastm32(False)
                 agent1.controller.dtm_mode = True
-            if gamestate.frame == -100:
+            elif gamestate.frame == -100:
                 agent1.controller.pause_dtm()
                 numSent = agent1.controller.preload_dtm(dtm_buffers[gamestate.stage_raw])
                 print("Number of bytes preloaded: ", numSent)
-            if gamestate.frame == -40:
-                print("Unpausing and sending the remainder")
+            elif gamestate.frame == -50:
+                print("Unpausing")
                 agent1.controller.unpause_dtm()
-                agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
-                print("done sending dtm")
+            elif gamestate.frame == -49:
+                if gamestate.player[1].controller_state.button[melee.Button.BUTTON_D_RIGHT]:
+                    print("Dpad right on time")
+                    agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
+                    print("done sending dtm")
+            elif gamestate.frame == -48:
+                if gamestate.player[1].controller_state.button[melee.Button.BUTTON_D_RIGHT]:
+                    print("--- Dpad right LATE by [1]---")
+                    agent1.controller.skip_frame()
+                    agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
+                    print("done sending dtm")
+            elif gamestate.frame == -47:
+                if gamestate.player[1].controller_state.button[melee.Button.BUTTON_D_RIGHT]:
+                    print("--- Dpad right LATE by [2]---")
+                    agent1.controller.skip_frame()
+                    agent1.controller.skip_frame()
+                    agent1.controller.send_remaining_dtm(dtm_buffers[gamestate.stage_raw][numSent:])
+                    print("done sending dtm")
             # There's ONE frame at the end of the game where a player has 0 stocks
             # Are ALL opponents dead?
             game_finished = True
