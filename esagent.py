@@ -33,27 +33,25 @@ class ESAgent():
 
         # Figure out who our opponent is
         #   Opponent is the closest player that is a different costume
-        if len(gamestate.player) > 2:
-            opponents = []
-            for i, player in gamestate.players.items():
-                if i == self.smashbot_port:
-                    continue
-                if not gamestate.is_teams or (player.team_id != gamestate.players[self.smashbot_port].team_id):
-                    opponents.append(i)
-
-            nearest_dist = 1000
-            nearest_port = 1
-            for i, player in gamestate.players.items():
-                if len(opponents) > 0 and i not in opponents:
-                    continue
-                xdist = gamestate.players[self.smashbot_port].position.x - player.position.x
-                ydist = gamestate.players[self.smashbot_port].position.y - player.position.y
-                dist = math.sqrt((xdist**2) + (ydist**2))
-                if dist < nearest_dist:
-                    nearest_dist = dist
-                    nearest_port = i
-            self.opponent_port = nearest_port
-            gamestate.distance = nearest_dist
+        opponents = []
+        for i, player in gamestate.players.items():
+            if i == self.smashbot_port:
+                continue
+            if not gamestate.is_teams or (player.team_id != gamestate.players[self.smashbot_port].team_id):
+                opponents.append(i)
+        nearest_dist = 1000
+        nearest_port = 1
+        for i, player in gamestate.players.items():
+            if len(opponents) > 0 and i not in opponents:
+                continue
+            xdist = gamestate.players[self.smashbot_port].position.x - player.position.x
+            ydist = gamestate.players[self.smashbot_port].position.y - player.position.y
+            dist = math.sqrt((xdist**2) + (ydist**2))
+            if dist < nearest_dist:
+                nearest_dist = dist
+                nearest_port = i
+        self.opponent_port = nearest_port
+        gamestate.distance = nearest_dist            
 
         # Pick the right climber to be the opponent
         if gamestate.player[self.opponent_port].nana is not None:
