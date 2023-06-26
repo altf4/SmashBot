@@ -104,6 +104,10 @@ while True:
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
+        # This can happen when using the crowd control ASM codes.
+        if gamestate.frame < -500:
+            continue
+
         try:
             agent1.act(gamestate)
 
