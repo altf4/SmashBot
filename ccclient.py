@@ -2,9 +2,8 @@
 import time
 import traceback
 import uuid
-from typing import Optional
+from typing import Optional, Tuple
 
-from cctypes import *
 import jwt
 import json
 import asyncio
@@ -27,7 +26,7 @@ START_SESSION_BODY = {"gamePackID": "SuperSmashBrosMeleeESA", "effectReportArgs"
 
 class CrowdControl:
     session_id: Optional[str] = None
-    user: Optional[AuthToken] = None
+    user: Optional[dict] = None
     auth_token: Optional[str] = os.getenv("CC_AUTH_TOKEN")
 
     def __init__(self):
@@ -38,7 +37,7 @@ class CrowdControl:
             return
         self.user = jwt.decode(self.auth_token, options={"verify_signature": False})
 
-    async def call_endpoint(self, session: aiohttp.ClientSession, url: str, data_raw: dict) -> tuple[int, dict]:
+    async def call_endpoint(self, session: aiohttp.ClientSession, url: str, data_raw: dict) -> Tuple[int, dict]:
         try:
             headers = {"Authorization": "cc-auth-token " + self.auth_token}
             data = json.dumps(data_raw)
@@ -48,7 +47,7 @@ class CrowdControl:
             traceback.print_exc()
             return 500, {"error": str(error)}
 
-    def handle_effect(self, effect: str) -> EffectStatus:
+    def handle_effect(self, effect: str) -> str:
         try:
             effect_parts = effect.split('_', 1)
             if effect_parts[0] == "spawnitem":
@@ -68,7 +67,7 @@ class CrowdControl:
                 await websocket.send(json.dumps({"action": "whoami"}))
                 while True:
                     whoami_raw: str = await websocket.recv()
-                    whoami: PacketBody = json.loads(whoami_raw)
+                    whoami: dict = json.loads(whoami_raw)
                     if whoami.get('type') == 'whoami':
                         connection_id = whoami['payload']['connectionID']
                         auth_url = f"https://beta-auth.crowdcontrol.live/?connectionID={connection_id}"
@@ -99,12 +98,12 @@ class CrowdControl:
             print("Listening for packets...")
             while True:
                 effect_purchase_raw: str = await websocket.recv()
-                effect_purchase: PacketBody = json.loads(effect_purchase_raw)
+                effect_purchase: dict = json.loads(effect_purchase_raw)
                 if effect_purchase.get('domain') != 'pub' or effect_purchase.get('type') != 'effect-request':
                     continue
-                payload: EffectPayload = effect_purchase['payload']
-                effect: Effect = payload['effect']
-                status: EffectStatus = self.handle_effect(effect['effectID'])
+                payload: dict = effect_purchase['payload']
+                effect: dict = payload['effect']
+                status: str = self.handle_effect(effect['effectID'])
                 print(f"Handling {effect['effectID']} produced status {status}")
                 rand_id: str = str(uuid.uuid4())
                 response_data = {
