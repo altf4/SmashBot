@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import socket
-from cctypes import Response, EffectStatus
+from cctypes import EffectStatus
 
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
@@ -58,15 +58,14 @@ sock = socket.socket(socket.AF_INET, # Internet
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 
-def send_item(selected_item_index: str, response: Response):
+def send_item(selected_item_index: str) -> EffectStatus:
     if selected_item_index not in ITEMS:
-        response["status"] = EffectStatus.UNAVAILABLE.value
-        return
+        return 'failPermanent'
     for i in range(10):
         message = MARKER + b"\x00" + ITEMS[selected_item_index] + (b"\x00" * 23)
         sock.sendto(message, SERVER_ADDRESS)
-    response["status"] = EffectStatus.SUCCESS.value
+    return 'success'
 
 
 if __name__ == "__main__":
-    send_item("goomba", {})
+    print(send_item("goomba"))
