@@ -67,3 +67,16 @@ class ResultBody(TypedDict, total=False):
 
 class ResultPacket(TypedDict):
     result: ResultBody
+
+
+class AuthToken(TypedDict):
+    type: str
+    jti: str
+    ccUID: str
+    originID: str
+    profileType: str
+    name: str
+    # subscriptions: list[???]
+    # roles: list[???]
+    exp: int
+    ver: str

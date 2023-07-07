@@ -26,17 +26,16 @@ START_SESSION_BODY = {"gamePackID": "SuperSmashBrosMeleeESA", "effectReportArgs"
 
 class CrowdControl:
     session_id: Optional[str] = None
-    user_id: Optional[str] = None
+    user: Optional[AuthToken] = None
     auth_token: Optional[str] = os.getenv("CC_AUTH_TOKEN")
 
     def __init__(self):
-        self.load_user_id()
+        self.load_user()
 
-    def load_user_id(self):
+    def load_user(self):
         if not self.auth_token:
             return
-        payload = jwt.decode(self.auth_token, options={"verify_signature": False})
-        self.user_id = payload["ccUID"]
+        self.user = jwt.decode(self.auth_token, options={"verify_signature": False})
 
     async def call_endpoint(self, session: aiohttp.ClientSession, url: str, data_raw: dict) -> tuple[int, dict]:
         try:
@@ -72,15 +71,15 @@ class CrowdControl:
                     whoami: PacketBody = json.loads(whoami_raw)
                     if whoami.get('type') == 'whoami':
                         connection_id = whoami['payload']['connectionID']
-                        print(f"Please visit https://beta-auth.crowdcontrol.live/?platform=twitch&connectionID={connection_id} to sign in and authorize this app")
+                        print(f"Please visit https://beta-auth.crowdcontrol.live/?connectionID={connection_id} to sign in and authorize this app")
                     elif whoami.get('type') == 'login-success':
                         self.auth_token = whoami['payload']['token']
-                        self.load_user_id()
+                        self.load_user()
                         print(f"Successfully logged in")
                         break
             # Subscribe to packets for user
             print("Subscribing to packets...")
-            subscribe_data = {"topics": [f"pub/{self.user_id}"]}
+            subscribe_data = {"topics": [f"pub/{self.user['ccUID']}"]}
             subscribe_body = {"action": "subscribe", "data": json.dumps(subscribe_data)}
             await websocket.send(json.dumps(subscribe_body))
             # Start session
@@ -93,6 +92,8 @@ class CrowdControl:
             if not self.session_id:
                 print(f"Error starting session: no session ID returned ({s_data})")
                 return
+            ext_url = f"https://beta-extension.crowdcontrol.live/#/{self.user['profileType']}/{self.user['originID']}"
+            print(f"Session {self.session_id} started. Effects can be purchased at {ext_url}")
             # Begin listening for packets
             print("Listening for packets...")
             while True:
