@@ -29,7 +29,7 @@ class CrowdControl:
     user_id: Optional[str] = None
     auth_token: Optional[str] = os.getenv("CC_AUTH_TOKEN")
 
-    def __int__(self):
+    def __init__(self):
         self.load_user_id()
 
     def load_user_id(self):
