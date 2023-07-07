@@ -33,7 +33,7 @@ class User(TypedDict):
     name: str
 
 
-class PacketPayload(TypedDict):
+class EffectPayload(TypedDict):
     requestID: str  # UUID?
     effect: Effect
     quantity: int
@@ -43,10 +43,18 @@ class PacketPayload(TypedDict):
     requester: User
 
 
+class WhoAmIPayload(TypedDict):
+    connectionID: str
+
+
+class LoginSuccessPayload(TypedDict):
+    token: str
+
+
 class PacketBody(TypedDict):
     domain: Literal['pub', 'prv']
     type: str
-    payload: PacketPayload
+    payload: EffectPayload | WhoAmIPayload | LoginSuccessPayload
 
 
 class ResultData(TypedDict):

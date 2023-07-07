@@ -2,3 +2,4 @@ melee
 asyncio
 aiohttp
 websockets
+pyjwt
