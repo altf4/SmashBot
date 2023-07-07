@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import socket
-from cctypes import EffectStatus
+
+from typing import Tuple
 
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
-SERVER_ADDRESS: tuple[str, int] = (UDP_IP, UDP_PORT)
+UDP_ADDRESS: Tuple[str, int] = (UDP_IP, UDP_PORT)
 
 ITEMS = {
     "capsule": b"\x00",
@@ -58,12 +59,12 @@ sock = socket.socket(socket.AF_INET, # Internet
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 
-def send_item(selected_item_index: str) -> EffectStatus:
+def send_item(selected_item_index: str) -> str:
     if selected_item_index not in ITEMS:
         return 'failPermanent'
     for i in range(10):
         message = MARKER + b"\x00" + ITEMS[selected_item_index] + (b"\x00" * 23)
-        sock.sendto(message, SERVER_ADDRESS)
+        sock.sendto(message, UDP_ADDRESS)
     return 'success'
 
 
