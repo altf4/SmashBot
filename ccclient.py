@@ -51,12 +51,11 @@ class CrowdControl:
     def handle_effect(self, effect: str) -> EffectStatus:
         try:
             effect_parts = effect.split('_', 1)
-            match effect_parts[0]:
-                case 'spawnitem':
-                    return send_item(effect_parts[1])
-                case _:
-                    print("Unknown code:", effect_parts[0])
-                    return 'failPermanent'
+            if effect_parts[0] == "spawnitem":
+                return send_item(effect_parts[1])
+            else:
+                print("Unknown code:", effect_parts[0])
+                return 'failPermanent'
         except Exception:
             print("Error handling effect")
             traceback.print_exc()
