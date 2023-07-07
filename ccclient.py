@@ -71,7 +71,8 @@ class CrowdControl:
                     whoami: PacketBody = json.loads(whoami_raw)
                     if whoami.get('type') == 'whoami':
                         connection_id = whoami['payload']['connectionID']
-                        print(f"Please visit https://beta-auth.crowdcontrol.live/?connectionID={connection_id} to sign in and authorize this app")
+                        auth_url = f"https://beta-auth.crowdcontrol.live/?connectionID={connection_id}"
+                        print(f"Please visit {auth_url} to sign in and authorize this app")
                     elif whoami.get('type') == 'login-success':
                         self.auth_token = whoami['payload']['token']
                         self.load_user()
@@ -93,7 +94,7 @@ class CrowdControl:
                 print(f"Error starting session: no session ID returned ({s_data})")
                 return
             ext_url = f"https://beta-extension.crowdcontrol.live/#/{self.user['profileType']}/{self.user['originID']}"
-            print(f"Session {self.session_id} started. Effects can be purchased at {ext_url}")
+            print(f"Session started; effects can now be purchased at {ext_url}")
             # Begin listening for packets
             print("Listening for packets...")
             while True:
@@ -135,7 +136,8 @@ class CrowdControl:
                 traceback.print_exc()
             finally:
                 if self.session_id:
-                    code, data = await self.call_endpoint(session, END_SESSION_ENDPOINT, {"gameSessionID": self.session_id})
+                    out = {"gameSessionID": self.session_id}
+                    code, data = await self.call_endpoint(session, END_SESSION_ENDPOINT, out)
                     print(f"Closing session {self.session_id} produced {code} {data}")
                 print("Exiting")
 
