@@ -50,11 +50,11 @@ class CrowdControl:
             traceback.print_exc()
             return 500, {"error": str(error)}
 
-    def handle_effect(self, effect: str) -> str:
+    async def handle_effect(self, effect: str) -> str:
         try:
             effect_parts = effect.split('_', 1)
             if effect_parts[0] == "spawnitem":
-                return send_item(effect_parts[1])
+                return await send_item(effect_parts[1])
             else:
                 print("Unknown code:", effect_parts[0])
                 return 'failPermanent'
@@ -108,7 +108,7 @@ class CrowdControl:
                     continue
                 payload: dict = effect_purchase['payload']
                 effect: dict = payload['effect']
-                status: str = self.handle_effect(effect['effectID'])
+                status: str = await self.handle_effect(effect['effectID'])
                 print(f"Handling {effect['effectID']} produced status {status}")
                 rand_id: str = str(uuid.uuid4())
                 response_data = {
