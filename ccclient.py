@@ -27,10 +27,13 @@ START_SESSION_BODY = {"gamePackID": "SuperSmashBrosMeleeESA", "effectReportArgs"
 class CrowdControl:
     session_id: Optional[str] = None
     user: Optional[dict] = None
-    auth_token: Optional[str] = os.getenv("CC_AUTH_TOKEN")
+    auth_token: Optional[str] = None
 
     def __init__(self):
-        self.load_user()
+        if os.path.exists("cc_auth_token.txt"):
+            with open("cc_auth_token.txt", "r") as file:
+                self.auth_token = file.read().strip()
+                self.load_user()
 
     def load_user(self):
         if not self.auth_token:
@@ -74,6 +77,8 @@ class CrowdControl:
                         print(f"Please visit {auth_url} to sign in and authorize this app")
                     elif whoami.get('type') == 'login-success':
                         self.auth_token = whoami['payload']['token']
+                        with open("cc_auth_token.txt", "w") as file:
+                            file.write(self.auth_token)
                         self.load_user()
                         print(f"Successfully logged in")
                         break
