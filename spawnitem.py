@@ -3,6 +3,8 @@ import socket
 
 from typing import Tuple
 
+import asyncio
+
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
 UDP_ADDRESS: Tuple[str, int] = (UDP_IP, UDP_PORT)
@@ -59,12 +61,14 @@ sock = socket.socket(socket.AF_INET, # Internet
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 
-def send_item(selected_item_index: str) -> str:
+async def send_item(selected_item_index: str) -> str:
     if selected_item_index not in ITEMS:
         return 'failPermanent'
     for i in range(10):
+        await asyncio.sleep(0.1)  # TODO: remove this (debug)
         message = MARKER + b"\x00" + ITEMS[selected_item_index] + (b"\x00" * 23)
         sock.sendto(message, UDP_ADDRESS)
+    # TODO: return 'delayEstimated' (to retry in a second) or 'failTemporary' (to refund) if object did not spawn
     return 'success'
 
 
