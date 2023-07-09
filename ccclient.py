@@ -64,7 +64,7 @@ class CrowdControl:
             return 'failTemporary'
 
     async def listen_to_websocket(self, session: aiohttp.ClientSession):
-        async with websockets.connect(WEBSOCKET_URL) as websocket:
+        async with websockets.connect(WEBSOCKET_URL, extra_headers={"User-Agent": "SmashBot CrowdControl"}) as websocket:
             # Fetch user token if not set
             if not self.auth_token:
                 await websocket.send(json.dumps({"action": "whoami"}))
