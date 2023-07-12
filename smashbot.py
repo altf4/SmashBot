@@ -139,7 +139,6 @@ while True:
         if ex.errno not in (errno.EINTR, errno.EAGAIN):
             pass
     else:
-        print('Datagram: %r' % datagram)
         spawnitem.enqueueItem(datagram)
 
     # What menu are we in?
@@ -151,7 +150,7 @@ while True:
         # Crowd Control queue management
         spawnitem.checkItemSpawn(gamestate.projectiles)
         spawnitem.popItem()
-        spawnitem.trySendItem()
+        spawnitem.trySendItem(gamestate.projectiles)
 
         try:
 

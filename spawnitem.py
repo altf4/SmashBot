@@ -81,11 +81,11 @@ def checkItemSpawn(itemsList):
                 return True
     return False
 
-def trySendItem():
+def trySendItem(itemsList):
     """Send an item send command. But it might fail."""
     global currentlySendingItem
     global sock
-    if currentlySendingItem is not None:
+    if currentlySendingItem is not None and len(itemsList) < 10:
         for i in range(10):
             MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
             message = MARKER + b"\x00" + currentlySendingItem + (b"\x00" * 23)
