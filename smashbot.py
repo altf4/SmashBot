@@ -6,6 +6,7 @@ import sys
 import socket 
 import fcntl
 import errno
+import random
 
 import melee
 import spawnitem
@@ -116,6 +117,14 @@ sock.settimeout(0.001) # 1 millisecond
 fcntl.fcntl(sock.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
 print("Establshed")  
 
+
+RANDOM_STAGES = [melee.Stage.FINAL_DESTINATION,
+                melee.Stage.BATTLEFIELD,
+                melee.Stage.POKEMON_STADIUM,
+                melee.Stage.DREAMLAND,
+                melee.Stage.YOSHIS_STORY]
+randomstage = random.choice(RANDOM_STAGES)
+
 # Main loop
 while True:
     # "step" to the next frame
@@ -162,12 +171,13 @@ while True:
             log.logframe(gamestate)
             log.writeframe()
     else:
-        if gamestate.menu_state == melee.Menu.STAGE_SELECT:
-            agent1.controller.empty_input()
-        else:
-            melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
-                                                            controller_one,
-                                                            melee.Character.FOX,
-                                                            stagedict.get(args.stage, melee.Stage.FINAL_DESTINATION),
-                                                            autostart=False,
-                                                            swag=True)
+        # Reroll the random stage each new menu
+        if gamestate.frame == 0:
+            randomstage = random.choice(RANDOM_STAGES)
+
+        melee.menuhelper.MenuHelper.menu_helper_simple(gamestate,
+                                                        controller_one,
+                                                        melee.Character.FOX,
+                                                        randomstage,
+                                                        autostart=False,
+                                                        swag=True)
