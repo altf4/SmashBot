@@ -1,54 +1,54 @@
 #!/usr/bin/python3
 import socket
 from collections import deque
-from typing import Tuple, Optional
+from typing import Optional, Deque
 
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
 
 ITEMS = {
-    "capsule": b"\x00",
-    "box": b"\x01",
-    "barrel": b"\x02",
-    "egg": b"\x03",
-    "party_ball": b"\x04",
-    "barrel_cannon": b"\x05",
-    "bob_omb": b"\x06",
-    "mr_saturn": b"\x07",
-    "heart_container": b"\x08",
-    "maxim_tomato": b"\x09",
-    "star_man": b"\x0A",
-    "homerun_bat": b"\x0B",
-    "beam_sword": b"\x0C",
-    "parasol": b"\x0D",
-    "green_shell": b"\x0E",
-    "red_shell": b"\x0F",
-    "ray_gun": b"\x10",
-    "freezie": b"\x11",
-    "food": b"\x12",
-    "proxy_mine": b"\x13",
-    "flipper": b"\x14",
-    "super_scope": b"\x15",
-    "star_rod": b"\x16",
-    "lips_stick": b"\x17",
-    "fan": b"\x18",
-    "fire_flower": b"\x19",
-    "super_mushroom": b"\x1A",
-    "mini_mushroom": b"\x1B",
-    "hammer": b"\x1C",
-    "warp_star": b"\x1D",
-    "screw_attack": b"\x1E",
-    "bunny_hood": b"\x1F",
-    "metal_box": b"\x20",
-    "cloaking_device": b"\x21",
-    "pokeball": b"\x22",
+    "capsule": 0x00,
+    "box": 0x01,
+    "barrel": 0x02,
+    "egg": 0x03,
+    "party_ball": 0x04,
+    "barrel_cannon": 0x05,
+    "bob_omb": 0x06,
+    "mr_saturn": 0x07,
+    "heart_container": 0x08,
+    "maxim_tomato": 0x09,
+    "star_man": 0x0A,
+    "homerun_bat": 0x0B,
+    "beam_sword": 0x0C,
+    "parasol": 0x0D,
+    "green_shell": 0x0E,
+    "red_shell": 0x0F,
+    "ray_gun": 0x10,
+    "freezie": 0x11,
+    "food": 0x12,
+    "proxy_mine": 0x13,
+    "flipper": 0x14,
+    "super_scope": 0x15,
+    "star_rod": 0x16,
+    "lips_stick": 0x17,
+    "fan": 0x18,
+    "fire_flower": 0x19,
+    "super_mushroom": 0x1A,
+    "mini_mushroom": 0x1B,
+    "hammer": 0x1C,
+    "warp_star": 0x1D,
+    "screw_attack": 0x1E,
+    "bunny_hood": 0x1F,
+    "metal_box": 0x20,
+    "cloaking_device": 0x21,
+    "pokeball": 0x22,
     # SPECIAL
-    "yoshi_egg": b"\x2A",
-    "goomba": b"\x2B",
-    "redead": b"\x2C",
-    "octorok": b"\x2D",
-    "ottosea": b"\x2E",
-    "stone": b"\x2F"
+    "yoshi_egg": 0x2A,
+    "goomba": 0x2B,
+    "redead": 0x2C,
+    "octorok": 0x2D,
+    "ottosea": 0x2E,
+    "stone": 0x2F
 }
 
 MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
@@ -57,19 +57,13 @@ sock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-currentlySendingItem: Optional[bytes] = None
-itemSendQueue = deque([])
+currentlySendingItem: Optional[int] = None
+itemSendQueue: Deque[int] = deque([])
 
-def enqueueItem(item: bytes):
+def enqueueItem(item: int):
     """Put a new item into the queue"""
     global itemSendQueue
     itemSendQueue.append(item)
-
-def enqueueItemIndex(item: str) -> str:
-    if item not in ITEMS:
-        return 'failPermanent'
-    enqueueItem(ITEMS[item])
-    return 'success'
 
 def popItem():
     """Pop an item from the queue and into the current sending slot"""
@@ -78,18 +72,16 @@ def popItem():
     if len(itemSendQueue) > 0 and currentlySendingItem is None:
         currentlySendingItem = itemSendQueue.pop()
 
-def checkItemSpawn(itemsList):
+def checkItemSpawn(itemsList) -> bool:
     """Check if the current sending item has spawned, dequeuing if true"""
     global currentlySendingItem
     if currentlySendingItem is None:
         return False
     for item in itemsList:
-        itemInt = int.from_bytes(currentlySendingItem, byteorder='big')
-        if item.type.value == itemInt:
-            if item.frame >= 1399:
-                currentlySendingItem = None
-                popItem()
-                return True
+        if item.type.value == currentlySendingItem and item.frame >= 1399:
+            currentlySendingItem = None
+            popItem()
+            return True
     return False
 
 def trySendItem(itemsList):
@@ -99,9 +91,5 @@ def trySendItem(itemsList):
     if currentlySendingItem is not None and len(itemsList) < 10:
         for i in range(10):
             MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
-            message = MARKER + b"\x00" + currentlySendingItem + (b"\x00" * 23)
+            message = MARKER + b"\x00" + int.to_bytes(currentlySendingItem, 1, 'big') + (b"\x00" * 23)
             sock.sendto(message, (UDP_IP, UDP_PORT))
-
-
-if __name__ == "__main__":
-    print(enqueueItemIndex("goomba"))

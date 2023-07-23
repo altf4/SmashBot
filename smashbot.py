@@ -139,7 +139,8 @@ while True:
         if ex.errno not in (errno.EINTR, errno.EAGAIN):
             pass
     else:
-        spawnitem.enqueueItem(datagram)
+        for item in datagram:
+            spawnitem.enqueueItem(item)
 
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:

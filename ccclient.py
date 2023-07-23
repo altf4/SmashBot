@@ -2,6 +2,7 @@
 import time
 import traceback
 import uuid
+import socket
 from typing import Optional, Tuple
 
 import jwt
@@ -11,7 +12,7 @@ import aiohttp
 import websockets
 import os
 
-from spawnitem import enqueueItemIndex
+from spawnitem import ITEMS
 
 WSS_ENDPOINT_SUBDOMAIN = "r8073rtqd8"
 WEBSOCKET_URL = f"wss://{WSS_ENDPOINT_SUBDOMAIN}.execute-api.us-east-1.amazonaws.com/staging"
@@ -34,6 +35,8 @@ class CrowdControl:
             with open("cc_auth_token.txt", "r") as file:
                 self.auth_token = file.read().strip()
                 self.load_user()
+        self.client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.client.connect("crowdcontrol_socket.fifo")
 
     def load_user(self):
         if not self.auth_token:
@@ -54,7 +57,10 @@ class CrowdControl:
         try:
             effect_parts = effect.split('_', 1)
             if effect_parts[0] == "spawnitem":
-                return enqueueItemIndex(effect_parts[1])
+                if effect_parts[1] not in ITEMS:
+                    return 'failPermanent'
+                self.client.send(ITEMS[effect_parts[1]])
+                return 'success'
             else:
                 print("Unknown code:", effect_parts[0])
                 return 'failPermanent'
