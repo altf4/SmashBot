@@ -53,8 +53,7 @@ ITEMS: Dict[str, int] = {
 
 MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
 
-sock = socket.socket(socket.AF_INET, # Internet
-                     socket.SOCK_DGRAM) # UDP
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 currentlySendingItem: Optional[int] = None
