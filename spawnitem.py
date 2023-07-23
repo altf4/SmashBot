@@ -1,14 +1,10 @@
 #!/usr/bin/python3
-import random
 import socket
-
-from typing import Tuple
-
-import asyncio
+from collections import deque
+from typing import Tuple, Optional
 
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
-UDP_ADDRESS: Tuple[str, int] = (UDP_IP, UDP_PORT)
 
 ITEMS = {
     "capsule": b"\x00",
@@ -61,18 +57,51 @@ sock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
+currentlySendingItem: Optional[bytes] = None
+itemSendQueue = deque([])
 
-async def send_item(selected_item_index: str) -> str:
-    if selected_item_index not in ITEMS:
+def enqueueItem(item: bytes):
+    """Put a new item into the queue"""
+    global itemSendQueue
+    itemSendQueue.append(item)
+
+def enqueueItemIndex(item: str) -> str:
+    if item not in ITEMS:
         return 'failPermanent'
-    # loop and delay random amounts to try to ensure that the item spawns (TODO: remove this)
-    for i in range(5):
-        await asyncio.sleep(random.random()/10)
-        message = MARKER + b"\x00" + ITEMS[selected_item_index] + (b"\x00" * 23)
-        sock.sendto(message, UDP_ADDRESS)
-    # TODO: return 'delayEstimated' (to retry in a second) or 'failTemporary' (to refund) if object did not spawn
+    enqueueItem(ITEMS[item])
     return 'success'
+
+def popItem():
+    """Pop an item from the queue and into the current sending slot"""
+    global currentlySendingItem
+    global itemSendQueue
+    if len(itemSendQueue) > 0 and currentlySendingItem is None:
+        currentlySendingItem = itemSendQueue.pop()
+
+def checkItemSpawn(itemsList):
+    """Check if the current sending item has spawned, dequeuing if true"""
+    global currentlySendingItem
+    if currentlySendingItem is None:
+        return False
+    for item in itemsList:
+        itemInt = int.from_bytes(currentlySendingItem, byteorder='big')
+        if item.type.value == itemInt:
+            if item.frame >= 1399:
+                currentlySendingItem = None
+                popItem()
+                return True
+    return False
+
+def trySendItem(itemsList):
+    """Send an item send command. But it might fail."""
+    global currentlySendingItem
+    global sock
+    if currentlySendingItem is not None and len(itemsList) < 10:
+        for i in range(10):
+            MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
+            message = MARKER + b"\x00" + currentlySendingItem + (b"\x00" * 23)
+            sock.sendto(message, (UDP_IP, UDP_PORT))
 
 
 if __name__ == "__main__":
-    print(send_item("goomba"))
+    print(enqueueItemIndex("goomba"))
