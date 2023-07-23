@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 import socket
 from collections import deque
-from typing import Optional, Deque
+from typing import Optional, Deque, Dict
 
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
 
-ITEMS = {
+ITEMS: Dict[str, int] = {
     "capsule": 0x00,
     "box": 0x01,
     "barrel": 0x02,
@@ -60,6 +60,15 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 currentlySendingItem: Optional[int] = None
 itemSendQueue: Deque[int] = deque([])
 
+def asBytes(item: int) -> bytes:
+    return int.to_bytes(item, 1, 'big')
+
+def getItemInt(index: str) -> int:
+    return ITEMS[index]
+
+def getItemBytes(index: str) -> bytes:
+    return asBytes(getItemInt(index))
+
 def enqueueItem(item: int):
     """Put a new item into the queue"""
     global itemSendQueue
@@ -91,5 +100,5 @@ def trySendItem(itemsList):
     if currentlySendingItem is not None and len(itemsList) < 10:
         for i in range(10):
             MARKER = b"\x12\x34\x56\x78" + b"\x00\x00\x00"
-            message = MARKER + b"\x00" + int.to_bytes(currentlySendingItem, 1, 'big') + (b"\x00" * 23)
+            message = MARKER + b"\x00" + asBytes(currentlySendingItem) + (b"\x00" * 23)
             sock.sendto(message, (UDP_IP, UDP_PORT))

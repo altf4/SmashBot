@@ -12,7 +12,7 @@ import aiohttp
 import websockets
 import os
 
-from spawnitem import ITEMS
+from spawnitem import ITEMS, getItemBytes
 
 WSS_ENDPOINT_SUBDOMAIN = "r8073rtqd8"
 WEBSOCKET_URL = f"wss://{WSS_ENDPOINT_SUBDOMAIN}.execute-api.us-east-1.amazonaws.com/staging"
@@ -59,7 +59,7 @@ class CrowdControl:
             if effect_parts[0] == "spawnitem":
                 if effect_parts[1] not in ITEMS:
                     return 'failPermanent'
-                self.client.send(ITEMS[effect_parts[1]])
+                self.client.send(getItemBytes(effect_parts[1]))
                 return 'success'
             else:
                 print("Unknown code:", effect_parts[0])
