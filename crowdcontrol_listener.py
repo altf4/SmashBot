@@ -41,10 +41,12 @@ while len(itemSendQueue) > 0:
     print(len(itemSendQueue), "left")
     item = itemSendQueue.pop()
     spawned = False
-    while not spawned:
+    tryCounter = 0
+    while not spawned and tryCounter < 5:
         # Keep trying to spawn the item until we get the signal that it spawned
         # XXX TODO: Add some random delay here. As much as you need. 
         trySpawnItem(item)
+        tryCounter += 1
         time.sleep(0.017 * 4)
         print("Try to spawn:", item)
         try:
