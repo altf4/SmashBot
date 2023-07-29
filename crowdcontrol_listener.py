@@ -44,16 +44,15 @@ while len(itemSendQueue) > 0:
     while not spawned:
         # Keep trying to spawn the item until we get the signal that it spawned
         # XXX TODO: Add some random delay here. As much as you need. 
-        time.sleep(0.017 * 4)
         trySpawnItem(item)
+        time.sleep(0.017 * 4)
         print("Try to spawn:", item)
         try:
-            datagram = os.read(ccSocket, 1)
+            while True:
+                datagram = os.read(ccSocket, 1)
+                if datagram == item:
+                    spawned = True
+                    print("SPAWNED", datagram)
         except BlockingIOError as ex:
-            print(ex)
-            continue
-        print("SPAWNED", datagram)
-        if datagram == item:
-            spawned = True
-        else:
-            print("wrong item")
+            pass
+        
