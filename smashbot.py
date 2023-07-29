@@ -132,9 +132,12 @@ while True:
             continue
 
         # Crowd Control queue management. Tell the spawner if an item spawned
-        for item in gamestate.projectiles:
-            if item.frame >= 1399:
-                posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
+        if len(gamestate.projectiles) >= 10:
+            posix.write(ccSocket, b'\xFF')
+        else:
+            for item in gamestate.projectiles:
+                if item.frame >= 1399:
+                    posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
 
         try:
             agent1.act(gamestate)

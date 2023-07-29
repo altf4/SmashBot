@@ -27,7 +27,7 @@ ccSocket = os.open("crowdcontrol_socket.fifo", os.O_RDONLY | os.O_NONBLOCK)
 itemSendQueue = deque([])
 
 if args.bobombs:
-    for i in range(10):
+    for i in range(9):
         itemSendQueue.append(b"\x06")
 else:
     itemSendQueue.append(b"\x2A")
@@ -37,6 +37,7 @@ else:
     itemSendQueue.append(b"\x2E")
 
 item = None
+gameisFull = False
 while len(itemSendQueue) > 0:
     print(len(itemSendQueue), "left")
     item = itemSendQueue.pop()
@@ -45,16 +46,20 @@ while len(itemSendQueue) > 0:
     while not spawned and tryCounter < 5:
         # Keep trying to spawn the item until we get the signal that it spawned
         # XXX TODO: Add some random delay here. As much as you need. 
-        trySpawnItem(item)
-        tryCounter += 1
+        if not gameisFull:
+            trySpawnItem(item)
+            print("Try to spawn:", item)
+            tryCounter += 1
         time.sleep(0.017 * 4)
-        print("Try to spawn:", item)
         try:
             while True:
                 datagram = os.read(ccSocket, 1)
                 if datagram == item:
                     spawned = True
+                    gameisFull = False
                     print("SPAWNED", datagram)
+                if datagram == b'\xFF':
+                    gameisFull = True
         except BlockingIOError as ex:
             pass
         
