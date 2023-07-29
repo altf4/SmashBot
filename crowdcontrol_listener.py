@@ -5,6 +5,8 @@ from collections import deque
 import os
 import time
 
+from spawnitem import getItemBytes
+
 parser = argparse.ArgumentParser(description='Example of libmelee in action')
 parser.add_argument('--bobombs', '-b', action='store_true')
 
@@ -13,7 +15,7 @@ args = parser.parse_args()
 UDP_IP = "192.168.0.205"
 UDP_PORT = 55558
 
-udpSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+udpSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 def trySpawnItem(item):
@@ -25,6 +27,8 @@ def trySpawnItem(item):
 ccSocket = os.open("crowdcontrol_socket.fifo", os.O_RDONLY | os.O_NONBLOCK)
 
 itemSendQueue = deque([])
+
+# TODO: getItemBytes
 
 if args.bobombs:
     for i in range(10):
@@ -43,7 +47,7 @@ while len(itemSendQueue) > 0:
     spawned = False
     while not spawned:
         # Keep trying to spawn the item until we get the signal that it spawned
-        # XXX TODO: Add some random delay here. As much as you need. 
+        # XXX TODO: Add some random delay here. As much as you need.
         time.sleep(0.017 * 4)
         trySpawnItem(item)
         print("Try to spawn:", item)
