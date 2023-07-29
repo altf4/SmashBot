@@ -66,6 +66,19 @@ class ESAgent():
 
         knownprojectiles = []
         for projectile in gamestate.projectiles:
+            # Ignore special items used in CrowdControl
+            if projectile.type in [ProjectileType.OCTOROK,ProjectileType.GOOMBA, ProjectileType.OTTOSEA, 
+                                   ProjectileType.BARREL_CANNON, ProjectileType.BARREL, ProjectileType.BEAMSWORD,
+                                   ProjectileType.BOX, ProjectileType.BUNNY_HOOD, ProjectileType.CAPSULE, 
+                                   ProjectileType.CLOAKING_DEVICE, ProjectileType.YOSHI_EGG, ProjectileType.REDEAD,
+                                   ProjectileType.FIRE_FLOWER, ProjectileType.FLIPPER, ProjectileType.FREEZIE,
+                                   ProjectileType.FOOD, ProjectileType.HEART_CONTAINER, ProjectileType.JUDGE,
+                                   ProjectileType.WARP_STAR, ProjectileType.SUPER_MUSHROOM, ProjectileType.MINI_MUSHROOM,
+                                   ProjectileType.HOMERUN_BAT, ProjectileType.GREEN_SHELL, ProjectileType.METAL_BOX,
+                                   ProjectileType.MAXIM_TOMATO, ProjectileType.POKEBALL, ProjectileType.PROXY_MINE,
+                                   ProjectileType.RAY_GUN, ProjectileType.SPERKY]:
+                continue
+
             # Held turnips and link bombs
             if projectile.type in [ProjectileType.TURNIP, ProjectileType.LINK_BOMB, ProjectileType.YLINK_BOMB]:
                 if projectile.subtype in [0, 4, 5]:
