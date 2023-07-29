@@ -1,5 +1,6 @@
 cpu
 smashbot
+cc_auth_token.txt
 *.o
 *.d
 *~
