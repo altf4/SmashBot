@@ -11,8 +11,9 @@ import asyncio
 import aiohttp
 import websockets
 import os
+import concurrent.futures
 
-from spawnitem import ITEMS, getItemBytes
+from crowdcontrol_listener import ITEMS, ccSocket, getItemInt, trySpawnItemInt
 
 WSS_ENDPOINT_SUBDOMAIN = "r8073rtqd8"
 WEBSOCKET_URL = f"wss://{WSS_ENDPOINT_SUBDOMAIN}.execute-api.us-east-1.amazonaws.com/staging"
@@ -24,6 +25,19 @@ END_SESSION_ENDPOINT = f"https://{HTTP_ROOT_URL}/gameSession.stopSession"
 
 START_SESSION_BODY = {"gamePackID": "SuperSmashBrosMeleeESA", "effectReportArgs": []}
 
+TIMEOUT = 1.0
+
+
+def send_and_read(item: int) -> Optional[bytes]:
+    trySpawnItemInt(item)
+    time.sleep(0.002)  # TODO: move to trySpawnItem for loop?
+    try:
+        _datagram = os.read(ccSocket, 1)
+    except BlockingIOError:
+        # traceback.print_exc()
+        return None
+    return _datagram
+
 
 class CrowdControl:
     session_id: Optional[str] = None
@@ -31,12 +45,12 @@ class CrowdControl:
     auth_token: Optional[str] = None
 
     def __init__(self):
+        self.ws = None
         if os.path.exists("cc_auth_token.txt"):
             with open("cc_auth_token.txt", "r") as file:
                 self.auth_token = file.read().strip()
                 self.load_user()
-        self.client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-        self.client.connect("crowdcontrol_socket.fifo")
+        self.executor = concurrent.futures.ThreadPoolExecutor()
 
     def load_user(self):
         if not self.auth_token:
@@ -53,24 +67,63 @@ class CrowdControl:
             traceback.print_exc()
             return 500, {"error": str(error)}
 
-    async def handle_effect(self, effect: str) -> str:
+    async def send_status(self, effect: str, effect_id: str, websocket: websockets.WebSocketClientProtocol, status: str):
+        print(f"Handling {effect_id} produced status {status}")
+        rand_id: str = str(uuid.uuid4())
+        response_data = {
+            "token": self.auth_token,
+            "call": {
+                "method": "effectResponse",
+                "args": [
+                    {
+                        "request": effect_id,
+                        "id": rand_id,
+                        "stamp": int(time.time()),
+                        "status": status,
+                        "message": "",
+                    },
+                ],
+                "id": rand_id,
+                "type": "call"
+            }
+        }
+        response_body = {"action": "rpc", "data": json.dumps(response_data)}
+        print("sending", json.dumps(response_body))
+        await websocket.send(json.dumps(response_body))
+        print("ok")
+
+    async def handle_effect(self, effect: str, effect_id: str, websocket: websockets.WebSocketClientProtocol):
         try:
             effect_parts = effect.split('_', 1)
             if effect_parts[0] == "spawnitem":
                 if effect_parts[1] not in ITEMS:
-                    return 'failPermanent'
-                self.client.send(getItemBytes(effect_parts[1]))
-                return 'success'
+                    await self.send_status(effect, effect_id, websocket, 'failPermanent')
+                    return
+                item: int = getItemInt(effect_parts[1])
+                start = time.time()
+                while (time.time() - start) < TIMEOUT:
+                    # Keep trying to spawn the item until we get the signal that it spawned
+                    try:
+                        loop = asyncio.get_running_loop()
+                        future = loop.run_in_executor(self.executor, send_and_read, item)
+                        datagram = await asyncio.wait_for(future, TIMEOUT)
+                        if datagram and datagram[0] == item:
+                            await self.send_status(effect, effect_id, websocket, 'success')
+                            return
+                    except Exception:
+                        pass
+                await self.send_status(effect, effect_id, websocket, 'delayEstimated')
             else:
                 print("Unknown code:", effect_parts[0])
-                return 'failPermanent'
+                await self.send_status(effect, effect_id, websocket, 'failPermanent')
         except Exception:
             print("Error handling effect")
             traceback.print_exc()
-            return 'failTemporary'
+            await self.send_status(effect, effect_id, websocket, 'failPermanent')
 
     async def listen_to_websocket(self, session: aiohttp.ClientSession):
         async with websockets.connect(WEBSOCKET_URL, extra_headers={"User-Agent": "SmashBot CrowdControl"}) as websocket:
+            self.ws = websocket
             # Fetch user token if not set
             if not self.auth_token:
                 await websocket.send(json.dumps({"action": "whoami"}))
@@ -110,32 +163,15 @@ class CrowdControl:
             while True:
                 effect_purchase_raw: str = await websocket.recv()
                 effect_purchase: dict = json.loads(effect_purchase_raw)
-                if effect_purchase.get('domain') != 'pub' or effect_purchase.get('type') != 'effect-request':
+                print(effect_purchase)
+                if effect_purchase.get('type') == 'bad-request':
+                    print(effect_purchase)
+                elif effect_purchase.get('domain') != 'pub' or effect_purchase.get('type') != 'effect-request':
                     continue
                 payload: dict = effect_purchase['payload']
                 effect: dict = payload['effect']
-                status: str = await self.handle_effect(effect['effectID'])
-                print(f"Handling {effect['effectID']} produced status {status}")
-                rand_id: str = str(uuid.uuid4())
-                response_data = {
-                    "token": self.auth_token,
-                    "call": {
-                        "method": "effectResponse",
-                        "args": [
-                            {
-                                "request": payload['requestID'],
-                                "id": rand_id,
-                                "stamp": int(time.time()),
-                                "status": status,
-                                "message": "",
-                            },
-                        ],
-                        "id": rand_id,
-                        "type": "call"
-                    }
-                }
-                response_body = {"action": "rpc", "data": json.dumps(response_data)}
-                await websocket.send(json.dumps(response_body))
+                # await self.send_status(effect['effectID'], payload['requestID'], websocket, 'success')
+                asyncio.create_task(self.handle_effect(effect['effectID'], payload['requestID'], websocket))
 
     async def main(self):
         timeout = aiohttp.ClientTimeout(total=60)
