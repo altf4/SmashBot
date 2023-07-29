@@ -28,19 +28,21 @@ TIMEOUT = 3.0
 MAX_WAIT = 60.0
 
 
-def send_and_read(item: int) -> bool:
-    trySpawnItemInt(item)
+def send_and_read(item: int, prev: Optional[bool]) -> Optional[bool]:
+    if prev is None:
+        trySpawnItemInt(item)
     time.sleep(0.017 * 4)
+    ret = None
     try:
         while True:
             datagram = os.read(ccSocket, 1)
-            if datagram == b"\xFF":
-                return False
+            if datagram == b"\xFF" and not ret:
+                ret = False
             elif datagram[0] == item:
-                return True
+                ret = True
     except BlockingIOError:
         pass
-    return False
+    return ret
 
 
 class CrowdControl:
@@ -97,10 +99,11 @@ class CrowdControl:
         await websocket.send(json.dumps(response_body))
 
     async def spawn_item(self, item: int, effect: str, effect_id: str, websocket: websockets.WebSocketClientProtocol):
+        result: Optional[bool] = None
         while True:
             # Keep trying to spawn the item until we get the signal that it spawned
             loop = asyncio.get_running_loop()
-            result = await loop.run_in_executor(self.executor, send_and_read, item)
+            result = await loop.run_in_executor(self.executor, send_and_read, item, result)
             if result:
                 await self.send_status(effect, effect_id, websocket, 'success')
                 return
