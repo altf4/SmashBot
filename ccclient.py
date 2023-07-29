@@ -103,11 +103,10 @@ class CrowdControl:
         await websocket.send(json.dumps(response_body))
 
     async def spawn_item(self, item: int, effect: str, effect_id: str, websocket: websockets.WebSocketClientProtocol):
-        result: Optional[bool] = None
         while True:
             # Keep trying to spawn the item until we get the signal that it spawned
             loop = asyncio.get_running_loop()
-            result = await loop.run_in_executor(self.executor, send_and_read, item, result)
+            result = await loop.run_in_executor(self.executor, send_and_read, item)
             if result:
                 await self.send_status(effect, effect_id, websocket, 'success')
                 return
@@ -116,7 +115,6 @@ class CrowdControl:
         if (time.time() - started) > 60:
             await self.send_status(effect, effect_id, websocket, 'failTemporary')
         else:
-            await self.send_status(effect, effect_id, websocket, 'delayEstimated')
             await asyncio.sleep(5)
             asyncio.create_task(self.handle_effect(started, effect, effect_id, websocket))
 

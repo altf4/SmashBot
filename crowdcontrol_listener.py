@@ -84,7 +84,7 @@ def trySpawnItemInt(item: int):
 def trySpawnItemName(name: str):
     trySpawnItem(getItemBytes(name))
 
-ccSocket = os.open("crowdcontrol_socket.fifo", os.O_RDONLY | os.O_NONBLOCK)
+ccSocket = os.open("/home/lexikiq/crowdcontrol_socket.fifo", os.O_RDONLY | os.O_NONBLOCK)
 
 if __name__ == "__main__":
     itemSendQueue: Deque[bytes] = deque([])
