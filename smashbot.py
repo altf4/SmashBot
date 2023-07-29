@@ -154,6 +154,8 @@ while True:
             log.log("Notes", "Goals: " + str(agent1.strategy), concat=True)
             log.logframe(gamestate)
             log.writeframe()
+    if gamestate.menu_state == melee.Menu.STAGE_SELECT:
+        agent1.controller.empty_input()
     else:
         # Reroll the random stage each new menu
         if gamestate.frame == 0:
