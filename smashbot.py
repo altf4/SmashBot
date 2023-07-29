@@ -135,9 +135,10 @@ while True:
         if len(gamestate.projectiles) >= 10:
             posix.write(ccSocket, b'\xFF')
         else:
-            for item in gamestate.projectiles:
-                if item.frame >= 1399:
-                    posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
+            posix.write(ccSocket, b'\xFE')
+        for item in gamestate.projectiles:
+            if item.frame >= 1399:
+                posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
 
         try:
             agent1.act(gamestate)
