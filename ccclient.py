@@ -26,23 +26,27 @@ START_SESSION_BODY = {"gamePackID": "SuperSmashBrosMeleeESA", "effectReportArgs"
 
 TIMEOUT = 3.0
 MAX_WAIT = 60.0
+SPAWNS_OFF = False
 
 
-def send_and_read(item: int, prev: Optional[bool]) -> Optional[bool]:
-    if prev is None:
+def send_and_read(item: int) -> bool:
+    global SPAWNS_OFF
+    if not SPAWNS_OFF:
         trySpawnItemInt(item)
     time.sleep(0.017 * 4)
-    ret = None
+    success = False
     try:
         while True:
             datagram = os.read(ccSocket, 1)
-            if datagram == b"\xFF" and not ret:
-                ret = False
+            if datagram == b"\xFF":
+                SPAWNS_OFF = True
+            elif datagram == b"\xFE":
+                SPAWNS_OFF = False
             elif datagram[0] == item:
-                ret = True
+                success = True
     except BlockingIOError:
         pass
-    return ret
+    return success
 
 
 class CrowdControl:
