@@ -38,7 +38,6 @@ else:
 
 item = None
 gameisFull = False
-lastItemSpawnedTime = time.time()
 
 while len(itemSendQueue) > 0:
     print(len(itemSendQueue), "left")
@@ -47,8 +46,6 @@ while len(itemSendQueue) > 0:
     tryCounter = 0
     while not spawned and tryCounter < 5:
         end = time.time()
-        if end - lastItemSpawnedTime > 10:
-            gameisFull = False
         # Keep trying to spawn the item until we get the signal that it spawned
         # XXX TODO: Add some random delay here. As much as you need. 
         if not gameisFull:
@@ -61,11 +58,11 @@ while len(itemSendQueue) > 0:
                 datagram = os.read(ccSocket, 1)
                 if datagram == item:
                     spawned = True
-                    gameisFull = False
-                    lastItemSpawnedTime = time.time()
                     print("SPAWNED", datagram)
                 if datagram == b'\xFF':
                     gameisFull = True
+                if datagram == b'\xFE':
+                    gameisFull = False
         except BlockingIOError as ex:
             pass
         
