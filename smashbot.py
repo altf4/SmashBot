@@ -10,7 +10,6 @@ import random
 import posix
 
 import melee
-import spawnitem
 
 from esagent import ESAgent
 
@@ -106,10 +105,9 @@ cc_path = "crowdcontrol_socket.fifo"
 try:
     os.mkfifo(cc_path)
 except Exception as ex:
-    print(ex)
+    pass
     
 ccSocket = posix.open(cc_path, posix.O_RDWR|posix.O_NONBLOCK)
-# ccSocket = open(cc_path, "w")
 print("Establshed")
 
 
@@ -136,9 +134,7 @@ while True:
         # Crowd Control queue management. Tell the spawner if an item spawned
         for item in gamestate.projectiles:
             if item.frame >= 1399:
-                print("SPAWNED ITEM", item.type)
                 posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
-                # ccSocket.write(item.type.value.to_bytes(1, 'big'))
 
         try:
             agent1.act(gamestate)
