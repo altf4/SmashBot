@@ -7,6 +7,7 @@ import socket
 import fcntl
 import errno
 import random
+import posix
 
 import melee
 import spawnitem
@@ -103,19 +104,13 @@ print("Connected")
 print("Setting up CrowdControl listener...")
 cc_path = "crowdcontrol_socket.fifo"
 try:
-    os.unlink(cc_path)
-except OSError:
-    if os.path.exists(cc_path):
-        raise
-
-# bind socket
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-sock.bind(cc_path)
-# set socket non-blocking
-sock.setblocking(1) 
-sock.settimeout(0.001) # 1 millisecond
-fcntl.fcntl(sock.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
-print("Establshed")  
+    os.mkfifo(cc_path)
+except Exception as ex:
+    print(ex)
+    
+ccSocket = posix.open(cc_path, posix.O_RDWR|posix.O_NONBLOCK)
+# ccSocket = open(cc_path, "w")
+print("Establshed")
 
 
 RANDOM_STAGES = [melee.Stage.FINAL_DESTINATION,
@@ -132,29 +127,20 @@ while True:
     if log:
         log.log("Notes", "Processing Time: "  + str(console.processingtime * 1000) + "ms")
 
-    # See if there's an item spawn command waiting for us
-    try:
-        datagram = sock.recv(1024)
-    except (OSError, socket.error) as ex:
-        if ex.errno not in (errno.EINTR, errno.EAGAIN):
-            pass
-    else:
-        spawnitem.enqueueItem(datagram)
-
     # What menu are we in?
     if gamestate.menu_state == melee.Menu.IN_GAME:
         # This can happen when using the crowd control ASM codes.
         if gamestate.frame < -500:
             continue
 
-        # Crowd Control queue management
-        spawnitem.checkItemSpawn(gamestate.projectiles)
-        spawnitem.popItem()
-        spawnitem.trySendItem(gamestate.projectiles)
+        # Crowd Control queue management. Tell the spawner if an item spawned
+        for item in gamestate.projectiles:
+            if item.frame >= 1399:
+                print("SPAWNED ITEM", item.type)
+                posix.write(ccSocket, item.type.value.to_bytes(1, 'big'))
+                # ccSocket.write(item.type.value.to_bytes(1, 'big'))
 
         try:
-
-
             agent1.act(gamestate)
 
         except Exception as error:
