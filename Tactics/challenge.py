@@ -6,6 +6,7 @@ from Chains.smashattack import SMASH_DIRECTION
 from Chains.shffl import SHFFL_DIRECTION
 from Chains.tilt import TILT_DIRECTION
 
+
 class Challenge(Tactic):
     """Challenge is for when we throw out a hitbox to beat out (challenge) an opponent's attack
 
@@ -13,6 +14,7 @@ class Challenge(Tactic):
 
     But Punish won't work here, since opponent is not in a lag state
     """
+
     def __init__(self, logger, controller, framedata, difficulty):
         Tactic.__init__(self, logger, controller, framedata, difficulty)
         self.keep_running = False
@@ -22,20 +24,34 @@ class Challenge(Tactic):
             return False
 
         # If we're ahead and opponent is on a platform, don't challenge.
-        losing = smashbot_state.stock < opponent_state.stock or (smashbot_state.stock == opponent_state.stock and smashbot_state.percent > opponent_state.percent)
+        losing = smashbot_state.stock < opponent_state.stock or (
+            smashbot_state.stock == opponent_state.stock
+            and smashbot_state.percent > opponent_state.percent
+        )
         if not losing and opponent_state.on_ground and opponent_state.position.y > 10:
             return False
 
         # Rapid jabs
         if opponent_state.action == Action.LOOPING_ATTACK_MIDDLE:
             return True
-        if opponent_state.character in [Character.PIKACHU, Character.PICHU] and opponent_state.action == Action.NEUTRAL_ATTACK_1:
+        if (
+            opponent_state.character in [Character.PIKACHU, Character.PICHU]
+            and opponent_state.action == Action.NEUTRAL_ATTACK_1
+        ):
             return True
-        if opponent_state.character == Character.MARTH and opponent_state.action in [Action.NEUTRAL_ATTACK_1, Action.NEUTRAL_ATTACK_2]:
+        if opponent_state.character == Character.MARTH and opponent_state.action in [
+            Action.NEUTRAL_ATTACK_1,
+            Action.NEUTRAL_ATTACK_2,
+        ]:
             return True
-        if opponent_state.character == Character.GAMEANDWATCH and opponent_state.action in [Action.NEUTRAL_B_ATTACKING]:
+        if (
+            opponent_state.character == Character.GAMEANDWATCH
+            and opponent_state.action in [Action.NEUTRAL_B_ATTACKING]
+        ):
             return True
-        if opponent_state.character == Character.NESS and opponent_state.action in [Action.DOWNTILT]:
+        if opponent_state.character == Character.NESS and opponent_state.action in [
+            Action.DOWNTILT
+        ]:
             return True
 
         # Falling spacies
@@ -44,19 +60,24 @@ class Challenge(Tactic):
                 return True
 
         # DK Ground pound
-        if opponent_state.character == Character.DK and opponent_state.action in [Action.DK_GROUND_POUND]:
+        if opponent_state.character == Character.DK and opponent_state.action in [
+            Action.DK_GROUND_POUND
+        ]:
             return True
 
         # Mewtwo shadow ball charge
         if opponent_state.character == Character.MEWTWO:
             for projectile in gamestate.projectiles:
-                if projectile.type in [ProjectileType.SHADOWBALL] and projectile.subtype == 0:
+                if (
+                    projectile.type in [ProjectileType.SHADOWBALL]
+                    and projectile.subtype == 0
+                ):
                     return True
 
         return False
 
     def step(self, gamestate, smashbot_state, opponent_state):
-        self._propagate  = (gamestate, smashbot_state, opponent_state)
+        self._propagate = (gamestate, smashbot_state, opponent_state)
 
         # If we can't interrupt the chain, just continue it
         if self.chain != None and not self.chain.interruptible:
@@ -65,7 +86,9 @@ class Challenge(Tactic):
 
         # If we chose to run, keep running
         if type(self.chain) == Chains.Run and self.keep_running:
-            self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
+            self.pickchain(
+                Chains.Run, [opponent_state.position.x > smashbot_state.position.x]
+            )
             return
 
         edge = melee.stages.EDGE_GROUND_POSITION[gamestate.stage]
@@ -83,15 +106,22 @@ class Challenge(Tactic):
             bufferzone = 32
         if opponent_state.character == Character.DK:
             bufferzone = 40
-            if opponent_state.facing != (opponent_state.position.x < smashbot_state.position.x):
+            if opponent_state.facing != (
+                opponent_state.position.x < smashbot_state.position.x
+            ):
                 bufferzone = 40
         if opponent_state.position.x > smashbot_state.position.x:
             bufferzone *= -1
 
-        side_plat_height, side_plat_left, side_plat_right = melee.side_platform_position(opponent_state.position.x > 0, gamestate.stage)
+        side_plat_height, side_plat_left, side_plat_right = (
+            melee.side_platform_position(opponent_state.position.x > 0, gamestate)
+        )
         on_side_plat = False
         if side_plat_height is not None:
-            on_side_plat = opponent_state.on_ground and abs(opponent_state.position.y - side_plat_height) < 5
+            on_side_plat = (
+                opponent_state.on_ground
+                and abs(opponent_state.position.y - side_plat_height) < 5
+            )
 
         if on_side_plat:
             bufferzone = 0
@@ -111,9 +141,15 @@ class Challenge(Tactic):
         pivotpoint = max(pivotpoint, (-edge) + edgebuffer)
 
         if self.logger:
-            self.logger.log("Notes", "pivotpoint: " + str(pivotpoint) + " ", concat=True)
+            self.logger.log(
+                "Notes", "pivotpoint: " + str(pivotpoint) + " ", concat=True
+            )
 
-        if on_side_plat and abs(smashbot_state.position.x - pivotpoint) < 2 and smashbot_state.action == Action.TURNING:
+        if (
+            on_side_plat
+            and abs(smashbot_state.position.x - pivotpoint) < 2
+            and smashbot_state.action == Action.TURNING
+        ):
             if opponent_state.action_frame < 6:
                 self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.UP])
                 return
@@ -129,7 +165,10 @@ class Challenge(Tactic):
         shadowball = False
         if opponent_state.character == Character.MEWTWO:
             for projectile in gamestate.projectiles:
-                if projectile.type in [ProjectileType.SHADOWBALL] and projectile.subtype == 0:
+                if (
+                    projectile.type in [ProjectileType.SHADOWBALL]
+                    and projectile.subtype == 0
+                ):
                     shadowball = True
                     smash_now = True
 
@@ -144,7 +183,10 @@ class Challenge(Tactic):
                     # For marth, it's actually more reliable to run between slashes
                     if opponent_state.character == Character.MARTH:
                         self.keep_running = True
-                        self.pickchain(Chains.Run, [opponent_state.position.x > smashbot_state.position.x])
+                        self.pickchain(
+                            Chains.Run,
+                            [opponent_state.position.x > smashbot_state.position.x],
+                        )
                         return
 
                     self.chain = None
@@ -153,14 +195,22 @@ class Challenge(Tactic):
                     else:
                         self.pickchain(Chains.SmashAttack, [0, SMASH_DIRECTION.RIGHT])
                     return
-                if falling_spacie and abs(opponent_state.position.y - smashbot_state.position.y) < 36:
+                if (
+                    falling_spacie
+                    and abs(opponent_state.position.y - smashbot_state.position.y) < 36
+                ):
                     self.chain = None
                     self.pickchain(Chains.Tilt, [TILT_DIRECTION.UP])
                     return
             elif smashbot_state.action == Action.DASHING:
                 # Ground pound
-                if opponent_state.character == Character.DK and opponent_state.action in [Action.DK_GROUND_POUND]:
-                    if smashbot_state.facing == (smashbot_state.position.x < opponent_state.position.x):
+                if (
+                    opponent_state.character == Character.DK
+                    and opponent_state.action in [Action.DK_GROUND_POUND]
+                ):
+                    if smashbot_state.facing == (
+                        smashbot_state.position.x < opponent_state.position.x
+                    ):
                         self.pickchain(Chains.Shffl, [SHFFL_DIRECTION.DOWN])
                         return
                 self.pickchain(Chains.Run, [not smashbot_state.facing])
