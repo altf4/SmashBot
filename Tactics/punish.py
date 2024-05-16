@@ -315,7 +315,7 @@ class Punish(Tactic):
                 endposition = opponent_state.position.x + self.framedata.slide_distance(opponent_state, opponent_state.speed_x_attack, framesleft)
 
             if isroll:
-                endposition = self.framedata.roll_end_position(opponent_state, gamestate.stage)
+                endposition = self.framedata.roll_end_position(opponent_state, gamestate)
 
                 initialrollmovement = 0
                 facingchanged = False

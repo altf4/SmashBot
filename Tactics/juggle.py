@@ -53,12 +53,12 @@ class Juggle(Tactic):
 
         # Get over to where they will end up at the end of hitstun
         end_x, end_y, frames_left = self.framedata.project_hit_location(
-            opponent_state, gamestate.stage
+            opponent_state, gamestate
         )
 
         if self.framedata.is_roll(opponent_state.character, opponent_state.action):
             end_x = self.framedata.roll_end_position(
-                opponent_state, gamestate.stage
+                opponent_state, gamestate
             ) + self.framedata.slide_distance(
                 opponent_state, opponent_state.speed_x_attack, frames_left
             )
@@ -119,7 +119,7 @@ class Juggle(Tactic):
         if not on_ground:
             # If we can just throw out an uptilt and hit now, do it. No need to wait for them to fall further
             end_early_x, end_early_y, _ = self.framedata.project_hit_location(
-                opponent_state, gamestate.stage, 7
+                opponent_state, gamestate, 7
             )
             if self.logger:
                 self.logger.log(
@@ -154,7 +154,7 @@ class Juggle(Tactic):
                 height = AirAttack.attack_height(height_level)
                 commitment = AirAttack.frame_commitment(height_level)
                 end_early_x, end_early_y, _ = self.framedata.project_hit_location(
-                    opponent_state, gamestate.stage, commitment
+                    opponent_state, gamestate, commitment
                 )
                 # -3 to commitment here because of first hit of upair. Shave 3 frames off
                 if (commitment - 3 < frames_left) and (
